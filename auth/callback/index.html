@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LDVB4978S7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-LDVB4978S7');
+</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auth Callback | MapDiagram</title>
+  <meta name="description" content="Completing login...">
+  <link rel="stylesheet" href="/assets/site.css">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+</head>
+<body>
+  <main class="wrap section article">
+    <h1>Finishing sign in...</h1>
+    <p id="status" class="muted">Please wait.</p>
+  </main>
+  <footer class="footer">
+    <div class="wrap links">
+      <a href="/privacy-policy/">Privacy Policy</a>
+      <a href="/terms/">Terms</a>
+      <a href="/contact/">Contact</a>
+      <a href="https://joinmypdf.com/" rel="noopener noreferrer" target="_blank">Export workflow as PDF → JoinMyPDF</a>
+    </div>
+  </footer>
+  <script src="/assets/supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const statusEl = document.getElementById("status");
+    const supabaseUrl = window.MAPDIAGRAM_SUPABASE?.url || window.MAPDIAGRAM_SUPABASE_URL || "";
+    const supabaseKey = window.MAPDIAGRAM_SUPABASE?.anonKey || window.MAPDIAGRAM_SUPABASE_ANON_KEY || "";
+    console.log("[Auth Callback] Config loaded:", { hasUrl: !!supabaseUrl, hasKey: !!supabaseKey, hasLib: !!window.supabase });
+
+    async function run() {
+      if (!supabaseUrl || !supabaseKey || !window.supabase?.createClient) {
+        statusEl.textContent = "Supabase not configured. Go back to /auth and check configuration.";
+        return;
+      }
+      const client = window.supabase.createClient(supabaseUrl, supabaseKey);
+      try {
+        const code = new URL(window.location.href).searchParams.get("code");
+        if (code) {
+          console.log("[Auth Callback] Exchanging code for session");
+          const { error } = await client.auth.exchangeCodeForSession(code);
+          if (error) {
+            console.error("[Auth Callback] exchangeCodeForSession error:", error);
+            statusEl.textContent = error.message;
+            return;
+          }
+        }
+        const { data, error } = await client.auth.getUser();
+        console.log("[Auth Callback] getUser:", { data, error });
+        if (error || !data?.user) {
+          statusEl.textContent = error?.message || "No active session found.";
+          return;
+        }
+        statusEl.textContent = "Success. Redirecting to app...";
+        window.location.href = "/app/";
+      } catch (err) {
+        console.error("[Auth Callback] Unexpected error:", err);
+        statusEl.textContent = "Unexpected callback error.";
+      }
+    }
+    run();
+  </script>
+<script src="/shared/share-dock.js" defer></script>
+</body>
+</html>

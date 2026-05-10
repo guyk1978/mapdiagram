@@ -1,0 +1,11 @@
+{
+  "name": "mapdiagram",
+  "private": true,
+  "scripts": {
+    "build:arch": "esbuild src/architecture-spec.ts --bundle --format=iife --global-name=ArchitectureEngine --outfile=app/architecture-engine.js --target=es2020"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.2"
+  }
+}
