@@ -762,6 +762,340 @@
   .project-actions button{min-height:30px;padding:4px 8px;font-size:12px}
   .group-controls{display:none;gap:8px}
   .group-controls.active{display:grid}
+  .connection-list-panel {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid color-mix(in srgb, var(--line) 85%, transparent);
+  }
+  .connection-list-head-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .connection-list-head-row .connection-list-head {
+    margin: 0;
+  }
+  .connection-list-head {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .connection-list-filter-label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 11px;
+  }
+  .connection-list-filter {
+    width: 100%;
+    max-width: 100%;
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+  .connection-list-body {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 4px;
+    max-height: 220px;
+    overflow-y: auto;
+    border-radius: 8px;
+    border: 1px solid color-mix(in srgb, var(--line) 90%, transparent);
+    background: color-mix(in srgb, var(--panel) 88%, transparent);
+  }
+  .connection-list-body li {
+    margin: 0;
+  }
+  .connection-list-row {
+    width: 100%;
+    text-align: left;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 12px;
+    line-height: 1.35;
+    padding: 7px 9px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+  }
+  .connection-list-row:hover {
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  .connection-list-row:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .connection-list-row.selected {
+    background: color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  .connection-list-row.is-warn::before {
+    content: "⚠ ";
+    color: #ffc17a;
+  }
+  .connection-list-empty {
+    padding: 10px 9px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .conn.list-hover {
+    stroke-width: 3.05;
+    filter: drop-shadow(0 0 10px rgba(180, 205, 255, 0.72));
+  }
+  .conn.bridge-conn.list-hover {
+    filter: drop-shadow(0 0 10px rgba(120, 210, 255, 0.78));
+  }
+  .conn.group-conn.list-hover {
+    filter: drop-shadow(0 0 10px rgba(160, 200, 255, 0.7));
+  }
+  .conn-edge-label {
+    font-size: 11px;
+    fill: var(--text);
+    pointer-events: auto;
+    cursor: grab;
+    user-select: none;
+    paint-order: stroke fill;
+    stroke: color-mix(in srgb, var(--bg) 88%, transparent);
+    stroke-width: 3px;
+  }
+  .conn-edge-label:active {
+    cursor: grabbing;
+  }
+  .edge-inspector-panel,
+  .outline-panel {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid color-mix(in srgb, var(--line) 85%, transparent);
+  }
+  .outline-tree-host {
+    max-height: 200px;
+    overflow: auto;
+    border-radius: 8px;
+    border: 1px solid color-mix(in srgb, var(--line) 88%, transparent);
+    background: color-mix(in srgb, var(--panel) 90%, transparent);
+    padding: 6px 4px;
+    font-size: 12px;
+  }
+  .outline-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: background-color 0.14s ease, opacity 0.14s ease, transform 0.14s ease;
+  }
+  .outline-row.system-row:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .outline-row.node-row:hover {
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+  .outline-row.node-row {
+    padding-left: 18px;
+    cursor: grab;
+  }
+  .outline-row.node-row:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .outline-row.dragging {
+    opacity: 0.72;
+  }
+  .outline-row.system-row {
+    font-weight: 600;
+    cursor: default;
+  }
+  .outline-chev {
+    font-size: 10px;
+    width: 12px;
+    color: var(--muted);
+  }
+  .outline-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .outline-handle {
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: -1px;
+  }
+  .outline-row.drop-target {
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+  }
+  .saved-views-list {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+    max-height: 140px;
+    overflow-y: auto;
+  }
+  .saved-views-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 4px 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+    font-size: 12px;
+  }
+  .toast-host {
+    position: fixed;
+    right: var(--space-4, 16px);
+    bottom: var(--space-4, 16px);
+    z-index: var(--z-toast, 10030);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2, 8px);
+    max-width: min(360px, 92vw);
+    pointer-events: none;
+  }
+  .toast {
+    pointer-events: auto;
+    padding: var(--space-3, 12px) var(--space-4, 16px);
+    border-radius: var(--radius-md, 12px);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-size: var(--font-size-sm, 12px);
+    box-shadow: var(--shadow-sm, 0 4px 14px rgba(0, 0, 0, 0.22));
+    animation: toast-in var(--duration-interaction, 0.2s) var(--ease-out-soft, ease-out);
+  }
+  .toast.warn {
+    border-color: color-mix(in srgb, #ffc17a 55%, var(--line));
+  }
+  .toast.danger {
+    border-color: color-mix(in srgb, var(--danger) 45%, var(--line));
+  }
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .command-palette-overlay,
+  .kbd-help-overlay,
+  .import-diff-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal-raised, 10040);
+    background: var(--overlay-scrim, rgba(6, 10, 18, 0.55));
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 10vh var(--space-4, 16px) var(--space-6, 24px);
+  }
+  .command-palette {
+    width: min(520px, 100%);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg, 16px);
+    box-shadow: var(--shadow-md, 0 12px 32px rgba(0, 0, 0, 0.28));
+    padding: var(--space-3, 12px);
+  }
+  .command-palette-head {
+    display: flex;
+    gap: var(--space-2, 8px);
+    align-items: center;
+  }
+  .command-palette-input {
+    flex: 1;
+    min-height: var(--touch-target-min, 44px);
+    border-radius: var(--radius-sm, 8px);
+    border: 1px solid var(--line);
+    background: var(--btn-bg);
+    color: var(--text);
+    padding: 0 10px;
+    font-size: var(--font-size-md, 13px);
+  }
+  .command-palette-list {
+    list-style: none;
+    margin: var(--space-2, 8px) 0 0;
+    padding: 0;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+  .command-palette-list li button {
+    width: 100%;
+    text-align: left;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    padding: 10px 8px;
+    border-radius: var(--radius-sm, 8px);
+    cursor: pointer;
+    min-height: var(--touch-target-min, 44px);
+  }
+  .command-palette-list li button:hover {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+  .command-palette-list li button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .kbd-help-dialog,
+  .import-diff-dialog {
+    width: min(640px, 100%);
+    max-height: 80vh;
+    overflow: auto;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg, 16px);
+    padding: var(--space-4, 16px);
+    box-shadow: var(--shadow-md, 0 12px 32px rgba(0, 0, 0, 0.28));
+  }
+  .kbd-help-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2, 8px);
+    margin-bottom: var(--space-2, 8px);
+  }
+  .kbd-help-dl {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 6px 12px;
+    font-size: var(--font-size-sm, 12px);
+  }
+  .kbd-help-dl dt {
+    color: var(--muted);
+  }
+  .import-diff-pre {
+    white-space: pre-wrap;
+    font-size: 11px;
+    max-height: 48vh;
+    overflow: auto;
+    background: color-mix(in srgb, var(--bg) 70%, var(--panel));
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm, 8px);
+    padding: var(--space-3, 12px);
+    margin: var(--space-2, 8px) 0;
+  }
+  .import-diff-actions {
+    display: flex;
+    gap: var(--space-2, 8px);
+    flex-wrap: wrap;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .toast {
+      animation: none;
+    }
+    .connection-list-row,
+    .command-palette-list li button,
+    .outline-row {
+      transition: none !important;
+    }
+  }
   .group-header-row{
     position:absolute;top:-34px;left:0;right:0;display:flex;align-items:center;gap:6px;pointer-events:none;
   }
@@ -1096,6 +1430,37 @@
     border-radius: 10px;
     cursor: crosshair;
     background: transparent;
+  }
+  .node-freeform .out-zone {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+    border-radius: inherit;
+  }
+  .node-freeform .handle {
+    display: none !important;
+  }
+  .node-body-freeform {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8px 10px;
+    height: 100%;
+    box-sizing: border-box;
+  }
+  .node-title-freeform {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.25;
+    word-break: break-word;
+  }
+  .node.node-hidden-canvas {
+    visibility: hidden;
+    pointer-events: none;
   }
   textarea { width: 100%; min-height: 68px; resize: vertical; }
   #fileInput { display: none; }
@@ -1824,6 +2189,7 @@
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="fitViewBtn">Fit to screen</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="undoBtn">Undo</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="redoBtn">Redo</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="duplicateNodesToolbarBtn">Duplicate selection</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="themeToggleBtn">Toggle theme</button>
         <div class="topbar-menu-sep" role="separator" aria-hidden="true"></div>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="autoLayoutBtn">Auto layout</button>
@@ -1864,6 +2230,7 @@
         <button id="addNodeBtn" class="icon-btn btn-primary" type="button" title="Add node" aria-label="Add node"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
         <button id="undoBtn" class="icon-btn" type="button" title="Undo" aria-label="Undo"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 14 4 9l5-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 15v-2a4 4 0 0 0-4-4H4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         <button id="redoBtn" class="icon-btn" type="button" title="Redo" aria-label="Redo"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m15 14 5-5-5-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v-2a4 4 0 0 1 4-4h12" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+        <button id="duplicateNodesToolbarBtn" class="icon-btn" type="button" title="Duplicate selection (Ctrl+D)" aria-label="Duplicate selection"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="8" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.75"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
         <button type="button" id="themeToggleBtn" class="icon-btn theme-toggle-btn" title="Toggle light / dark theme" aria-label="Toggle light / dark theme"><span class="icon-svg icon-theme-sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span><span class="icon-svg icon-theme-moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 6.5 6.5 0 1 0 21 14.5Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span></button>
         <button id="fitViewBtn" class="icon-btn" type="button" title="Fit to screen" aria-label="Fit to screen"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3H5v4M15 3h4v4M3 9V5h4M21 9V5h-4M9 21H5v-4M15 21h4v-4M3 15v4h4M21 15v4h-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         </div>
@@ -1880,6 +2247,12 @@
       <div class="topbar-toolbar-cluster">
       <div class="group" role="toolbar" aria-label="Edit">
         <button id="autoLayoutBtn" class="icon-btn" type="button" title="Auto Layout" aria-label="Auto Layout"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 4H5v4h4V4zM19 4h-4v4h4V4zM9 16H5v4h4v-4zM19 16h-4v4h4v-4zM14 9h-4v6h4V9z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span></button>
+        <button type="button" id="alignNodesLeftBtn" class="icon-btn" title="Align left" aria-label="Align selection left"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 5v14M9 8h10M9 16h6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
+        <button type="button" id="alignNodesHCenterBtn" class="icon-btn" title="Align centers horizontally" aria-label="Align selection centers horizontally"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M8 9h8M8 15h8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
+        <button type="button" id="distributeNodesHBtn" class="icon-btn" title="Distribute horizontally" aria-label="Distribute selection horizontally"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 5v14M12 5v14M18 5v14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
+        <button type="button" id="alignNodesTopBtn" class="icon-btn" title="Align top" aria-label="Align selection top"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 5h14M8 9v10M16 9v6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
+        <button type="button" id="alignNodesVCenterBtn" class="icon-btn" title="Align centers vertically" aria-label="Align selection centers vertically"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12h14M9 8v8M15 8v8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
+        <button type="button" id="distributeNodesVBtn" class="icon-btn" title="Distribute vertically" aria-label="Distribute selection vertically"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 6h14M5 12h14M5 18h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
       </div>
       <div class="group topbar-collapse-1024" role="toolbar" aria-label="Share and export">
         <button type="button" id="toggleShareDockBtn" class="text-btn-sm" title="Expand or minimize share panel (icons stay available)" aria-label="Expand or minimize share panel (icons stay available)">Share</button>
@@ -1978,7 +2351,7 @@
       <section class="section right-section section-critical node-builder active diagram-sub-on" data-tab="diagram" data-diagram-sub="node" id="diagramSectionNode" aria-labelledby="diagramHeadingSelNode quickEditInspectorHint">
         <h3 id="diagramHeadingSelNode">Selected Node</h3>
         <p id="quickEditInspectorHint" class="sr-only">Quick inspector: changes apply to the selected node on the canvas.</p>
-        <p class="muted" id="quickEditSurfaceHint">Edit titles and shapes here. Open the extended editor for media, attachments, and semantic fields.</p>
+        <p class="muted" id="quickEditSurfaceHint">Edit titles here or click a node once to open the full editor (media, visibility, lock, free-style).</p>
         <textarea id="nodeText" placeholder="Double-click node or edit here"></textarea>
         <input id="nodeSubtitle" type="text" placeholder="Subtitle (optional)">
         <input id="nodeDescription" type="text" placeholder="Description (optional)">
@@ -2002,25 +2375,80 @@
             <option value="rounded">⬡ Rounded</option>
           </select>
         </div>
+        <label class="muted" style="display:flex;align-items:center;gap:8px;margin:2px 0 6px"><input type="checkbox" id="nodeQuickLockChk"> Lock / pin (hard lock — blocks canvas drag)</label>
+        <label class="muted" style="display:flex;align-items:center;gap:8px;margin:2px 0 6px"><input type="checkbox" id="nodeQuickHiddenChk"> Hide node on canvas</label>
+        <label class="muted" style="display:flex;align-items:center;gap:8px;margin:2px 0 6px"><input type="checkbox" id="nodeQuickFreeformChk"> Free-style node (centered label, connect anywhere)</label>
         <label class="muted">Background opacity <input id="nodeOpacity" type="range" min="0.2" max="1" step="0.05" value="0.9"></label>
         <label class="muted">Border glow <input id="nodeGlow" type="range" min="0" max="40" step="1" value="12"></label>
         <label class="muted">Shadow intensity <input id="nodeShadow" type="range" min="0" max="40" step="1" value="20"></label>
         <label class="muted">Rounded corners <input id="nodeRadius" type="range" min="0" max="28" step="1" value="12"></label>
         <label class="muted">Border color <input type="color" id="nodeBorderColor" value="#9cb8ff"></label>
         <button type="button" id="openExtendedEditorBtn" class="text-btn-sm">Open extended editor…</button>
-        <button id="deleteNodeBtn" class="danger">Delete Node</button>
+        <button type="button" id="deleteNodeBtn" class="danger" aria-label="Delete selected node or nodes">Delete node(s)</button>
       </section>
       <section class="section right-section section-critical active" data-tab="diagram" data-diagram-sub="groups" id="diagramSectionGroups" aria-labelledby="diagramHeadingStatus diagramStatusHint">
         <h3 id="diagramHeadingStatus">Status</h3>
         <p id="diagramStatusHint" class="sr-only">Selection counts, group tools, and layout helpers.</p>
         <div id="stats" class="muted">0 nodes • 0 connections</div>
         <div id="mobileHint" class="muted"></div>
+        <div class="selection-tools-row" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;align-items:center">
+          <button type="button" id="duplicateNodesPanelBtn" class="text-btn-sm" title="Duplicate selected nodes (Ctrl+D)">Duplicate</button>
+          <button type="button" id="selectGraphNeighborsBtn" class="text-btn-sm" title="Add nodes linked to current selection">+ Neighbors</button>
+          <button type="button" id="selectSameTypeNodesBtn" class="text-btn-sm" title="Select all nodes with the same type as the primary node">Same type</button>
+        </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button id="createGroupBtn">Create Group</button>
           <button id="ungroupBtn">Ungroup</button>
         </div>
         <button id="smartCleanBtn">Smart Clean Diagram</button>
         <div id="connHint" class="muted"></div>
+        <div id="connectionListPanel" class="connection-list-panel">
+          <div class="connection-list-head-row">
+            <h4 class="connection-list-head">Connections</h4>
+            <button type="button" id="refreshConnectionPathsBtn" class="text-btn-sm" title="Recalculate paths (clears custom bends for selected link, or all if none selected)">Refresh paths</button>
+          </div>
+          <label class="muted connection-list-filter-label" for="connectionListFilter">Show</label>
+          <select id="connectionListFilter" class="connection-list-filter" aria-label="Filter connections list">
+            <option value="all">All links</option>
+            <option value="selection">Selected node</option>
+            <option value="warnings">Semantic warnings</option>
+          </select>
+          <ul id="connectionListBody" class="connection-list-body" aria-label="Diagram connections"></ul>
+        </div>
+        <!-- Phase 2+3: selected edge style + node–node labels (inspector). -->
+        <div id="edgeInspectorPanel" class="edge-inspector-panel" hidden>
+          <h4 class="connection-list-head">Selected link(s)</h4>
+          <p id="edgeInspectorCount" class="muted" style="margin:0 0 6px;font-size:11px"></p>
+          <label class="muted">Label (node–node) <input type="text" id="edgeLabelInput" placeholder="Edge caption" autocomplete="off"></label>
+          <label class="muted">Line weight
+            <select id="edgeStrokeWidthSel" aria-label="Edge line weight">
+              <option value="">Default</option>
+              <option value="1.5">Thin</option>
+              <option value="2.5">Medium</option>
+              <option value="3.5">Bold</option>
+            </select>
+          </label>
+          <label class="muted">Dash style
+            <select id="edgeStrokeDashSel" aria-label="Edge dash style">
+              <option value="">Mixed / default</option>
+              <option value="solid">Solid</option>
+              <option value="dashed">Dashed</option>
+              <option value="dotted">Dotted</option>
+            </select>
+          </label>
+          <label class="muted">Line color
+            <input type="color" id="edgeStrokeColorInput" value="#9cb8ff" aria-label="Custom line color" title="Custom stroke color (all selected links)">
+          </label>
+          <button type="button" id="edgeStrokeColorClearBtn" class="text-btn-sm">Use theme colors</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+            <button type="button" id="edgeBulkDeleteBtn" class="danger text-btn-sm">Delete selected</button>
+          </div>
+        </div>
+        <div id="outlinePanel" class="outline-panel">
+          <h4 class="connection-list-head">Outline</h4>
+          <div id="outlineTreeHost" class="outline-tree-host" role="tree" aria-label="Systems and nodes hierarchy"></div>
+          <p class="muted" style="margin:6px 0 0;font-size:11px">Drag a node row onto a system row to move it into that group.</p>
+        </div>
         <div id="groupControls" class="group-controls">
           <h3>Selected Group</h3>
           <label class="muted">Name <input id="groupNameInput" placeholder="Group name"></label>
@@ -2084,6 +2512,19 @@
         <p id="exportHint" class="sr-only">Download diagram as JSON or PNG.</p>
         <button id="exportJsonPanelBtn">Export JSON</button>
         <button id="exportPngPanelBtn">Export PNG</button>
+        <label class="muted">PNG padding (px) <input type="number" id="pngExportPad" value="80" min="8" max="400" step="4" style="width:72px"></label>
+        <label class="muted">PNG scale <input type="number" id="pngExportScale" value="1" min="0.5" max="3" step="0.1" style="width:72px"></label>
+        <label class="muted" style="display:flex;align-items:center;gap:8px;margin-top:4px">
+          <input type="checkbox" id="pngExportTransparent"> Transparent PNG background
+        </label>
+        <div class="saved-views-block" style="margin-top:10px">
+          <div class="muted" style="font-size:12px;margin-bottom:4px">Saved views (camera + snapshot)</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <input type="text" id="savedViewNameInput" placeholder="Name" style="max-width:120px" aria-label="Saved view name">
+            <button type="button" id="savedViewSaveBtn" class="text-btn-sm">Save</button>
+          </div>
+          <ul id="savedViewsList" class="saved-views-list"></ul>
+        </div>
       </section>
       <section id="inspector-panel-ai" class="section right-section section-critical" data-tab="ai" role="tabpanel" aria-labelledby="tabAi aiHeading aiHint" data-inspector-tab-panel="ai" aria-hidden="true">
         <h3 id="aiHeading">AI credits</h3>
@@ -2207,6 +2648,12 @@
         <label>Shadow <input type="range" id="nodeInspShadow" min="0" max="40" step="1" value="20"></label>
         <label>Radius <input type="range" id="nodeInspRadius" min="0" max="28" step="1" value="12"></label>
         <label>Border color <input type="color" id="nodeInspBorderColor" value="#9cb8ff"></label>
+        <label class="node-insp-row" style="align-items:center;gap:8px">
+          <input type="checkbox" id="nodeInspFreeform"> Free-style node (single centered label, connect from anywhere)
+        </label>
+        <label class="node-insp-row" style="align-items:center;gap:8px">
+          <input type="checkbox" id="nodeInspHidden"> Hidden on canvas (still in project / outline)
+        </label>
       </div>
       <div id="nodeInspPanelMedia" class="node-insp-panel" data-node-insp-panel="media" role="tabpanel" aria-labelledby="nodeInspTabMedia">
         <div class="node-insp-row">
@@ -2243,6 +2690,36 @@
           <input type="password" id="nodeInspPassword" autocomplete="off" placeholder="Future: protect edits">
         </label>
         <p class="node-insp-muted">Password hashing and server-side enforcement are not wired yet; values here are session-only.</p>
+      </div>
+    </div>
+  </div>
+  <div id="toastHost" class="toast-host" aria-live="polite"></div>
+  <div id="commandPaletteOverlay" class="command-palette-overlay" hidden>
+    <div class="command-palette" role="dialog" aria-modal="true" aria-labelledby="commandPaletteTitle">
+      <h2 id="commandPaletteTitle" class="sr-only">Command palette</h2>
+      <div class="command-palette-head">
+        <input type="search" id="commandPaletteInput" class="command-palette-input" placeholder="Search actions…" autocomplete="off" spellcheck="false" aria-label="Search workspace commands">
+        <button type="button" id="keyboardHelpBtn" class="text-btn-sm" title="Keyboard shortcuts">Shortcuts</button>
+      </div>
+      <ul id="commandPaletteList" class="command-palette-list" role="listbox" aria-label="Matching commands"></ul>
+    </div>
+  </div>
+  <div id="keyboardHelpOverlay" class="kbd-help-overlay" hidden>
+    <div class="kbd-help-dialog" role="dialog" aria-modal="true" aria-labelledby="kbdHelpTitle">
+      <div class="kbd-help-head">
+        <h2 id="kbdHelpTitle">Keyboard shortcuts</h2>
+        <button type="button" id="kbdHelpClose" class="text-btn-sm">Close</button>
+      </div>
+      <dl id="kbdHelpBody" class="kbd-help-dl"></dl>
+    </div>
+  </div>
+  <div id="importDiffOverlay" class="import-diff-overlay" hidden>
+    <div class="import-diff-dialog" role="dialog" aria-modal="true" aria-labelledby="importDiffTitle">
+      <h2 id="importDiffTitle">Import comparison</h2>
+      <pre id="importDiffBody" class="import-diff-pre"></pre>
+      <div class="import-diff-actions">
+        <button type="button" id="importDiffApplyBtn">Apply import</button>
+        <button type="button" id="importDiffCancelBtn" class="text-btn-sm">Cancel</button>
       </div>
     </div>
   </div>
@@ -2350,6 +2827,10 @@
   const exitGroupFocusBtn = document.getElementById("exitGroupFocusBtn");
   const mobileHint = document.getElementById("mobileHint");
   const connHint = document.getElementById("connHint");
+  const connectionListFilter = document.getElementById("connectionListFilter");
+  const connectionListBody = document.getElementById("connectionListBody");
+  const SESSION_DIAGRAM_SUB = "mapdiagram-diagram-sub-tab";
+  const SESSION_CONN_LIST_FILTER = "mapdiagram-connection-list-filter";
   const suggestionsEl = document.getElementById("suggestions");
   const focusOverlay = document.getElementById("focusOverlay");
   const focusModal = document.getElementById("focusModal");
@@ -2398,6 +2879,8 @@
     db: { projects: [], activeProjectId: null, shares: {} },
     selectedNodeId: null,
     selectedConnectionId: null,
+    /** Phase 2: shift-click multi-select for `p.connections` edges (node–node + system bridges). */
+    selectedConnectionIds: new Set(),
     editingNodeId: null,
     dragging: null,
     panning: null,
@@ -2455,10 +2938,14 @@
     semOverlayRaf: 0,
     activeRightTab: "diagram",
     activeDiagramSub: "node",
+    /** @type {{ kind: "conn"|"gc", id: string }|null} Highlight edge from inspector connection list hover */
+    listHoverLink: null,
     connectorStyle: "curved",
     selectedGroupId: null,
     selectedGroupIds: new Set(),
     selectedGroupConnId: null,
+    /** Phase 2: multi-select for `p.groupConnections` (system–system links). */
+    selectedGroupConnIds: new Set(),
     focusGroupId: null,
     focusGroupStack: [],
     groupDragging: null,
@@ -2468,9 +2955,198 @@
     semanticOverlayScheduled: 0,
     groupBoxCache: null,
     groupBoxCacheProjectId: null,
-    /** @type {number|null} Last wallet snapshot from DB (display / UX only; never authoritative). */
-    aiCredits: null
+    /** @type {object|null} Phase 3 — JSON.parse result awaiting Apply in import diff overlay. */
+    pendingImportParsed: null,
   };
+
+  /** Phase 2 — connection multi-select: clear `p.connections` selection only. */
+  function clearConnectionSelectionState() {
+    runtime.selectedConnectionId = null;
+    runtime.selectedConnectionIds.clear();
+  }
+  /** Phase 2 — clear `p.groupConnections` selection only. */
+  function clearGroupConnSelectionState() {
+    runtime.selectedGroupConnId = null;
+    runtime.selectedGroupConnIds.clear();
+  }
+  /** Clear every edge selection (used when picking nodes / templates). */
+  function clearAllEdgeSelection() {
+    clearConnectionSelectionState();
+    clearGroupConnSelectionState();
+  }
+
+  /** Phase 3 — transient toasts (destructive / palette feedback); complements #savedIndicator. */
+  function showToast(message, kind = "info") {
+    const host = document.getElementById("toastHost");
+    if (!host || !message) return;
+    const t = document.createElement("div");
+    t.className = `toast${kind === "warn" ? " warn" : ""}${kind === "danger" ? " danger" : ""}`;
+    t.textContent = message;
+    host.appendChild(t);
+    window.setTimeout(() => t.remove(), 3800);
+  }
+
+  /** Phase 3 — edge label + stroke defaults on connection records (undo-safe fields). */
+  function normalizeConnectionEdge(c) {
+    if (!c || typeof c !== "object") return;
+    if (c.label == null) c.label = "";
+    if (!c.labelOffset || typeof c.labelOffset !== "object") c.labelOffset = { dx: 0, dy: 0 };
+    if (c.strokeWidth != null && !Number.isFinite(Number(c.strokeWidth))) c.strokeWidth = null;
+    if (!c.strokeDash || !["solid", "dashed", "dotted"].includes(c.strokeDash)) c.strokeDash = "solid";
+    if (c.strokeColor != null && typeof c.strokeColor !== "string") c.strokeColor = null;
+  }
+
+  /** Custom edge stroke (hex); null = use theme gradient / bridge colors. */
+  function connectionStrokeColorOrNull(c) {
+    const s = c && c.strokeColor != null ? String(c.strokeColor).trim() : "";
+    if (!s || !/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(s)) return null;
+    return s;
+  }
+
+  function connectionDashArray(dash) {
+    if (dash === "dashed") return "7 6";
+    if (dash === "dotted") return "2 5";
+    return "";
+  }
+
+  function connectionStrokeWidthPx(c, fallback) {
+    const w = c && c.strokeWidth != null ? Number(c.strokeWidth) : NaN;
+    if (Number.isFinite(w) && w > 0.5) return w;
+    return fallback;
+  }
+
+  function appendSvgArrowMarkerDef(defs, markerId, fill) {
+    if (!defs || !markerId || !fill) return `url(#arrow-head)`;
+    const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+    marker.setAttribute("id", markerId);
+    marker.setAttribute("markerWidth", "9");
+    marker.setAttribute("markerHeight", "9");
+    marker.setAttribute("refX", "8");
+    marker.setAttribute("refY", "4.5");
+    marker.setAttribute("orient", "auto-start-reverse");
+    const arrowPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    arrowPath.setAttribute("d", "M0,0 L9,4.5 L0,9 Z");
+    arrowPath.setAttribute("fill", fill);
+    marker.appendChild(arrowPath);
+    defs.appendChild(marker);
+    return `url(#${markerId})`;
+  }
+
+  function toggleShiftConnectionEdgeSelection(connId) {
+    clearGroupConnSelectionState();
+    if (runtime.selectedConnectionIds.has(connId)) {
+      runtime.selectedConnectionIds.delete(connId);
+      if (!runtime.selectedConnectionIds.size) clearConnectionSelectionState();
+      else runtime.selectedConnectionId = [...runtime.selectedConnectionIds][0];
+    } else {
+      runtime.selectedConnectionIds.add(connId);
+      runtime.selectedConnectionId = connId;
+    }
+  }
+
+  function selectOrDeleteConnectionEdge(e, connId, p) {
+    if (e.altKey) {
+      e.preventDefault();
+      pushHistory();
+      p.connections = p.connections.filter((x) => x.id !== connId);
+      delete runtime.connectionUi[connId];
+      clearConnectionSelectionState();
+      renderConnections();
+      renderSelection();
+      markDirty();
+      showToast("Connection removed.", "info");
+      return;
+    }
+    if (e.shiftKey || e.ctrlKey || e.metaKey) {
+      toggleShiftConnectionEdgeSelection(connId);
+      runtime.selectedNodeId = null;
+      runtime.selectedNodeIds.clear();
+      runtime.selectedGroupId = null;
+      runtime.selectedGroupIds.clear();
+      renderSelection();
+      return;
+    }
+    clearGroupConnSelectionState();
+    if (
+      runtime.selectedConnectionIds.size === 1 &&
+      runtime.selectedConnectionIds.has(connId) &&
+      runtime.selectedConnectionId === connId
+    ) {
+      pushHistory();
+      p.connections = p.connections.filter((x) => x.id !== connId);
+      delete runtime.connectionUi[connId];
+      clearConnectionSelectionState();
+      renderConnections();
+      renderSelection();
+      markDirty();
+      return;
+    }
+    runtime.selectedConnectionIds.clear();
+    runtime.selectedConnectionIds.add(connId);
+    runtime.selectedConnectionId = connId;
+    runtime.selectedNodeId = null;
+    runtime.selectedNodeIds.clear();
+    runtime.selectedGroupId = null;
+    runtime.selectedGroupIds.clear();
+    renderSelection();
+  }
+
+  function toggleShiftGroupConnSelection(gcId) {
+    clearConnectionSelectionState();
+    if (runtime.selectedGroupConnIds.has(gcId)) {
+      runtime.selectedGroupConnIds.delete(gcId);
+      if (!runtime.selectedGroupConnIds.size) clearGroupConnSelectionState();
+      else runtime.selectedGroupConnId = [...runtime.selectedGroupConnIds][0];
+    } else {
+      runtime.selectedGroupConnIds.add(gcId);
+      runtime.selectedGroupConnId = gcId;
+    }
+  }
+
+  function selectOrDeleteGroupConnEdge(e, gcId, p) {
+    if (e.altKey) {
+      e.preventDefault();
+      pushHistory();
+      p.groupConnections = (p.groupConnections || []).filter((x) => x.id !== gcId);
+      clearGroupConnSelectionState();
+      renderConnections();
+      renderSelection();
+      markDirty();
+      showToast("System link removed.", "info");
+      return;
+    }
+    if (e.shiftKey || e.ctrlKey || e.metaKey) {
+      toggleShiftGroupConnSelection(gcId);
+      runtime.selectedNodeId = null;
+      runtime.selectedGroupId = null;
+      runtime.selectedGroupIds.clear();
+      runtime.selectedNodeIds.clear();
+      renderSelection();
+      return;
+    }
+    clearConnectionSelectionState();
+    if (
+      runtime.selectedGroupConnIds.size === 1 &&
+      runtime.selectedGroupConnIds.has(gcId) &&
+      runtime.selectedGroupConnId === gcId
+    ) {
+      pushHistory();
+      p.groupConnections = (p.groupConnections || []).filter((x) => x.id !== gcId);
+      clearGroupConnSelectionState();
+      renderConnections();
+      renderSelection();
+      markDirty();
+      return;
+    }
+    runtime.selectedGroupConnIds.clear();
+    runtime.selectedGroupConnIds.add(gcId);
+    runtime.selectedGroupConnId = gcId;
+    runtime.selectedNodeId = null;
+    runtime.selectedGroupId = null;
+    runtime.selectedGroupIds.clear();
+    runtime.selectedNodeIds.clear();
+    renderSelection();
+  }
 
   const resizeObserver = new ResizeObserver(() => {
     syncNodeSizes();
@@ -2538,8 +3214,10 @@
   function ensureProjectExtras(p) {
     normalizeGroupsAndNodes(p);
     normalizeBridgeConnections(p);
+    for (const c of p.connections || []) normalizeConnectionEdge(c);
     for (const gc of p.groupConnections) {
       if (gc.labelOffset != null && typeof gc.labelOffset !== "object") gc.labelOffset = null;
+      normalizeConnectionEdge(gc);
     }
   }
 
@@ -3662,10 +4340,13 @@
     p.groupConnections = snap.groupConnections || [];
     p.view = snap.view;
     runtime.selectedNodeId = null;
+    runtime.selectedNodeIds.clear();
     runtime.selectedConnectionId = null;
+    runtime.selectedConnectionIds.clear();
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
     runtime.selectedGroupConnId = null;
+    runtime.selectedGroupConnIds.clear();
     renderAll();
     markDirty();
   }
@@ -3684,9 +4365,11 @@
       runtime.connectionUi = {};
       runtime.selectedNodeId = null;
       runtime.selectedConnectionId = null;
+      runtime.selectedConnectionIds.clear();
       runtime.selectedGroupId = null;
       runtime.selectedGroupIds.clear();
       runtime.selectedGroupConnId = null;
+      runtime.selectedGroupConnIds.clear();
       runtime.selectedNodeIds.clear();
       renderAll();
       markDirty();
@@ -3725,9 +4408,11 @@
     p.view = { x: 0, y: 0, zoom: 1, grid: p.view && p.view.grid !== false };
     runtime.selectedNodeId = null;
     runtime.selectedConnectionId = null;
+    runtime.selectedConnectionIds.clear();
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
     runtime.selectedGroupConnId = null;
+    runtime.selectedGroupConnIds.clear();
     runtime.selectedNodeIds.clear();
     const res = generateTemplate(kind, items, { worldX: 72, worldY: 72 });
     if (!res) {
@@ -3774,6 +4459,7 @@
     if (n.style.shadow == null) n.style.shadow = 20;
     if (n.style.radius == null) n.style.radius = (n.shape === "rounded" ? 16 : 12);
     if (!n.style.borderColor) n.style.borderColor = "#9cb8ff";
+    if (n.style.freeform == null) n.style.freeform = false;
     return n.style;
   }
 
@@ -3962,8 +4648,8 @@
       const fn = getNodeById(c.from);
       const tn = getNodeById(c.to);
       if (fn && tn) {
-        const f0 = anchor(fn, "out");
-        const t0 = anchor(tn, "in");
+        const f0 = anchor(fn, "out", nodeWorldCenter(tn));
+        const t0 = anchor(tn, "in", nodeWorldCenter(fn));
         const auto = autoCurve(f0, t0);
         runtime.connectionUi[c.id] = { cp1: auto.cp1, cp2: auto.cp2, custom: false };
       }
@@ -4003,6 +4689,8 @@
     if (s.passwordHash == null) s.passwordHash = null;
     if (s.locked && s.lockMode === "none") s.lockMode = "hard";
     if (!s.locked) s.lockMode = "none";
+    if (!n.visibility || typeof n.visibility !== "object") n.visibility = {};
+    if (n.visibility.hidden == null) n.visibility.hidden = false;
     if (!n.semantic || typeof n.semantic !== "object") n.semantic = {};
     const sem = n.semantic;
     if (!sem.role || !SEMANTIC_ROLES.has(String(sem.role))) {
@@ -4012,6 +4700,12 @@
     if (!Array.isArray(sem.tags)) sem.tags = [];
     sem.tags = sem.tags.map((x) => String(x || "").trim()).filter(Boolean);
     return n;
+  }
+
+  function isNodeHiddenCanvas(n) {
+    if (!n) return false;
+    ensureNodeExtendedModel(n);
+    return !!n.visibility.hidden;
   }
 
   function isNodeDragHardLocked(n) {
@@ -4036,6 +4730,8 @@
     if (!targetNodeEl) return null;
     const targetNodeId = targetNodeEl.dataset.nodeId;
     if (!targetNodeId || targetNodeId === sourceNodeId) return null;
+    const tn = getNodeById(targetNodeId);
+    if (tn && isNodeHiddenCanvas(tn)) return null;
     return targetNodeId;
   }
 
@@ -4140,6 +4836,46 @@
         suggestions.push({ level: "info", text: `Node "${n.text}" seems isolated — remove or connect?` });
       }
     }
+    const orphanIds = p.nodes.filter((n) => (incoming.get(n.id) || 0) === 0 && (outgoing.get(n.id) || 0) === 0).map((n) => n.id);
+    if (orphanIds.length === 1) {
+      suggestions.push({ level: "warn", text: "One orphan node has no node-to-node links." });
+    } else if (orphanIds.length > 1) {
+      suggestions.push({ level: "warn", text: `${orphanIds.length} orphan nodes have no node-to-node links.` });
+    }
+    const pairCounts = new Map();
+    for (const c of p.connections) {
+      if (!isNodeNodeConnection(c)) continue;
+      const k = `${c.from}→${c.to}`;
+      pairCounts.set(k, (pairCounts.get(k) || 0) + 1);
+    }
+    const dupParallel = [...pairCounts.values()].filter((ct) => ct > 1).length;
+    if (dupParallel) {
+      suggestions.push({ level: "warn", text: `${dupParallel} duplicate parallel node link(s) — remove extras or clarify.` });
+    }
+    const adj = new Map();
+    for (const n of p.nodes) adj.set(n.id, []);
+    for (const c of p.connections) {
+      if (!isNodeNodeConnection(c)) continue;
+      if (!adj.has(c.from) || !adj.has(c.to)) continue;
+      adj.get(c.from).push(c.to);
+      adj.get(c.to).push(c.from);
+    }
+    const seenComp = new Set();
+    let compCount = 0;
+    for (const n of p.nodes) {
+      if (seenComp.has(n.id)) continue;
+      compCount++;
+      const st = [n.id];
+      while (st.length) {
+        const u = st.pop();
+        if (seenComp.has(u)) continue;
+        seenComp.add(u);
+        for (const v of adj.get(u) || []) if (!seenComp.has(v)) st.push(v);
+      }
+    }
+    if (p.nodes.length > 1 && compCount > 1) {
+      suggestions.push({ level: "warn", text: `${compCount} disconnected node component(s) (via node links only).` });
+    }
     const hasFlow = p.connections.some((c1) => {
       if (!isNodeNodeConnection(c1)) return false;
       const midType = runtime.semanticTypes[c1.to];
@@ -4176,7 +4912,7 @@
     }
     const deep = p.userGroups.filter((g) => (g.hierarchyDepth || 0) > 3).length;
     if (deep) suggestions.push({ level: "info", text: "Deep group nesting may reduce readability — try focus mode." });
-    return suggestions.slice(0, 10);
+    return suggestions.slice(0, 14);
   }
 
   function renderSuggestions() {
@@ -4938,7 +5674,11 @@
 
   function startConnectionDrag(nodeObj, pointerEvent) {
     runtime.connecting = { fromNodeId: nodeObj.id, hoverNodeId: null, hoverGroupInId: null };
-    runtime.previewFrom = anchor(nodeObj, "out");
+    const wp =
+      pointerEvent && Number.isFinite(pointerEvent.clientX)
+        ? world(pointerEvent.clientX, pointerEvent.clientY)
+        : nodeWorldCenter(nodeObj);
+    runtime.previewFrom = anchor(nodeObj, "out", wp);
     runtime.previewPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
     runtime.previewPath.setAttribute("class", "conn");
     runtime.previewPath.setAttribute("stroke-dasharray", "6 4");
@@ -4976,9 +5716,12 @@
     const threshold = 26;
     let best = null;
     let bestDist = Infinity;
+    const src = sourceNodeId ? getNodeById(sourceNodeId) : null;
+    const tw = src ? nodeWorldCenter(src) : point;
     for (const n of p.nodes) {
       if (n.id === sourceNodeId) continue;
-      const a = anchor(n, "in");
+      if (isNodeHiddenCanvas(n)) continue;
+      const a = anchor(n, "in", tw);
       const d = Math.hypot(point.x - a.x, point.y - a.y);
       if (d < threshold && d < bestDist) {
         best = n.id;
@@ -5007,6 +5750,9 @@
     const body = el.querySelector(".body");
     el.classList.remove("shape-rect", "shape-circle", "shape-diamond", "shape-rounded");
     el.classList.add(`shape-${node.shape || "rect"}`);
+    const st = ensureNodeStyle(node);
+    el.classList.toggle("node-freeform", !!st.freeform);
+    el.classList.toggle("node-hidden-canvas", isNodeHiddenCanvas(node));
     applyNodeVisualStyles(el, node);
     if (body && !body.isContentEditable) renderNodeBody(body, node);
     renderNodeChromeOverlays(el, node);
@@ -5054,6 +5800,16 @@
   function renderNodeBody(body, n) {
     ensureNodeExtendedModel(n);
     body.innerHTML = "";
+    const st = ensureNodeStyle(n);
+    if (st.freeform) {
+      body.classList.add("node-body-freeform");
+      const title = document.createElement("div");
+      title.className = "node-title node-title-freeform";
+      title.textContent = n.title || n.text || "Node";
+      body.appendChild(title);
+      return;
+    }
+    body.classList.remove("node-body-freeform");
     const showStrip = n.media && n.media.imageUrl && n.shape !== "diamond";
     if (showStrip) {
       const wrap = document.createElement("div");
@@ -5205,6 +5961,10 @@
     if (secL) secL.checked = !!(node.security && node.security.locked);
     if (secM) secM.value = (node.security && node.security.lockMode) || "none";
     if (pwd) pwd.value = "";
+    const hid = document.getElementById("nodeInspHidden");
+    const ff = document.getElementById("nodeInspFreeform");
+    if (hid) hid.checked = isNodeHiddenCanvas(node);
+    if (ff) ff.checked = !!ensureNodeStyle(node).freeform;
     focusOverlay.classList.add("open");
     setTimeout(() => ti && ti.focus(), 0);
   }
@@ -5222,8 +5982,39 @@
     }, 220);
   }
 
-  function anchor(n, type) {
+  function nodeWorldCenter(n) {
+    if (!n) return { x: 0, y: 0 };
     const w = getNodeWorldPosition(n);
+    return { x: w.x + n.width / 2, y: w.y + n.height / 2 };
+  }
+
+  function anchorFreeformPerimeter(n, toward) {
+    const w = getNodeWorldPosition(n);
+    const cx = w.x + n.width / 2;
+    const cy = w.y + n.height / 2;
+    const dx = toward.x - cx;
+    const dy = toward.y - cy;
+    if (dx * dx + dy * dy < 1) return { x: cx, y: cy };
+    const len = Math.hypot(dx, dy);
+    const ux = dx / len;
+    const uy = dy / len;
+    const hw = n.width / 2;
+    const hh = n.height / 2;
+    const tx = ux !== 0 ? hw / Math.abs(ux) : Infinity;
+    const ty = uy !== 0 ? hh / Math.abs(uy) : Infinity;
+    const t = Math.min(tx, ty);
+    return { x: cx + ux * t, y: cy + uy * t };
+  }
+
+  function anchor(n, type, towardPoint) {
+    const st = ensureNodeStyle(n);
+    const w = getNodeWorldPosition(n);
+    if (st.freeform) {
+      const tw =
+        towardPoint && typeof towardPoint.x === "number" && typeof towardPoint.y === "number" ? towardPoint : null;
+      if (tw) return anchorFreeformPerimeter(n, tw);
+      return { x: w.x + n.width / 2, y: w.y + n.height / 2 };
+    }
     return type === "out" ? { x: w.x + n.width, y: w.y + n.height / 2 } : { x: w.x, y: w.y + n.height / 2 };
   }
 
@@ -5242,7 +6033,7 @@
       const box = getUserGroupBox(collapsedGroupId);
       if (box) return groupAnchor(box, end === "to" ? "in" : "out", towardPoint);
     }
-    return anchor(n, end === "to" ? "in" : "out");
+    return anchor(n, end === "to" ? "in" : "out", towardPoint);
   }
 
   function nodesInsideGroupBoxObstacles(groupBox, excludeIds) {
@@ -5656,7 +6447,7 @@
         }
         runtime.db.activeProjectId = p.projectId;
         runtime.selectedNodeId = null;
-        runtime.selectedConnectionId = null;
+        clearAllEdgeSelection();
         runtime.selectedNodeIds.clear();
         runtime.undo = [];
         runtime.redo = [];
@@ -5667,6 +6458,7 @@
     }
     const active = getProject();
     document.getElementById("projectName").value = active ? active.name : "";
+    renderSavedViewsList();
   }
 
   function renderNodePicker() {
@@ -5827,13 +6619,20 @@
     };
     p.nodes.push(n);
     runtime.selectedNodeId = n.id;
-    runtime.selectedConnectionId = null;
+    clearAllEdgeSelection();
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
-    runtime.selectedGroupConnId = null;
     renderAll();
     markDirty();
     scheduleSemanticAnalysis();
+  }
+
+  function revealDiagramNodeInspectorAndOpenExtended(nodeId) {
+    if (!getNodeById(nodeId)) return;
+    setRightTab("diagram");
+    applyDiagramSubTab("node");
+    if (typeof isNarrowScreen === "function" && isNarrowScreen()) closeDrawers();
+    openFocusModal(nodeId);
   }
 
   function createNodeElement(n) {
@@ -5872,8 +6671,7 @@
         runtime.selectedNodeIds.add(n.id);
         runtime.selectedNodeId = n.id;
       }
-      runtime.selectedConnectionId = null;
-      runtime.selectedGroupConnId = null;
+      clearAllEdgeSelection();
       runtime.selectedGroupId = null;
       runtime.selectedGroupIds.clear();
       const dragIds = resolveDragIdsForNodePointer(n.id, e.altKey);
@@ -5916,18 +6714,30 @@
       renderSelection();
       if (isNarrowScreen()) closeDrawers();
     });
-    body.addEventListener("pointerup", () => {
+    body.addEventListener("pointerup", (e) => {
       if (runtime.bodyConnectPressTimer) {
         clearTimeout(runtime.bodyConnectPressTimer);
         runtime.bodyConnectPressTimer = null;
       }
+      const start = runtime.bodyPressStart;
+      const nid = runtime.bodyPressNodeId;
+      const pid = runtime.bodyPressPointerId;
+      const same = nid === n.id && e.pointerId === pid;
       runtime.bodyPressPointerId = null;
       runtime.bodyPressStart = null;
       runtime.bodyPressNodeId = null;
+      if (!start || !same) return;
+      if (runtime.focusNodeId) return;
+      if (e.ctrlKey || e.metaKey) return;
+      if (runtime.connecting) return;
+      const dx = e.clientX - start.x;
+      const dy = e.clientY - start.y;
+      if (dx * dx + dy * dy > 100) return;
+      revealDiagramNodeInspectorAndOpenExtended(n.id);
     });
     body.addEventListener("dblclick", (e) => {
       e.stopPropagation();
-      openFocusModal(n.id);
+      revealDiagramNodeInspectorAndOpenExtended(n.id);
     });
 
     outH.addEventListener("pointerdown", (e) => {
@@ -5954,6 +6764,9 @@
     outZone.addEventListener("pointerup", () => {
       if (runtime.connectPressTimer) clearTimeout(runtime.connectPressTimer);
     });
+    const st0 = ensureNodeStyle(n);
+    if (st0.freeform) el.classList.add("node-freeform");
+    if (isNodeHiddenCanvas(n)) el.classList.add("node-hidden-canvas");
     el.append(body, inH, outH, outZone);
     applyNodeVisualStyles(el, n);
     renderNodeChromeOverlays(el, n);
@@ -5993,6 +6806,15 @@
     for (const key of Object.keys(runtime.connectionUi)) {
       if (!validIds.has(key)) delete runtime.connectionUi[key];
     }
+    const validGcIds = new Set((p.groupConnections || []).map((g) => g.id));
+    for (const id of [...runtime.selectedConnectionIds]) {
+      if (!validIds.has(id)) runtime.selectedConnectionIds.delete(id);
+    }
+    for (const id of [...runtime.selectedGroupConnIds]) {
+      if (!validGcIds.has(id)) runtime.selectedGroupConnIds.delete(id);
+    }
+    if (runtime.selectedConnectionId && !validIds.has(runtime.selectedConnectionId)) runtime.selectedConnectionId = null;
+    if (runtime.selectedGroupConnId && !validGcIds.has(runtime.selectedGroupConnId)) runtime.selectedGroupConnId = null;
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
     marker.id = "arrow-head";
@@ -6007,6 +6829,13 @@
     marker.appendChild(arrowPath);
     defs.appendChild(marker);
     connectionsLayer.appendChild(defs);
+    const connListHoverSuffix = (connId, gcId) => {
+      const lh = runtime.listHoverLink;
+      if (!lh) return "";
+      if (lh.kind === "conn" && connId && lh.id === connId) return " list-hover";
+      if (lh.kind === "gc" && gcId && lh.id === gcId) return " list-hover";
+      return "";
+    };
     for (const c of p.connections) {
       if (c.kind === "node-group") {
         const fromNode = getNodeById(c.from);
@@ -6032,25 +6861,24 @@
         hit.dataset.connId = c.id;
         hit.addEventListener("pointerdown", (e) => {
           e.stopPropagation();
-          if (runtime.selectedConnectionId === c.id) {
-            pushHistory();
-            p.connections = p.connections.filter((x) => x.id !== c.id);
-            runtime.selectedConnectionId = null;
-            renderConnections();
-            markDirty();
-            return;
-          }
-          runtime.selectedConnectionId = c.id;
-          runtime.selectedNodeId = null;
-          runtime.selectedGroupId = null;
-          runtime.selectedGroupIds.clear();
-          runtime.selectedGroupConnId = null;
-          renderSelection();
+          selectOrDeleteConnectionEdge(e, c.id, p);
         });
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.setAttribute("d", d);
-        path.setAttribute("class", `conn bridge-conn${runtime.selectedConnectionId === c.id ? " selected" : ""}`);
-        path.setAttribute("marker-end", "url(#arrow-head)");
+        path.setAttribute(
+          "class",
+          `conn bridge-conn${runtime.selectedConnectionIds.has(c.id) || runtime.selectedConnectionId === c.id ? " selected" : ""}${connListHoverSuffix(c.id, null)}`
+        );
+        path.setAttribute("stroke-width", String(connectionStrokeWidthPx(c, 2.15)));
+        const dashNg = connectionDashArray(c.strokeDash);
+        if (dashNg) path.setAttribute("stroke-dasharray", dashNg);
+        const brCol = connectionStrokeColorOrNull(c);
+        if (brCol) {
+          path.setAttribute("stroke", brCol);
+          path.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-bng-${c.id}`, brCol));
+        } else {
+          path.setAttribute("marker-end", "url(#arrow-head)");
+        }
         path.dataset.connId = c.id;
         connectionsLayer.append(hit, path);
         continue;
@@ -6059,7 +6887,7 @@
         const toNode = getNodeById(c.to);
         const fromBox = getUserGroupBox(c.fromGroupId);
         if (!toNode || !fromBox) continue;
-        const from = groupAnchor(fromBox, "out", anchor(toNode, "in"));
+        const from = groupAnchor(fromBox, "out", anchor(toNode, "in", { x: fromBox.x + fromBox.w / 2, y: fromBox.y + fromBox.h / 2 }));
         const to = anchorNodeForConnection(c.to, "to", from);
         const auto = autoCurve(from, to);
         const obsRects = p.nodes
@@ -6078,25 +6906,24 @@
         hit.dataset.connId = c.id;
         hit.addEventListener("pointerdown", (e) => {
           e.stopPropagation();
-          if (runtime.selectedConnectionId === c.id) {
-            pushHistory();
-            p.connections = p.connections.filter((x) => x.id !== c.id);
-            runtime.selectedConnectionId = null;
-            renderConnections();
-            markDirty();
-            return;
-          }
-          runtime.selectedConnectionId = c.id;
-          runtime.selectedNodeId = null;
-          runtime.selectedGroupId = null;
-          runtime.selectedGroupIds.clear();
-          runtime.selectedGroupConnId = null;
-          renderSelection();
+          selectOrDeleteConnectionEdge(e, c.id, p);
         });
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.setAttribute("d", d);
-        path.setAttribute("class", `conn bridge-conn${runtime.selectedConnectionId === c.id ? " selected" : ""}`);
-        path.setAttribute("marker-end", "url(#arrow-head)");
+        path.setAttribute(
+          "class",
+          `conn bridge-conn${runtime.selectedConnectionIds.has(c.id) || runtime.selectedConnectionId === c.id ? " selected" : ""}${connListHoverSuffix(c.id, null)}`
+        );
+        path.setAttribute("stroke-width", String(connectionStrokeWidthPx(c, 2.15)));
+        const dashGn = connectionDashArray(c.strokeDash);
+        if (dashGn) path.setAttribute("stroke-dasharray", dashGn);
+        const brCol2 = connectionStrokeColorOrNull(c);
+        if (brCol2) {
+          path.setAttribute("stroke", brCol2);
+          path.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-bn2-${c.id}`, brCol2));
+        } else {
+          path.setAttribute("marker-end", "url(#arrow-head)");
+        }
         path.dataset.connId = c.id;
         connectionsLayer.append(hit, path);
         continue;
@@ -6105,7 +6932,7 @@
       const fromNode = getNodeById(c.from);
       const toNode = getNodeById(c.to);
       if (!fromNode || !toNode) continue;
-      const toPre = anchorNodeForConnection(c.to, "to", anchor(fromNode, "out"));
+      const toPre = anchorNodeForConnection(c.to, "to", anchor(fromNode, "out", nodeWorldCenter(toNode)));
       const from = anchorNodeForConnection(c.from, "from", toPre);
       const to = anchorNodeForConnection(c.to, "to", from);
       const curve = getCurveData(c.id, from, to);
@@ -6118,25 +6945,29 @@
       const d = runtime.connectorStyle === "orthogonal"
         ? orthogonalPath(from, to, obstacles)
         : curvePath(from, curve.cp1, curve.cp2, to);
-      const gradId = `grad-${c.id}`;
-      const grad = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
-      grad.id = gradId;
-      grad.setAttribute("gradientUnits", "userSpaceOnUse");
-      grad.setAttribute("x1", String(from.x));
-      grad.setAttribute("y1", String(from.y));
-      grad.setAttribute("x2", String(to.x));
-      grad.setAttribute("y2", String(to.y));
-      const s1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
-      s1.setAttribute("offset", "0%");
-      s1.setAttribute("stop-color", "rgba(126, 154, 230, 0.7)");
-      const s2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
-      s2.setAttribute("offset", "55%");
-      s2.setAttribute("stop-color", "rgba(184, 206, 255, 0.9)");
-      const s3 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
-      s3.setAttribute("offset", "100%");
-      s3.setAttribute("stop-color", "rgba(126, 154, 230, 0.7)");
-      grad.append(s1, s2, s3);
-      defs.appendChild(grad);
+      const nnStroke = connectionStrokeColorOrNull(c);
+      let gradId = null;
+      if (!nnStroke) {
+        gradId = `grad-${c.id}`;
+        const grad = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+        grad.id = gradId;
+        grad.setAttribute("gradientUnits", "userSpaceOnUse");
+        grad.setAttribute("x1", String(from.x));
+        grad.setAttribute("y1", String(from.y));
+        grad.setAttribute("x2", String(to.x));
+        grad.setAttribute("y2", String(to.y));
+        const s1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+        s1.setAttribute("offset", "0%");
+        s1.setAttribute("stop-color", "rgba(126, 154, 230, 0.7)");
+        const s2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+        s2.setAttribute("offset", "55%");
+        s2.setAttribute("stop-color", "rgba(184, 206, 255, 0.9)");
+        const s3 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+        s3.setAttribute("offset", "100%");
+        s3.setAttribute("stop-color", "rgba(126, 154, 230, 0.7)");
+        grad.append(s1, s2, s3);
+        defs.appendChild(grad);
+      }
 
       const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
       hit.setAttribute("d", d);
@@ -6144,21 +6975,7 @@
       hit.dataset.connId = c.id;
       hit.addEventListener("pointerdown", (e) => {
         e.stopPropagation();
-        if (runtime.selectedConnectionId === c.id) {
-          pushHistory();
-          p.connections = p.connections.filter((x) => x.id !== c.id);
-          delete runtime.connectionUi[c.id];
-          runtime.selectedConnectionId = null;
-          renderConnections();
-          markDirty();
-          return;
-        }
-        runtime.selectedConnectionId = c.id;
-        runtime.selectedNodeId = null;
-        runtime.selectedGroupId = null;
-        runtime.selectedGroupIds.clear();
-        runtime.selectedGroupConnId = null;
-        renderSelection();
+        selectOrDeleteConnectionEdge(e, c.id, p);
       });
       hit.addEventListener("pointerenter", () => {
         const visual = connectionsLayer.querySelector(`.conn[data-conn-id="${c.id}"]`);
@@ -6176,14 +6993,59 @@
 
       const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
       path.setAttribute("d", d);
-      path.setAttribute("class", `conn${runtime.selectedConnectionId === c.id ? " selected" : ""}${runtime.connectionFeedbackId === c.id ? " confirm" : ""}`);
-      path.setAttribute("stroke", `url(#${gradId})`);
-      path.setAttribute("marker-end", "url(#arrow-head)");
+      const nnSel = runtime.selectedConnectionIds.has(c.id) || runtime.selectedConnectionId === c.id;
+      path.setAttribute(
+        "class",
+        `conn${nnSel ? " selected" : ""}${runtime.connectionFeedbackId === c.id ? " confirm" : ""}${connListHoverSuffix(c.id, null)}`
+      );
+      if (nnStroke) {
+        path.setAttribute("stroke", nnStroke);
+        path.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-nn-${c.id}`, nnStroke));
+      } else {
+        path.setAttribute("stroke", `url(#${gradId})`);
+        path.setAttribute("marker-end", "url(#arrow-head)");
+      }
+      path.setAttribute("stroke-width", String(connectionStrokeWidthPx(c, 2.25)));
+      const dashNn = connectionDashArray(c.strokeDash);
+      if (dashNn) path.setAttribute("stroke-dasharray", dashNn);
       path.dataset.connId = c.id;
       connectionsLayer.appendChild(hit);
       connectionsLayer.appendChild(path);
 
-      if (runtime.selectedConnectionId === c.id) {
+      if (String(c.label || "").trim()) {
+        const off = c.labelOffset || { dx: 0, dy: 0 };
+        const midX = (from.x + to.x) / 2 + (off.dx || 0);
+        const midY = (from.y + to.y) / 2 - 4 + (off.dy || 0);
+        const tEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        tEl.setAttribute("x", String(midX));
+        tEl.setAttribute("y", String(midY));
+        tEl.setAttribute("text-anchor", "middle");
+        tEl.setAttribute("class", "conn-edge-label");
+        tEl.dataset.connId = c.id;
+        tEl.textContent = String(c.label).trim();
+        let dragLab = null;
+        tEl.addEventListener("pointerdown", (ev) => {
+          ev.stopPropagation();
+          dragLab = { x: ev.clientX, y: ev.clientY, ox: off.dx || 0, oy: off.dy || 0 };
+          tEl.setPointerCapture(ev.pointerId);
+        });
+        tEl.addEventListener("pointermove", (ev) => {
+          if (!dragLab) return;
+          c.labelOffset = c.labelOffset || { dx: 0, dy: 0 };
+          c.labelOffset.dx = dragLab.ox + (ev.clientX - dragLab.x) / p.view.zoom;
+          c.labelOffset.dy = dragLab.oy + (ev.clientY - dragLab.y) / p.view.zoom;
+          tEl.setAttribute("x", String((from.x + to.x) / 2 + c.labelOffset.dx));
+          tEl.setAttribute("y", String((from.y + to.y) / 2 - 4 + c.labelOffset.dy));
+        });
+        tEl.addEventListener("pointerup", () => {
+          dragLab = null;
+          markDirty();
+        });
+        connectionsLayer.appendChild(tEl);
+      }
+
+      const cpOne = runtime.selectedConnectionIds.size === 1 && runtime.selectedConnectionIds.has(c.id) && runtime.selectedConnectionId === c.id;
+      if (cpOne) {
         const g1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
         g1.setAttribute("x1", String(from.x));
         g1.setAttribute("y1", String(from.y));
@@ -6236,21 +7098,7 @@
       hit.dataset.gcId = gc.id;
       hit.addEventListener("pointerdown", (e) => {
         e.stopPropagation();
-        if (runtime.selectedGroupConnId === gc.id) {
-          pushHistory();
-          p.groupConnections = (p.groupConnections || []).filter((x) => x.id !== gc.id);
-          runtime.selectedGroupConnId = null;
-          renderConnections();
-          markDirty();
-          return;
-        }
-        runtime.selectedGroupConnId = gc.id;
-        runtime.selectedConnectionId = null;
-        runtime.selectedNodeId = null;
-        runtime.selectedGroupId = null;
-        runtime.selectedGroupIds.clear();
-        runtime.selectedNodeIds.clear();
-        renderSelection();
+        selectOrDeleteGroupConnEdge(e, gc.id, p);
       });
       hit.addEventListener("dblclick", (e) => {
         e.stopPropagation();
@@ -6263,8 +7111,20 @@
       });
       const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
       path.setAttribute("d", d);
-      path.setAttribute("class", `conn group-conn${runtime.selectedGroupConnId === gc.id ? " selected" : ""}`);
-      path.setAttribute("marker-end", "url(#arrow-head)");
+      path.setAttribute(
+        "class",
+        `conn group-conn${runtime.selectedGroupConnIds.has(gc.id) || runtime.selectedGroupConnId === gc.id ? " selected" : ""}${connListHoverSuffix(null, gc.id)}`
+      );
+      path.setAttribute("stroke-width", String(connectionStrokeWidthPx(gc, 2.15)));
+      const dashGc = connectionDashArray(gc.strokeDash);
+      if (dashGc) path.setAttribute("stroke-dasharray", dashGc);
+      const gcCol = connectionStrokeColorOrNull(gc);
+      if (gcCol) {
+        path.setAttribute("stroke", gcCol);
+        path.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-gc-${gc.id}`, gcCol));
+      } else {
+        path.setAttribute("marker-end", "url(#arrow-head)");
+      }
       path.dataset.gcId = gc.id;
       connectionsLayer.append(hit, path);
       if (gc.label) {
@@ -6303,6 +7163,1242 @@
     if (runtime.groupPreviewPath) connectionsLayer.appendChild(runtime.groupPreviewPath);
   }
 
+  function diagramInspectorSelectedNodeIds() {
+    const ids = new Set(runtime.selectedNodeIds);
+    if (runtime.selectedNodeId) ids.add(runtime.selectedNodeId);
+    return ids;
+  }
+
+  function getConnectionListFilterMode() {
+    const v = connectionListFilter?.value;
+    if (v === "selection" || v === "warnings") return v;
+    return "all";
+  }
+
+  function truncateConnLabel(s, max = 54) {
+    if (!s) return "";
+    if (s.length <= max) return s;
+    return `${s.slice(0, max - 1)}…`;
+  }
+
+  function buildConnectionPanelRows() {
+    const p = getProject();
+    const rows = [];
+    for (const c of p.connections || []) {
+      if (c.kind === "node-group") {
+        const fn = getNodeById(c.from);
+        const g = userGroupById(p, c.toGroupId);
+        if (!fn || !g) continue;
+        rows.push({
+          kind: "conn",
+          id: c.id,
+          c,
+          label: truncateConnLabel(`${fn.text || "Node"} → ${g.name || "System"}`),
+          warning: false,
+          endNodeIds: [c.from]
+        });
+      } else if (c.kind === "group-node") {
+        const tn = getNodeById(c.to);
+        const g = userGroupById(p, c.fromGroupId);
+        if (!tn || !g) continue;
+        rows.push({
+          kind: "conn",
+          id: c.id,
+          c,
+          label: truncateConnLabel(`${g.name || "System"} → ${tn.text || "Node"}`),
+          warning: false,
+          endNodeIds: [c.to]
+        });
+      } else if (isNodeNodeConnection(c)) {
+        const fn = getNodeById(c.from);
+        const tn = getNodeById(c.to);
+        if (!fn || !tn) continue;
+        const sem = evaluateConnectionSemantics(c.from, c.to);
+        rows.push({
+          kind: "conn",
+          id: c.id,
+          c,
+          label: truncateConnLabel(`${fn.text || "?"} → ${tn.text || "?"}`),
+          warning: !sem.valid,
+          endNodeIds: [c.from, c.to]
+        });
+      }
+    }
+    for (const gc of p.groupConnections || []) {
+      const a = userGroupById(p, gc.fromGroupId);
+      const b = userGroupById(p, gc.toGroupId);
+      if (!a || !b) continue;
+      rows.push({
+        kind: "gc",
+        id: gc.id,
+        gc,
+        label: truncateConnLabel(`${a.name || "?"} → ${b.name || "?"}`),
+        warning: false,
+        endNodeIds: []
+      });
+    }
+    return rows;
+  }
+
+  function worldRectBoundsForListRow(row) {
+    if (row.kind === "gc") {
+      const gc = row.gc;
+      const a = getUserGroupBox(gc.fromGroupId);
+      const b = getUserGroupBox(gc.toGroupId);
+      if (!a || !b) return null;
+      return {
+        minX: Math.min(a.x, b.x),
+        minY: Math.min(a.y, b.y),
+        maxX: Math.max(a.x + a.w, b.x + b.w),
+        maxY: Math.max(a.y + a.h, b.y + b.h)
+      };
+    }
+    const c = row.c;
+    if (c.kind === "node-group") {
+      const fn = getNodeById(c.from);
+      const box = getUserGroupBox(c.toGroupId);
+      if (!fn || !box) return null;
+      const wf = getNodeWorldPosition(fn);
+      return {
+        minX: Math.min(wf.x, box.x),
+        minY: Math.min(wf.y, box.y),
+        maxX: Math.max(wf.x + fn.width, box.x + box.w),
+        maxY: Math.max(wf.y + fn.height, box.y + box.h)
+      };
+    }
+    if (c.kind === "group-node") {
+      const tn = getNodeById(c.to);
+      const box = getUserGroupBox(c.fromGroupId);
+      if (!tn || !box) return null;
+      const wt = getNodeWorldPosition(tn);
+      return {
+        minX: Math.min(wt.x, box.x),
+        minY: Math.min(wt.y, box.y),
+        maxX: Math.max(wt.x + tn.width, box.x + box.w),
+        maxY: Math.max(wt.y + tn.height, box.y + box.h)
+      };
+    }
+    const fn = getNodeById(c.from);
+    const tn = getNodeById(c.to);
+    if (!fn || !tn) return null;
+    const wf = getNodeWorldPosition(fn);
+    const wt = getNodeWorldPosition(tn);
+    return {
+      minX: Math.min(wf.x, wt.x),
+      minY: Math.min(wf.y, wt.y),
+      maxX: Math.max(wf.x + fn.width, wt.x + tn.width),
+      maxY: Math.max(wf.y + fn.height, wt.y + tn.height)
+    };
+  }
+
+  function focusViewportOnWorldRect(bounds, pad = 56) {
+    if (!bounds) return;
+    const p = getProject();
+    const r = workspace.getBoundingClientRect();
+    const { minX, minY, maxX, maxY } = bounds;
+    const contentW = Math.max(80, maxX - minX + pad * 2);
+    const contentH = Math.max(80, maxY - minY + pad * 2);
+    const zoom = Math.max(0.35, Math.min(2.2, Math.min(r.width / contentW, r.height / contentH) * 0.92));
+    const midX = (minX + maxX) / 2;
+    const midY = (minY + maxY) / 2;
+    p.view.zoom = zoom;
+    p.view.x = r.width / 2 - midX * zoom;
+    p.view.y = r.height / 2 - midY * zoom;
+    updateViewport();
+    markDirty();
+  }
+
+  function jumpToInspectorConnectionRow(row) {
+    if (!row) return;
+    if (row.kind === "gc") {
+      clearConnectionSelectionState();
+      runtime.selectedGroupConnIds.clear();
+      runtime.selectedGroupConnIds.add(row.id);
+      runtime.selectedGroupConnId = row.id;
+    } else {
+      clearGroupConnSelectionState();
+      runtime.selectedConnectionIds.clear();
+      runtime.selectedConnectionIds.add(row.id);
+      runtime.selectedConnectionId = row.id;
+    }
+    runtime.selectedNodeId = null;
+    runtime.selectedGroupId = null;
+    runtime.selectedGroupIds.clear();
+    runtime.selectedNodeIds.clear();
+    setRightTab("diagram");
+    applyDiagramSubTab("groups");
+    focusViewportOnWorldRect(worldRectBoundsForListRow(row));
+    scheduleRenderConnections();
+  }
+
+  function jumpToInspectorConnectionByDataset(kind, id) {
+    if (!id || (kind !== "conn" && kind !== "gc")) return;
+    const row = buildConnectionPanelRows().find((r) => r.kind === kind && r.id === id);
+    jumpToInspectorConnectionRow(row);
+  }
+
+  function initConnectionListPanelUi() {
+    if (!connectionListBody || connectionListBody.dataset.delegationBound) return;
+    connectionListBody.dataset.delegationBound = "1";
+    const panel = document.getElementById("connectionListPanel");
+    panel?.addEventListener("pointerleave", () => {
+      if (!runtime.listHoverLink) return;
+      runtime.listHoverLink = null;
+      scheduleRenderConnections();
+    });
+    connectionListBody.addEventListener("pointerover", (e) => {
+      const btn = e.target.closest(".connection-list-row");
+      if (!btn) return;
+      const kind = btn.dataset.connRowKind;
+      const rid = btn.dataset.connRowId;
+      if (!rid || (kind !== "conn" && kind !== "gc")) return;
+      if (runtime.listHoverLink?.kind === kind && runtime.listHoverLink?.id === rid) return;
+      runtime.listHoverLink = { kind, id: rid };
+      scheduleRenderConnections();
+    });
+    connectionListBody.addEventListener("click", (e) => {
+      const btn = e.target.closest(".connection-list-row");
+      if (!btn) return;
+      const kind = btn.dataset.connRowKind;
+      const id = btn.dataset.connRowId;
+      if (!id || (kind !== "conn" && kind !== "gc")) return;
+      if (e.shiftKey || e.ctrlKey || e.metaKey) {
+        if (kind === "conn") toggleShiftConnectionEdgeSelection(id);
+        else toggleShiftGroupConnSelection(id);
+        runtime.selectedNodeId = null;
+        runtime.selectedGroupId = null;
+        runtime.selectedGroupIds.clear();
+        runtime.selectedNodeIds.clear();
+        scheduleRenderConnections();
+        renderSelection();
+        return;
+      }
+      jumpToInspectorConnectionByDataset(kind, id);
+    });
+    connectionListBody.addEventListener("keydown", (e) => {
+      if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+      const cur = document.activeElement;
+      if (!cur || !cur.classList.contains("connection-list-row")) return;
+      const rows = [...connectionListBody.querySelectorAll(".connection-list-row")];
+      const i = rows.indexOf(cur);
+      if (i < 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const j = e.key === "ArrowDown" ? Math.min(rows.length - 1, i + 1) : Math.max(0, i - 1);
+      rows[j]?.focus();
+    });
+  }
+
+  function renderConnectionListPanel() {
+    if (!connectionListBody) return;
+    const mode = getConnectionListFilterMode();
+    const selIds = diagramInspectorSelectedNodeIds();
+    let rows = buildConnectionPanelRows();
+    if (mode === "selection") {
+      if (!selIds.size) rows = [];
+      else rows = rows.filter((row) => row.endNodeIds.some((id) => selIds.has(id)));
+    } else if (mode === "warnings") {
+      rows = rows.filter((r) => r.warning);
+    }
+    connectionListBody.innerHTML = "";
+    if (!rows.length) {
+      const li = document.createElement("li");
+      const empty = document.createElement("div");
+      empty.className = "connection-list-empty";
+      empty.textContent =
+        mode === "selection"
+          ? "Select a node to see its links, or switch filter to “All”."
+          : mode === "warnings"
+            ? "No semantic warnings on node-to-node links."
+            : "No connections yet.";
+      li.appendChild(empty);
+      connectionListBody.appendChild(li);
+      return;
+    }
+    for (const row of rows) {
+      const li = document.createElement("li");
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "connection-list-row";
+      if (row.warning) btn.classList.add("is-warn");
+      btn.dataset.connRowKind = row.kind;
+      btn.dataset.connRowId = row.id;
+      const selected =
+        (row.kind === "conn" && (runtime.selectedConnectionIds.has(row.id) || row.id === runtime.selectedConnectionId)) ||
+        (row.kind === "gc" && (runtime.selectedGroupConnIds.has(row.id) || row.id === runtime.selectedGroupConnId));
+      if (selected) btn.classList.add("selected");
+      btn.setAttribute("aria-label", `Focus ${row.kind === "gc" ? "system" : "node"} link: ${row.label}`);
+      btn.textContent = row.label;
+      li.appendChild(btn);
+      connectionListBody.appendChild(li);
+    }
+  }
+
+  /** Phase 2–3: inspector + keyboard bulk-delete targets for selected canvas / system links. */
+  function getSelectedConnectionRecords() {
+    const p = getProject();
+    const out = { nn: [], bridges: [], gcs: [] };
+    const seenC = new Set();
+    for (const id of [...runtime.selectedConnectionIds, ...(runtime.selectedConnectionId ? [runtime.selectedConnectionId] : [])]) {
+      if (!id || seenC.has(id)) continue;
+      seenC.add(id);
+      const c = p.connections.find((x) => x.id === id);
+      if (!c) continue;
+      normalizeConnectionEdge(c);
+      if (isNodeNodeConnection(c)) out.nn.push(c);
+      else out.bridges.push(c);
+    }
+    const seenG = new Set();
+    for (const id of [...runtime.selectedGroupConnIds, ...(runtime.selectedGroupConnId ? [runtime.selectedGroupConnId] : [])]) {
+      if (!id || seenG.has(id)) continue;
+      seenG.add(id);
+      const gc = (p.groupConnections || []).find((x) => x.id === id);
+      if (gc) {
+        normalizeConnectionEdge(gc);
+        out.gcs.push(gc);
+      }
+    }
+    return out;
+  }
+
+  /** Phase 2: delete every selected edge (connections + group links) with one undo step. */
+  function bulkDeleteSelectedEdgesAction() {
+    const p = getProject();
+    const { nn, bridges, gcs } = getSelectedConnectionRecords();
+    const delConn = new Set([...nn, ...bridges].map((c) => c.id));
+    const delGc = new Set(gcs.map((c) => c.id));
+    if (!delConn.size && !delGc.size) return;
+    pushHistory();
+    if (delConn.size) {
+      p.connections = p.connections.filter((c) => !delConn.has(c.id));
+      for (const id of delConn) delete runtime.connectionUi[id];
+    }
+    if (delGc.size) p.groupConnections = (p.groupConnections || []).filter((c) => !delGc.has(c.id));
+    clearAllEdgeSelection();
+    runtime.listHoverLink = null;
+    renderConnections();
+    renderSelection();
+    markDirty();
+    scheduleSemanticAnalysis();
+    showToast(`Deleted ${delConn.size + delGc.size} link(s).`, "danger");
+  }
+
+  /** Phase 2–3: sync edge inspector fields (label + stroke) with current multi-selection. */
+  function syncEdgeInspectorPanel() {
+    const panel = document.getElementById("edgeInspectorPanel");
+    const countEl = document.getElementById("edgeInspectorCount");
+    const labelInput = document.getElementById("edgeLabelInput");
+    const wSel = document.getElementById("edgeStrokeWidthSel");
+    const dSel = document.getElementById("edgeStrokeDashSel");
+    const colInp = document.getElementById("edgeStrokeColorInput");
+    if (!panel || !countEl || !labelInput || !wSel || !dSel) return;
+    const { nn, bridges, gcs } = getSelectedConnectionRecords();
+    const nEdge = nn.length + bridges.length + gcs.length;
+    if (!nEdge) {
+      panel.hidden = true;
+      return;
+    }
+    panel.hidden = false;
+    countEl.textContent = `${nEdge} link(s) · ${nn.length} node–node · ${bridges.length} bridge · ${gcs.length} system`;
+
+    const fh = document.activeElement;
+    const strokeRecs = [...nn, ...bridges, ...gcs];
+
+    if (fh !== labelInput) {
+      labelInput.disabled = !nn.length;
+      labelInput.placeholder = "Edge caption";
+      if (!nn.length) labelInput.value = "";
+      else {
+        const lbls = nn.map((c) => String(c.label || "").trim());
+        const uniq = new Set(lbls);
+        labelInput.value = uniq.size === 1 ? lbls[0] : "";
+        if (uniq.size > 1) labelInput.placeholder = "Mixed labels — typing replaces all selected";
+      }
+    }
+    if (fh !== wSel) {
+      const ws = strokeRecs.map((c) =>
+        c.strokeWidth != null && Number.isFinite(Number(c.strokeWidth)) ? String(Number(c.strokeWidth)) : ""
+      );
+      const wu = new Set(ws);
+      wSel.value = wu.size === 1 ? ws[0] : "";
+    }
+    if (fh !== dSel) {
+      const ds = strokeRecs.map((c) => c.strokeDash || "solid");
+      const du = new Set(ds);
+      dSel.value = du.size === 1 ? ds[0] : "";
+    }
+    if (colInp && fh !== colInp) {
+      const cols = strokeRecs.map((c) => connectionStrokeColorOrNull(c));
+      const defined = cols.filter(Boolean);
+      const u = new Set(defined);
+      colInp.title =
+        u.size > 1 || (defined.length && defined.length < strokeRecs.length)
+          ? "Mixed — picking a color applies to all selected links"
+          : "Custom stroke color (clears to theme gradient)";
+      colInp.value = u.size === 1 ? [...u][0] : "#9cb8ff";
+    }
+  }
+
+  let edgeInspectorHistoryPrimed = false;
+  function primeEdgeInspectorHistoryOnce() {
+    if (edgeInspectorHistoryPrimed) return;
+    pushHistory();
+    edgeInspectorHistoryPrimed = true;
+  }
+
+  /** Phase 3: wire edge inspector controls (single + multi apply). */
+  function initEdgeInspectorPanelUi() {
+    const labelInput = document.getElementById("edgeLabelInput");
+    const wSel = document.getElementById("edgeStrokeWidthSel");
+    const dSel = document.getElementById("edgeStrokeDashSel");
+    const colInp = document.getElementById("edgeStrokeColorInput");
+    const clrBtn = document.getElementById("edgeStrokeColorClearBtn");
+    const delBtn = document.getElementById("edgeBulkDeleteBtn");
+    const panel = document.getElementById("edgeInspectorPanel");
+    if (!labelInput || !wSel || !dSel || !delBtn || delBtn.dataset.bound) return;
+    delBtn.dataset.bound = "1";
+    panel?.addEventListener("focusout", () => {
+      window.setTimeout(() => {
+        if (!panel?.contains(document.activeElement)) edgeInspectorHistoryPrimed = false;
+      }, 0);
+    });
+    labelInput.addEventListener("focus", () => {
+      edgeInspectorHistoryPrimed = false;
+    });
+    labelInput.addEventListener("input", () => {
+      const { nn } = getSelectedConnectionRecords();
+      if (!nn.length) return;
+      primeEdgeInspectorHistoryOnce();
+      const v = labelInput.value;
+      for (const c of nn) {
+        c.label = v;
+        normalizeConnectionEdge(c);
+      }
+      scheduleRenderConnections();
+      markDirty();
+    });
+    wSel.addEventListener("change", () => {
+      const { nn, bridges, gcs } = getSelectedConnectionRecords();
+      const recs = [...nn, ...bridges, ...gcs];
+      if (!recs.length) return;
+      primeEdgeInspectorHistoryOnce();
+      const raw = wSel.value;
+      for (const c of recs) {
+        if (raw === "" || raw == null) c.strokeWidth = null;
+        else c.strokeWidth = Number(raw);
+        normalizeConnectionEdge(c);
+      }
+      scheduleRenderConnections();
+      markDirty();
+    });
+    dSel.addEventListener("change", () => {
+      const { nn, bridges, gcs } = getSelectedConnectionRecords();
+      const recs = [...nn, ...bridges, ...gcs];
+      if (!recs.length) return;
+      primeEdgeInspectorHistoryOnce();
+      const raw = dSel.value;
+      if (!raw) return;
+      for (const c of recs) {
+        c.strokeDash = raw;
+        normalizeConnectionEdge(c);
+      }
+      scheduleRenderConnections();
+      markDirty();
+    });
+    if (colInp) {
+      colInp.addEventListener("input", () => {
+        const { nn, bridges, gcs } = getSelectedConnectionRecords();
+        const recs = [...nn, ...bridges, ...gcs];
+        if (!recs.length) return;
+        primeEdgeInspectorHistoryOnce();
+        const hex = colInp.value;
+        for (const c of recs) {
+          c.strokeColor = hex;
+          normalizeConnectionEdge(c);
+        }
+        scheduleRenderConnections();
+        markDirty();
+      });
+    }
+    if (clrBtn) {
+      clrBtn.addEventListener("click", () => {
+        const { nn, bridges, gcs } = getSelectedConnectionRecords();
+        const recs = [...nn, ...bridges, ...gcs];
+        if (!recs.length) return;
+        primeEdgeInspectorHistoryOnce();
+        for (const c of recs) {
+          c.strokeColor = null;
+          normalizeConnectionEdge(c);
+        }
+        scheduleRenderConnections();
+        markDirty();
+      });
+    }
+    delBtn.addEventListener("click", () => bulkDeleteSelectedEdgesAction());
+  }
+
+  /**
+   * Phase 3 outline: move a node between systems (updates owning `userGroups[].nodeIds`; same logical intent as a `parentGroupId` on nodes).
+   * Preserves world position; respects pinned groups.
+   */
+  function assignNodeToUserGroup(nodeId, targetGroupId) {
+    const p = getProject();
+    const n = getNodeById(nodeId);
+    if (!n) return;
+    if (targetGroupId && !userGroupById(p, targetGroupId)) return;
+    if (isNodeUnderPinnedGroup(p, nodeId)) {
+      showToast("Cannot reparent a node under a pinned system.", "warn");
+      return;
+    }
+    if (targetGroupId && isGroupOrAncestorPinned(p, targetGroupId)) {
+      showToast("Cannot move into a pinned system.", "warn");
+      return;
+    }
+    pushHistory();
+    const w = getNodeWorldPosition(n);
+    for (const g of p.userGroups || []) {
+      g.nodeIds = (g.nodeIds || []).filter((id) => id !== nodeId);
+    }
+    if (targetGroupId) {
+      const tg = userGroupById(p, targetGroupId);
+      if (tg) {
+        if (!Array.isArray(tg.nodeIds)) tg.nodeIds = [];
+        if (!tg.nodeIds.includes(nodeId)) tg.nodeIds.push(nodeId);
+      }
+    }
+    dedupeUserGroupMembership(p);
+    runtime.groupBoxCache = null;
+    setNodeWorldPosition(n, w.x, w.y);
+    renderAll();
+    markDirty();
+    scheduleSemanticAnalysis();
+    showToast(targetGroupId ? "Node moved into system." : "Node moved to canvas root.", "info");
+  }
+
+  /** Phase 3: systems → nodes tree for drag-reparent. */
+  function renderOutlineTreePanel() {
+    const host = document.getElementById("outlineTreeHost");
+    if (!host) return;
+    const p = getProject();
+    ensureProjectExtras(p);
+    const inGroup = new Set();
+    for (const g of p.userGroups || []) for (const id of g.nodeIds || []) inGroup.add(id);
+
+    host.innerHTML = "";
+    const addDropRow = (label, dropKey) => {
+      const row = document.createElement("div");
+      row.className = "outline-row system-row";
+      row.setAttribute("role", "treeitem");
+      row.setAttribute("aria-expanded", "true");
+      row.tabIndex = 0;
+      row.dataset.outlineDrop = dropKey;
+      row.innerHTML = `<span class="outline-chev" aria-hidden="true">▾</span><span class="outline-label">${label}</span>`;
+      host.appendChild(row);
+      return row;
+    };
+    const addNodeRow = (node) => {
+      const row = document.createElement("div");
+      row.className = "outline-row node-row";
+      row.setAttribute("role", "treeitem");
+      row.draggable = true;
+      row.dataset.outlineNode = node.id;
+      row.tabIndex = 0;
+      row.innerHTML = `<span class="outline-handle" aria-hidden="true">⋮⋮</span><span class="outline-label">${(node.title || node.text || "Node").replace(/</g, "")}</span>`;
+      host.appendChild(row);
+    };
+
+    const canvasRow = addDropRow("Canvas (ungrouped)", "canvas");
+    canvasRow.title = "Drop nodes here to remove them from systems";
+    for (const n of p.nodes) {
+      if (inGroup.has(n.id)) continue;
+      addNodeRow(n);
+    }
+
+    const walk = (g) => {
+      const row = addDropRow(g.name || "System", g.id);
+      row.title = "Drop nodes here to place into this system";
+      for (const nid of g.nodeIds || []) {
+        const n = getNodeById(nid);
+        if (n) addNodeRow(n);
+      }
+      for (const cid of g.childGroupIds || []) {
+        const ch = userGroupById(p, cid);
+        if (ch) walk(ch);
+      }
+    };
+    for (const g of p.userGroups || []) {
+      if (!g.parentGroupId) walk(g);
+    }
+  }
+
+  function initOutlineTreePanelUi() {
+    const host = document.getElementById("outlineTreeHost");
+    if (!host || host.dataset.dndBound) return;
+    host.dataset.dndBound = "1";
+    host.addEventListener("keydown", (e) => {
+      if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(e.key)) return;
+      const items = [...host.querySelectorAll('[role="treeitem"]')];
+      if (!items.length) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const cur = document.activeElement;
+      let i = items.indexOf(cur);
+      if (i < 0) i = 0;
+      let next = i;
+      if (e.key === "Home") next = 0;
+      else if (e.key === "End") next = items.length - 1;
+      else if (e.key === "ArrowDown") next = Math.min(items.length - 1, i + 1);
+      else next = Math.max(0, i - 1);
+      items[next]?.focus();
+    });
+    let dragNodeId = null;
+    host.addEventListener("dragstart", (e) => {
+      const row = e.target.closest("[data-outline-node]");
+      if (!row || !row.dataset.outlineNode) return;
+      dragNodeId = row.dataset.outlineNode;
+      e.dataTransfer.setData("application/x-mapdiagram-node", dragNodeId);
+      e.dataTransfer.effectAllowed = "move";
+      row.classList.add("dragging");
+    });
+    host.addEventListener("dragend", (e) => {
+      const row = e.target.closest("[data-outline-node]");
+      if (row) row.classList.remove("dragging");
+      for (const el of host.querySelectorAll(".outline-row.drop-target")) el.classList.remove("drop-target");
+      dragNodeId = null;
+    });
+    host.addEventListener("dragover", (e) => {
+      const t = e.target.closest("[data-outline-drop]");
+      if (!t || !t.dataset.outlineDrop) return;
+      e.preventDefault();
+      for (const el of host.querySelectorAll(".outline-row.drop-target")) el.classList.remove("drop-target");
+      t.classList.add("drop-target");
+    });
+    host.addEventListener("dragleave", (e) => {
+      const t = e.target.closest("[data-outline-drop]");
+      if (t && !t.contains(e.relatedTarget)) t.classList.remove("drop-target");
+    });
+    host.addEventListener("drop", (e) => {
+      const dropEl = e.target.closest("[data-outline-drop]");
+      if (!dropEl) return;
+      e.preventDefault();
+      const nodeId = e.dataTransfer.getData("application/x-mapdiagram-node") || dragNodeId;
+      const key = dropEl.dataset.outlineDrop;
+      for (const el of host.querySelectorAll(".outline-row.drop-target")) el.classList.remove("drop-target");
+      if (!nodeId || !key) return;
+      const target = key === "canvas" ? null : key;
+      if (target && target === userGroupIdForNode(nodeId)) return;
+      assignNodeToUserGroup(nodeId, target);
+    });
+  }
+
+  /** Phase 3: JSON diff summary before replacing the diagram. */
+  function computeImportDiffLines(currentP, incoming) {
+    const nodesA = new Set((currentP.nodes || []).map((n) => n.id));
+    const nodesB = new Set((incoming.nodes || []).map((n) => n.id));
+    const addedNodes = [...nodesB].filter((id) => !nodesA.has(id));
+    const removedNodes = [...nodesA].filter((id) => !nodesB.has(id));
+
+    const edgeSig = (arr, isGc) =>
+      (arr || []).map((c) => {
+        if (isGc) return `gc:${c.id || "?"}:${c.fromGroupId}->${c.toGroupId}`;
+        return `c:${c.id || "?"}:${c.kind || "node-node"}:${c.from}->${c.to}`;
+      });
+    const edgesA = new Set(edgeSig(currentP.connections, false).concat(edgeSig(currentP.groupConnections, true)));
+    const edgesB = new Set(edgeSig(incoming.connections, false).concat(edgeSig(incoming.groupConnections, true)));
+    const addedEdges = [...edgesB].filter((x) => !edgesA.has(x));
+    const removedEdges = [...edgesA].filter((x) => !edgesB.has(x));
+
+    const lines = [];
+    lines.push(`Current diagram: ${nodesA.size} nodes, ${edgesA.size} links (incl. system).`);
+    lines.push(`Import file: ${nodesB.size} nodes, ${edgesB.size} links.`);
+    lines.push("");
+    lines.push(`Nodes added by import: ${addedNodes.length}`);
+    if (addedNodes.length) lines.push(`  ${addedNodes.slice(0, 40).join(", ")}${addedNodes.length > 40 ? " …" : ""}`);
+    lines.push(`Nodes removed (present now, missing in import): ${removedNodes.length}`);
+    if (removedNodes.length) lines.push(`  ${removedNodes.slice(0, 40).join(", ")}${removedNodes.length > 40 ? " …" : ""}`);
+    lines.push("");
+    lines.push(`Links added: ${addedEdges.length}`);
+    if (addedEdges.length) lines.push(addedEdges.slice(0, 24).join("\n") + (addedEdges.length > 24 ? "\n…" : ""));
+    lines.push(`Links removed: ${removedEdges.length}`);
+    if (removedEdges.length) lines.push(removedEdges.slice(0, 24).join("\n") + (removedEdges.length > 24 ? "\n…" : ""));
+    return lines.join("\n");
+  }
+
+  function applyPendingImportParsed() {
+    const parsed = runtime.pendingImportParsed;
+    if (!parsed) return;
+    pushHistory();
+    const p = getProject();
+    p.nodes = Array.isArray(parsed.nodes) ? parsed.nodes : [];
+    p.connections = Array.isArray(parsed.connections) ? parsed.connections : [];
+    p.userGroups = Array.isArray(parsed.userGroups) ? parsed.userGroups : [];
+    p.groupConnections = Array.isArray(parsed.groupConnections) ? parsed.groupConnections : [];
+    p.view = parsed.view || { x: 0, y: 0, zoom: 1 };
+    p.title = parsed.title || "Imported";
+    runtime.pendingImportParsed = null;
+    runtime.connectionUi = {};
+    clearAllEdgeSelection();
+    runtime.selectedNodeIds.clear();
+    runtime.selectedNodeId = null;
+    renderAll();
+    markDirty();
+    scheduleSemanticAnalysis();
+    showToast("Import applied.", "info");
+  }
+
+  function closeImportDiffOverlay() {
+    const ov = document.getElementById("importDiffOverlay");
+    if (ov) ov.hidden = true;
+    runtime.pendingImportParsed = null;
+  }
+
+  /** Phase 3: saved camera bookmarks per project (localStorage). */
+  function savedViewsStorageKey() {
+    return `mapdiagram-saved-views-v1-${getProject().projectId}`;
+  }
+
+  function loadSavedViewEntries() {
+    try {
+      const raw = localStorage.getItem(savedViewsStorageKey());
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function persistSavedViewEntries(entries) {
+    try {
+      localStorage.setItem(savedViewsStorageKey(), JSON.stringify(entries));
+    } catch (_) {}
+  }
+
+  function renderSavedViewsList() {
+    const ul = document.getElementById("savedViewsList");
+    if (!ul) return;
+    const entries = loadSavedViewEntries();
+    ul.innerHTML = "";
+    entries.forEach((ent, idx) => {
+      const li = document.createElement("li");
+      li.className = "saved-view-item";
+      const snap = ent.snapshot || {};
+      const nodeSig = Array.isArray(snap.nodeIds) ? snap.nodeIds.length : "?";
+      li.innerHTML = `<span class="saved-view-name">${String(ent.name || "View").replace(/</g, "")}</span>
+        <span class="muted" style="font-size:10px">${nodeSig} nodes</span>
+        <button type="button" class="text-btn-sm saved-view-restore">Restore</button>
+        <button type="button" class="text-btn-sm danger saved-view-del">×</button>`;
+      li.querySelector(".saved-view-restore")?.addEventListener("click", () => {
+        const p = getProject();
+        if (snap.view) {
+          p.view = { ...p.view, ...snap.view };
+          updateViewport();
+          markDirty();
+          showToast(`Restored view “${ent.name}”.`, "info");
+        }
+        const curIds = new Set(p.nodes.map((n) => n.id));
+        const miss = (snap.nodeIds || []).filter((id) => !curIds.has(id)).length;
+        if (miss) showToast("Saved snapshot references missing nodes — camera only restored.", "warn");
+      });
+      li.querySelector(".saved-view-del")?.addEventListener("click", () => {
+        const next = loadSavedViewEntries().filter((_, i) => i !== idx);
+        persistSavedViewEntries(next);
+        renderSavedViewsList();
+        showToast("Saved view removed.", "info");
+      });
+      ul.appendChild(li);
+    });
+  }
+
+  function saveCurrentViewBookmark() {
+    const p = getProject();
+    const name = document.getElementById("savedViewNameInput")?.value?.trim();
+    if (!name) {
+      showToast("Enter a name for the saved view.", "warn");
+      return;
+    }
+    const entries = loadSavedViewEntries();
+    entries.unshift({
+      name,
+      snapshot: {
+        view: { ...p.view },
+        nodeIds: p.nodes.map((n) => n.id),
+        title: p.title
+      }
+    });
+    persistSavedViewEntries(entries.slice(0, 24));
+    document.getElementById("savedViewNameInput").value = "";
+    renderSavedViewsList();
+    showToast(`Saved view “${name}”.`, "info");
+  }
+
+  /** Phase 3: command palette + shortcut help (single registry). */
+  function getWorkspaceCommands() {
+    return [
+      { id: "palette", label: "Command palette", keys: "Ctrl+K / ⌘K", keywords: "search actions", run: () => openCommandPalette(true) },
+      { id: "shortcuts", label: "Keyboard shortcuts help", keys: "Palette ▸ Shortcuts", keywords: "help keys", run: () => openKeyboardHelpOverlay() },
+      { id: "fit", label: "Fit to screen", keys: "", keywords: "zoom view bounds", run: () => fitViewBtn?.click() },
+      { id: "fitPanel", label: "Fit to screen (inspector button)", keys: "", keywords: "", run: () => document.getElementById("fitViewInPanelBtn")?.click() },
+      { id: "grid", label: "Toggle grid", keys: "", keywords: "snap", run: () => gridToggleBtn?.click() },
+      { id: "add", label: "Add node", keys: "", keywords: "new", run: () => document.getElementById("addNodeBtn")?.click() },
+      { id: "undo", label: "Undo", keys: "Ctrl+Z", keywords: "", run: () => document.getElementById("undoBtn")?.click() },
+      { id: "redo", label: "Redo", keys: "Ctrl+Y / Ctrl+Shift+Z", keywords: "", run: () => document.getElementById("redoBtn")?.click() },
+      { id: "dup", label: "Duplicate selected nodes", keys: "Ctrl+D", keywords: "copy", run: () => duplicateSelectedNodesAction() },
+      { id: "exportJson", label: "Export JSON", keys: "", keywords: "download save", run: () => document.getElementById("exportBtn")?.click() },
+      { id: "exportPng", label: "Export PNG", keys: "", keywords: "image picture", run: () => exportAsPng() },
+      { id: "import", label: "Import JSON…", keys: "", keywords: "upload open", run: () => fileInput?.click() },
+      { id: "smart", label: "Smart Clean diagram", keys: "", keywords: "tidy", run: () => document.getElementById("smartCleanBtn")?.click() },
+      { id: "refreshPaths", label: "Refresh connection paths", keys: "", keywords: "reroute edges", run: () => document.getElementById("refreshConnectionPathsBtn")?.click() },
+      { id: "autoLayout", label: "Auto layout", keys: "", keywords: "graph arrange", run: () => document.getElementById("autoLayoutBtn")?.click() },
+      { id: "alignL", label: "Align selection left", keys: "", keywords: "", run: () => alignDistributeSelection("left") },
+      { id: "alignT", label: "Align selection top", keys: "", keywords: "", run: () => alignDistributeSelection("top") },
+      { id: "alignHc", label: "Align selection horizontal centers", keys: "", keywords: "", run: () => alignDistributeSelection("hcenter") },
+      { id: "alignVc", label: "Align selection vertical centers", keys: "", keywords: "", run: () => alignDistributeSelection("vcenter") },
+      { id: "distH", label: "Distribute selection horizontally", keys: "", keywords: "space", run: () => alignDistributeSelection("disth") },
+      { id: "distV", label: "Distribute selection vertically", keys: "", keywords: "space", run: () => alignDistributeSelection("distv") },
+      { id: "expandG", label: "Expand selection to graph neighbors", keys: "", keywords: "connected", run: () => expandSelectionToGraphNeighbors() },
+      { id: "expandT", label: "Expand selection to same node type", keys: "", keywords: "", run: () => expandSelectionToSameType() },
+      { id: "theme", label: "Toggle light / dark theme", keys: "", keywords: "color appearance", run: () => document.getElementById("themeToggleBtn")?.click() },
+      { id: "share", label: "Create share link", keys: "", keywords: "clipboard url", run: () => document.getElementById("shareBtn")?.click() },
+      { id: "delEdge", label: "Delete selected links", keys: "Delete", keywords: "edges connections remove", run: () => bulkDeleteSelectedEdgesAction() },
+      { id: "delNode", label: "Delete selected node(s)", keys: "", keywords: "remove", run: () => document.getElementById("deleteNodeBtn")?.click() }
+    ];
+  }
+
+  let commandPaletteFiltered = [];
+  let commandPaletteActiveIdx = 0;
+
+  function filterCommandsPalette(q) {
+    const s = String(q || "").trim().toLowerCase();
+    const all = getWorkspaceCommands();
+    if (!s) return all;
+    return all.filter((c) => {
+      const hay = `${c.label} ${c.keywords || ""} ${c.keys || ""}`.toLowerCase();
+      return hay.includes(s);
+    });
+  }
+
+  function renderCommandPaletteList() {
+    const list = document.getElementById("commandPaletteList");
+    const input = document.getElementById("commandPaletteInput");
+    if (!list || !input) return;
+    list.innerHTML = "";
+    commandPaletteFiltered = filterCommandsPalette(input.value);
+    commandPaletteActiveIdx = Math.min(commandPaletteActiveIdx, Math.max(0, commandPaletteFiltered.length - 1));
+    commandPaletteFiltered.forEach((cmd, i) => {
+      const li = document.createElement("li");
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "command-palette-item";
+      btn.setAttribute("role", "option");
+      btn.setAttribute("aria-selected", i === commandPaletteActiveIdx ? "true" : "false");
+      btn.innerHTML = `<span class="cp-label">${cmd.label}</span><span class="cp-keys muted">${cmd.keys || ""}</span>`;
+      btn.addEventListener("click", () => {
+        closeCommandPalette();
+        cmd.run();
+      });
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+  }
+
+  function openCommandPalette(reset) {
+    const ov = document.getElementById("commandPaletteOverlay");
+    const input = document.getElementById("commandPaletteInput");
+    if (!ov || !input) return;
+    ov.hidden = false;
+    if (reset) input.value = "";
+    commandPaletteActiveIdx = 0;
+    renderCommandPaletteList();
+    window.setTimeout(() => input.focus(), 10);
+  }
+
+  function closeCommandPalette() {
+    const ov = document.getElementById("commandPaletteOverlay");
+    if (ov) ov.hidden = true;
+  }
+
+  function moveCommandPaletteSelection(delta) {
+    if (!commandPaletteFiltered.length) return;
+    commandPaletteActiveIdx = (commandPaletteActiveIdx + delta + commandPaletteFiltered.length) % commandPaletteFiltered.length;
+    renderCommandPaletteList();
+    const list = document.getElementById("commandPaletteList");
+    const activeBtn = list?.querySelectorAll("button")[commandPaletteActiveIdx];
+    activeBtn?.scrollIntoView({ block: "nearest" });
+  }
+
+  function runActivePaletteCommand() {
+    const cmd = commandPaletteFiltered[commandPaletteActiveIdx];
+    if (!cmd) return;
+    closeCommandPalette();
+    cmd.run();
+  }
+
+  function openKeyboardHelpOverlay() {
+    const ov = document.getElementById("keyboardHelpOverlay");
+    const body = document.getElementById("kbdHelpBody");
+    if (!ov || !body) return;
+    body.innerHTML = "";
+    const extra = [
+      { k: "Delete", d: "Remove selected link(s); if none, delete selected node(s)." },
+      { k: "Alt + click link", d: "Delete that connection on the canvas (undo with Ctrl+Z)." },
+      { k: "Ctrl / ⌘ + D", d: "Duplicate selected nodes." },
+      { k: "Ctrl / ⌘ + Z / Y", d: "Undo / redo diagram edits." },
+      { k: "Arrow keys (canvas)", d: "Nudge selected nodes (Shift = larger step)." }
+    ];
+    for (const c of getWorkspaceCommands()) {
+      if (!c.keys && c.id !== "palette") continue;
+      const dt = document.createElement("dt");
+      dt.className = "kbd-dt";
+      dt.textContent = c.keys || (c.id === "palette" ? "Ctrl+K / ⌘K" : "");
+      const dd = document.createElement("dd");
+      dd.className = "kbd-dd";
+      dd.textContent = c.label;
+      body.append(dt, dd);
+    }
+    for (const x of extra) {
+      const dt = document.createElement("dt");
+      dt.className = "kbd-dt";
+      dt.textContent = x.k;
+      const dd = document.createElement("dd");
+      dd.className = "kbd-dd";
+      dd.textContent = x.d;
+      body.append(dt, dd);
+    }
+    ov.hidden = false;
+    document.getElementById("kbdHelpClose")?.focus();
+  }
+
+  function closeKeyboardHelpOverlay() {
+    const ov = document.getElementById("keyboardHelpOverlay");
+    if (ov) ov.hidden = true;
+  }
+
+  function initCommandPaletteAndHelpUi() {
+    const ov = document.getElementById("commandPaletteOverlay");
+    const input = document.getElementById("commandPaletteInput");
+    const list = document.getElementById("commandPaletteList");
+    const helpBtn = document.getElementById("keyboardHelpBtn");
+    if (!ov || !input || !list || ov.dataset.cpBound) return;
+    ov.dataset.cpBound = "1";
+    input.addEventListener("input", () => {
+      commandPaletteActiveIdx = 0;
+      renderCommandPaletteList();
+    });
+    input.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        closeCommandPalette();
+        return;
+      }
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        moveCommandPaletteSelection(1);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        moveCommandPaletteSelection(-1);
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        runActivePaletteCommand();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        closeCommandPalette();
+      }
+    });
+    ov.addEventListener("pointerdown", (e) => {
+      if (e.target === ov) closeCommandPalette();
+    });
+    helpBtn?.addEventListener("click", () => {
+      closeCommandPalette();
+      openKeyboardHelpOverlay();
+    });
+    document.getElementById("kbdHelpClose")?.addEventListener("click", () => closeKeyboardHelpOverlay());
+    document.getElementById("keyboardHelpOverlay")?.addEventListener("pointerdown", (e) => {
+      if (e.target.id === "keyboardHelpOverlay") closeKeyboardHelpOverlay();
+    });
+  }
+
+  function initSavedViewsUi() {
+    const btn = document.getElementById("savedViewSaveBtn");
+    if (!btn || btn.dataset.svBound) return;
+    btn.dataset.svBound = "1";
+    btn.addEventListener("click", () => saveCurrentViewBookmark());
+    renderSavedViewsList();
+  }
+
+  function initImportDiffApplyUi() {
+    const apply = document.getElementById("importDiffApplyBtn");
+    const cancel = document.getElementById("importDiffCancelBtn");
+    if (!apply || apply.dataset.impBound) return;
+    apply.dataset.impBound = "1";
+    apply.addEventListener("click", () => {
+      applyPendingImportParsed();
+      closeImportDiffOverlay();
+    });
+    cancel?.addEventListener("click", () => closeImportDiffOverlay());
+  }
+
+  function primaryNodeSelectionIdList() {
+    const out = [];
+    if (runtime.selectedNodeIds && runtime.selectedNodeIds.size) {
+      for (const id of runtime.selectedNodeIds) out.push(id);
+    }
+    if (runtime.selectedNodeId && !out.includes(runtime.selectedNodeId)) out.unshift(runtime.selectedNodeId);
+    else if (!out.length && runtime.selectedNodeId) out.push(runtime.selectedNodeId);
+    return out.filter((id) => getNodeById(id));
+  }
+
+  function nodeCanWorkspaceTransform(n) {
+    if (!n) return false;
+    if (isNodeDragHardLocked(n)) return false;
+    if (isNodeUnderPinnedGroup(getProject(), n.id)) return false;
+    return true;
+  }
+
+  function duplicateSelectedNodesAction() {
+    const p = getProject();
+    const rawIds = [...new Set(primaryNodeSelectionIdList())];
+    const ids = rawIds.filter((id) => nodeCanWorkspaceTransform(getNodeById(id)));
+    if (!ids.length) {
+      showConnectionHint("Select movable (unlocked) nodes to duplicate.", true);
+      return;
+    }
+    pushHistory();
+    const ox = 28;
+    const oy = 28;
+    const selSet = new Set(ids);
+    const idMap = new Map();
+    for (const id of ids) {
+      const n = getNodeById(id);
+      if (!n || !nodeCanWorkspaceTransform(n)) continue;
+      const clone = normalizeNode(deepCopy(n));
+      clone.id = uid();
+      clone.title = `${clone.title || clone.text || "Node"} copy`;
+      clone.text = clone.title;
+      ensureNodeExtendedModel(clone);
+      if (clone.security) {
+        clone.security.locked = false;
+        clone.security.lockMode = "none";
+        clone.security.passwordHash = null;
+      }
+      p.nodes.push(clone);
+      idMap.set(id, clone.id);
+      const gid = userGroupIdForNode(id);
+      const g = gid ? userGroupById(p, gid) : null;
+      const pinned = gid && isGroupOrAncestorPinned(p, gid);
+      const w0 = getNodeWorldPosition(n);
+      const wNew = { x: w0.x + ox, y: w0.y + oy };
+      if (g && !pinned) {
+        if (!g.nodeIds.includes(clone.id)) g.nodeIds.push(clone.id);
+        clone.x = wNew.x - (Number(g.x) || 0);
+        clone.y = wNew.y - (Number(g.y) || 0);
+      } else {
+        clone.x = wNew.x;
+        clone.y = wNew.y;
+      }
+    }
+    const newConns = [];
+    for (const c of p.connections) {
+      if (!isNodeNodeConnection(c)) continue;
+      if (selSet.has(c.from) && selSet.has(c.to)) {
+        const nf = idMap.get(c.from);
+        const nt = idMap.get(c.to);
+        if (nf && nt) {
+          const nc = deepCopy(c);
+          nc.id = uid();
+          nc.from = nf;
+          nc.to = nt;
+          newConns.push(nc);
+        }
+      }
+    }
+    for (const c of newConns) p.connections.push(c);
+    runtime.selectedNodeIds.clear();
+    for (const id of ids) {
+      const nid = idMap.get(id);
+      if (nid) runtime.selectedNodeIds.add(nid);
+    }
+    const lastClone = idMap.get(ids[ids.length - 1]);
+    runtime.selectedNodeId = lastClone || null;
+    runtime.selectedConnectionId = null;
+    runtime.selectedConnectionIds.clear();
+    runtime.selectedGroupConnId = null;
+    runtime.selectedGroupConnIds.clear();
+    runtime.selectedGroupId = null;
+    runtime.selectedGroupIds.clear();
+    runtime.graphCacheKey = "";
+    dedupeUserGroupMembership(p);
+    renderAll();
+    markDirty();
+    scheduleSemanticAnalysis();
+  }
+
+  function alignDistributeSelection(kind) {
+    const ids = [...new Set(primaryNodeSelectionIdList())].filter((id) => nodeCanWorkspaceTransform(getNodeById(id)));
+    const nodes = ids.map((id) => getNodeById(id)).filter(Boolean);
+    if (ids.length < 2) {
+      showConnectionHint("Select at least two movable nodes to align.", true);
+      return;
+    }
+    if ((kind === "disth" || kind === "distv") && nodes.length < 3) {
+      showConnectionHint("Select at least three movable nodes to distribute.", true);
+      return;
+    }
+    pushHistory();
+    if (kind === "left") {
+      const minL = Math.min(...nodes.map((n) => getNodeWorldPosition(n).x));
+      for (const n of nodes) {
+        const w = getNodeWorldPosition(n);
+        setNodeWorldPosition(n, minL, w.y);
+      }
+    } else if (kind === "hcenter") {
+      const cx = nodes.reduce((s, n) => s + getNodeWorldPosition(n).x + n.width / 2, 0) / nodes.length;
+      for (const n of nodes) {
+        const w = getNodeWorldPosition(n);
+        setNodeWorldPosition(n, cx - n.width / 2, w.y);
+      }
+    } else if (kind === "top") {
+      const minT = Math.min(...nodes.map((n) => getNodeWorldPosition(n).y));
+      for (const n of nodes) {
+        const w = getNodeWorldPosition(n);
+        setNodeWorldPosition(n, w.x, minT);
+      }
+    } else if (kind === "vcenter") {
+      const cy = nodes.reduce((s, n) => s + getNodeWorldPosition(n).y + n.height / 2, 0) / nodes.length;
+      for (const n of nodes) {
+        const w = getNodeWorldPosition(n);
+        setNodeWorldPosition(n, w.x, cy - n.height / 2);
+      }
+    } else if (kind === "disth") {
+      const sorted = [...nodes].sort(
+        (a, b) => getNodeWorldPosition(a).x + a.width / 2 - (getNodeWorldPosition(b).x + b.width / 2)
+      );
+      const firstL = getNodeWorldPosition(sorted[0]).x;
+      const lastR = getNodeWorldPosition(sorted[sorted.length - 1]).x + sorted[sorted.length - 1].width;
+      const totalW = sorted.reduce((s, n) => s + n.width, 0);
+      const gap = Math.max(0, (lastR - firstL - totalW) / (sorted.length - 1));
+      let cur = firstL;
+      for (const n of sorted) {
+        const y = getNodeWorldPosition(n).y;
+        setNodeWorldPosition(n, cur, y);
+        cur += n.width + gap;
+      }
+    } else if (kind === "distv") {
+      const sorted = [...nodes].sort(
+        (a, b) => getNodeWorldPosition(a).y + a.height / 2 - (getNodeWorldPosition(b).y + b.height / 2)
+      );
+      const firstT = getNodeWorldPosition(sorted[0]).y;
+      const lastB = getNodeWorldPosition(sorted[sorted.length - 1]).y + sorted[sorted.length - 1].height;
+      const totalH = sorted.reduce((s, n) => s + n.height, 0);
+      const gap = Math.max(0, (lastB - firstT - totalH) / (sorted.length - 1));
+      let cur = firstT;
+      for (const n of sorted) {
+        const x = getNodeWorldPosition(n).x;
+        setNodeWorldPosition(n, x, cur);
+        cur += n.height + gap;
+      }
+    }
+    renderAll();
+    markDirty();
+    scheduleRenderConnections();
+    scheduleSemanticAnalysis();
+  }
+
+  function nudgeSelectedNodesFromKeys(dx, dy) {
+    if (!dx && !dy) return;
+    const ids = [...new Set(primaryNodeSelectionIdList())].filter((id) => nodeCanWorkspaceTransform(getNodeById(id)));
+    if (!ids.length) return;
+    pushHistory();
+    for (const id of ids) {
+      const n = getNodeById(id);
+      if (!n) continue;
+      const w = getNodeWorldPosition(n);
+      setNodeWorldPosition(n, w.x + dx, w.y + dy);
+    }
+    renderAll();
+    markDirty();
+    scheduleRenderConnections();
+    scheduleSemanticAnalysis(160);
+  }
+
+  function expandSelectionToGraphNeighbors() {
+    const p = getProject();
+    const next = new Set(diagramInspectorSelectedNodeIds());
+    if (!next.size && runtime.selectedNodeId) next.add(runtime.selectedNodeId);
+    if (!next.size) {
+      showConnectionHint("Select a node first.", true);
+      return;
+    }
+    for (const c of p.connections) {
+      if (!isNodeNodeConnection(c)) continue;
+      if (next.has(c.from)) next.add(c.to);
+      if (next.has(c.to)) next.add(c.from);
+    }
+    runtime.selectedNodeIds = next;
+    runtime.selectedNodeId = runtime.selectedNodeId && next.has(runtime.selectedNodeId) ? runtime.selectedNodeId : [...next][0];
+    renderSelection();
+    scheduleRenderConnections();
+  }
+
+  function expandSelectionToSameType() {
+    const anchor = getNodeById(runtime.selectedNodeId) || getNodeById([...runtime.selectedNodeIds][0]);
+    if (!anchor) {
+      showConnectionHint("Select a node first.", true);
+      return;
+    }
+    const t = anchor.type || "custom";
+    const next = new Set();
+    for (const n of getProject().nodes) {
+      if ((n.type || "process") === t) next.add(n.id);
+    }
+    runtime.selectedNodeIds = next;
+    runtime.selectedNodeId = anchor.id;
+    renderSelection();
+    scheduleRenderConnections();
+  }
+
+  function isTypingFocusTarget(el) {
+    if (!el || !(el instanceof Element)) return false;
+    const tag = el.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
+    if (el.isContentEditable) return true;
+    if (el.closest?.("[contenteditable=\"true\"]")) return true;
+    return false;
+  }
+
+  function applyNodeQuickLockFromInspector() {
+    const n = getNodeById(runtime.selectedNodeId);
+    const chk = document.getElementById("nodeQuickLockChk");
+    if (!n || !chk || chk.disabled) return;
+    pushHistory();
+    ensureNodeExtendedModel(n);
+    const on = !!chk.checked;
+    n.security.locked = on;
+    n.security.lockMode = on ? "hard" : "none";
+    renderAll();
+    markDirty();
+  }
+
+  function applyNodeQuickHiddenFromInspector() {
+    const n = getNodeById(runtime.selectedNodeId);
+    const chk = document.getElementById("nodeQuickHiddenChk");
+    if (!n || !chk || chk.disabled) return;
+    pushHistory();
+    ensureNodeExtendedModel(n);
+    n.visibility.hidden = !!chk.checked;
+    renderAll();
+    markDirty();
+  }
+
+  function applyNodeQuickFreeformFromInspector() {
+    const n = getNodeById(runtime.selectedNodeId);
+    const chk = document.getElementById("nodeQuickFreeformChk");
+    if (!n || !chk || chk.disabled) return;
+    pushHistory();
+    ensureNodeStyle(n).freeform = !!chk.checked;
+    renderAll();
+    markDirty();
+  }
+
   function renderSelection() {
     const p = getProject();
     for (const el of nodesLayer.querySelectorAll(".node")) {
@@ -6314,7 +8410,9 @@
     for (const c of connectionsLayer.querySelectorAll(".conn")) {
       const cid = c.dataset.connId;
       const gid = c.dataset.gcId;
-      c.classList.toggle("selected", (!!cid && cid === runtime.selectedConnectionId) || (!!gid && gid === runtime.selectedGroupConnId));
+      const selConn = !!cid && (runtime.selectedConnectionIds.has(cid) || cid === runtime.selectedConnectionId);
+      const selGc = !!gid && (runtime.selectedGroupConnIds.has(gid) || gid === runtime.selectedGroupConnId);
+      c.classList.toggle("selected", selConn || selGc);
     }
     const selectedNode = getNodeById(runtime.selectedNodeId);
     nodeText.value = selectedNode ? selectedNode.text : "";
@@ -6330,12 +8428,47 @@
     nodeShadow.value = selectedNode ? String(selectedNode.style.shadow ?? 20) : "20";
     nodeRadius.value = selectedNode ? String(selectedNode.style.radius ?? 12) : "12";
     nodeBorderColor.value = selectedNode ? (selectedNode.style.borderColor || "#9cb8ff") : "#9cb8ff";
+    const nql = document.getElementById("nodeQuickLockChk");
+    if (nql) {
+      if (selectedNode && !isNodeUnderPinnedGroup(p, selectedNode.id)) {
+        ensureNodeExtendedModel(selectedNode);
+        nql.disabled = false;
+        nql.checked = isNodeDragHardLocked(selectedNode);
+      } else {
+        nql.disabled = true;
+        nql.checked = false;
+      }
+    }
+    const nqh = document.getElementById("nodeQuickHiddenChk");
+    if (nqh) {
+      if (selectedNode) {
+        ensureNodeExtendedModel(selectedNode);
+        nqh.disabled = false;
+        nqh.checked = isNodeHiddenCanvas(selectedNode);
+      } else {
+        nqh.disabled = true;
+        nqh.checked = false;
+      }
+    }
+    const nqf = document.getElementById("nodeQuickFreeformChk");
+    if (nqf) {
+      if (selectedNode) {
+        nqf.disabled = false;
+        nqf.checked = !!ensureNodeStyle(selectedNode).freeform;
+      } else {
+        nqf.disabled = true;
+        nqf.checked = false;
+      }
+    }
     const selectedGroup = p.userGroups.find((g) => g.id === runtime.selectedGroupId) || null;
     groupControls.classList.toggle("active", !!selectedGroup);
     groupNameInput.value = selectedGroup ? (selectedGroup.name || "") : "";
     groupColorInput.value = selectedGroup ? (selectedGroup.color || "#8baeff") : "#8baeff";
     const bridges = (p.connections || []).filter((c) => !isNodeNodeConnection(c)).length;
     stats.textContent = `${p.nodes.length} nodes • ${p.connections.length} links (${bridges} system) • ${(p.userGroups || []).length} groups • ${p.title}`;
+    renderConnectionListPanel();
+    syncEdgeInspectorPanel();
+    renderOutlineTreePanel();
   }
 
   function syncNodeSizes() {
@@ -6434,8 +8567,7 @@
       style: { opacity: 0.9, glow: 12, shadow: 20, radius: 12, borderColor: "#9cb8ff" }
     });
     runtime.selectedNodeId = p.nodes[p.nodes.length - 1].id;
-    runtime.selectedConnectionId = null;
-    runtime.selectedGroupConnId = null;
+    clearAllEdgeSelection();
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
     renderAll();
@@ -6481,74 +8613,338 @@
     markDirty();
   }
 
-  function exportAsPng() {
-    const p = getProject();
-    if (!p.nodes.length) return;
-    const minX = Math.min(...p.nodes.map((n) => getNodeWorldPosition(n).x));
-    const minY = Math.min(...p.nodes.map((n) => getNodeWorldPosition(n).y));
-    const maxX = Math.max(...p.nodes.map((n) => getNodeWorldPosition(n).x + n.width));
-    const maxY = Math.max(...p.nodes.map((n) => getNodeWorldPosition(n).y + n.height));
-    const pad = 80;
-    const width = Math.ceil(maxX - minX + pad * 2);
-    const height = Math.ceil(maxY - minY + pad * 2);
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#0b0f1a";
-    ctx.fillRect(0, 0, width, height);
-    const tx = pad - minX;
-    const ty = pad - minY;
+  /** Phase 3 — PNG export: world bounds include user system frames (matches on-canvas extent). */
+  function getDiagramWorldBoundsForPngExport(p) {
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    const bump = (x, y, w, h) => {
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x + w);
+      maxY = Math.max(maxY, y + h);
+    };
+    for (const n of p.nodes) {
+      if (isNodeHiddenCanvas(n)) continue;
+      const w = getNodeWorldPosition(n);
+      bump(w.x, w.y, n.width, n.height);
+    }
+    for (const g of p.userGroups || []) {
+      const box = getUserGroupBox(g.id);
+      if (box) bump(box.x, box.y, box.w, box.h);
+    }
+    if (!Number.isFinite(minX)) return null;
+    return { minX, minY, maxX, maxY };
+  }
+
+  function pngCtxSetLineDashFromEdge(ctx, edge) {
+    const darr = connectionDashArray(edge.strokeDash);
+    if (darr) {
+      const parts = darr.split(/\s+/).map((x) => Number(x)).filter((n) => Number.isFinite(n) && n > 0);
+      ctx.setLineDash(parts.length ? parts : []);
+    } else ctx.setLineDash([]);
+  }
+
+  function pngStrokePathD(ctx, dStr) {
+    if (!dStr) return;
+    try {
+      ctx.stroke(new Path2D(dStr));
+    } catch (_) {
+      /* ignore malformed */
+    }
+  }
+
+  function pngDrawArrowAtTip(ctx, fromX, fromY, tipX, tipY, fillStyle, size = 7) {
+    const ang = Math.atan2(tipY - fromY, tipX - fromX);
+    ctx.save();
+    ctx.fillStyle = fillStyle;
+    ctx.translate(tipX, tipY);
+    ctx.rotate(ang);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(-size, -size * 0.42);
+    ctx.lineTo(-size, size * 0.42);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function pngDrawEdgeLabel(ctx, txt, x, y, groupStyle) {
+    const t = String(txt || "").trim();
+    if (!t) return;
+    ctx.save();
+    ctx.font = "11px Inter, Segoe UI, Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.lineWidth = 3;
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "rgba(10,12,22,0.92)";
+    ctx.fillStyle = groupStyle ? "rgba(216,210,255,0.98)" : "rgba(228,236,255,0.98)";
+    ctx.strokeText(t, x, y);
+    ctx.fillText(t, x, y);
+    ctx.restore();
+  }
+
+  /**
+   * Phase 3 — rasterize diagram like the canvas: system underlays, system links, bridges, node–node (+labels), nodes.
+   * Caller wraps with ctx.translate(tx, ty) so coordinates stay world-space (same as SVG layer).
+   */
+  function paintDiagramToPngContext(ctx, p) {
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    const sortedGroups = [...(p.userGroups || [])].sort((a, b) => {
+      const z = (a.zIndex || 0) - (b.zIndex || 0);
+      if (z !== 0) return z;
+      return (a.hierarchyDepth || 0) - (b.hierarchyDepth || 0);
+    });
+    for (const g of sortedGroups) {
+      if (runtime.focusGroupId && isGroupOutsideFocus(g.id)) continue;
+      const box = getUserGroupBox(g.id);
+      if (!box) continue;
+      const vars = groupColorVars(g.color);
+      const depth = g.hierarchyDepth || 0;
+      ctx.save();
+      ctx.globalAlpha = 0.52 + Math.min(0.38, depth * 0.055);
+      ctx.beginPath();
+      ctx.roundRect(box.x, box.y, box.w, box.h, 14);
+      ctx.fillStyle = vars.bg;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = vars.border;
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    for (const gc of p.groupConnections || []) {
+      normalizeConnectionEdge(gc);
+      const fromBox = getUserGroupBox(gc.fromGroupId);
+      const toBox = getUserGroupBox(gc.toGroupId);
+      if (!fromBox || !toBox) continue;
+      const anchors = smartGroupAnchors(fromBox, toBox);
+      const from = anchors.from;
+      const to = anchors.to;
+      const obs = [
+        ...nodesInsideGroupBoxObstacles(fromBox, new Set()),
+        ...nodesInsideGroupBoxObstacles(toBox, new Set())
+      ];
+      const auto = autoCurve(from, to);
+      const d =
+        runtime.connectorStyle === "orthogonal"
+          ? orthogonalPath(from, to, obs)
+          : curvePath(from, auto.cp1, auto.cp2, to);
+      const col = connectionStrokeColorOrNull(gc) || "rgba(174, 147, 255, 0.96)";
+      ctx.strokeStyle = col;
+      ctx.lineWidth = connectionStrokeWidthPx(gc, 2.15);
+      pngCtxSetLineDashFromEdge(ctx, gc);
+      pngStrokePathD(ctx, d);
+      ctx.setLineDash([]);
+      pngDrawArrowAtTip(ctx, auto.cp2.x, auto.cp2.y, to.x, to.y, col, 7);
+      if (gc.label) {
+        const off = gc.labelOffset || { dx: 0, dy: 0 };
+        pngDrawEdgeLabel(
+          ctx,
+          gc.label,
+          (from.x + to.x) / 2 + (off.dx || 0),
+          (from.y + to.y) / 2 - 6 + (off.dy || 0),
+          true
+        );
+      }
+    }
 
     for (const c of p.connections) {
+      normalizeConnectionEdge(c);
+      if (c.kind === "node-group") {
+        const fromNode = getNodeById(c.from);
+        const toBox = getUserGroupBox(c.toGroupId);
+        if (!fromNode || !toBox) continue;
+        const toCenter = { x: toBox.x + toBox.w / 2, y: toBox.y + toBox.h / 2 };
+        const from = anchorNodeForConnection(c.from, "from", toCenter);
+        const to = groupAnchor(toBox, "in", from);
+        const auto = autoCurve(from, to);
+        const obsRects = p.nodes
+          .filter((n) => n.id !== c.from)
+          .map((n) => {
+            const w = getNodeWorldPosition(n);
+            return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+          })
+          .concat(nodesInsideGroupBoxObstacles(toBox, new Set([c.from])));
+        const d =
+          runtime.connectorStyle === "orthogonal"
+            ? orthogonalPath(from, to, obsRects)
+            : curvePath(from, auto.cp1, auto.cp2, to);
+        const col = connectionStrokeColorOrNull(c) || "rgba(120,210,255,0.9)";
+        ctx.strokeStyle = col;
+        ctx.lineWidth = connectionStrokeWidthPx(c, 2.15);
+        pngCtxSetLineDashFromEdge(ctx, c);
+        pngStrokePathD(ctx, d);
+        ctx.setLineDash([]);
+        pngDrawArrowAtTip(ctx, auto.cp2.x, auto.cp2.y, to.x, to.y, col, 7);
+        continue;
+      }
+      if (c.kind === "group-node") {
+        const toNode = getNodeById(c.to);
+        const fromBox = getUserGroupBox(c.fromGroupId);
+        if (!toNode || !fromBox) continue;
+        const from = groupAnchor(fromBox, "out", anchor(toNode, "in", { x: fromBox.x + fromBox.w / 2, y: fromBox.y + fromBox.h / 2 }));
+        const to = anchorNodeForConnection(c.to, "to", from);
+        const auto = autoCurve(from, to);
+        const obsRects = p.nodes
+          .filter((n) => n.id !== c.to)
+          .map((n) => {
+            const w = getNodeWorldPosition(n);
+            return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+          })
+          .concat(nodesInsideGroupBoxObstacles(fromBox, new Set([c.to])));
+        const d =
+          runtime.connectorStyle === "orthogonal"
+            ? orthogonalPath(from, to, obsRects)
+            : curvePath(from, auto.cp1, auto.cp2, to);
+        const col = connectionStrokeColorOrNull(c) || "rgba(120,210,255,0.9)";
+        ctx.strokeStyle = col;
+        ctx.lineWidth = connectionStrokeWidthPx(c, 2.15);
+        pngCtxSetLineDashFromEdge(ctx, c);
+        pngStrokePathD(ctx, d);
+        ctx.setLineDash([]);
+        pngDrawArrowAtTip(ctx, auto.cp2.x, auto.cp2.y, to.x, to.y, col, 7);
+        continue;
+      }
+      if (!isNodeNodeConnection(c)) continue;
       const fromNode = getNodeById(c.from);
       const toNode = getNodeById(c.to);
       if (!fromNode || !toNode) continue;
-      const from = anchor(fromNode, "out");
-      const to = anchor(toNode, "in");
+      const toPre = anchorNodeForConnection(c.to, "to", anchor(fromNode, "out", nodeWorldCenter(toNode)));
+      const from = anchorNodeForConnection(c.from, "from", toPre);
+      const to = anchorNodeForConnection(c.to, "to", from);
       const curve = getCurveData(c.id, from, to);
-      ctx.strokeStyle = "rgba(155,187,255,.9)";
-      ctx.lineWidth = 2.2;
-      ctx.beginPath();
-      ctx.moveTo(from.x + tx, from.y + ty);
-      ctx.bezierCurveTo(curve.cp1.x + tx, curve.cp1.y + ty, curve.cp2.x + tx, curve.cp2.y + ty, to.x + tx, to.y + ty);
-      ctx.stroke();
+      const obstacles = p.nodes
+        .filter((n) => n.id !== fromNode.id && n.id !== toNode.id)
+        .map((n) => {
+          const w = getNodeWorldPosition(n);
+          return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+        });
+      const d =
+        runtime.connectorStyle === "orthogonal"
+          ? orthogonalPath(from, to, obstacles)
+          : curvePath(from, curve.cp1, curve.cp2, to);
+      const lw = connectionStrokeWidthPx(c, 2.25);
+      const customNn = connectionStrokeColorOrNull(c);
+      const hasDash = !!connectionDashArray(c.strokeDash);
+      pngCtxSetLineDashFromEdge(ctx, c);
+      if (customNn) {
+        ctx.strokeStyle = customNn;
+        ctx.lineWidth = lw;
+        pngStrokePathD(ctx, d);
+      } else if (hasDash) {
+        ctx.strokeStyle = "rgba(155,187,255,.92)";
+        ctx.lineWidth = lw;
+        pngStrokePathD(ctx, d);
+      } else {
+        const grad = ctx.createLinearGradient(from.x, from.y, to.x, to.y);
+        grad.addColorStop(0, "rgba(126, 154, 230, 0.72)");
+        grad.addColorStop(0.55, "rgba(184, 206, 255, 0.92)");
+        grad.addColorStop(1, "rgba(126, 154, 230, 0.72)");
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = lw;
+        pngStrokePathD(ctx, d);
+      }
+      ctx.setLineDash([]);
+      const tipCol = customNn || "rgba(184, 206, 255, 0.95)";
+      pngDrawArrowAtTip(ctx, curve.cp2.x, curve.cp2.y, to.x, to.y, tipCol, 7);
+      if (String(c.label || "").trim()) {
+        const off = c.labelOffset || { dx: 0, dy: 0 };
+        pngDrawEdgeLabel(
+          ctx,
+          c.label,
+          (from.x + to.x) / 2 + (off.dx || 0),
+          (from.y + to.y) / 2 - 4 + (off.dy || 0),
+          false
+        );
+      }
     }
 
     for (const n of p.nodes) {
+      if (isNodeHiddenCanvas(n)) continue;
       normalizeNode(n);
       const st = ensureNodeStyle(n);
       const w = getNodeWorldPosition(n);
-      const x = w.x + tx;
-      const y = w.y + ty;
-      const r = Math.max(0, Number(st.radius) || 12);
+      const x = w.x;
+      const y = w.y;
+      const rad = Math.max(0, Number(st.radius) || 12);
       ctx.globalAlpha = Math.max(0.2, Math.min(1, Number(st.opacity) || 0.9));
       ctx.fillStyle = n.color || "#ffd482";
       ctx.strokeStyle = st.borderColor || "#9cb8ff";
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.roundRect(x, y, n.width, n.height, r);
+      ctx.roundRect(x, y, n.width, n.height, rad);
       ctx.fill();
       ctx.stroke();
       ctx.globalAlpha = 1;
-      ctx.fillStyle = "#111827";
-      ctx.font = "700 14px Inter, Segoe UI, Arial";
-      ctx.fillText(n.title || n.text || "Node", x + 12, y + 24);
-      if (n.subtitle) {
-        ctx.font = "12px Inter, Segoe UI, Arial";
-        ctx.fillStyle = "rgba(17,24,39,.8)";
-        ctx.fillText(n.subtitle, x + 12, y + 42);
-      }
-      if (n.description) {
-        ctx.font = "11px Inter, Segoe UI, Arial";
-        ctx.fillStyle = "rgba(17,24,39,.72)";
-        ctx.fillText(n.description.slice(0, 68), x + 12, y + 62);
+      const titleFill = isLight ? "#0f172a" : "#e8edff";
+      const subFill = isLight ? "rgba(15,23,42,.85)" : "rgba(228,236,255,.85)";
+      if (st.freeform) {
+        ctx.fillStyle = titleFill;
+        ctx.font = "700 15px Inter, Segoe UI, Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(n.title || n.text || "Node", x + n.width / 2, y + n.height / 2);
+        ctx.textAlign = "start";
+        ctx.textBaseline = "alphabetic";
+      } else {
+        ctx.fillStyle = titleFill;
+        ctx.font = "700 14px Inter, Segoe UI, Arial";
+        ctx.fillText(n.title || n.text || "Node", x + 12, y + 24);
+        if (n.subtitle) {
+          ctx.font = "12px Inter, Segoe UI, Arial";
+          ctx.fillStyle = subFill;
+          ctx.fillText(n.subtitle, x + 12, y + 42);
+        }
+        if (n.description) {
+          ctx.font = "11px Inter, Segoe UI, Arial";
+          ctx.fillStyle = isLight ? "rgba(15,23,42,.72)" : "rgba(228,236,255,.72)";
+          ctx.fillText(n.description.slice(0, 68), x + 12, y + 62);
+        }
       }
     }
+  }
+
+  function exportAsPng() {
+    const p = getProject();
+    if (!p.nodes.length) return;
+    const padEl = document.getElementById("pngExportPad");
+    const scaleEl = document.getElementById("pngExportScale");
+    const pad = Math.max(8, Math.min(400, Math.round(Number(padEl?.value) || 80)));
+    const sc = Math.max(0.5, Math.min(3, Number(scaleEl?.value) || 1));
+    const transparent = !!document.getElementById("pngExportTransparent")?.checked;
+    const wb = getDiagramWorldBoundsForPngExport(p);
+    if (!wb) return;
+    const { minX, minY, maxX, maxY } = wb;
+    const width = Math.ceil(maxX - minX + pad * 2);
+    const height = Math.ceil(maxY - minY + pad * 2);
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.ceil(width * sc));
+    canvas.height = Math.max(1, Math.ceil(height * sc));
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.scale(sc, sc);
+    if (transparent) {
+      ctx.clearRect(0, 0, width, height);
+    } else {
+      const bg = document.getElementById("canvasBgColor")?.value || "#0b0f1a";
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, width, height);
+    }
+    const tx = pad - minX;
+    const ty = pad - minY;
+    ctx.save();
+    ctx.translate(tx, ty);
+    paintDiagramToPngContext(ctx, p);
+    ctx.restore();
     const a = document.createElement("a");
     a.href = canvas.toDataURL("image/png");
     a.download = `${(p.name || "diagram").replace(/\s+/g, "-").toLowerCase()}.png`;
     a.click();
+    showToast("PNG export complete (nodes, systems, and all link types).", "info");
   }
 
   function createShareLink() {
@@ -6728,28 +9124,70 @@
   window.addEventListener("load", scheduleApplyShareDockFromStorage);
   document.getElementById("undoBtn").onclick = () => restoreSnapshot(runtime.undo, runtime.redo);
   document.getElementById("redoBtn").onclick = () => restoreSnapshot(runtime.redo, runtime.undo);
-  document.getElementById("deleteNodeBtn").onclick = () => {
-    const deletedId = runtime.selectedNodeId;
-    if (!runtime.selectedNodeId) return;
+  /**
+   * Phase 3 — delete one or many selected nodes in a single undo step; strips links and group membership.
+   */
+  function deleteSelectedNodesAction() {
+    const ids = new Set(primaryNodeSelectionIdList());
+    if (!ids.size) return;
     pushHistory();
     const p = getProject();
-    const impacted = p.connections
-      .filter((c) => isNodeNodeConnection(c) && (c.from === deletedId || c.to === deletedId))
-      .map((c) => (c.from === deletedId ? c.to : c.from));
-    p.nodes = p.nodes.filter((n) => n.id !== runtime.selectedNodeId);
+    const impacted = [];
+    const addImp = (nid) => {
+      if (nid && !ids.has(nid) && getNodeById(nid)) impacted.push(nid);
+    };
+    for (const c of p.connections) {
+      if (!isNodeNodeConnection(c)) continue;
+      if (ids.has(c.from)) addImp(c.to);
+      if (ids.has(c.to)) addImp(c.from);
+    }
+    for (const g of p.userGroups || []) {
+      g.nodeIds = (g.nodeIds || []).filter((nid) => !ids.has(nid));
+    }
+    const removedConnIds = [];
+    p.nodes = p.nodes.filter((n) => !ids.has(n.id));
     p.connections = p.connections.filter((c) => {
       if (!isNodeNodeConnection(c)) {
-        if (c.kind === "node-group") return c.from !== runtime.selectedNodeId;
-        if (c.kind === "group-node") return c.to !== runtime.selectedNodeId;
+        if (c.kind === "node-group") {
+          if (ids.has(c.from)) {
+            removedConnIds.push(c.id);
+            return false;
+          }
+          return true;
+        }
+        if (c.kind === "group-node") {
+          if (ids.has(c.to)) {
+            removedConnIds.push(c.id);
+            return false;
+          }
+          return true;
+        }
         return true;
       }
-      return c.from !== runtime.selectedNodeId && c.to !== runtime.selectedNodeId;
+      if (ids.has(c.from) || ids.has(c.to)) {
+        removedConnIds.push(c.id);
+        return false;
+      }
+      return true;
     });
+    for (const rid of removedConnIds) delete runtime.connectionUi[rid];
     runtime.selectedNodeId = null;
+    runtime.selectedNodeIds.clear();
+    runtime.selectedGroupId = null;
+    runtime.selectedGroupIds.clear();
+    clearAllEdgeSelection();
+    runtime.groupBoxCache = null;
+    dedupeUserGroupMembership(p);
     renderAll();
     markDirty();
     scheduleSemanticAnalysis();
-    if (impacted.length) smartRebalance(impacted);
+    const nDel = ids.size;
+    showToast(`${nDel} node${nDel === 1 ? "" : "s"} deleted.`, "danger");
+    if (impacted.length) smartRebalance([...new Set(impacted)]);
+  }
+
+  document.getElementById("deleteNodeBtn").onclick = () => {
+    deleteSelectedNodesAction();
   };
   document.getElementById("zoomInBtn").onclick = () => {
     const r = workspace.getBoundingClientRect();
@@ -6766,6 +9204,19 @@
     markDirty();
   };
   fitViewBtn.onclick = fitToScreen;
+  document.getElementById("duplicateNodesToolbarBtn")?.addEventListener("click", () => duplicateSelectedNodesAction());
+  document.getElementById("duplicateNodesPanelBtn")?.addEventListener("click", () => duplicateSelectedNodesAction());
+  document.getElementById("selectGraphNeighborsBtn")?.addEventListener("click", () => expandSelectionToGraphNeighbors());
+  document.getElementById("selectSameTypeNodesBtn")?.addEventListener("click", () => expandSelectionToSameType());
+  document.getElementById("alignNodesLeftBtn")?.addEventListener("click", () => alignDistributeSelection("left"));
+  document.getElementById("alignNodesHCenterBtn")?.addEventListener("click", () => alignDistributeSelection("hcenter"));
+  document.getElementById("alignNodesTopBtn")?.addEventListener("click", () => alignDistributeSelection("top"));
+  document.getElementById("alignNodesVCenterBtn")?.addEventListener("click", () => alignDistributeSelection("vcenter"));
+  document.getElementById("distributeNodesHBtn")?.addEventListener("click", () => alignDistributeSelection("disth"));
+  document.getElementById("distributeNodesVBtn")?.addEventListener("click", () => alignDistributeSelection("distv"));
+  document.getElementById("nodeQuickLockChk")?.addEventListener("change", () => applyNodeQuickLockFromInspector());
+  document.getElementById("nodeQuickHiddenChk")?.addEventListener("change", () => applyNodeQuickHiddenFromInspector());
+  document.getElementById("nodeQuickFreeformChk")?.addEventListener("change", () => applyNodeQuickFreeformFromInspector());
   gridToggleBtn.onclick = () => {
     const p = getProject();
     if (p.view.grid == null) p.view.grid = true;
@@ -6856,6 +9307,9 @@
     const subs = ["node", "groups", "suggestions"];
     if (!subs.includes(sub)) sub = "node";
     runtime.activeDiagramSub = sub;
+    try {
+      sessionStorage.setItem(SESSION_DIAGRAM_SUB, sub);
+    } catch (_) {}
     document.querySelectorAll(".diagram-sub-tab").forEach((btn) => {
       const on = btn.dataset.diagramSubTab === sub;
       btn.classList.toggle("active", on);
@@ -6940,6 +9394,23 @@
     applyDiagramSubTab(ord[next]);
     document.querySelector(`.diagram-sub-tab[data-diagram-sub-tab="${ord[next]}"]`)?.focus();
   });
+  connectionListFilter?.addEventListener("change", () => {
+    try {
+      sessionStorage.setItem(SESSION_CONN_LIST_FILTER, getConnectionListFilterMode());
+    } catch (_) {}
+    if (runtime.listHoverLink) {
+      runtime.listHoverLink = null;
+      scheduleRenderConnections();
+    }
+    renderConnectionListPanel();
+  });
+  document.getElementById("refreshConnectionPathsBtn")?.addEventListener("click", () => {
+    const p = getProject();
+    if (runtime.selectedConnectionId) delete runtime.connectionUi[runtime.selectedConnectionId];
+    else for (const c of p.connections) delete runtime.connectionUi[c.id];
+    scheduleRenderConnections();
+    markDirty();
+  });
   const rightTabOrder = ["diagram", "style", "layout", "export", "ai"];
   const rightTabIds = ["tabDiagram", "tabStyle", "tabLayout", "tabExport", "tabAi"];
   document.querySelector(".right-tabs")?.addEventListener("keydown", (e) => {
@@ -6999,7 +9470,7 @@
       alert("Select a node on the canvas first.");
       return;
     }
-    openFocusModal(runtime.selectedNodeId);
+    revealDiagramNodeInspectorAndOpenExtended(runtime.selectedNodeId);
   });
   const nodeInspTabsEl = document.getElementById("nodeInspTabs");
   const nodeInspTabOrder = ["content", "style", "media", "attachments", "security"];
@@ -7379,17 +9850,18 @@
     reader.onload = (e) => {
       try {
         const parsed = JSON.parse(String(e.target.result));
-        pushHistory();
         const p = getProject();
-        p.nodes = Array.isArray(parsed.nodes) ? parsed.nodes : [];
-        p.connections = Array.isArray(parsed.connections) ? parsed.connections : [];
-        p.userGroups = Array.isArray(parsed.userGroups) ? parsed.userGroups : [];
-        p.groupConnections = Array.isArray(parsed.groupConnections) ? parsed.groupConnections : [];
-        p.view = parsed.view || { x: 0, y: 0, zoom: 1 };
-        p.title = parsed.title || "Imported";
-        renderAll();
-        markDirty();
-        scheduleSemanticAnalysis();
+        const body = document.getElementById("importDiffBody");
+        const ov = document.getElementById("importDiffOverlay");
+        if (body && ov) {
+          body.textContent = computeImportDiffLines(p, parsed);
+          runtime.pendingImportParsed = parsed;
+          ov.hidden = false;
+          showToast("Review import diff, then Apply or Cancel.", "info");
+        } else {
+          runtime.pendingImportParsed = parsed;
+          applyPendingImportParsed();
+        }
       } catch {
         alert("Invalid JSON");
       }
@@ -7710,10 +10182,13 @@
       let point = rawPoint;
       if (hoveredNodeId) {
         const targetNode = getNodeById(hoveredNodeId);
-        if (targetNode) point = anchorNodeForConnection(hoveredNodeId, "to", anchor(fromNode, "out"));
+        if (targetNode) point = anchorNodeForConnection(hoveredNodeId, "to", anchor(fromNode, "out", nodeWorldCenter(targetNode)));
       } else if (hoverGroupInId) {
         const toBox = getUserGroupBox(hoverGroupInId);
-        if (toBox) point = groupAnchor(toBox, "in", anchor(fromNode, "out"));
+        if (toBox) {
+          const tc = { x: toBox.x + toBox.w / 2, y: toBox.y + toBox.h / 2 };
+          point = groupAnchor(toBox, "in", anchor(fromNode, "out", tc));
+        }
       }
       const from = runtime.previewFrom || anchorNodeForConnection(runtime.connecting.fromNodeId, "from", point);
       const auto = autoCurve(from, point);
@@ -7850,8 +10325,8 @@
             const fromNode = getNodeById(fromNodeId);
             const toNode = getNodeById(toNodeId);
             if (fromNode && toNode) {
-              const from = anchor(fromNode, "out");
-              const to = anchor(toNode, "in");
+              const from = anchor(fromNode, "out", nodeWorldCenter(toNode));
+              const to = anchor(toNode, "in", nodeWorldCenter(fromNode));
               const auto = autoCurve(from, to);
               runtime.connectionUi[connectionId] = { cp1: auto.cp1, cp2: auto.cp2, custom: false };
             }
@@ -7950,27 +10425,63 @@
       abortGroupDrag();
       return;
     }
+    const cpOv = document.getElementById("commandPaletteOverlay");
+    if (e.key === "Escape" && cpOv && !cpOv.hidden) {
+      closeCommandPalette();
+      return;
+    }
+    const khOv = document.getElementById("keyboardHelpOverlay");
+    if (e.key === "Escape" && khOv && !khOv.hidden) {
+      closeKeyboardHelpOverlay();
+      return;
+    }
+    const idOv = document.getElementById("importDiffOverlay");
+    if (e.key === "Escape" && idOv && !idOv.hidden) {
+      closeImportDiffOverlay();
+      return;
+    }
+    const ae = document.activeElement;
+    const typing = isTypingFocusTarget(ae);
+    if (!typing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      if (cpOv && !cpOv.hidden) closeCommandPalette();
+      else openCommandPalette(true);
+      return;
+    }
+    if (!typing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") {
+      e.preventDefault();
+      duplicateSelectedNodesAction();
+      return;
+    }
+    const inCanvas =
+      ae === document.body ||
+      ae === document.documentElement ||
+      ae?.id === "workspace" ||
+      !!ae?.closest?.("#workspace");
+    if (
+      !typing &&
+      inCanvas &&
+      !runtime.focusNodeId &&
+      (runtime.selectedNodeIds?.size || runtime.selectedNodeId) &&
+      ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)
+    ) {
+      const step = e.shiftKey ? 40 : 8;
+      e.preventDefault();
+      if (e.key === "ArrowLeft") nudgeSelectedNodesFromKeys(-step, 0);
+      else if (e.key === "ArrowRight") nudgeSelectedNodesFromKeys(step, 0);
+      else if (e.key === "ArrowUp") nudgeSelectedNodesFromKeys(0, -step);
+      else nudgeSelectedNodesFromKeys(0, step);
+      return;
+    }
     if (e.key === "Delete") {
-      if (runtime.selectedGroupConnId) {
-        pushHistory();
-        const p = getProject();
-        p.groupConnections = (p.groupConnections || []).filter((c) => c.id !== runtime.selectedGroupConnId);
-        runtime.selectedGroupConnId = null;
-        renderConnections();
-        renderSelection();
-        markDirty();
-        scheduleSemanticAnalysis();
-      } else if (runtime.selectedConnectionId) {
-        pushHistory();
-        const p = getProject();
-        p.connections = p.connections.filter((c) => c.id !== runtime.selectedConnectionId);
-        delete runtime.connectionUi[runtime.selectedConnectionId];
-        runtime.selectedConnectionId = null;
-        renderConnections();
-        renderSelection();
-        markDirty();
-        scheduleSemanticAnalysis();
-      } else if (runtime.selectedNodeId) {
+      if (typing) return;
+      const { nn, bridges, gcs } = getSelectedConnectionRecords();
+      if (nn.length + bridges.length + gcs.length) {
+        e.preventDefault();
+        bulkDeleteSelectedEdgesAction();
+        return;
+      }
+      if (runtime.selectedNodeId) {
         document.getElementById("deleteNodeBtn").click();
       }
       return;
@@ -7983,6 +10494,7 @@
     if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === "y" || (e.shiftKey && e.key.toLowerCase() === "z"))) {
       e.preventDefault();
       restoreSnapshot(runtime.redo, runtime.undo);
+      return;
     }
   });
 
@@ -8050,6 +10562,10 @@
     if (sh) stStyle.shadow = Number(sh.value);
     if (ra) stStyle.radius = Number(ra.value);
     if (bc) stStyle.borderColor = bc.value;
+    const hid = document.getElementById("nodeInspHidden");
+    const ff = document.getElementById("nodeInspFreeform");
+    if (hid) node.visibility.hidden = !!hid.checked;
+    if (ff) stStyle.freeform = !!ff.checked;
     const secL = document.getElementById("nodeInspSecLocked");
     const secM = document.getElementById("nodeInspLockMode");
     if (secL) node.security.locked = !!secL.checked;
@@ -8090,6 +10606,7 @@
   focusModal.addEventListener("change", (e) => {
     if (!runtime.focusNodeId) return;
     if (e.target.id === "nodeInspPassword") return;
+    if (e.target.id === "nodeInspHidden" || e.target.id === "nodeInspFreeform") return;
     syncNodeInspectorToModel();
   });
   focusColor.addEventListener("input", () => {
@@ -8098,6 +10615,17 @@
   });
   focusShape.addEventListener("change", () => {
     if (!runtime.focusNodeId) return;
+    syncNodeInspectorToModel();
+  });
+
+  document.getElementById("nodeInspHidden")?.addEventListener("change", () => {
+    if (!runtime.focusNodeId) return;
+    pushHistory();
+    syncNodeInspectorToModel();
+  });
+  document.getElementById("nodeInspFreeform")?.addEventListener("change", () => {
+    if (!runtime.focusNodeId) return;
+    pushHistory();
     syncNodeInspectorToModel();
   });
 
@@ -8243,6 +10771,20 @@
   for (const project of runtime.db.projects) {
     project.nodes = (project.nodes || []).map((n) => normalizeNode(n));
   }
+  initConnectionListPanelUi();
+  initEdgeInspectorPanelUi();
+  initOutlineTreePanelUi();
+  initCommandPaletteAndHelpUi();
+  initSavedViewsUi();
+  initImportDiffApplyUi();
+  try {
+    const sub = sessionStorage.getItem(SESSION_DIAGRAM_SUB);
+    if (sub === "node" || sub === "groups" || sub === "suggestions") runtime.activeDiagramSub = sub;
+  } catch (_) {}
+  try {
+    const f = sessionStorage.getItem(SESSION_CONN_LIST_FILTER);
+    if (connectionListFilter && (f === "all" || f === "selection" || f === "warnings")) connectionListFilter.value = f;
+  } catch (_) {}
   renderAll();
   setRightTab("diagram");
   if (window.innerWidth <= 768) {
