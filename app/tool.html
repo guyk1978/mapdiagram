@@ -202,6 +202,8 @@
     padding: 0 var(--space-3, 12px);
     gap: 0;
     justify-content: stretch;
+    overflow-x: visible;
+    overflow-y: visible;
   }
   .topbar-minimal-row {
     display: flex;
@@ -210,6 +212,7 @@
     min-width: 0;
     gap: var(--space-2, 8px);
     min-height: 44px;
+    overflow: visible;
   }
   .topbar-minimal-start,
   .topbar-minimal-end {
@@ -251,6 +254,43 @@
     display: flex;
     align-items: center;
     position: relative;
+  }
+  /* Mobile: ⋯ leads the bar; desktop: flex order sends it to the trailing edge. */
+  .topbar-overflow-leading-wrap {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  @media (min-width: 1025px) {
+    .topbar-minimal-row > .topbar-minimal-start {
+      order: 1;
+    }
+    .topbar-minimal-row > .topbar-minimal-spacer {
+      order: 2;
+    }
+    .topbar-minimal-row > .topbar-minimal-end {
+      order: 3;
+    }
+    .topbar-minimal-row > .topbar-overflow-leading-wrap {
+      order: 4;
+    }
+  }
+  .topbar-desktop-quick {
+    display: none;
+    align-items: center;
+    gap: var(--space-1, 4px);
+    flex-shrink: 0;
+  }
+  @media (min-width: 1025px) {
+    .topbar-desktop-quick {
+      display: flex;
+    }
+  }
+  @media (max-width: 1024px) {
+    .topbar-overflow-leading-wrap .topbar-more-menu {
+      left: 0;
+      right: auto;
+    }
   }
   .topbar-menu-sep {
     height: 1px;
@@ -689,7 +729,8 @@
   .topbar-more-menu{
     position:absolute;top:calc(100% + 6px);right:0;min-width:220px;max-width:min(92vw,280px);
     background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-md,12px);
-    box-shadow:var(--shadow-md);padding:var(--space-2,8px);display:none;flex-direction:column;gap:var(--space-1,4px);z-index:var(--z-floating-toolbar);
+    box-shadow:var(--shadow-md);padding:var(--space-2,8px);display:none;flex-direction:column;gap:var(--space-1,4px);
+    z-index:calc(var(--z-sticky-topbar) + 60);
   }
   .topbar-more-menu.open{display:flex}
   .topbar-more-menu .topbar-menu-item{
@@ -1775,6 +1816,32 @@
 <div class="app" id="app">
   <header class="topbar topbar--minimal">
     <div class="topbar-minimal-row">
+      <div class="topbar-overflow-leading-wrap">
+        <div class="topbar-overflow" id="topbarOverflowHost">
+          <button type="button" id="topbarMoreBtn" class="icon-btn" title="Menu" aria-label="More actions" aria-expanded="false" aria-haspopup="menu" aria-controls="topbarMoreMenu"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="6" cy="12" r="1.75" fill="currentColor"/><circle cx="12" cy="12" r="1.75" fill="currentColor"/><circle cx="18" cy="12" r="1.75" fill="currentColor"/></svg></span></button>
+          <div id="topbarMoreMenu" class="topbar-more-menu" role="menu" hidden>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="addNodeBtn">Add node</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="fitViewBtn">Fit to screen</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="undoBtn">Undo</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="redoBtn">Redo</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="themeToggleBtn">Toggle theme</button>
+        <div class="topbar-menu-sep" role="separator" aria-hidden="true"></div>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="autoLayoutBtn">Auto layout</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="toggleShareDockBtn">Share panel</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="shareBtn">Share link</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="exportBtn">Export JSON</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="exportPngBtn">Export PNG</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="importBtn">Import JSON</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="gridToggleBtn">Toggle grid</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="zoomOutBtn">Zoom out</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="zoomResetBtn">Reset zoom (100%)</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="zoomInBtn">Zoom in</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="mobileQuickGroupBtn">Group selection</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="mobileQuickUngroupBtn">Ungroup selection</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="authBtn">Account / Login</button>
+          </div>
+        </div>
+      </div>
       <div class="topbar-minimal-start">
         <a href="/" class="icon-btn topbar-home-btn" title="HOME" aria-label="HOME"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 11 12 5l8 6v9a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span></a>
         <button id="toggleLeftPanelBtn" class="icon-btn mobile-panel-toggle" type="button" title="Open left panel" aria-label="Open left panel"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 7h14M5 12h14M5 17h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
@@ -1793,32 +1860,16 @@
       </div>
       <div class="topbar-minimal-spacer" aria-hidden="true"></div>
       <div class="topbar-minimal-end">
+        <div class="topbar-desktop-quick group" role="toolbar" aria-label="Quick actions">
+        <button id="addNodeBtn" class="icon-btn btn-primary" type="button" title="Add node" aria-label="Add node"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
+        <button id="undoBtn" class="icon-btn" type="button" title="Undo" aria-label="Undo"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 14 4 9l5-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 15v-2a4 4 0 0 0-4-4H4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+        <button id="redoBtn" class="icon-btn" type="button" title="Redo" aria-label="Redo"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m15 14 5-5-5-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v-2a4 4 0 0 1 4-4h12" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+        <button type="button" id="themeToggleBtn" class="icon-btn theme-toggle-btn" title="Toggle light / dark theme" aria-label="Toggle light / dark theme"><span class="icon-svg icon-theme-sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span><span class="icon-svg icon-theme-moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 6.5 6.5 0 1 0 21 14.5Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span></button>
+        <button id="fitViewBtn" class="icon-btn" type="button" title="Fit to screen" aria-label="Fit to screen"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3H5v4M15 3h4v4M3 9V5h4M21 9V5h-4M9 21H5v-4M15 21h4v-4M3 15v4h4M21 15v4h-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+        </div>
         <div class="group mobile-inspector-actions" aria-label="Quick group actions">
           <button type="button" id="mobileQuickGroupBtn" class="text-btn-sm" title="Create group from selection" aria-label="Create group from selection">Group</button>
           <button type="button" id="mobileQuickUngroupBtn" class="text-btn-sm" title="Ungroup selection" aria-label="Ungroup selection">Ungroup</button>
-        </div>
-        <div class="topbar-overflow" id="topbarOverflowHost">
-          <button type="button" id="topbarMoreBtn" class="icon-btn" aria-label="More toolbar actions" aria-expanded="false" aria-haspopup="menu" aria-controls="topbarMoreMenu"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="6" cy="12" r="1.75" fill="currentColor"/><circle cx="12" cy="12" r="1.75" fill="currentColor"/><circle cx="18" cy="12" r="1.75" fill="currentColor"/></svg></span></button>
-          <div id="topbarMoreMenu" class="topbar-more-menu" role="menu" hidden>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="undoBtn">Undo</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="redoBtn">Redo</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="addNodeBtn">Add node</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="autoLayoutBtn">Auto layout</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="toggleShareDockBtn">Share panel</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="shareBtn">Share link</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="exportBtn">Export JSON</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="exportPngBtn">Export PNG</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="importBtn">Import JSON</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="themeToggleBtn">Toggle theme</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="fitViewBtn">Fit to screen</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="gridToggleBtn">Toggle grid</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="zoomOutBtn">Zoom out</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="zoomResetBtn">Reset zoom (100%)</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="zoomInBtn">Zoom in</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="mobileQuickGroupBtn">Group selection</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="mobileQuickUngroupBtn">Ungroup selection</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="authBtn">Account / Login</button>
-      </div>
         </div>
       </div>
     </div>
@@ -1828,9 +1879,6 @@
       <span id="userCreditBadge" class="muted" style="margin-left:8px;font-size:11px;display:none" title="AI credits (server)" aria-label="AI credits (server)"></span>
       <div class="topbar-toolbar-cluster">
       <div class="group" role="toolbar" aria-label="Edit">
-        <button id="undoBtn" class="icon-btn" type="button" title="Undo" aria-label="Undo"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 14 4 9l5-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 15v-2a4 4 0 0 0-4-4H4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
-        <button id="redoBtn" class="icon-btn" type="button" title="Redo" aria-label="Redo"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m15 14 5-5-5-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v-2a4 4 0 0 1 4-4h12" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
-        <button id="addNodeBtn" class="icon-btn btn-primary" type="button" title="Add Node" aria-label="Add Node"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
         <button id="autoLayoutBtn" class="icon-btn" type="button" title="Auto Layout" aria-label="Auto Layout"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 4H5v4h4V4zM19 4h-4v4h4V4zM9 16H5v4h4v-4zM19 16h-4v4h4v-4zM14 9h-4v6h4V9z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span></button>
       </div>
       <div class="group topbar-collapse-1024" role="toolbar" aria-label="Share and export">
@@ -1841,8 +1889,6 @@
         <button id="importBtn" class="icon-btn" type="button" title="Import JSON" aria-label="Import JSON"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20V8m0 0-4 4m4-4 4 4M5 4h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
       </div>
       <div class="group" role="toolbar" aria-label="View">
-        <button type="button" id="themeToggleBtn" class="icon-btn theme-toggle-btn" title="Toggle light / dark theme" aria-label="Toggle light / dark theme"><span class="icon-svg icon-theme-sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span><span class="icon-svg icon-theme-moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 6.5 6.5 0 1 0 21 14.5Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span></button>
-        <button id="fitViewBtn" class="icon-btn" type="button" title="Fit to screen" aria-label="Fit to screen"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3H5v4M15 3h4v4M3 9V5h4M21 9V5h-4M9 21H5v-4M15 21h4v-4M3 15v4h4M21 15v4h-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         <button id="gridToggleBtn" type="button" title="Toggle Grid" aria-label="Toggle Grid">Grid</button>
         <button id="zoomOutBtn" class="icon-btn" type="button" title="Zoom out" aria-label="Zoom out"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
         <button id="zoomResetBtn" type="button" title="Reset zoom to 100%" aria-label="Reset zoom to 100%">100%</button>
@@ -6939,7 +6985,9 @@
   });
   document.addEventListener("pointerdown", (e) => {
     if (!topbarMoreMenu?.classList.contains("open")) return;
-    if (e.target.closest("#topbarOverflowHost")) return;
+    const host = document.getElementById("topbarOverflowHost");
+    const path = typeof e.composedPath === "function" ? e.composedPath() : [];
+    if (host && (path.includes(host) || e.target.closest("#topbarOverflowHost"))) return;
     closeTopbarMenu();
   });
   document.addEventListener("keydown", (e) => {
