@@ -43,6 +43,12 @@
   --line-snug: 1.35;
   --line-relaxed: 1.55;
 
+  /* —— Motion (tool + site micro-interactions) —— */
+  --ease-out-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 0.14s;
+  --duration-interaction: 0.2s;
+
   /* —— Touch / a11y —— */
   --touch-target-min: 44px;
 
