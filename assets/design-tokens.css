@@ -74,6 +74,10 @@
   /* —— Breakpoints (reference in JS via matchMedia; document for designers) —— */
   --bp-tablet: 1024px;
   --bp-mobile: 760px;
+
+  /* Destructive buttons: tool sets --danger; see .danger in tool.html */
+  --text-on-danger: #fff7f8;
+  --danger-border: color-mix(in srgb, var(--danger, #ef5b5b) 58%, #1a0a0c);
 }
 
 html[data-theme="light"] {
@@ -81,6 +85,8 @@ html[data-theme="light"] {
   --shadow-sm: 0 4px 14px rgba(20, 40, 80, 0.08);
   --shadow-md: 0 12px 28px rgba(20, 40, 80, 0.1);
   --shadow-lg: 0 22px 50px rgba(20, 40, 80, 0.12);
+  --text-on-danger: #ffffff;
+  --danger-border: color-mix(in srgb, var(--danger, #c42f2f) 78%, #121820);
 }
 
 /* High contrast (optional; set data-contrast="high" on <html>) */

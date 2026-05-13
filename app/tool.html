@@ -56,6 +56,7 @@
     --handle-fill: #4e78ef;
     --handle-ring: #f3f7ff;
     --handle-hover: #6c94ff;
+    --drawer-scrim: rgba(6, 10, 16, 0.52);
   }
   html[data-theme="light"] {
     --bg: #eef1f8;
@@ -96,6 +97,7 @@
     --handle-fill: #3d5fc9;
     --handle-ring: #f0f4ff;
     --handle-hover: #2d4aa8;
+    --drawer-scrim: rgba(25, 40, 62, 0.22);
   }
   * { box-sizing: border-box; }
   * {
@@ -120,7 +122,7 @@
     margin: 0;
     background: var(--bg);
     color: var(--text);
-    font-family: Inter, Segoe UI, Arial, sans-serif;
+    font-family: var(--font-sans, Inter, Segoe UI, Arial, sans-serif);
     overflow: hidden;
   }
   .app {
@@ -135,6 +137,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    row-gap: var(--space-2, 8px);
     background: var(--topbar-bg);
     border-bottom: 1px solid rgba(65,84,122,.42);
     padding: 0 14px;
@@ -170,7 +174,7 @@
   .auth-modal h3{margin:0}
   .auth-row{display:grid;gap:6px}
   .auth-actions{display:flex;gap:8px}
-  .softlock{position:fixed;right:14px;bottom:14px;z-index:var(--z-softlock);background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-md);padding:10px 12px;max-width:300px;display:none}
+  .softlock{position:fixed;right:14px;bottom:14px;z-index:var(--z-softlock);background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-md);padding:10px 12px;max-width:300px;display:none;color:var(--text)}
   .softlock.open{display:block}
   .softlock .actions{display:flex;gap:8px;margin-top:8px}
   button, select, input, textarea {
@@ -194,7 +198,16 @@
     border-radius: 10px;
     white-space: nowrap;
   }
-  .danger { background: #3a2227; border-color: #5a2a33; color: #ffd4d8; }
+  .danger {
+    background: color-mix(in srgb, var(--danger) 24%, #120a0d);
+    border: 1px solid var(--danger-border);
+    color: var(--text-on-danger);
+  }
+  html[data-theme="light"] .danger {
+    background-color: var(--danger);
+    color: var(--text-on-danger);
+    border: 1px solid var(--danger-border);
+  }
   .layout {
     display: grid;
     grid-template-columns: 54px 290px 1fr 320px;
@@ -235,7 +248,7 @@
   .drawer-backdrop{
     position: fixed;
     inset: 56px 0 0 0;
-    background: rgba(6,10,16,.52);
+    background: var(--drawer-scrim);
     opacity: 0;
     pointer-events: none;
     transition: opacity .2s ease;
@@ -395,11 +408,51 @@
   .btn-ai-primary:disabled{opacity:.42;cursor:not-allowed;filter:grayscale(0.35);box-shadow:none}
   .ai-mock-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
   .ai-mock-row button{font-size:12px;padding:6px 12px;border-radius:8px}
-  .right-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-bottom:10px}
-  .right-tab{min-height:34px;padding:4px 6px;font-size:12px}
+  .right-tabs-wrap{position:relative;margin-bottom:var(--space-3,12px)}
+  .right-tabs{
+    display:flex;
+    flex-wrap:nowrap;
+    gap:var(--space-2,8px);
+    overflow-x:auto;
+    scroll-behavior:smooth;
+    padding:2px 2px var(--space-1,4px);
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;
+  }
+  .right-tabs::-webkit-scrollbar{height:4px}
+  .right-tabs::-webkit-scrollbar-thumb{border-radius:var(--radius-full,999px);background:color-mix(in srgb,var(--muted) 35%,transparent)}
+  .right-tab{flex:0 0 auto;min-width:4.5rem;min-height:34px;padding:4px 6px;font-size:12px}
   .right-tab.active{background:linear-gradient(150deg, rgba(101,131,255,.35), rgba(137,108,255,.3));border-color:rgba(130,161,255,.72)}
   .right-section[data-tab]{display:none}
   .right-section[data-tab].active{display:grid}
+  .right-section[data-tab="diagram"].active{display:none}
+  .right-section[data-tab="diagram"].active.diagram-sub-on{display:grid}
+  .diagram-sub-tabs{display:flex;flex-wrap:wrap;gap:var(--space-2,8px);margin-bottom:var(--space-3,12px)}
+  .diagram-sub-tab{flex:1 1 auto;min-height:32px;padding:4px 8px;font-size:12px;font-weight:600;border-radius:var(--radius-sm,8px)}
+  .diagram-sub-tab.active{background:linear-gradient(150deg, rgba(101,131,255,.35), rgba(137,108,255,.3));border-color:rgba(130,161,255,.72)}
+  .sr-only{
+    position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
+  :where(button,a,input:not([type="hidden"]),select,textarea,.right-tab,.diagram-sub-tab,.node-insp-tab):focus-visible{
+    outline:2px solid var(--accent);outline-offset:2px;
+  }
+  .topbar-brand-group{display:flex;align-items:center;gap:var(--space-2,8px);flex-shrink:0}
+  .topbar-toolbar-cluster{display:flex;align-items:center;gap:var(--space-2,8px);flex-wrap:wrap;flex:1;min-width:0;justify-content:flex-end}
+  .topbar-toolbar-cluster .group{background:rgba(19,27,44,.45);border:1px solid rgba(60,81,122,.38);border-radius:var(--radius-md,12px);padding:var(--space-1,4px)}
+  .topbar-overflow{position:relative;display:none;align-items:center}
+  .topbar-more-menu{
+    position:absolute;top:calc(100% + 6px);right:0;min-width:220px;max-width:min(92vw,280px);
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-md,12px);
+    box-shadow:var(--shadow-md);padding:var(--space-2,8px);display:none;flex-direction:column;gap:var(--space-1,4px);z-index:var(--z-floating-toolbar);
+  }
+  .topbar-more-menu.open{display:flex}
+  .topbar-more-menu .topbar-menu-item{
+    width:100%;text-align:left;justify-content:flex-start;border-radius:var(--radius-sm,8px);min-height:40px;font-size:13px;
+  }
+  @media (max-width: 1024px){
+    .topbar-collapse-1024{display:none!important}
+    .topbar-overflow{display:flex}
+  }
   .group-chrome .label{
     position:absolute;
     top:-28px;
@@ -473,7 +526,7 @@
     font-size:12px;
     text-transform:uppercase;
     letter-spacing:.08em;
-    color:#9cb0d8;
+    color:var(--muted);
     margin-bottom:6px;
   }
   .topbar .group{
@@ -868,7 +921,7 @@
   .focus-modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(5, 8, 14, 0.72);
+    background: var(--overlay-scrim);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1132,9 +1185,6 @@
     border-color: color-mix(in srgb, var(--accent) 50%, var(--btn-border));
     color: var(--text);
   }
-  html[data-theme="light"] .focus-modal-overlay {
-    background: var(--overlay-scrim);
-  }
   html[data-theme="light"] .node-insp-tabs {
     background: var(--panel);
     border-bottom-color: var(--line);
@@ -1246,53 +1296,83 @@
     color: #141a26;
     border-color: rgba(200, 210, 230, 0.85);
   }
+  html[data-theme="light"] .minimap-host,
+  html[data-theme="light"] .focus-group-chip {
+    background-color: var(--panel);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    color: var(--text);
+  }
+  html[data-theme="light"] .auth-modal,
+  html[data-theme="light"] .ai-modal,
+  html[data-theme="light"] .focus-modal {
+    box-shadow: var(--shadow-md);
+  }
 </style>
 </head>
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="group">
-      <button id="toggleLeftPanelBtn" class="icon-btn mobile-panel-toggle" title="Open left panel">☰</button>
+    <div class="group topbar-brand-group">
+      <button id="toggleLeftPanelBtn" class="icon-btn mobile-panel-toggle" type="button" title="Open left panel" aria-label="Open left panel">☰</button>
       <div class="brand">MapDiagram</div>
       <div id="savedIndicator" class="saved">Saved</div>
       <div id="userChip" class="user-chip">Guest mode</div>
-      <span id="userCreditBadge" class="muted" style="margin-left:8px;font-size:11px;display:none" title="AI credits (server)"></span>
+      <span id="userCreditBadge" class="muted" style="margin-left:8px;font-size:11px;display:none" title="AI credits (server)" aria-label="AI credits (server)"></span>
     </div>
-    <div class="group">
-      <button id="undoBtn" class="icon-btn" title="Undo">↶</button>
-      <button id="redoBtn" class="icon-btn" title="Redo">↷</button>
-      <button id="addNodeBtn" class="icon-btn" title="Add Node">＋</button>
-      <button id="autoLayoutBtn" class="icon-btn" title="Auto Layout">🧩</button>
-      <button type="button" id="toggleShareDockBtn" class="text-btn-sm" title="Expand or minimize share panel (icons stay available)">Share</button>
-      <button id="shareBtn" class="icon-btn" title="Create Share Link">🔗</button>
-      <button id="exportBtn" class="icon-btn" title="Export JSON">⤓</button>
-      <button id="exportPngBtn" class="icon-btn" title="Export PNG">🖼</button>
-      <button id="importBtn" class="icon-btn" title="Import JSON">⤒</button>
-      <button type="button" id="themeToggleBtn" class="icon-btn" title="Toggle light / dark theme">◐</button>
-      <button id="authBtn">Login</button>
+    <div class="topbar-toolbar-cluster">
+      <div class="group" role="toolbar" aria-label="Edit">
+        <button id="undoBtn" class="icon-btn" type="button" title="Undo" aria-label="Undo">↶</button>
+        <button id="redoBtn" class="icon-btn" type="button" title="Redo" aria-label="Redo">↷</button>
+        <button id="addNodeBtn" class="icon-btn" type="button" title="Add Node" aria-label="Add Node">＋</button>
+        <button id="autoLayoutBtn" class="icon-btn" type="button" title="Auto Layout" aria-label="Auto Layout">🧩</button>
+      </div>
+      <div class="group topbar-collapse-1024" role="toolbar" aria-label="Share and export">
+        <button type="button" id="toggleShareDockBtn" class="text-btn-sm" title="Expand or minimize share panel (icons stay available)" aria-label="Expand or minimize share panel (icons stay available)">Share</button>
+        <button id="shareBtn" class="icon-btn" type="button" title="Create Share Link" aria-label="Create Share Link">🔗</button>
+        <button id="exportBtn" class="icon-btn" type="button" title="Export JSON" aria-label="Export JSON">⤓</button>
+        <button id="exportPngBtn" class="icon-btn" type="button" title="Export PNG" aria-label="Export PNG">🖼</button>
+        <button id="importBtn" class="icon-btn" type="button" title="Import JSON" aria-label="Import JSON">⤒</button>
+        <button type="button" id="themeToggleBtn" class="icon-btn" title="Toggle light / dark theme" aria-label="Toggle light / dark theme">◐</button>
+      </div>
+      <div class="group" role="toolbar" aria-label="View">
+        <button id="toggleRightPanelBtn" class="icon-btn mobile-panel-toggle" type="button" title="Open inspector" aria-label="Open inspector">⚙</button>
+        <button id="fitViewBtn" class="icon-btn" type="button" title="Fit to screen" aria-label="Fit to screen">⤢</button>
+        <button id="gridToggleBtn" type="button" title="Toggle Grid" aria-label="Toggle Grid">Grid</button>
+        <button id="zoomOutBtn" class="icon-btn" type="button" title="Zoom out" aria-label="Zoom out">－</button>
+        <button id="zoomResetBtn" type="button" title="Reset zoom to 100%" aria-label="Reset zoom to 100%">100%</button>
+        <button id="zoomInBtn" class="icon-btn" type="button" title="Zoom in" aria-label="Zoom in">＋</button>
+      </div>
+      <div class="group topbar-collapse-1024" role="toolbar" aria-label="Account">
+        <button id="authBtn" type="button" aria-label="Log in or sign up">Login</button>
+      </div>
     </div>
     <div class="group mobile-inspector-actions" aria-label="Quick group actions">
-      <button type="button" id="mobileQuickGroupBtn" class="text-btn-sm" title="Create group from selection">Group</button>
-      <button type="button" id="mobileQuickUngroupBtn" class="text-btn-sm" title="Ungroup selection">Ungroup</button>
+      <button type="button" id="mobileQuickGroupBtn" class="text-btn-sm" title="Create group from selection" aria-label="Create group from selection">Group</button>
+      <button type="button" id="mobileQuickUngroupBtn" class="text-btn-sm" title="Ungroup selection" aria-label="Ungroup selection">Ungroup</button>
     </div>
-    <div class="group">
-      <button id="toggleRightPanelBtn" class="icon-btn mobile-panel-toggle" title="Open inspector">⚙</button>
-      <button id="fitViewBtn" class="icon-btn" title="Fit to screen">⤢</button>
-      <button id="gridToggleBtn" title="Toggle Grid">Grid</button>
-      <button id="zoomOutBtn" class="icon-btn">－</button>
-      <button id="zoomResetBtn">100%</button>
-      <button id="zoomInBtn" class="icon-btn">＋</button>
+    <div class="topbar-overflow" id="topbarOverflowHost">
+      <button type="button" id="topbarMoreBtn" class="icon-btn" aria-label="More toolbar actions" aria-expanded="false" aria-haspopup="menu" aria-controls="topbarMoreMenu">⋯</button>
+      <div id="topbarMoreMenu" class="topbar-more-menu" role="menu" hidden>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="toggleShareDockBtn">Share panel</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="shareBtn">Share link</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="exportBtn">Export JSON</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="exportPngBtn">Export PNG</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="importBtn">Import JSON</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="themeToggleBtn">Toggle theme</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="authBtn">Account / Login</button>
+      </div>
     </div>
   </header>
   <div class="layout">
     <aside class="tool-rail" role="toolbar" aria-label="Diagram tools: Select, Shapes, Flow, System, Data, Insights, Settings">
-      <button id="railSelectBtn" class="rail-btn" title="Select mode">▭</button>
-      <button id="railShapesBtn" class="rail-btn active" title="Shapes">⬚</button>
-      <button id="railFlowBtn" class="rail-btn" title="Flow">⇄</button>
-      <button id="railSystemBtn" class="rail-btn" title="System">◫</button>
-      <button id="railDataBtn" class="rail-btn" title="Data">◍</button>
-      <button id="railInsightBtn" class="rail-btn" title="Insights">✦</button>
-      <button id="railSettingsBtn" class="rail-btn" title="Settings">⚙</button>
+      <button id="railSelectBtn" class="rail-btn" type="button" title="Select mode" aria-label="Select mode">▭</button>
+      <button id="railShapesBtn" class="rail-btn active" type="button" title="Shapes" aria-label="Shapes">⬚</button>
+      <button id="railFlowBtn" class="rail-btn" type="button" title="Flow" aria-label="Flow">⇄</button>
+      <button id="railSystemBtn" class="rail-btn" type="button" title="System" aria-label="System">◫</button>
+      <button id="railDataBtn" class="rail-btn" type="button" title="Data" aria-label="Data">◍</button>
+      <button id="railInsightBtn" class="rail-btn" type="button" title="Insights" aria-label="Insights">✦</button>
+      <button id="railSettingsBtn" class="rail-btn" type="button" title="Settings" aria-label="Settings">⚙</button>
     </aside>
     <aside class="sidebar">
       <div class="section">
@@ -1332,26 +1412,36 @@
       <div id="marquee" class="marquee"></div>
       <div id="focusGroupChip" class="focus-group-chip" aria-live="polite">
         <span id="focusGroupCrumbs" class="crumb"></span>
-        <button type="button" id="exitGroupFocusBtn">Exit focus</button>
+        <button type="button" id="exitGroupFocusBtn" aria-label="Exit group focus mode">Exit focus</button>
       </div>
-      <div id="minimapHost" class="minimap-host" title="Overview map — click to navigate">
+      <div id="minimapHost" class="minimap-host" title="Overview map — click to navigate" aria-label="Diagram overview map. Click to navigate.">
         <canvas id="minimapCanvas" width="200" height="140"></canvas>
       </div>
     </main>
     <aside id="rightbar" class="rightbar">
       <div class="rightbar-head">
         <div class="pane-title">Inspector</div>
-        <button id="inspectorToggleBtn" class="icon-btn" title="Compact inspector">◱</button>
+        <button id="inspectorToggleBtn" class="icon-btn" type="button" title="Compact inspector" aria-label="Compact inspector">◱</button>
       </div>
-      <div class="right-tabs">
-        <button id="tabDiagram" class="right-tab active">Diagram</button>
-        <button id="tabStyle" class="right-tab">Style</button>
-        <button id="tabLayout" class="right-tab">Layout</button>
-        <button id="tabExport" class="right-tab">Export</button>
-        <button id="tabAi" class="right-tab" type="button" title="AI credits &amp; generation">AI</button>
+      <div class="right-tabs-wrap">
+      <div class="right-tabs" role="tablist" aria-label="Inspector">
+        <button id="tabDiagram" class="right-tab active" type="button" role="tab" aria-selected="true" aria-controls="inspector-panel-diagram" tabindex="0">Diagram</button>
+        <button id="tabStyle" class="right-tab" type="button" role="tab" aria-selected="false" aria-controls="inspector-panel-style" tabindex="-1">Style</button>
+        <button id="tabLayout" class="right-tab" type="button" role="tab" aria-selected="false" aria-controls="inspector-panel-layout" tabindex="-1">Layout</button>
+        <button id="tabExport" class="right-tab" type="button" role="tab" aria-selected="false" aria-controls="inspector-panel-export" tabindex="-1">Export</button>
+        <button id="tabAi" class="right-tab" type="button" title="AI credits &amp; generation" aria-label="AI credits and generation" role="tab" aria-selected="false" aria-controls="inspector-panel-ai" tabindex="-1">AI</button>
       </div>
-      <div class="section right-section section-critical node-builder active" data-tab="diagram">
-        <h3>Selected Node</h3>
+      </div>
+      <div id="inspector-panel-diagram" role="tabpanel" aria-labelledby="tabDiagram" data-inspector-tab-panel="diagram" aria-hidden="false">
+      <div class="diagram-sub-tabs" id="diagramSubTabs" role="tablist" aria-label="Diagram inspector">
+        <button type="button" class="diagram-sub-tab active" role="tab" id="diagramSubTabNode" data-diagram-sub-tab="node" aria-selected="true" aria-controls="diagramSectionNode" tabindex="0">Node</button>
+        <button type="button" class="diagram-sub-tab" role="tab" id="diagramSubTabGroups" data-diagram-sub-tab="groups" aria-selected="false" aria-controls="diagramSectionGroups" tabindex="-1">Selection &amp; groups</button>
+        <button type="button" class="diagram-sub-tab" role="tab" id="diagramSubTabSuggest" data-diagram-sub-tab="suggestions" aria-selected="false" aria-controls="diagramSectionSuggestions" tabindex="-1">Suggestions</button>
+      </div>
+      <section class="section right-section section-critical node-builder active diagram-sub-on" data-tab="diagram" data-diagram-sub="node" id="diagramSectionNode" aria-labelledby="diagramHeadingSelNode quickEditInspectorHint">
+        <h3 id="diagramHeadingSelNode">Selected Node</h3>
+        <p id="quickEditInspectorHint" class="sr-only">Quick inspector: changes apply to the selected node on the canvas.</p>
+        <p class="muted" id="quickEditSurfaceHint">Edit titles and shapes here. Open the extended editor for media, attachments, and semantic fields.</p>
         <textarea id="nodeText" placeholder="Double-click node or edit here"></textarea>
         <input id="nodeSubtitle" type="text" placeholder="Subtitle (optional)">
         <input id="nodeDescription" type="text" placeholder="Description (optional)">
@@ -1380,10 +1470,12 @@
         <label class="muted">Shadow intensity <input id="nodeShadow" type="range" min="0" max="40" step="1" value="20"></label>
         <label class="muted">Rounded corners <input id="nodeRadius" type="range" min="0" max="28" step="1" value="12"></label>
         <label class="muted">Border color <input type="color" id="nodeBorderColor" value="#9cb8ff"></label>
+        <button type="button" id="openExtendedEditorBtn" class="text-btn-sm">Open extended editor…</button>
         <button id="deleteNodeBtn" class="danger">Delete Node</button>
-      </div>
-      <div class="section right-section section-critical" data-tab="diagram">
-        <h3>Status</h3>
+      </section>
+      <section class="section right-section section-critical active" data-tab="diagram" data-diagram-sub="groups" id="diagramSectionGroups" aria-labelledby="diagramHeadingStatus diagramStatusHint">
+        <h3 id="diagramHeadingStatus">Status</h3>
+        <p id="diagramStatusHint" class="sr-only">Selection counts, group tools, and layout helpers.</p>
         <div id="stats" class="muted">0 nodes • 0 connections</div>
         <div id="mobileHint" class="muted"></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -1405,13 +1497,17 @@
           </div>
           <p class="muted" style="margin:0;font-size:11px">Tip: with nodes from several groups selected, dragging moves only the group of the node you grab. Group links stay attached.</p>
         </div>
-      </div>
-      <div class="section right-section" data-tab="diagram">
-        <h3>Smart Suggestions</h3>
+      </section>
+      <section class="section right-section active" data-tab="diagram" data-diagram-sub="suggestions" id="diagramSectionSuggestions" aria-labelledby="diagramHeadingSuggest suggestHint">
+        <h3 id="diagramHeadingSuggest">Smart Suggestions</h3>
+        <p id="suggestHint" class="sr-only">Diagram improvement ideas based on the current graph.</p>
         <div id="suggestions" class="suggestions"></div>
+      </section>
       </div>
-      <div class="section right-section active" data-tab="style">
-        <h3>Canvas / Theme</h3>
+      <div id="inspector-panel-style" role="tabpanel" aria-labelledby="tabStyle" data-inspector-tab-panel="style" aria-hidden="true">
+      <section class="section right-section" data-tab="style" aria-labelledby="styleCanvasHeading styleCanvasHint">
+        <h3 id="styleCanvasHeading">Canvas / Theme</h3>
+        <p id="styleCanvasHint" class="sr-only">Background, accent, and connector appearance.</p>
         <label class="muted">Background color <input id="canvasBgColor" type="color" value="#0b0f1a"></label>
         <label class="muted">Accent glow <input id="accentGlowColor" type="color" value="#7aa2ff"></label>
         <label class="muted">Connector style
@@ -1420,9 +1516,17 @@
             <option value="orthogonal">Orthogonal</option>
           </select>
         </label>
+      </section>
+      <section class="section right-section" data-tab="style" aria-labelledby="styleTipsHeading styleTipsHint">
+        <h3 id="styleTipsHeading">Canvas style</h3>
+        <p id="styleTipsHint" class="sr-only">How the canvas adapts to light or dark theme.</p>
+        <div class="muted">Glow accents and subtle depth adapt to the current theme (light or dark).</div>
+        <div class="muted">Use Grid / Fit / Zoom in the top bar for fast navigation.</div>
+      </section>
       </div>
-      <div class="section right-section" data-tab="layout">
-        <h3>Layout</h3>
+      <section id="inspector-panel-layout" class="section right-section" data-tab="layout" role="tabpanel" aria-labelledby="tabLayout layoutHeading layoutHint" data-inspector-tab-panel="layout" aria-hidden="true">
+        <h3 id="layoutHeading">Layout</h3>
+        <p id="layoutHint" class="sr-only">Systems layout and minimap visibility.</p>
         <div class="muted">Use Smart Clean / Auto Layout to apply spacing and structure.</div>
         <label class="muted">Systems layout
           <select id="hierarchicalLayoutSelect">
@@ -1436,20 +1540,22 @@
         <label class="muted" style="display:flex;align-items:center;gap:8px;margin-top:4px">
           <input type="checkbox" id="minimapToggle"> Show minimap
         </label>
-      </div>
-      <div class="section right-section" data-tab="export">
-        <h3>Export</h3>
+      </section>
+      <section id="inspector-panel-export" class="section right-section" data-tab="export" role="tabpanel" aria-labelledby="tabExport exportHeading exportHint" data-inspector-tab-panel="export" aria-hidden="true">
+        <h3 id="exportHeading">Export</h3>
+        <p id="exportHint" class="sr-only">Download diagram as JSON or PNG.</p>
         <button id="exportJsonPanelBtn">Export JSON</button>
         <button id="exportPngPanelBtn">Export PNG</button>
-      </div>
-      <div class="section right-section section-critical" data-tab="ai">
-        <h3>AI credits</h3>
+      </section>
+      <section id="inspector-panel-ai" class="section right-section section-critical" data-tab="ai" role="tabpanel" aria-labelledby="tabAi aiHeading aiHint" data-inspector-tab-panel="ai" aria-hidden="true">
+        <h3 id="aiHeading">AI credits</h3>
+        <p id="aiHint" class="sr-only">Wallet balance, generation, and credit packs.</p>
         <div class="ai-wallet-panel">
           <div id="aiWalletModeLine" class="ai-wallet-sub">Loading…</div>
           <div id="aiWalletBalanceBig" class="ai-wallet-balance muted-balance">—</div>
           <div id="aiWalletCostLine" class="ai-wallet-sub"></div>
           <div id="aiWalletInsufficient" class="ai-wallet-alert" role="status"></div>
-          <button type="button" id="generateAiWalletBtn" class="btn-ai-primary">Generate with AI…</button>
+          <button type="button" id="generateAiWalletBtn" class="btn-ai-primary" aria-label="Open AI diagram generation">Generate with AI…</button>
           <p class="muted" style="margin:0;font-size:11px">Each compile step reserves credits on the server first; unused tokens are refunded. Balance updates after every run.</p>
         </div>
         <h3 style="margin-top:14px">Buy credits</h3>
@@ -1461,79 +1567,74 @@
         </div>
         <div id="aiWalletStripeRow" class="ai-mock-row" style="margin-top:6px">
           <span class="muted" style="font-size:11px">Stripe packs:</span>
-          <button type="button" id="walletBuyStarterBtn" class="icon-btn" style="font-size:11px;padding:4px 10px">Starter</button>
-          <button type="button" id="walletBuyProBtn" class="icon-btn" style="font-size:11px;padding:4px 10px">Pro</button>
-          <button type="button" id="walletBuyPowerBtn" class="icon-btn" style="font-size:11px;padding:4px 10px">Power</button>
+          <button type="button" id="walletBuyStarterBtn" class="icon-btn" style="font-size:11px;padding:4px 10px" aria-label="Buy Starter credit pack">Starter</button>
+          <button type="button" id="walletBuyProBtn" class="icon-btn" style="font-size:11px;padding:4px 10px" aria-label="Buy Pro credit pack">Pro</button>
+          <button type="button" id="walletBuyPowerBtn" class="icon-btn" style="font-size:11px;padding:4px 10px" aria-label="Buy Power credit pack">Power</button>
         </div>
-      </div>
-      <div class="section right-section" data-tab="style">
-        <h3>Canvas style</h3>
-        <div class="muted">Dark mode + glow-first visual system enabled</div>
-        <div class="muted">Use Grid / Fit / Zoom controls in top bar for fast navigation.</div>
-      </div>
+      </section>
     </aside>
   </div>
 </div>
 <div id="drawerBackdrop" class="drawer-backdrop"></div>
 <div id="aiModalOverlay" class="ai-modal-overlay">
-  <div class="ai-modal">
-    <h3 style="margin:0">Create with AI</h3>
+  <div class="ai-modal" role="dialog" aria-modal="true" aria-labelledby="aiModalTitle">
+    <h3 id="aiModalTitle" style="margin:0">Create with AI</h3>
     <div id="aiModalIntro" class="muted">The model returns a strict <strong>ArchitectureSpec</strong> (JSON only). Diagrams are compiled server-side when billing is on.</div>
     <div id="aiCostHint" class="ai-cost-hint" style="display:none"></div>
     <textarea id="aiPromptInput" placeholder="Example: Design a simplified Uber-like system with focus on simplicity"></textarea>
     <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap">
       <span id="aiModalCostInline" class="muted" style="font-size:11px;display:none"></span>
-      <button id="aiCancelBtn">Cancel</button>
-      <button id="aiGenerateBtn" class="btn-ai-primary" style="width:auto;padding:8px 18px">Generate</button>
+      <button id="aiCancelBtn" type="button" aria-label="Cancel AI generation">Cancel</button>
+      <button id="aiGenerateBtn" class="btn-ai-primary" style="width:auto;padding:8px 18px" type="button" aria-label="Generate diagram from prompt">Generate</button>
     </div>
     <div id="aiStatus" class="muted"></div>
     <div id="aiBillingRow" class="muted" style="margin-top:10px;display:none;font-size:12px;line-height:1.45">
       <div id="aiCreditInline"></div>
       <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         <span class="muted">Buy credits:</span>
-        <button type="button" id="buyPackStarterBtn" class="icon-btn" style="font-size:11px;padding:4px 10px" title="500 credits">Starter</button>
-        <button type="button" id="buyPackProBtn" class="icon-btn" style="font-size:11px;padding:4px 10px" title="5000 credits">Pro</button>
-        <button type="button" id="buyPackPowerBtn" class="icon-btn" style="font-size:11px;padding:4px 10px" title="25000 credits">Power</button>
+        <button type="button" id="buyPackStarterBtn" class="icon-btn" style="font-size:11px;padding:4px 10px" title="500 credits" aria-label="Buy Starter credit pack (500 credits)">Starter</button>
+        <button type="button" id="buyPackProBtn" class="icon-btn" style="font-size:11px;padding:4px 10px" title="5000 credits" aria-label="Buy Pro credit pack (5000 credits)">Pro</button>
+        <button type="button" id="buyPackPowerBtn" class="icon-btn" style="font-size:11px;padding:4px 10px" title="25000 credits" aria-label="Buy Power credit pack (25000 credits)">Power</button>
       </div>
     </div>
   </div>
 </div>
 <input id="fileInput" type="file" accept="application/json">
 <div id="authOverlay" class="auth-modal-overlay">
-  <div class="auth-modal">
-    <h3>Account</h3>
+  <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+    <h3 id="authModalTitle">Account</h3>
     <div class="auth-row"><label for="authEmail">Email</label><input id="authEmail" type="email" placeholder="you@email.com"></div>
     <div class="auth-row"><label for="authPassword">Password</label><input id="authPassword" type="password" placeholder="••••••••"></div>
     <div class="auth-actions">
-      <button id="loginSubmitBtn">Login</button>
-      <button id="signupSubmitBtn">Sign up</button>
-      <button id="authCancelBtn">Cancel</button>
+      <button id="loginSubmitBtn" type="button" aria-label="Submit login">Login</button>
+      <button id="signupSubmitBtn" type="button" aria-label="Sign up with email and password">Sign up</button>
+      <button id="authCancelBtn" type="button" aria-label="Close account dialog">Cancel</button>
     </div>
     <div id="authStatus" class="muted"></div>
   </div>
 </div>
-<div id="softLock" class="softlock">
-  <div>Want to save your work in the cloud?</div>
+<div id="softLock" class="softlock" role="region" aria-labelledby="softLockTitle">
+  <div id="softLockTitle">Want to save your work in the cloud?</div>
   <div class="actions">
-    <button id="softLockLoginBtn">Login</button>
-    <button id="softLockLaterBtn">Later</button>
+    <button id="softLockLoginBtn" type="button" aria-label="Log in to save to the cloud">Login</button>
+    <button id="softLockLaterBtn" type="button" aria-label="Dismiss save reminder">Later</button>
   </div>
 </div>
 <div id="focusOverlay" class="focus-modal-overlay">
-  <div id="focusModal" class="focus-modal">
+  <div id="focusModal" class="focus-modal" role="dialog" aria-modal="true" aria-labelledby="focusModalTitle">
     <div class="focus-head">
-      <div class="focus-head-title">Node inspector</div>
-      <button id="focusCloseBtn" type="button" class="focus-close" title="Close">×</button>
+      <div class="focus-head-title" id="focusModalTitle">Node inspector</div>
+      <button id="focusCloseBtn" type="button" class="focus-close" title="Close" aria-label="Close node inspector">×</button>
     </div>
-    <div class="node-insp-tabs" id="nodeInspTabs">
-      <button type="button" class="node-insp-tab active" data-node-insp-tab="content">Content</button>
-      <button type="button" class="node-insp-tab" data-node-insp-tab="style">Style</button>
-      <button type="button" class="node-insp-tab" data-node-insp-tab="media">Media</button>
-      <button type="button" class="node-insp-tab" data-node-insp-tab="attachments">Attachments</button>
-      <button type="button" class="node-insp-tab" data-node-insp-tab="security">Security</button>
+    <div class="node-insp-tabs" id="nodeInspTabs" role="tablist" aria-label="Node inspector">
+      <button type="button" class="node-insp-tab active" data-node-insp-tab="content" id="nodeInspTabContent" role="tab" aria-selected="true" aria-controls="nodeInspPanelContent" tabindex="0">Content</button>
+      <button type="button" class="node-insp-tab" data-node-insp-tab="style" id="nodeInspTabStyle" role="tab" aria-selected="false" aria-controls="nodeInspPanelStyle" tabindex="-1">Style</button>
+      <button type="button" class="node-insp-tab" data-node-insp-tab="media" id="nodeInspTabMedia" role="tab" aria-selected="false" aria-controls="nodeInspPanelMedia" tabindex="-1">Media</button>
+      <button type="button" class="node-insp-tab" data-node-insp-tab="attachments" id="nodeInspTabAttachments" role="tab" aria-selected="false" aria-controls="nodeInspPanelAttachments" tabindex="-1">Attachments</button>
+      <button type="button" class="node-insp-tab" data-node-insp-tab="security" id="nodeInspTabSecurity" role="tab" aria-selected="false" aria-controls="nodeInspPanelSecurity" tabindex="-1">Security</button>
     </div>
     <div class="node-insp-panels">
-      <div class="node-insp-panel active" data-node-insp-panel="content">
+      <div id="nodeInspPanelContent" class="node-insp-panel active" data-node-insp-panel="content" role="tabpanel" aria-labelledby="nodeInspTabContent">
         <label>Title <input type="text" id="nodeInspTitle" autocomplete="off"></label>
         <label>Subtitle <input type="text" id="nodeInspSubtitle" autocomplete="off"></label>
         <label>Description <textarea id="nodeInspDescription" rows="3"></textarea></label>
@@ -1551,7 +1652,7 @@
         </label>
         <label>Tags (comma-separated) <input type="text" id="nodeInspTags" placeholder="api, auth, …"></label>
       </div>
-      <div class="node-insp-panel" data-node-insp-panel="style">
+      <div id="nodeInspPanelStyle" class="node-insp-panel" data-node-insp-panel="style" role="tabpanel" aria-labelledby="nodeInspTabStyle">
         <div class="node-insp-row">
           <label style="min-width:120px">Color <input type="color" id="focusColor" value="#ffd482"></label>
           <label style="flex:1;min-width:140px">Shape
@@ -1569,7 +1670,7 @@
         <label>Radius <input type="range" id="nodeInspRadius" min="0" max="28" step="1" value="12"></label>
         <label>Border color <input type="color" id="nodeInspBorderColor" value="#9cb8ff"></label>
       </div>
-      <div class="node-insp-panel" data-node-insp-panel="media">
+      <div id="nodeInspPanelMedia" class="node-insp-panel" data-node-insp-panel="media" role="tabpanel" aria-labelledby="nodeInspTabMedia">
         <div class="node-insp-row">
           <input type="file" id="nodeInspImageFile" accept="image/*" style="display:none">
           <button type="button" id="nodeInspImagePick">Upload image…</button>
@@ -1581,7 +1682,7 @@
         <img id="nodeInspImagePreview" class="node-insp-thumb" alt="" style="display:none">
         <p class="node-insp-muted">Images are stored as data URLs in the project JSON (best for small files).</p>
       </div>
-      <div class="node-insp-panel" data-node-insp-panel="attachments">
+      <div id="nodeInspPanelAttachments" class="node-insp-panel" data-node-insp-panel="attachments" role="tabpanel" aria-labelledby="nodeInspTabAttachments">
         <div class="node-insp-row">
           <input type="file" id="nodeInspAttachFile" style="display:none">
           <button type="button" id="nodeInspAttachPick">Add file…</button>
@@ -1589,7 +1690,7 @@
         <ul id="nodeInspAttachList" class="node-insp-attach-list"></ul>
         <p class="node-insp-muted">Attachments are embedded as data URLs. Large files increase save size.</p>
       </div>
-      <div class="node-insp-panel" data-node-insp-panel="security">
+      <div id="nodeInspPanelSecurity" class="node-insp-panel" data-node-insp-panel="security" role="tabpanel" aria-labelledby="nodeInspTabSecurity">
         <label class="node-insp-row" style="align-items:center;gap:8px">
           <input type="checkbox" id="nodeInspSecLocked"> Lock node (hard lock blocks dragging on canvas)
         </label>
@@ -1808,6 +1909,7 @@
     groupPreviewPath: null,
     semOverlayRaf: 0,
     activeRightTab: "diagram",
+    activeDiagramSub: "node",
     connectorStyle: "curved",
     selectedGroupId: null,
     selectedGroupIds: new Set(),
@@ -4472,7 +4574,10 @@
 
   function setNodeInspectorTab(tab) {
     document.querySelectorAll(".node-insp-tab").forEach((b) => {
-      b.classList.toggle("active", b.dataset.nodeInspTab === tab);
+      const on = b.dataset.nodeInspTab === tab;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-selected", on ? "true" : "false");
+      b.setAttribute("tabindex", on ? "0" : "-1");
     });
     document.querySelectorAll(".node-insp-panel").forEach((p) => {
       p.classList.toggle("active", p.dataset.nodeInspPanel === tab);
@@ -6187,25 +6292,174 @@
     runtime.inspectorCompact = !runtime.inspectorCompact;
     rightbar.classList.toggle("compact", runtime.inspectorCompact);
     inspectorToggleBtn.textContent = runtime.inspectorCompact ? "▣" : "◱";
+    const label = runtime.inspectorCompact ? "Expand inspector" : "Compact inspector";
+    inspectorToggleBtn.setAttribute("aria-label", label);
+    inspectorToggleBtn.setAttribute("title", label);
   };
+  function applyDiagramSubTab(sub) {
+    const subs = ["node", "groups", "suggestions"];
+    if (!subs.includes(sub)) sub = "node";
+    runtime.activeDiagramSub = sub;
+    document.querySelectorAll(".diagram-sub-tab").forEach((btn) => {
+      const on = btn.dataset.diagramSubTab === sub;
+      btn.classList.toggle("active", on);
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+      btn.setAttribute("tabindex", on ? "0" : "-1");
+    });
+    document.querySelectorAll("[data-diagram-sub]").forEach((el) => {
+      el.classList.toggle("diagram-sub-on", el.dataset.diagramSub === sub);
+    });
+  }
+
   function setRightTab(tab) {
     runtime.activeRightTab = tab;
-    document.querySelectorAll(".right-tab").forEach((btn) => btn.classList.remove("active"));
+    const tabPairs = [
+      ["tabDiagram", "diagram"],
+      ["tabStyle", "style"],
+      ["tabLayout", "layout"],
+      ["tabExport", "export"],
+      ["tabAi", "ai"],
+    ];
+    tabPairs.forEach(([btnId, key]) => {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+      const on = key === tab;
+      btn.classList.toggle("active", on);
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+      btn.setAttribute("tabindex", on ? "0" : "-1");
+    });
     document.querySelectorAll(".right-section[data-tab]").forEach((sec) => sec.classList.remove("active"));
-    const tabBtn = { diagram: tabDiagram, style: tabStyle, layout: tabLayout, export: tabExport, ai: tabAi }[tab];
-    if (tabBtn) tabBtn.classList.add("active");
     document.querySelectorAll(`.right-section[data-tab="${tab}"]`).forEach((sec) => sec.classList.add("active"));
+    document.querySelectorAll("[data-inspector-tab-panel]").forEach((panel) => {
+      const key = panel.getAttribute("data-inspector-tab-panel");
+      const on = key === tab;
+      panel.setAttribute("aria-hidden", on ? "false" : "true");
+    });
+    if (tab === "diagram") {
+      applyDiagramSubTab(runtime.activeDiagramSub || "node");
+    } else {
+      document.querySelectorAll("[data-diagram-sub]").forEach((sec) => sec.classList.remove("diagram-sub-on"));
+    }
   }
-  tabDiagram.onclick = () => setRightTab("diagram");
-  tabStyle.onclick = () => setRightTab("style");
-  tabLayout.onclick = () => setRightTab("layout");
-  tabExport.onclick = () => setRightTab("export");
+  tabDiagram.onclick = () => {
+    setRightTab("diagram");
+    tabDiagram.focus();
+  };
+  tabStyle.onclick = () => {
+    setRightTab("style");
+    tabStyle.focus();
+  };
+  tabLayout.onclick = () => {
+    setRightTab("layout");
+    tabLayout.focus();
+  };
+  tabExport.onclick = () => {
+    setRightTab("export");
+    tabExport.focus();
+  };
   if (tabAi) {
     tabAi.onclick = () => {
       setRightTab("ai");
       void syncAiWalletFromBackend();
+      tabAi.focus();
     };
   }
+  document.getElementById("diagramSubTabs")?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".diagram-sub-tab");
+    if (!btn || !btn.dataset.diagramSubTab) return;
+    e.preventDefault();
+    applyDiagramSubTab(btn.dataset.diagramSubTab);
+  });
+  document.getElementById("diagramSubTabs")?.addEventListener("keydown", (e) => {
+    const ord = ["node", "groups", "suggestions"];
+    const cur = ord.indexOf(runtime.activeDiagramSub || "node");
+    if (cur < 0) return;
+    let next = cur;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") next = Math.min(ord.length - 1, cur + 1);
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = Math.max(0, cur - 1);
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = ord.length - 1;
+    else return;
+    e.preventDefault();
+    applyDiagramSubTab(ord[next]);
+    document.querySelector(`.diagram-sub-tab[data-diagram-sub-tab="${ord[next]}"]`)?.focus();
+  });
+  const rightTabOrder = ["diagram", "style", "layout", "export", "ai"];
+  const rightTabIds = ["tabDiagram", "tabStyle", "tabLayout", "tabExport", "tabAi"];
+  document.querySelector(".right-tabs")?.addEventListener("keydown", (e) => {
+    const cur = rightTabOrder.indexOf(runtime.activeRightTab || "diagram");
+    if (cur < 0) return;
+    let next = cur;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") next = Math.min(rightTabOrder.length - 1, cur + 1);
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = Math.max(0, cur - 1);
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = rightTabOrder.length - 1;
+    else return;
+    e.preventDefault();
+    const key = rightTabOrder[next];
+    if (key === "ai") {
+      setRightTab("ai");
+      void syncAiWalletFromBackend();
+    } else {
+      setRightTab(key);
+    }
+    document.getElementById(rightTabIds[next])?.focus();
+  });
+  const topbarMoreBtn = document.getElementById("topbarMoreBtn");
+  const topbarMoreMenu = document.getElementById("topbarMoreMenu");
+  function closeTopbarMenu() {
+    if (!topbarMoreMenu || !topbarMoreBtn) return;
+    topbarMoreMenu.classList.remove("open");
+    topbarMoreMenu.hidden = true;
+    topbarMoreBtn.setAttribute("aria-expanded", "false");
+  }
+  topbarMoreBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const open = !topbarMoreMenu.classList.contains("open");
+    topbarMoreMenu.classList.toggle("open", open);
+    topbarMoreMenu.hidden = !open;
+    topbarMoreBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  topbarMoreMenu?.addEventListener("click", (e) => {
+    const item = e.target.closest("[data-mirror-click]");
+    if (!item) return;
+    const id = item.getAttribute("data-mirror-click");
+    document.getElementById(id)?.click();
+    closeTopbarMenu();
+  });
+  document.addEventListener("pointerdown", (e) => {
+    if (!topbarMoreMenu?.classList.contains("open")) return;
+    if (e.target.closest("#topbarOverflowHost")) return;
+    closeTopbarMenu();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if (topbarMoreMenu?.classList.contains("open")) closeTopbarMenu();
+  });
+  document.getElementById("openExtendedEditorBtn")?.addEventListener("click", () => {
+    if (!runtime.selectedNodeId) {
+      alert("Select a node on the canvas first.");
+      return;
+    }
+    openFocusModal(runtime.selectedNodeId);
+  });
+  const nodeInspTabsEl = document.getElementById("nodeInspTabs");
+  const nodeInspTabOrder = ["content", "style", "media", "attachments", "security"];
+  nodeInspTabsEl?.addEventListener("keydown", (e) => {
+    const cur = nodeInspTabOrder.indexOf(
+      [...document.querySelectorAll(".node-insp-tab")].find((b) => b.classList.contains("active"))?.dataset.nodeInspTab || "content"
+    );
+    if (cur < 0) return;
+    let next = cur;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") next = Math.min(nodeInspTabOrder.length - 1, cur + 1);
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = Math.max(0, cur - 1);
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = nodeInspTabOrder.length - 1;
+    else return;
+    e.preventDefault();
+    setNodeInspectorTab(nodeInspTabOrder[next]);
+    document.querySelector(`.node-insp-tab[data-node-insp-tab="${nodeInspTabOrder[next]}"]`)?.focus();
+  });
   fitViewInPanelBtn.onclick = fitToScreen;
   exportJsonPanelBtn.onclick = () => document.getElementById("exportBtn").click();
   exportPngPanelBtn.onclick = exportAsPng;
