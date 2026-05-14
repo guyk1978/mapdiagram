@@ -1212,6 +1212,10 @@
     filter: drop-shadow(0 1px 2px var(--conn-shadow));
     opacity: 0.96;
   }
+  .conn.branch-from-conn {
+    stroke-width: 2.05;
+    opacity: 0.93;
+  }
   .conn:hover {
     stroke: var(--conn-stroke-hover);
     stroke-width: 2.7;
@@ -1222,9 +1226,14 @@
     filter: drop-shadow(0 0 9px rgba(145, 178, 255, 0.62));
   }
   .conn.selected {
-    stroke: var(--conn-stroke-selected);
-    stroke-width: 3.05;
-    filter: drop-shadow(0 0 10px rgba(122, 162, 255, 0.62));
+    stroke: rgba(96, 210, 255, 0.98);
+    stroke-width: 3.4;
+    filter: drop-shadow(0 0 14px rgba(72, 170, 255, 0.78));
+    pointer-events: stroke;
+  }
+  .bridge-conn.selected {
+    stroke-width: 2.95;
+    filter: drop-shadow(0 0 12px rgba(96, 220, 255, 0.72));
   }
   .conn.confirm {
     filter: drop-shadow(0 0 7px rgba(79, 208, 135, 0.6));
@@ -1233,8 +1242,9 @@
   .conn:not(.selected) {
     pointer-events: none;
   }
-  .conn.selected {
-    pointer-events: stroke;
+  .conn.selected[stroke-dasharray] {
+    animation: none;
+    stroke-width: 3.15;
   }
   .conn[stroke-dasharray] {
     stroke: rgba(169, 195, 255, 0.88);
@@ -2192,6 +2202,10 @@
         <button id="undoBtn" class="icon-btn" type="button" title="Undo" aria-label="Undo"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 14 4 9l5-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 15v-2a4 4 0 0 0-4-4H4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         <button id="redoBtn" class="icon-btn" type="button" title="Redo" aria-label="Redo"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m15 14 5-5-5-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v-2a4 4 0 0 1 4-4h12" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         <button id="duplicateNodesToolbarBtn" class="icon-btn" type="button" title="Duplicate selection (Ctrl+D)" aria-label="Duplicate selection"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="8" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.75"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
+        <div id="topbarConnSelActions" class="group" role="toolbar" aria-label="Selected connection" hidden>
+          <button type="button" id="topbarDeleteConnBtn" class="icon-btn" title="Delete connection" aria-label="Delete connection"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16M10 11v6M14 11v6M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1v2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7l1 14a1 1 0 0 0 1 .9h6a1 1 0 0 0 1-.9l1-14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+          <button type="button" id="topbarBranchConnBtn" class="icon-btn" title="Branch from this connection" aria-label="Branch from this connection"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6v12M6 12h8a3 3 0 0 1 3 3v3M14 12h4a2 2 0 0 1 2 2v4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 6v4M16 8h4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
+        </div>
         <button type="button" id="themeToggleBtn" class="icon-btn theme-toggle-btn" title="Toggle light / dark theme" aria-label="Toggle light / dark theme"><span class="icon-svg icon-theme-sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span><span class="icon-svg icon-theme-moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 6.5 6.5 0 1 0 21 14.5Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span></button>
         <button id="fitViewBtn" class="icon-btn" type="button" title="Fit to screen" aria-label="Fit to screen"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3H5v4M15 3h4v4M3 9V5h4M21 9V5h-4M9 21H5v-4M15 21h4v-4M3 15v4h4M21 15v4h-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         </div>
@@ -3063,8 +3077,7 @@
     if (e.altKey) {
       e.preventDefault();
       pushHistory();
-      p.connections = p.connections.filter((x) => x.id !== connId);
-      delete runtime.connectionUi[connId];
+      removeConnectionByIdCascade(p, connId);
       clearConnectionSelectionState();
       renderConnections();
       renderSelection();
@@ -3082,20 +3095,6 @@
       return;
     }
     clearGroupConnSelectionState();
-    if (
-      runtime.selectedConnectionIds.size === 1 &&
-      runtime.selectedConnectionIds.has(connId) &&
-      runtime.selectedConnectionId === connId
-    ) {
-      pushHistory();
-      p.connections = p.connections.filter((x) => x.id !== connId);
-      delete runtime.connectionUi[connId];
-      clearConnectionSelectionState();
-      renderConnections();
-      renderSelection();
-      markDirty();
-      return;
-    }
     runtime.selectedConnectionIds.clear();
     runtime.selectedConnectionIds.add(connId);
     runtime.selectedConnectionId = connId;
@@ -3308,6 +3307,11 @@
         c.kind = "node-node";
         continue;
       }
+      if (c.kind === "branch-from") {
+        const t = Number(c.t);
+        c.t = Number.isFinite(t) ? Math.min(0.98, Math.max(0.02, t)) : 0.5;
+        continue;
+      }
       if (c.kind === "node-group") {
         if (!c.from || !c.toGroupId || !userGroupById(p, c.toGroupId)) c.kind = "node-node";
       } else if (c.kind === "group-node") {
@@ -3316,10 +3320,43 @@
         c.kind = "node-node";
       }
     }
+    pruneInvalidBranchConnections(p);
+  }
+
+  function pruneInvalidBranchConnections(p) {
+    if (!Array.isArray(p.connections)) return;
+    const nnIds = new Set(p.connections.filter((c) => isNodeNodeConnection(c)).map((c) => c.id));
+    const before = p.connections.length;
+    p.connections = p.connections.filter((c) => {
+      if (c.kind !== "branch-from") return true;
+      if (!c.parentConnectionId || !nnIds.has(c.parentConnectionId) || !c.to || !getNodeById(c.to)) {
+        delete runtime.connectionUi[c.id];
+        return false;
+      }
+      return true;
+    });
+    if (p.connections.length !== before) {
+      for (const k of [...Object.keys(runtime.connectionUi)]) {
+        if (!p.connections.some((x) => x.id === k)) delete runtime.connectionUi[k];
+      }
+    }
   }
 
   function isNodeNodeConnection(c) {
     return !c || !c.kind || c.kind === "node-node";
+  }
+
+  function isBranchFromConnection(c) {
+    return !!(c && c.kind === "branch-from");
+  }
+
+  function removeConnectionByIdCascade(p, connId) {
+    const drop = new Set([connId]);
+    for (const c of p.connections) {
+      if (isBranchFromConnection(c) && c.parentConnectionId === connId) drop.add(c.id);
+    }
+    for (const id of drop) delete runtime.connectionUi[id];
+    p.connections = p.connections.filter((c) => !drop.has(c.id));
   }
 
   function getDescendantGroupIds(p, rootId) {
@@ -3847,11 +3884,15 @@
     }
     p.nodes = p.nodes.filter((n) => !ids.has(n.id));
     p.connections = (p.connections || []).filter((c) => {
-      if (!isNodeNodeConnection(c)) {
-        if (c.kind === "node-group" && (ids.has(c.from) || removeGroupIds.has(c.toGroupId))) return false;
-        if (c.kind === "group-node" && (ids.has(c.to) || removeGroupIds.has(c.fromGroupId))) return false;
+      if (c.kind === "node-group" && (ids.has(c.from) || removeGroupIds.has(c.toGroupId))) return false;
+      if (c.kind === "group-node" && (ids.has(c.to) || removeGroupIds.has(c.fromGroupId))) return false;
+      if (isBranchFromConnection(c)) {
+        if (ids.has(c.to)) return false;
+        const par = p.connections.find((x) => x.id === c.parentConnectionId);
+        if (!par || !isNodeNodeConnection(par) || ids.has(par.from) || ids.has(par.to)) return false;
         return true;
       }
+      if (!isNodeNodeConnection(c)) return true;
       return !ids.has(c.from) && !ids.has(c.to);
     });
     for (const k of [...Object.keys(runtime.connectionUi)]) {
@@ -4769,7 +4810,8 @@
     const targetNodeEl = event.target.closest(".node");
     if (!targetNodeEl) return null;
     const targetNodeId = targetNodeEl.dataset.nodeId;
-    if (!targetNodeId || targetNodeId === sourceNodeId) return null;
+    if (!targetNodeId) return null;
+    if (sourceNodeId && targetNodeId === sourceNodeId) return null;
     const tn = getNodeById(targetNodeId);
     if (tn && isNodeHiddenCanvas(tn)) return null;
     return targetNodeId;
@@ -5731,6 +5773,27 @@
     workspace.style.cursor = "crosshair";
   }
 
+  function startBranchFromConnectionDrag(parentConnId) {
+    const p = getProject();
+    const parent = p.connections.find((x) => x.id === parentConnId);
+    if (!parent || !isNodeNodeConnection(parent)) return;
+    const lay = getNodeNodeEdgeLayout(parent, p);
+    if (!lay || !lay.d) return;
+    const t0 = 0.5;
+    const j = pathWorldPointAtParam(lay.d, t0);
+    if (!j) return;
+    runtime.connecting = { branchFromParentId: parentConnId, branchT: t0, hoverNodeId: null, hoverGroupInId: null };
+    runtime.previewFrom = { x: j.x, y: j.y };
+    runtime.previewPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    runtime.previewPath.setAttribute("class", "conn");
+    runtime.previewPath.setAttribute("stroke-dasharray", "6 4");
+    runtime.previewPath.classList.add("preview-neutral");
+    connectionsLayer.appendChild(runtime.previewPath);
+    workspace.style.cursor = "crosshair";
+    clearConnectionSelectionState();
+    renderSelection();
+  }
+
   function releaseStoredNodeBodyPointerCapture() {
     const cap = runtime.activeNodeBodyCapture;
     if (!cap) return;
@@ -6239,6 +6302,53 @@
     }
     const auto = autoCurve(from, to);
     return curvePath(from, auto.cp1, auto.cp2, to);
+  }
+
+  function getNodeNodeEdgeLayout(c, p) {
+    if (!c || !isNodeNodeConnection(c)) return null;
+    const fromNode = getNodeById(c.from);
+    const toNode = getNodeById(c.to);
+    if (!fromNode || !toNode) return null;
+    const toPre = anchorNodeForConnection(c.to, "to", anchor(fromNode, "out", nodeWorldCenter(toNode)));
+    const from = anchorNodeForConnection(c.from, "from", toPre);
+    const to = anchorNodeForConnection(c.to, "to", from);
+    const curve = getCurveData(c.id, from, to);
+    const obstacles = p.nodes
+      .filter((n) => n.id !== fromNode.id && n.id !== toNode.id)
+      .filter((n) => !isNodeHiddenCanvas(n))
+      .map((n) => {
+        const w = getNodeWorldPosition(n);
+        return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+      });
+    const d =
+      runtime.connectorStyle === "orthogonal"
+        ? orthogonalPath(from, to, obstacles)
+        : curvePath(from, curve.cp1, curve.cp2, to);
+    return { fromNode, toNode, from, to, curve, d };
+  }
+
+  /** Sample a point along an SVG path `d` (0–1 of path length). Requires `connectionsLayer` in DOM. */
+  function pathWorldPointAtParam(d, t01) {
+    if (!d || !connectionsLayer) return null;
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", d);
+    path.setAttribute("visibility", "hidden");
+    path.setAttribute("fill", "none");
+    connectionsLayer.appendChild(path);
+    try {
+      const len = path.getTotalLength();
+      if (!(len > 0)) {
+        path.remove();
+        return null;
+      }
+      const u = Math.min(0.999, Math.max(0.001, t01));
+      const pt = path.getPointAtLength(len * u);
+      path.remove();
+      return { x: pt.x, y: pt.y };
+    } catch (_) {
+      path.remove();
+      return null;
+    }
   }
 
   function segmentIntersectsRect(a, b, rect) {
@@ -7034,6 +7144,7 @@
         connectionsLayer.append(hit, path);
         continue;
       }
+      if (isBranchFromConnection(c)) continue;
       if (!isNodeNodeConnection(c)) continue;
       const fromNode = getNodeById(c.from);
       const toNode = getNodeById(c.to);
@@ -7184,6 +7295,78 @@
         connectionsLayer.append(cp1, cp2);
       }
     }
+    for (const c of p.connections) {
+      if (!isBranchFromConnection(c)) continue;
+      normalizeConnectionEdge(c);
+      const parent = p.connections.find((x) => x.id === c.parentConnectionId);
+      const toNode = getNodeById(c.to);
+      if (!parent || !isNodeNodeConnection(parent) || !toNode) continue;
+      const lay = getNodeNodeEdgeLayout(parent, p);
+      if (!lay || !lay.d) continue;
+      const junc = pathWorldPointAtParam(lay.d, c.t ?? 0.5);
+      if (!junc) continue;
+      const fromPt = junc;
+      const to = anchorNodeForConnection(c.to, "to", fromPt);
+      const curve = getCurveData(c.id, fromPt, to);
+      const obstacles = p.nodes
+        .filter((n) => n.id !== toNode.id && n.id !== lay.fromNode.id && n.id !== lay.toNode.id)
+        .filter((n) => !isNodeHiddenCanvas(n))
+        .map((n) => {
+          const w = getNodeWorldPosition(n);
+          return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+        });
+      const dBr =
+        runtime.connectorStyle === "orthogonal"
+          ? orthogonalPath(fromPt, to, obstacles)
+          : curvePath(fromPt, curve.cp1, curve.cp2, to);
+      const brStroke = connectionStrokeColorOrNull(c);
+      let brGradId = null;
+      if (!brStroke) {
+        brGradId = `grad-br-${c.id}`;
+        const grad = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+        grad.id = brGradId;
+        grad.setAttribute("gradientUnits", "userSpaceOnUse");
+        grad.setAttribute("x1", String(fromPt.x));
+        grad.setAttribute("y1", String(fromPt.y));
+        grad.setAttribute("x2", String(to.x));
+        grad.setAttribute("y2", String(to.y));
+        const s1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+        s1.setAttribute("offset", "0%");
+        s1.setAttribute("stop-color", "rgba(130, 210, 255, 0.78)");
+        const s2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+        s2.setAttribute("offset", "100%");
+        s2.setAttribute("stop-color", "rgba(184, 206, 255, 0.92)");
+        grad.append(s1, s2);
+        defs.appendChild(grad);
+      }
+      const hitB = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      hitB.setAttribute("d", dBr);
+      hitB.setAttribute("class", "conn-hit");
+      hitB.dataset.connId = c.id;
+      hitB.addEventListener("pointerdown", (e) => {
+        e.stopPropagation();
+        selectOrDeleteConnectionEdge(e, c.id, p);
+      });
+      const pathB = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      pathB.setAttribute("d", dBr);
+      const brSel = runtime.selectedConnectionIds.has(c.id) || runtime.selectedConnectionId === c.id;
+      pathB.setAttribute(
+        "class",
+        `conn branch-from-conn${brSel ? " selected" : ""}${connListHoverSuffix(c.id, null)}`
+      );
+      if (brStroke) {
+        pathB.setAttribute("stroke", brStroke);
+        pathB.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-br-${c.id}`, brStroke));
+      } else {
+        pathB.setAttribute("stroke", `url(#${brGradId})`);
+        pathB.setAttribute("marker-end", "url(#arrow-head)");
+      }
+      pathB.setAttribute("stroke-width", String(connectionStrokeWidthPx(c, 2.05)));
+      const dashBr = connectionDashArray(c.strokeDash);
+      if (dashBr) pathB.setAttribute("stroke-dasharray", dashBr);
+      pathB.dataset.connId = c.id;
+      connectionsLayer.append(hitB, pathB);
+    }
     for (const gc of p.groupConnections || []) {
       const fromBox = getUserGroupBox(gc.fromGroupId);
       const toBox = getUserGroupBox(gc.toGroupId);
@@ -7329,6 +7512,18 @@
           warning: !sem.valid,
           endNodeIds: [c.from, c.to]
         });
+      } else if (isBranchFromConnection(c)) {
+        const tn = getNodeById(c.to);
+        const par = p.connections.find((x) => x.id === c.parentConnectionId);
+        if (!tn || !par || !isNodeNodeConnection(par)) continue;
+        rows.push({
+          kind: "conn",
+          id: c.id,
+          c,
+          label: truncateConnLabel(`↳ branch → ${tn.text || "?"}`),
+          warning: false,
+          endNodeIds: [c.to]
+        });
       }
     }
     for (const gc of p.groupConnections || []) {
@@ -7383,6 +7578,22 @@
         minY: Math.min(wt.y, box.y),
         maxX: Math.max(wt.x + tn.width, box.x + box.w),
         maxY: Math.max(wt.y + tn.height, box.y + box.h)
+      };
+    }
+    if (isBranchFromConnection(c)) {
+      const p = getProject();
+      const parent = p.connections.find((x) => x.id === c.parentConnectionId);
+      const tn = getNodeById(c.to);
+      if (!parent || !isNodeNodeConnection(parent) || !tn) return null;
+      const lay = getNodeNodeEdgeLayout(parent, p);
+      const j = lay && lay.d ? pathWorldPointAtParam(lay.d, c.t ?? 0.5) : null;
+      if (!j) return null;
+      const wt = getNodeWorldPosition(tn);
+      return {
+        minX: Math.min(j.x, wt.x),
+        minY: Math.min(j.y, wt.y),
+        maxX: Math.max(j.x, wt.x + tn.width),
+        maxY: Math.max(j.y, wt.y + tn.height)
       };
     }
     const fn = getNodeById(c.from);
@@ -7572,13 +7783,26 @@
   function bulkDeleteSelectedEdgesAction() {
     const p = getProject();
     const { nn, bridges, gcs } = getSelectedConnectionRecords();
-    const delConn = new Set([...nn, ...bridges].map((c) => c.id));
+    let delConn = new Set([...nn, ...bridges].map((c) => c.id));
     const delGc = new Set(gcs.map((c) => c.id));
     if (!delConn.size && !delGc.size) return;
     pushHistory();
+    let removedConn = 0;
     if (delConn.size) {
-      p.connections = p.connections.filter((c) => !delConn.has(c.id));
-      for (const id of delConn) delete runtime.connectionUi[id];
+      const expanded = new Set(delConn);
+      let grew;
+      do {
+        grew = false;
+        for (const c of p.connections) {
+          if (isBranchFromConnection(c) && expanded.has(c.parentConnectionId) && !expanded.has(c.id)) {
+            expanded.add(c.id);
+            grew = true;
+          }
+        }
+      } while (grew);
+      removedConn = expanded.size;
+      p.connections = p.connections.filter((c) => !expanded.has(c.id));
+      for (const id of expanded) delete runtime.connectionUi[id];
     }
     if (delGc.size) p.groupConnections = (p.groupConnections || []).filter((c) => !delGc.has(c.id));
     clearAllEdgeSelection();
@@ -7587,7 +7811,7 @@
     renderSelection();
     markDirty();
     scheduleSemanticAnalysis();
-    showToast(`Deleted ${delConn.size + delGc.size} link(s).`, "danger");
+    showToast(`Deleted ${removedConn + delGc.size} link(s).`, "danger");
   }
 
   /** Phase 2–3: sync edge inspector fields (label + stroke) with current multi-selection. */
@@ -8325,6 +8549,7 @@
       }
     }
     const newConns = [];
+    const connIdMap = {};
     for (const c of p.connections) {
       if (!isNodeNodeConnection(c)) continue;
       if (selSet.has(c.from) && selSet.has(c.to)) {
@@ -8332,14 +8557,31 @@
         const nt = idMap.get(c.to);
         if (nf && nt) {
           const nc = deepCopy(c);
+          const oldId = c.id;
           nc.id = uid();
           nc.from = nf;
           nc.to = nt;
           newConns.push(nc);
+          connIdMap[oldId] = nc.id;
         }
       }
     }
     for (const c of newConns) p.connections.push(c);
+    const extraBranches = [];
+    for (const c of p.connections) {
+      if (!isBranchFromConnection(c)) continue;
+      if (!selSet.has(c.to)) continue;
+      const newPar = connIdMap[c.parentConnectionId];
+      if (!newPar) continue;
+      const nt = idMap.get(c.to);
+      if (!nt) continue;
+      const nb = deepCopy(c);
+      nb.id = uid();
+      nb.parentConnectionId = newPar;
+      nb.to = nt;
+      extraBranches.push(nb);
+    }
+    for (const b of extraBranches) p.connections.push(b);
     runtime.selectedNodeIds.clear();
     for (const id of ids) {
       const nid = idMap.get(id);
@@ -8527,6 +8769,27 @@
     markDirty();
   }
 
+  function syncTopbarConnectionActions() {
+    const wrap = document.getElementById("topbarConnSelActions");
+    const brB = document.getElementById("topbarBranchConnBtn");
+    if (!wrap || !brB) return;
+    const oneConn =
+      runtime.selectedConnectionIds.size === 1 &&
+      runtime.selectedConnectionId &&
+      runtime.selectedConnectionIds.has(runtime.selectedConnectionId) &&
+      !runtime.selectedGroupConnId &&
+      !runtime.selectedGroupConnIds.size;
+    const c = oneConn ? getConnById(runtime.selectedConnectionId) : null;
+    const show = !!(
+      c &&
+      (isNodeNodeConnection(c) || isBranchFromConnection(c) || c.kind === "node-group" || c.kind === "group-node")
+    );
+    wrap.hidden = !show;
+    const canBranch = !!(c && isNodeNodeConnection(c));
+    brB.disabled = !canBranch;
+    brB.style.opacity = canBranch ? "" : "0.45";
+  }
+
   function renderSelection() {
     const p = getProject();
     for (const el of nodesLayer.querySelectorAll(".node")) {
@@ -8592,11 +8855,12 @@
     groupControls.classList.toggle("active", !!selectedGroup);
     groupNameInput.value = selectedGroup ? (selectedGroup.name || "") : "";
     groupColorInput.value = selectedGroup ? (selectedGroup.color || "#8baeff") : "#8baeff";
-    const bridges = (p.connections || []).filter((c) => !isNodeNodeConnection(c)).length;
+    const bridges = (p.connections || []).filter((c) => !isNodeNodeConnection(c) && !isBranchFromConnection(c)).length;
     stats.textContent = `${p.nodes.length} nodes • ${p.connections.length} links (${bridges} system) • ${(p.userGroups || []).length} groups • ${p.title}`;
     renderConnectionListPanel();
     syncEdgeInspectorPanel();
     renderOutlineTreePanel();
+    syncTopbarConnectionActions();
   }
 
   function syncNodeSizes() {
@@ -8961,6 +9225,7 @@
         }
         continue;
       }
+      if (isBranchFromConnection(c)) continue;
       if (!isNodeNodeConnection(c)) continue;
       const fromNode = getNodeById(c.from);
       const toNode = getNodeById(c.to);
@@ -9011,6 +9276,51 @@
           c.label,
           (from.x + to.x) / 2 + (off.dx || 0),
           (from.y + to.y) / 2 - 4 + (off.dy || 0),
+          false
+        );
+      }
+    }
+
+    for (const c of p.connections) {
+      if (!isBranchFromConnection(c)) continue;
+      normalizeConnectionEdge(c);
+      const parent = p.connections.find((x) => x.id === c.parentConnectionId);
+      const toNode = getNodeById(c.to);
+      if (!parent || !isNodeNodeConnection(parent) || !toNode) continue;
+      const lay = getNodeNodeEdgeLayout(parent, p);
+      if (!lay || !lay.d) continue;
+      const junc = pathWorldPointAtParam(lay.d, c.t ?? 0.5);
+      if (!junc) continue;
+      const fromPt = junc;
+      const to = anchorNodeForConnection(c.to, "to", fromPt);
+      const curve = getCurveData(c.id, fromPt, to);
+      const obstacles = p.nodes
+        .filter((n) => n.id !== toNode.id && n.id !== lay.fromNode.id && n.id !== lay.toNode.id)
+        .filter((n) => !isNodeHiddenCanvas(n))
+        .map((n) => {
+          const w = getNodeWorldPosition(n);
+          return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+        });
+      const dBr =
+        runtime.connectorStyle === "orthogonal"
+          ? orthogonalPath(fromPt, to, obstacles)
+          : curvePath(fromPt, curve.cp1, curve.cp2, to);
+      const lw = connectionStrokeWidthPx(c, 2.05);
+      const customBr = connectionStrokeColorOrNull(c);
+      pngCtxSetLineDashFromEdge(ctx, c);
+      ctx.strokeStyle = customBr || "rgba(140, 200, 255, 0.9)";
+      ctx.lineWidth = lw;
+      pngStrokePathD(ctx, dBr);
+      ctx.setLineDash([]);
+      const tipCol = customBr || "rgba(184, 206, 255, 0.95)";
+      pngDrawArrowAtTip(ctx, curve.cp2.x, curve.cp2.y, to.x, to.y, tipCol, 7);
+      if (String(c.label || "").trim()) {
+        const off = c.labelOffset || { dx: 0, dy: 0 };
+        pngDrawEdgeLabel(
+          ctx,
+          c.label,
+          (fromPt.x + to.x) / 2 + (off.dx || 0),
+          (fromPt.y + to.y) / 2 - 4 + (off.dy || 0),
           false
         );
       }
@@ -9344,6 +9654,18 @@
           }
           return true;
         }
+        if (isBranchFromConnection(c)) {
+          if (ids.has(c.to)) {
+            removedConnIds.push(c.id);
+            return false;
+          }
+          const par = p.connections.find((x) => x.id === c.parentConnectionId);
+          if (!par || !isNodeNodeConnection(par) || ids.has(par.from) || ids.has(par.to)) {
+            removedConnIds.push(c.id);
+            return false;
+          }
+          return true;
+        }
         return true;
       }
       if (ids.has(c.from) || ids.has(c.to)) {
@@ -9353,6 +9675,7 @@
       return true;
     });
     for (const rid of removedConnIds) delete runtime.connectionUi[rid];
+    pruneInvalidBranchConnections(p);
     runtime.selectedNodeId = null;
     runtime.selectedNodeIds.clear();
     runtime.selectedGroupId = null;
@@ -9388,6 +9711,14 @@
   fitViewBtn.onclick = fitToScreen;
   document.getElementById("duplicateNodesToolbarBtn")?.addEventListener("click", () => duplicateSelectedNodesAction());
   document.getElementById("duplicateNodesPanelBtn")?.addEventListener("click", () => duplicateSelectedNodesAction());
+  document.getElementById("topbarDeleteConnBtn")?.addEventListener("click", () => bulkDeleteSelectedEdgesAction());
+  document.getElementById("topbarBranchConnBtn")?.addEventListener("click", () => {
+    const id = runtime.selectedConnectionId;
+    if (!id || !runtime.selectedConnectionIds.has(id)) return;
+    const c = getConnById(id);
+    if (!c || !isNodeNodeConnection(c)) return;
+    startBranchFromConnectionDrag(id);
+  });
   document.getElementById("selectGraphNeighborsBtn")?.addEventListener("click", () => expandSelectionToGraphNeighbors());
   document.getElementById("selectSameTypeNodesBtn")?.addEventListener("click", () => expandSelectionToSameType());
   document.getElementById("alignNodesLeftBtn")?.addEventListener("click", () => alignDistributeSelection("left"));
@@ -10363,9 +10694,36 @@
       return;
     }
     if (runtime.connecting && runtime.previewPath) {
+      const rawPoint = world(e.clientX, e.clientY);
+      if (runtime.connecting.branchFromParentId) {
+        const gInEl = document.elementFromPoint(e.clientX, e.clientY)?.closest?.(".group-handle.in");
+        const hoverGroupInId = gInEl?.dataset?.groupId || null;
+        runtime.connecting.hoverGroupInId = hoverGroupInId;
+        const hoveredNodeId = hoverGroupInId
+          ? null
+          : (findConnectionTargetFromEvent(e, null) || getSnapTargetByPoint(rawPoint, null) || null);
+        runtime.connecting.hoverNodeId = hoveredNodeId;
+        let point = rawPoint;
+        if (hoveredNodeId) {
+          const targetNode = getNodeById(hoveredNodeId);
+          if (targetNode && runtime.previewFrom) point = anchorNodeForConnection(hoveredNodeId, "to", runtime.previewFrom);
+        } else if (hoverGroupInId) {
+          const toBox = getUserGroupBox(hoverGroupInId);
+          if (toBox && runtime.previewFrom) {
+            point = groupAnchor(toBox, "in", runtime.previewFrom);
+          }
+        }
+        const from = runtime.previewFrom;
+        if (!from) return;
+        const auto = autoCurve(from, point);
+        runtime.previewPath.setAttribute("d", curvePath(from, auto.cp1, auto.cp2, point));
+        runtime.previewPath.classList.remove("preview-valid", "preview-invalid", "preview-neutral");
+        runtime.previewPath.classList.add(hoveredNodeId || hoverGroupInId ? "preview-valid" : "preview-invalid");
+        renderSelection();
+        return;
+      }
       const fromNode = getNodeById(runtime.connecting.fromNodeId);
       if (!fromNode) return;
-      const rawPoint = world(e.clientX, e.clientY);
       const gInEl = document.elementFromPoint(e.clientX, e.clientY)?.closest?.(".group-handle.in");
       const hoverGroupInId = gInEl?.dataset?.groupId || null;
       runtime.connecting.hoverGroupInId = hoverGroupInId;
@@ -10496,6 +10854,50 @@
       markDirty();
     }
     if (runtime.connecting) {
+      const branchParentId = runtime.connecting.branchFromParentId;
+      if (branchParentId) {
+        const p = getProject();
+        const parent = getConnById(branchParentId);
+        const point = world(e.clientX, e.clientY);
+        const toNodeId = findConnectionTargetFromEvent(e, null) || runtime.connecting.hoverNodeId || getSnapTargetByPoint(point, null) || null;
+        const parEnds = parent && isNodeNodeConnection(parent) ? [parent.from, parent.to] : [];
+        if (toNodeId && runtime.previewFrom && !parEnds.includes(toNodeId)) {
+          const dup = p.connections.some(
+            (c) => isBranchFromConnection(c) && c.parentConnectionId === branchParentId && c.to === toNodeId
+          );
+          if (!dup && parent && isNodeNodeConnection(parent)) {
+            pushHistory();
+            const connectionId = uid();
+            const t0 = runtime.connecting.branchT ?? 0.5;
+            p.connections.push({
+              id: connectionId,
+              kind: "branch-from",
+              parentConnectionId: branchParentId,
+              t: t0,
+              to: toNodeId
+            });
+            const newC = p.connections[p.connections.length - 1];
+            normalizeConnectionEdge(newC);
+            const tnode = getNodeById(toNodeId);
+            if (tnode && runtime.previewFrom) {
+              const to = anchorNodeForConnection(toNodeId, "to", runtime.previewFrom);
+              const auto = autoCurve(runtime.previewFrom, to);
+              runtime.connectionUi[connectionId] = { cp1: auto.cp1, cp2: auto.cp2, custom: false };
+            }
+            markDirty();
+            smartRebalance([parent.from, parent.to, toNodeId]);
+          }
+        }
+        if (runtime.previewPath) runtime.previewPath.remove();
+        runtime.previewPath = null;
+        runtime.previewFrom = null;
+        runtime.connecting = null;
+        workspace.style.cursor = "";
+        renderConnections();
+        renderSelection();
+        scheduleSemanticAnalysis();
+        return;
+      }
       const point = world(e.clientX, e.clientY);
       const fromNodeId = runtime.connecting.fromNodeId;
       const gInEl = document.elementFromPoint(e.clientX, e.clientY)?.closest?.(".group-handle.in");
