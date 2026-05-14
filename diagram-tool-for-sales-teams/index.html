@@ -29,33 +29,33 @@
   </script>
 </head>
 <body>
-<header class="nav">
+<header class="nav nav--minimal">
   <div class="wrap">
   <a href="/" class="nav-brand"><strong>MapDiagram</strong></a>
-  <nav class="links">
-  <a href="/">Home</a>
-  <a href="/faq/">FAQ</a>
-  <a href="/diagram-builder/">Tools</a>
-  <a href="/workflow-hub/">Workflow Hub</a>
+  <nav class="links nav-links-main" aria-label="Primary">
+  <a href="/diagram-builder/">Product</a>
+  <a href="/#templates">Templates</a>
   <a href="/blog/">Blog</a>
-  <a href="/about/">About</a>
-  <a href="/auth/">Login</a>
-  <a class="btn" href="/app/">Open App</a>
+  <a class="btn nav-cta" href="/app/">Open editor</a>
   </nav>
   </div>
   </header>
   <main class="wrap">
-    <section class="hero">
+    <section class="hero hero-landing">
+      <p class="hero-kicker">Diagrams in seconds—not slide decks.</p>
       <h1>Diagram tool for sales teams</h1>
       <p class="lead">Buyers buy confidence. Diagrams show how your product fits their world without drowning them in jargon.</p>
-      <a class="btn cta" href="/app/">Open MapDiagram</a>
+      <p class="muted hero-problem-pill"><strong>The gap:</strong> Long emails confuse champions. Without a visual, technical buyers guess at architecture and stall the deal.</p>
+      <p class="muted hero-ai-note">MapDiagram helps sales teams tailor stories—swap branches for different industries while keeping the narrative coherent.</p>
+      <a class="btn cta" href="/app/">Start free — open editor</a>
     </section>
 
-    <section class="section">
-      <h2>Problem → solution</h2>
-      <p class="lead"><strong>Problem:</strong> Long emails confuse champions. Without a visual, technical buyers guess at architecture and stall the deal.</p>
-      <p class="lead"><strong>Solution:</strong> MapDiagram helps sales teams map customer workflows, integration points, and rollout steps with clarity.</p>
-    </section>
+    <div class="product-shot ">
+  <figure>
+    <img src="/assets/ui-preview.svg" alt="MapDiagram visual preview" loading="lazy" decoding="async" width="1280" height="720">
+    <figcaption>Fast browser-based diagramming for architecture, workflows, and process mapping.</figcaption>
+  </figure>
+</div>
 
     <section class="section">
       <h2>Use cases for Sales Teams</h2>
@@ -66,12 +66,6 @@
         <li>Explain phased rollout tied to customer milestones</li>
         <li>Align solutions engineers on a single account model</li>
       </ul>
-      
-    </section>
-
-    <section class="section">
-      <h2>How AI-assisted diagramming helps</h2>
-      <p class="lead">MapDiagram helps sales teams tailor stories—swap branches for different industries while keeping the narrative coherent.</p>
     </section>
 
     <section class="section">
@@ -91,13 +85,8 @@
 </div>
     </section>
 
-    <section class="section">
-      <h2>Start diagramming in MapDiagram</h2>
-      <p class="lead">Open the app to build a clean map you can share, iterate, and align around—without installing heavyweight software.</p>
-      <a class="btn cta" href="/app/">Launch the app</a>
-    </section>
-
     <section class="section related" aria-label="Related pages">
+      <p class="lead"><strong>Solution:</strong> MapDiagram helps sales teams map customer workflows, integration points, and rollout steps with clarity.</p>
       <h2>Related landing pages</h2>
       <ul>
         <li><a href="/diagram-tool-for-product-managers/">Product Managers</a></li>
@@ -119,6 +108,16 @@
 <footer class="footer">
   <div class="wrap footer-inner">
     <div class="footer-grid">
+    <div class="footer-col">
+      <h3 class="footer-heading">Site</h3>
+      <ul class="footer-list">
+      <li><a href="/faq/">FAQ</a></li>
+      <li><a href="/about/">About</a></li>
+      <li><a href="/workflow-hub/">Workflow hub</a></li>
+      <li><a href="/auth/">Log in</a></li>
+      <li><a href="/diagram-builder/">All diagram tools</a></li>
+      </ul>
+    </div>
     <div class="footer-col">
       <h3 class="footer-heading">Developers</h3>
       <ul class="footer-list">
@@ -232,6 +231,10 @@
     </div>
     <div class="footer-meta">
       <span class="muted">© MapDiagram</span>
+      <a href="/faq/">FAQ</a>
+      <a href="/about/">About</a>
+      <a href="/workflow-hub/">Workflow hub</a>
+      <a href="/auth/">Log in</a>
       <a href="/privacy-policy/">Privacy Policy</a>
       <a href="/terms/">Terms</a>
       <a href="/contact/">Contact</a>
@@ -240,6 +243,7 @@
     </div>
   </div>
 </footer>
+<a class="fab-open-app" href="/app/" aria-label="Open diagram editor"><span class="fab-open-app__text">Open editor</span></a>
 <script src="/shared/share-dock.js" defer></script>
 </body>
 </html>

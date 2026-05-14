@@ -102,18 +102,14 @@
 
 <body>
 
-<header class="nav">
+<header class="nav nav--minimal">
   <div class="wrap">
   <a href="/" class="nav-brand"><strong>MapDiagram</strong></a>
-  <nav class="links">
-  <a href="/">Home</a>
-  <a href="/faq/">FAQ</a>
-  <a href="/diagram-builder/">Tools</a>
-  <a href="/workflow-hub/">Workflow Hub</a>
+  <nav class="links nav-links-main" aria-label="Primary">
+  <a href="/diagram-builder/">Product</a>
+  <a href="/#templates">Templates</a>
   <a href="/blog/">Blog</a>
-  <a href="/about/">About</a>
-  <a href="/auth/">Login</a>
-  <a class="btn" href="/app/">Open App</a>
+  <a class="btn nav-cta" href="/app/">Open editor</a>
   </nav>
   </div>
   </header>
@@ -268,5 +264,6 @@ Open the editor, add your steps, and connect them visually.
 </footer>
 
 <script src="/shared/share-dock.js" defer></script>
+<a class="fab-open-app" href="/app/" aria-label="Open diagram editor"><span class="fab-open-app__text">Open editor</span></a>
 </body>
 </html>

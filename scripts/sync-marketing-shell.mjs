@@ -11,6 +11,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const BASE = "https://mapdiagram.com";
 
+const FAB_SNIPPET = `<a class="fab-open-app" href="/app/" aria-label="Open diagram editor"><span class="fab-open-app__text">Open editor</span></a>`;
+
 const GTAG_RE =
   /(?:<!--\s*Google tag \(gtag\.js\)\s*-->\s*)?<script async src="https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=G-LDVB4978S7"><\/script>\s*<script>[\s\S]*?<\/script>\s*/g;
 
@@ -103,7 +105,7 @@ function stripGtag(html) {
 
 function applyNav(html, navHtml) {
   if (!navHtml || !html.includes('<header class="nav">')) return html;
-  return html.replace(/<header class="nav">[\s\S]*?<\/header>/, navHtml.trim());
+  return html.replace(/<header class="nav[^"]*">[\s\S]*?<\/header>/, navHtml.trim());
 }
 
 function stripShareDock(html, rel) {
@@ -145,6 +147,18 @@ function ensureViewportCharset(html) {
   );
 }
 
+function injectFab(html, rel) {
+  if (rel === "app/tool.html" || rel === "app/index.html") return html;
+  if (html.includes("fab-open-app")) return html;
+  if (/<script src="\/shared\/share-dock\.js" defer><\/script>/i.test(html)) {
+    return html.replace(
+      /<script src="\/shared\/share-dock\.js" defer><\/script>\s*<\/body>/i,
+      `<script src="/shared/share-dock.js" defer></script>\n${FAB_SNIPPET}\n</body>`,
+    );
+  }
+  return html.replace(/<\/body>/i, `${FAB_SNIPPET}\n</body>`);
+}
+
 function skipRel(rel) {
   return rel === "app/tool.html" || rel === "partials/footer.html";
 }
@@ -162,6 +176,7 @@ for (const full of walk(ROOT)) {
   html = applyMegaFooter(html, rel);
   html = injectSocial(html, rel);
   html = html.replace(/https:\/\/your-domain\.com\//g, `${BASE}/`);
+  html = injectFab(html, rel);
   if (html !== orig) {
     writeFileSync(full, html, "utf8");
     console.log("synced", rel);

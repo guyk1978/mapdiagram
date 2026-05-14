@@ -29,28 +29,25 @@
   </script>
 </head>
 <body>
-<header class="nav">
+<header class="nav nav--minimal">
   <div class="wrap">
   <a href="/" class="nav-brand"><strong>MapDiagram</strong></a>
-  <nav class="links">
-  <a href="/">Home</a>
-  <a href="/faq/">FAQ</a>
-  <a href="/diagram-builder/">Tools</a>
-  <a href="/workflow-hub/">Workflow Hub</a>
+  <nav class="links nav-links-main" aria-label="Primary">
+  <a href="/diagram-builder/">Product</a>
+  <a href="/#templates">Templates</a>
   <a href="/blog/">Blog</a>
-  <a href="/about/">About</a>
-  <a href="/auth/">Login</a>
-  <a class="btn" href="/app/">Open App</a>
+  <a class="btn nav-cta" href="/app/">Open editor</a>
   </nav>
   </div>
   </header>
   <main class="wrap">
-    <section class="hero">
+    <section class="hero hero-landing">
+      <p class="hero-kicker">From idea to a clear diagram—in minutes, not meetings.</p>
       <h1>Diagram tool for product managers</h1>
       <p class="lead">Product work is translation: customer pain to team action. Diagrams make tradeoffs visible before you commit engineering time.</p>
       <div class="links hero-actions">
         <a class="btn cta" href="/app/">Design your product workflow</a>
-        <a class="btn cta btn-secondary" href="/app/">Open planning workspace</a>
+        <a class="hero-text-cta" href="/app/">Open planning workspace →</a>
       </div>
       <p class="muted hero-trust">Trusted as a shared visual workspace for planning complex systems and cross-functional execution.</p>
     </section>
@@ -74,11 +71,6 @@
     <section class="section">
       <h2>Design product workflows your team can actually run</h2>
       <p class="lead">Turn planning conversations into visual execution maps so everyone understands critical path, blockers, and next decisions.</p>
-      <div class="grid">
-        <div class="card"><h3>Screenshot placeholder</h3><p class="muted">Product canvas view: nodes, connectors, and grouped system areas.</p></div>
-        <div class="card"><h3>Diagram preview card</h3><p class="muted">Preview architecture map with APIs, queues, databases, and observability links.</p></div>
-        <div class="card"><h3>Mock UI area</h3><p class="muted">Toolbar, map canvas, and collaboration panel in a browser-first layout.</p></div>
-      </div>
       
     </section>
 
@@ -113,14 +105,9 @@
 </div>
     </section>
 
-    <section class="section">
-      <h2>Start diagramming in MapDiagram</h2>
+    <section class="section related" aria-label="Related pages">
       <p class="lead"><strong>Problem:</strong> When priorities live in slides and spreadsheets, teams misread scope. Misalignment shows up late as rework and missed dates.</p>
       <p class="lead"><strong>Solution:</strong> MapDiagram gives PMs a fast way to chart flows, dependencies, and decisions so stakeholders share one mental model.</p>
-      <a class="btn cta" href="/app/">Design your product workflow</a>
-    </section>
-
-    <section class="section related" aria-label="Related pages">
       <h2>Related landing pages</h2>
       <ul>
         <li><a href="/diagram-tool-for-startup-founders/">Startup Founders</a></li>
@@ -171,10 +158,15 @@
     </div>
     <div class="footer-meta">
       <span class="muted">Fast browser-based mapping for technical and business teams.</span>
+      <a href="/faq/">FAQ</a>
+      <a href="/about/">About</a>
+      <a href="/workflow-hub/">Workflow hub</a>
+      <a href="/auth/">Log in</a>
       <a href="https://joinmypdf.com/" rel="noopener noreferrer" target="_blank">Export workflow as PDF → JoinMyPDF</a>
     </div>
   </div>
 </footer>
+<a class="fab-open-app" href="/app/" aria-label="Open diagram editor"><span class="fab-open-app__text">Open editor</span></a>
 <script src="/shared/share-dock.js" defer></script>
 </body>
 </html>

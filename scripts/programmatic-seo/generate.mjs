@@ -274,21 +274,21 @@ function esc(s) {
 }
 
 function siteHeader() {
-  return `<header class="nav">
+  return `<header class="nav nav--minimal">
   <div class="wrap">
   <a href="/" class="nav-brand"><strong>MapDiagram</strong></a>
-  <nav class="links">
-  <a href="/">Home</a>
-  <a href="/faq/">FAQ</a>
-  <a href="/diagram-builder/">Tools</a>
-  <a href="/workflow-hub/">Workflow Hub</a>
+  <nav class="links nav-links-main" aria-label="Primary">
+  <a href="/diagram-builder/">Product</a>
+  <a href="/#templates">Templates</a>
   <a href="/blog/">Blog</a>
-  <a href="/about/">About</a>
-  <a href="/auth/">Login</a>
-  <a class="btn" href="/app/">Open App</a>
+  <a class="btn nav-cta" href="/app/">Open editor</a>
   </nav>
   </div>
   </header>`;
+}
+
+function floatingAppCta() {
+  return `<a class="fab-open-app" href="/app/" aria-label="Open diagram editor"><span class="fab-open-app__text">Open editor</span></a>`;
 }
 
 function landingCompareTable(L) {
@@ -385,7 +385,16 @@ ${items}
     label: b.title.replace(/\s*\|\s*MapDiagram\s*$/, ""),
   }));
 
+  const siteLinks = [
+    { href: "/faq/", label: "FAQ" },
+    { href: "/about/", label: "About" },
+    { href: "/workflow-hub/", label: "Workflow hub" },
+    { href: "/auth/", label: "Log in" },
+    { href: "/diagram-builder/", label: "All diagram tools" },
+  ];
+
   const blocks = [
+    col("Site", siteLinks),
     col("Developers", dev),
     col("Business", biz),
     col("Startups", startups),
@@ -406,6 +415,10 @@ ${blocks}
     </div>
     <div class="footer-meta">
       <span class="muted">© MapDiagram</span>
+      <a href="/faq/">FAQ</a>
+      <a href="/about/">About</a>
+      <a href="/workflow-hub/">Workflow hub</a>
+      <a href="/auth/">Log in</a>
       <a href="/privacy-policy/">Privacy Policy</a>
       <a href="/terms/">Terms</a>
       <a href="/contact/">Contact</a>
@@ -446,6 +459,10 @@ function buildCompactFooterHtml() {
     </div>
     <div class="footer-meta">
       <span class="muted">Fast browser-based mapping for technical and business teams.</span>
+      <a href="/faq/">FAQ</a>
+      <a href="/about/">About</a>
+      <a href="/workflow-hub/">Workflow hub</a>
+      <a href="/auth/">Log in</a>
       <a href="https://joinmypdf.com/" rel="noopener noreferrer" target="_blank">Export workflow as PDF → JoinMyPDF</a>
     </div>
   </div>
@@ -580,12 +597,13 @@ function landingPageHtml(L) {
 <body>
 ${siteHeader()}
   <main class="wrap">
-    <section class="hero">
+    <section class="hero hero-landing">
+      <p class="hero-kicker">From idea to a clear diagram—in minutes, not meetings.</p>
       <h1>${esc(L.h1)}</h1>
       <p class="lead">${esc(L.hero)}</p>
       <div class="links hero-actions">
         <a class="btn cta" href="/app/">${esc(moneyContent.ctaPrimary)}</a>
-        <a class="btn cta btn-secondary" href="/app/">${esc(moneyContent.ctaSecondary)}</a>
+        <a class="hero-text-cta" href="/app/">${esc(moneyContent.ctaSecondary)} →</a>
       </div>
       <p class="muted hero-trust">Trusted as a shared visual workspace for planning complex systems and cross-functional execution.</p>
     </section>
@@ -606,11 +624,6 @@ ${siteHeader()}
     <section class="section">
       <h2>${esc(moneyContent.demoTitle)}</h2>
       <p class="lead">${esc(moneyContent.demoText)}</p>
-      <div class="grid">
-        <div class="card"><h3>Screenshot placeholder</h3><p class="muted">Product canvas view: nodes, connectors, and grouped system areas.</p></div>
-        <div class="card"><h3>Diagram preview card</h3><p class="muted">Preview architecture map with APIs, queues, databases, and observability links.</p></div>
-        <div class="card"><h3>Mock UI area</h3><p class="muted">Toolbar, map canvas, and collaboration panel in a browser-first layout.</p></div>
-      </div>
       ${!visualAfterWorkflows && !visualAfterScenarios ? visual : ""}
     </section>
 
@@ -625,14 +638,9 @@ ${siteHeader()}
       ${visualAfterScenarios ? visual : ""}
     </section>
 
-    <section class="section">
-      <h2>Start diagramming in MapDiagram</h2>
+    <section class="section related" aria-label="Related pages">
       <p class="lead"><strong>Problem:</strong> ${esc(L.problem)}</p>
       <p class="lead"><strong>Solution:</strong> ${esc(L.solution)}</p>
-      <a class="btn cta" href="/app/">${esc(moneyContent.ctaPrimary)}</a>
-    </section>
-
-    <section class="section related" aria-label="Related pages">
       <h2>Related landing pages</h2>
       <ul>
 ${relatedLandingList(rel)}
@@ -647,6 +655,7 @@ ${blogLinkList(blogs)}
     </section>
   </main>
 ${buildCompactFooterHtml()}
+${floatingAppCta()}
 ${shareDockScript()}
 </body>
 </html>
@@ -662,29 +671,22 @@ ${shareDockScript()}
 <body>
 ${siteHeader()}
   <main class="wrap">
-    <section class="hero">
+    <section class="hero hero-landing">
+      <p class="hero-kicker">Diagrams in seconds—not slide decks.</p>
       <h1>${esc(L.h1)}</h1>
       <p class="lead">${esc(L.hero)}</p>
-      <a class="btn cta" href="/app/">Open MapDiagram</a>
+      <p class="muted hero-problem-pill"><strong>The gap:</strong> ${esc(L.problem)}</p>
+      <p class="muted hero-ai-note">${esc(L.ai)}</p>
+      <a class="btn cta" href="/app/">Start free — open editor</a>
     </section>
 
-    <section class="section">
-      <h2>Problem → solution</h2>
-      <p class="lead"><strong>Problem:</strong> ${esc(L.problem)}</p>
-      <p class="lead"><strong>Solution:</strong> ${esc(L.solution)}</p>
-    </section>
+    ${screenshotBlock(L.slug)}
 
     <section class="section">
       <h2>Use cases for ${esc(L.label)}</h2>
       <ul>
 ${useCases}
       </ul>
-      ${(GROUPS.developers.includes(L.slug) || GROUPS.workflow.includes(L.slug) || GROUPS.marketing.includes(L.slug)) ? screenshotBlock(L.slug) : ""}
-    </section>
-
-    <section class="section">
-      <h2>How AI-assisted diagramming helps</h2>
-      <p class="lead">${esc(L.ai)}</p>
     </section>
 
     <section class="section">
@@ -692,13 +694,8 @@ ${useCases}
       ${landingCompareTable(L)}
     </section>
 
-    <section class="section">
-      <h2>Start diagramming in MapDiagram</h2>
-      <p class="lead">Open the app to build a clean map you can share, iterate, and align around—without installing heavyweight software.</p>
-      <a class="btn cta" href="/app/">Launch the app</a>
-    </section>
-
     <section class="section related" aria-label="Related pages">
+      <p class="lead"><strong>Solution:</strong> ${esc(L.solution)}</p>
       <h2>Related landing pages</h2>
       <ul>
 ${relatedLandingList(rel)}
@@ -713,6 +710,7 @@ ${blogLinkList(blogs)}
     </section>
   </main>
 ${buildFooterHtml()}
+${floatingAppCta()}
 ${shareDockScript()}
 </body>
 </html>
@@ -776,11 +774,11 @@ ${siteHeader()}
         <li>${landingLinkBySlug(coreSecondary, "Workflow Tool for Product Managers and Startup Teams")}</li>
       </ul>
       <h2>Try MapDiagram</h2>
-      <p class="lead">If you want a fast browser-based workspace for maps, flow thinking, and structured visuals, open MapDiagram and build your next diagram alongside your doc—not instead of it.</p>
-      <a class="btn cta" href="/app/">Open MapDiagram</a>
+      <a class="btn cta" href="/app/">Open editor — free</a>
     </article>
   </main>
 ${buildFooterHtml()}
+${floatingAppCta()}
 ${shareDockScript()}
 </body>
 </html>
@@ -876,7 +874,7 @@ function patchRootHeaders() {
   const targets = [join(ROOT, "index.html"), join(ROOT, "blog", "index.html")];
   for (const p of targets) {
     let html = readFileSync(p, "utf8");
-    html = html.replace(/<header class="nav">[\s\S]*?<\/header>/, header);
+    html = html.replace(/<header class="nav[^"]*">[\s\S]*?<\/header>/, header);
     writeFileSync(p, html, "utf8");
   }
 }

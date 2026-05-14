@@ -4,19 +4,19 @@
   <script src="/assets/site-analytics.js" defer></script>
 <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MapDiagram | Free Diagram Builder Tool</title>
-  <meta name="description" content="Create flowcharts, mind maps, process maps, and system diagrams in minutes with MapDiagram. Free browser-based diagram builder.">
+  <title>MapDiagram — Turn ideas into diagrams instantly</title>
+  <meta name="description" content="Build flowcharts, system designs and workflows in seconds—visually, in your browser. No install. Open the editor and start mapping.">
   <link rel="canonical" href="https://mapdiagram.com/">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://mapdiagram.com/">
-  <meta property="og:title" content="MapDiagram | Free Diagram Builder Tool">
-  <meta property="og:description" content="Create flowcharts, mind maps, process maps, and system diagrams in minutes with MapDiagram. Free browser-based diagram builder.">
+  <meta property="og:title" content="MapDiagram — Turn ideas into diagrams instantly">
+  <meta property="og:description" content="Build flowcharts, system designs and workflows in seconds—visually, in your browser. No install. Open the editor and start mapping.">
   <meta property="og:image" content="https://mapdiagram.com/assets/ui-preview.svg">
   <meta property="og:site_name" content="MapDiagram">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://mapdiagram.com/">
-  <meta name="twitter:title" content="MapDiagram | Free Diagram Builder Tool">
-  <meta name="twitter:description" content="Create flowcharts, mind maps, process maps, and system diagrams in minutes with MapDiagram. Free browser-based diagram builder.">
+  <meta name="twitter:title" content="MapDiagram — Turn ideas into diagrams instantly">
+  <meta name="twitter:description" content="Build flowcharts, system designs and workflows in seconds—visually, in your browser. No install. Open the editor and start mapping.">
   <meta name="twitter:image" content="https://mapdiagram.com/assets/ui-preview.svg">
 
   <link rel="stylesheet" href="/assets/site.css">
@@ -42,153 +42,207 @@
   }
   </script>
 </head>
-<body>
-  <header class="nav">
+<body class="home-v3">
+  <header class="nav nav--minimal">
   <div class="wrap">
   <a href="/" class="nav-brand"><strong>MapDiagram</strong></a>
-  <nav class="links">
-  <a href="/">Home</a>
-  <a href="/faq/">FAQ</a>
-  <a href="/diagram-builder/">Tools</a>
-  <a href="/workflow-hub/">Workflow Hub</a>
+  <nav class="links nav-links-main" aria-label="Primary">
+  <a href="/diagram-builder/">Product</a>
+  <a href="/#templates">Templates</a>
   <a href="/blog/">Blog</a>
-  <a href="/about/">About</a>
-  <a href="/auth/">Login</a>
-  <a class="btn" href="/app/">Open App</a>
+  <a class="btn nav-cta" href="/app/">Open editor</a>
   </nav>
   </div>
   </header>
   
-  <main class="wrap">
-    <section class="hero">
-      <img class="hero-logo" src="/assets/logo-full.svg" alt="MapDiagram logo" width="340" height="72">
-      <h1>Diagram Builder Tool for Flowcharts, Mind Maps, and More</h1>
-      <p>MapDiagram is a fast visual workspace for turning ideas into diagrams. Build flowcharts, family trees, process maps, and architecture diagrams with a clean drag-and-drop editor.</p>
-      <a class="btn cta" href="/app/">Open Tool</a>
+  <main class="wrap wrap--home">
+    <section class="hero-v3" aria-labelledby="hero-heading">
+      <div class="hero-v3__grid">
+        <div class="hero-v3__copy">
+          <h1 id="hero-heading" class="hero-v3__title">Turn ideas into diagrams instantly</h1>
+          <p class="hero-v3__sub">Build flowcharts, system designs and workflows in seconds — visually, not manually.</p>
+          <div class="hero-v3__actions">
+            <a class="btn hero-v3__cta-primary" href="/app/">Open editor</a>
+            <a class="btn btn-secondary hero-v3__cta-secondary" href="/#templates">View templates</a>
+          </div>
+        </div>
+        <div class="hero-v3__preview">
+          <div class="product-mock" role="img" aria-label="Product preview: diagram editor with canvas, nodes, and connectors">
+            <div class="product-mock__window">
+              <div class="product-mock__titlebar">
+                <span class="product-mock__dots" aria-hidden="true"><span></span><span></span><span></span></span>
+                <span class="product-mock__title">Untitled diagram</span>
+                <span class="product-mock__sync" aria-hidden="true">Saved</span>
+              </div>
+              <div class="product-mock__toolbar" aria-hidden="true">
+                <span class="product-mock__tool product-mock__tool--on">Select</span>
+                <span class="product-mock__tool">Connect</span>
+                <span class="product-mock__tool">Group</span>
+                <span class="product-mock__sep"></span>
+                <span class="product-mock__zoom">100%</span>
+              </div>
+              <div class="product-mock__canvas">
+                <svg class="product-mock__svg" viewBox="0 0 360 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="pmGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#7aa2ff"/>
+                      <stop offset="100%" stop-color="#7fe3c6"/>
+                    </linearGradient>
+                  </defs>
+                  <path class="pm-path pm-path--1" d="M 72 118 C 120 72 168 72 208 88" fill="none" stroke="url(#pmGrad)" stroke-width="2.2" stroke-linecap="round"/>
+                  <path class="pm-path pm-path--2" d="M 208 88 C 248 104 268 132 288 156" fill="none" stroke="url(#pmGrad)" stroke-width="2.2" stroke-linecap="round"/>
+                  <path class="pm-path pm-path--3" d="M 208 88 C 220 140 200 168 156 172" fill="none" stroke="url(#pmGrad)" stroke-width="2" stroke-linecap="round" opacity=".85"/>
+                </svg>
+                <div class="pm-node pm-node--1"><span class="pm-node__tag">Service</span>API</div>
+                <div class="pm-node pm-node--2"><span class="pm-node__tag">Store</span>Cache</div>
+                <div class="pm-node pm-node--3"><span class="pm-node__tag">Core</span>Auth</div>
+                <div class="pm-node pm-node--4"><span class="pm-node__tag">Output</span>Client</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
-    
-    <section class="product-preview">
-  <img 
-    src="/assets/ChatGPT Image May 7, 2026, 05_45_27 PM.png"
-    alt="MapDiagram workflow and architecture editor"
-    loading="lazy"
-    width="900"
-    height="800"
-  >
-  </section>
-    
-<section class="section" id="most-important-tools">
-  <h2>Most Important Tools</h2>
-  <p class="lead">Start with these high-intent pages designed to convert professional traffic into active MapDiagram users.</p>
+
+    <section class="template-strip-v3" id="templates" aria-labelledby="templates-heading">
+      <div class="section-v3__head">
+        <h2 id="templates-heading" class="section-v3__title">Templates</h2>
+        <p class="section-v3__lede">Pick a surface—open the editor with one click.</p>
+      </div>
+      <div class="template-strip-v3__row">
+        <a class="template-card-v3" href="/flowchart-maker/">
+          <div class="template-card-v3__preview" aria-hidden="true">
+            <svg viewBox="0 0 120 72" xmlns="http://www.w3.org/2000/svg"><rect class="tc-bg" width="120" height="72" rx="8"/><rect x="12" y="26" width="44" height="22" rx="6" fill="#151d32" stroke="#7aa2ff" stroke-width="1"/><path d="M56 37h12" stroke="#5a6a8a" stroke-width="1.5"/><polygon points="62,14 72,26 52,26" fill="#1a2540" stroke="#7fe3c6" stroke-width="1"/><rect x="78" y="20" width="32" height="18" rx="5" fill="#151d32" stroke="#7aa2ff" stroke-width="1"/></svg>
+          </div>
+          <span class="template-card-v3__name">Flowchart</span>
+          <span class="template-card-v3__hint">Decisions &amp; logic</span>
+        </a>
+        <a class="template-card-v3" href="/system-design-tool/">
+          <div class="template-card-v3__preview" aria-hidden="true">
+            <svg viewBox="0 0 120 72" xmlns="http://www.w3.org/2000/svg"><rect class="tc-bg" width="120" height="72" rx="8"/><rect x="10" y="40" width="34" height="20" rx="5" fill="#151d32" stroke="#7aa2ff"/><rect x="78" y="12" width="34" height="20" rx="5" fill="#151d32" stroke="#7aa2ff"/><rect x="44" y="40" width="34" height="20" rx="5" fill="#151d32" stroke="#7fe3c6"/><path d="M44 22v12M61 32h17M95 32v8" stroke="url(#tcg)" stroke-width="1.5" fill="none"/><defs><linearGradient id="tcg" x1="0" x2="1"><stop stop-color="#7aa2ff"/><stop offset="1" stop-color="#7fe3c6"/></linearGradient></defs></svg>
+          </div>
+          <span class="template-card-v3__name">System design</span>
+          <span class="template-card-v3__hint">Services &amp; data flow</span>
+        </a>
+        <a class="template-card-v3" href="/process-mapping-tool/">
+          <div class="template-card-v3__preview" aria-hidden="true">
+            <svg viewBox="0 0 120 72" xmlns="http://www.w3.org/2000/svg"><rect class="tc-bg" width="120" height="72" rx="8"/><line x1="8" y1="22" x2="112" y2="22" stroke="#26324d"/><line x1="8" y1="46" x2="112" y2="46" stroke="#26324d"/><rect x="14" y="10" width="28" height="16" rx="4" fill="#151d32" stroke="#7aa2ff"/><rect x="52" y="34" width="28" height="16" rx="4" fill="#151d32" stroke="#7aa2ff"/><rect x="90" y="10" width="22" height="16" rx="4" fill="#151d32" stroke="#7fe3c6"/><path d="M42 26h10M80 34h8M52 42H42V26" stroke="#5a6a8a" stroke-width="1.2" fill="none"/></svg>
+          </div>
+          <span class="template-card-v3__name">Workflow</span>
+          <span class="template-card-v3__hint">Handoffs &amp; owners</span>
+        </a>
+        <a class="template-card-v3" href="/mind-map-tool/">
+          <div class="template-card-v3__preview" aria-hidden="true">
+            <svg viewBox="0 0 120 72" xmlns="http://www.w3.org/2000/svg"><rect class="tc-bg" width="120" height="72" rx="8"/><rect x="48" y="28" width="26" height="18" rx="6" fill="#151d32" stroke="#7fe3c6" stroke-width="1.2"/><line x1="60" y1="28" x2="60" y2="10" stroke="#7aa2ff" stroke-width="1.5"/><rect x="48" y="2" width="24" height="12" rx="4" fill="#151d32" stroke="#7aa2ff"/><line x1="74" y1="36" x2="98" y2="28" stroke="#7aa2ff"/><rect x="98" y="22" width="18" height="12" rx="4" fill="#151d32" stroke="#7aa2ff"/><line x1="48" y1="36" x2="22" y2="30" stroke="#7aa2ff"/><rect x="4" y="24" width="20" height="12" rx="4" fill="#151d32" stroke="#7aa2ff"/><line x1="60" y1="46" x2="60" y2="62" stroke="#7aa2ff"/><rect x="46" y="62" width="28" height="10" rx="4" fill="#151d32" stroke="#7aa2ff"/></svg>
+          </div>
+          <span class="template-card-v3__name">Mind map</span>
+          <span class="template-card-v3__hint">Brainstorm fast</span>
+        </a>
+      </div>
+      <p class="template-strip-v3__more"><a href="/diagram-builder/">Browse all diagram tools →</a></p>
+    </section>
+
+    <section class="before-after section-v3" aria-labelledby="ba-heading">
+      <div class="section-v3__head section-v3__head--center">
+        <h2 id="ba-heading" class="section-v3__title">From messy notes to a diagram your team can use</h2>
+      </div>
+      <div class="before-after__grid">
+        <div class="before-after__panel before-after__panel--before">
+          <span class="before-after__label">Before</span>
+          <div class="before-after__messy" aria-hidden="true">
+            <p class="before-line before-line--1">??? onboarding vs auth first</p>
+            <p class="before-line before-line--2">Meeting notes FINAL v7 (copy)</p>
+            <p class="before-line before-line--3">remind: diagram the thing</p>
+            <p class="before-line before-line--4">edge case: payments + refunds ???</p>
+          </div>
+        </div>
+        <div class="before-after__panel before-after__panel--after">
+          <span class="before-after__label">After</span>
+          <div class="before-after__clean" role="presentation">
+            <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <defs><linearGradient id="baG" x1="0" x2="1"><stop stop-color="#7aa2ff"/><stop offset="1" stop-color="#7fe3c6"/></linearGradient></defs>
+              <rect width="280" height="200" rx="12" fill="#0a1020" stroke="#26324d"/>
+              <path d="M48 100h56M104 100V56M104 56h72M176 56V100M176 100h56" stroke="url(#baG)" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <rect x="16" y="88" width="64" height="28" rx="8" fill="#111a2e" stroke="#7aa2ff"/>
+              <text x="48" y="106" text-anchor="middle" fill="#9fb0cc" font-size="10" font-family="system-ui,sans-serif">Start</text>
+              <rect x="104" y="36" width="72" height="36" rx="8" fill="#111a2e" stroke="#7fe3c6"/>
+              <text x="140" y="58" text-anchor="middle" fill="#9fb0cc" font-size="10" font-family="system-ui,sans-serif">Decide</text>
+              <rect x="200" y="88" width="64" height="28" rx="8" fill="#111a2e" stroke="#7aa2ff"/>
+              <text x="232" y="106" text-anchor="middle" fill="#9fb0cc" font-size="10" font-family="system-ui,sans-serif">Ship</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="why-v3 section-v3" aria-labelledby="why-heading">
+      <div class="section-v3__head">
+        <h2 id="why-heading" class="section-v3__title">Why teams use MapDiagram</h2>
+      </div>
+      <ul class="why-v3__list">
+        <li><span class="why-v3__bullet" aria-hidden="true"></span> Instant visual thinking</li>
+        <li><span class="why-v3__bullet" aria-hidden="true"></span> No setup, no complexity</li>
+        <li><span class="why-v3__bullet" aria-hidden="true"></span> Built for real workflows</li>
+      </ul>
+    </section>
+
+    <section class="social-proof social-proof--v3" aria-label="Trust">
+      <p class="social-proof--v3__line">Used by developers, product teams, educators, startups</p>
+    </section>
+
+<section class="section section-v3 section-loose" id="most-important-tools">
+  <div class="section-v3__head">
+    <h2 class="section-v3__title">High-intent starting points</h2>
+    <p class="section-v3__lede">Short paths for common professional searches—open the editor when you are ready.</p>
+  </div>
   <div class="grid">
-    <a class="card" href="/diagram-tool-for-system-architects/"><h3>System Design Tool for Developers</h3><p>Architecture mapping for software teams and technical leaders.</p></a>
-    <a class="card" href="/diagram-tool-for-product-managers/"><h3>Workflow Tool for Product Managers</h3><p>Map initiatives, dependencies, and delivery workflows clearly.</p></a>
-    <a class="card" href="/diagram-tool-for-startup-founders/"><h3>Startup Planning Diagram Tool</h3><p>Turn startup strategy into execution-ready visual plans.</p></a>
-    <a class="card" href="/diagram-tool-for-seo-specialists/"><h3>SEO Site Structure Diagram Tool</h3><p>Build topical authority maps and internal-link architecture.</p></a>
-    <a class="card" href="/diagram-tool-for-software-engineers/"><h3>Software Engineering Architecture Tool</h3><p>Visualize systems, dependencies, and service boundaries faster.</p></a>
-    <a class="card" href="/diagram-tool-for-startups-workflow/"><h3>Startup Workflow Planning Tool</h3><p>Coordinate product, operations, and launch execution paths.</p></a>
+    <a class="card" href="/diagram-tool-for-system-architects/"><h3>System design</h3><p>Architecture mapping for technical leaders.</p></a>
+    <a class="card" href="/diagram-tool-for-product-managers/"><h3>Product workflows</h3><p>Dependencies, launches, and ownership.</p></a>
+    <a class="card" href="/diagram-tool-for-startup-founders/"><h3>Startup planning</h3><p>Strategy to execution maps.</p></a>
+    <a class="card" href="/diagram-tool-for-seo-specialists/"><h3>SEO &amp; site structure</h3><p>Topic clusters and internal links.</p></a>
+    <a class="card" href="/diagram-tool-for-software-engineers/"><h3>Software architecture</h3><p>Services, boundaries, and flows.</p></a>
+    <a class="card" href="/diagram-tool-for-startups-workflow/"><h3>Startup operations</h3><p>Coordinate execution across teams.</p></a>
   </div>
 </section>
 
-<section class="section">
-  <h2>Popular Diagram Use Cases</h2>
-
-  <div class="grid">
-  
-  <a class="card" href="/business-process-diagram-tool/">
-    <h3>Business Process Diagram Tool</h3>
-    <p>Map, analyze, and optimize any type of business workflow</p>
-  </a>
-
-  <a class="card" href="/flowchart-maker/">
-    <h3>Flowchart Maker</h3>
-    <p>Create clear step-by-step logic maps.</p>
-  </a>
-
-  <a class="card" href="/mind-map-tool/">
-    <h3>Mind Map Tool</h3>
-    <p>Organize ideas and brainstorm visually.</p>
-  </a>
-
-  <a class="card" href="/family-tree-maker/">
-    <h3>Family Tree Maker</h3>
-    <p>Design relationship and ancestry diagrams.</p>
-  </a>
-
-  <a class="card" href="/process-mapping-tool/">
-    <h3>Process Mapping Tool</h3>
-    <p>Document business workflows quickly.</p>
-  </a>
-
-  <a class="card" href="/workflow-builder/">
-    <h3>Workflow Builder</h3>
-    <p>Build and visualize any process or system flow.</p>
-  </a>
-
-  <a class="card" href="/system-design-tool/">
-    <h3>System Design Tool</h3>
-    <p>Create architecture diagrams and system layouts.</p>
-  </a>
-
-  <a class="card" href="/idea-mapping-tool/">
-    <h3>Idea Mapping Tool</h3>
-    <p>Turn thoughts into structured visual maps.</p>
-  </a>
-
-  <a class="card" href="/visual-planning-tool/">
-    <h3>Visual Planning Tool</h3>
-    <p>Plan projects and tasks in a visual workspace.</p>
-  </a>
-
-  <a class="card" href="/diagram-builder/">
-    <h3>Diagram Builder</h3>
-    <p>All-in-one tool for creating any type of diagram.</p>
-  </a>
-  
+<section class="section section-v3">
+  <div class="section-v3__head">
+    <h2 class="section-v3__title">Popular diagram types</h2>
+    <p class="section-v3__lede">Pick a surface that matches how you think—everything stays in the browser.</p>
   </div>
-
-  <!-- NEW SEO CLUSTER -->
-  
-  <h2 class="section-advanced-tools">Advanced Diagram Tools</h2>
-  
   <div class="grid">
-
-  <a class="card" href="/org-chart-maker/">
-    <h3>Org Chart Maker</h3>
-    <p>Create organizational charts for teams and companies.</p>
-  </a>
-
-  <a class="card" href="/network-diagram-tool/">
-    <h3>Network Diagram Tool</h3>
-    <p>Visualize systems, servers, and infrastructure connections.</p>
-  </a>
-
-  <a class="card" href="/uml-diagram-tool/">
-    <h3>UML Diagram Tool</h3>
-    <p>Design software architecture using UML diagrams.</p>
-  </a>
-
-  <a class="card" href="/decision-tree-maker/">
-    <h3>Decision Tree Maker</h3>
-    <p>Map decisions and outcomes visually.</p>
-  </a>
-
-  <a class="card" href="/customer-journey-map/">
-    <h3>Customer Journey Map</h3>
-    <p>Visualize user experience and conversion flows.</p>
-  </a>
-
-  <a class="card" href="/data-flow-diagram-tool/">
-    <h3>Data Flow Diagram Tool</h3>
-    <p>Understand how data moves through your system.</p>
-  </a>
-
-</div>
+  <a class="card" href="/business-process-diagram-tool/"><h3>Business process</h3><p>Map and improve workflows.</p></a>
+  <a class="card" href="/flowchart-maker/"><h3>Flowchart</h3><p>Clear step-by-step logic.</p></a>
+  <a class="card" href="/mind-map-tool/"><h3>Mind map</h3><p>Organize ideas visually.</p></a>
+  <a class="card" href="/family-tree-maker/"><h3>Family tree</h3><p>Relationships and ancestry.</p></a>
+  <a class="card" href="/process-mapping-tool/"><h3>Process map</h3><p>Document how work really happens.</p></a>
+  <a class="card" href="/workflow-builder/"><h3>Workflow builder</h3><p>Systems and handoffs.</p></a>
+  <a class="card" href="/system-design-tool/"><h3>System design</h3><p>Architecture and components.</p></a>
+  <a class="card" href="/idea-mapping-tool/"><h3>Idea mapping</h3><p>Structure messy thinking.</p></a>
+  <a class="card" href="/visual-planning-tool/"><h3>Visual planning</h3><p>Projects without the clutter.</p></a>
+  <a class="card" href="/diagram-builder/"><h3>Diagram builder</h3><p>All-in-one entry.</p></a>
+  <a class="card" href="/org-chart-maker/"><h3>Org chart</h3><p>Teams and reporting lines.</p></a>
+  <a class="card" href="/network-diagram-tool/"><h3>Network diagram</h3><p>Infrastructure at a glance.</p></a>
+  <a class="card" href="/uml-diagram-tool/"><h3>UML</h3><p>Software structure.</p></a>
+  <a class="card" href="/decision-tree-maker/"><h3>Decision tree</h3><p>Outcomes and branches.</p></a>
+  <a class="card" href="/customer-journey-map/"><h3>Customer journey</h3><p>Touchpoints to actions.</p></a>
+  <a class="card" href="/data-flow-diagram-tool/"><h3>Data flow</h3><p>How data moves.</p></a>
+  </div>
 </section>
   </main>
   <footer class="footer">
   <div class="wrap footer-inner">
     <div class="footer-grid">
+    <div class="footer-col">
+      <h3 class="footer-heading">Site</h3>
+      <ul class="footer-list">
+      <li><a href="/faq/">FAQ</a></li>
+      <li><a href="/about/">About</a></li>
+      <li><a href="/workflow-hub/">Workflow hub</a></li>
+      <li><a href="/auth/">Log in</a></li>
+      <li><a href="/diagram-builder/">All diagram tools</a></li>
+      </ul>
+    </div>
     <div class="footer-col">
       <h3 class="footer-heading">Developers</h3>
       <ul class="footer-list">
@@ -302,6 +356,10 @@
     </div>
     <div class="footer-meta">
       <span class="muted">© MapDiagram</span>
+      <a href="/faq/">FAQ</a>
+      <a href="/about/">About</a>
+      <a href="/workflow-hub/">Workflow hub</a>
+      <a href="/auth/">Log in</a>
       <a href="/privacy-policy/">Privacy Policy</a>
       <a href="/terms/">Terms</a>
       <a href="/contact/">Contact</a>
@@ -310,6 +368,7 @@
     </div>
   </div>
 </footer>
+<a class="fab-open-app" href="/app/" aria-label="Open diagram editor"><span class="fab-open-app__text">Open editor</span></a>
 <script src="/shared/share-dock.js" defer></script>
 </body>
 </html>
