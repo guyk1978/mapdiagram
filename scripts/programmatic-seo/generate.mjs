@@ -188,29 +188,81 @@ const MONEY_PAGE_CONTENT = {
   },
 };
 
-const GTAG = `<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-LDVB4978S7"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-LDVB4978S7');
-</script>`;
+const ANALYTICS = `  <script src="/assets/site-analytics.js" defer></script>`;
 
-function head({ title, description, canonicalPath }) {
+function jsonLdBlocks(objects) {
+  return objects
+    .filter(Boolean)
+    .map(
+      (obj) =>
+        `  <script type="application/ld+json">\n${JSON.stringify(obj)}\n  </script>`,
+    )
+    .join("\n");
+}
+
+function head({
+  title,
+  description,
+  canonicalPath,
+  ogType = "website",
+  ogImage,
+  jsonLd = [],
+}) {
+  const pageUrl = `${BASE}${canonicalPath}`;
+  const image = ogImage || `${BASE}/assets/ui-preview.svg`;
+  const ld = jsonLdBlocks(jsonLd);
   return `<!doctype html>
 <html lang="en">
 <head>
-${GTAG}
+${ANALYTICS}
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${esc(title)}</title>
   <meta name="description" content="${esc(description)}">
-  <link rel="canonical" href="${BASE}${canonicalPath}">
+  <link rel="canonical" href="${esc(pageUrl)}">
+  <meta property="og:type" content="${esc(ogType)}">
+  <meta property="og:url" content="${esc(pageUrl)}">
+  <meta property="og:title" content="${esc(title)}">
+  <meta property="og:description" content="${esc(description)}">
+  <meta property="og:image" content="${esc(image)}">
+  <meta property="og:site_name" content="MapDiagram">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="${esc(pageUrl)}">
+  <meta name="twitter:title" content="${esc(title)}">
+  <meta name="twitter:description" content="${esc(description)}">
+  <meta name="twitter:image" content="${esc(image)}">
   <link rel="stylesheet" href="/assets/site.css">
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="manifest" href="/assets/site.webmanifest">
+${ld}
 </head>`;
+}
+
+function shareDockScript() {
+  return `<script src="/shared/share-dock.js" defer></script>`;
+}
+
+function breadcrumbSchema(items) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((it, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: it.name,
+      item: it.item,
+    })),
+  };
+}
+
+function webPageSchema({ name, description, url }) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name,
+    description,
+    url,
+  };
 }
 
 function esc(s) {
@@ -224,11 +276,12 @@ function esc(s) {
 function siteHeader() {
   return `<header class="nav">
   <div class="wrap">
-  <a href="/" style="color:inherit;text-decoration:none"><strong>MapDiagram</strong></a>
+  <a href="/" class="nav-brand"><strong>MapDiagram</strong></a>
   <nav class="links">
   <a href="/">Home</a>
   <a href="/faq/">FAQ</a>
   <a href="/diagram-builder/">Tools</a>
+  <a href="/workflow-hub/">Workflow Hub</a>
   <a href="/blog/">Blog</a>
   <a href="/about/">About</a>
   <a href="/auth/">Login</a>
@@ -356,6 +409,7 @@ ${blocks}
       <a href="/privacy-policy/">Privacy Policy</a>
       <a href="/terms/">Terms</a>
       <a href="/contact/">Contact</a>
+      <a href="https://joinmypdf.com/" rel="noopener noreferrer" target="_blank">Export workflow as PDF → JoinMyPDF</a>
       <a href="/">Home</a>
     </div>
   </div>
@@ -392,6 +446,7 @@ function buildCompactFooterHtml() {
     </div>
     <div class="footer-meta">
       <span class="muted">Fast browser-based mapping for technical and business teams.</span>
+      <a href="https://joinmypdf.com/" rel="noopener noreferrer" target="_blank">Export workflow as PDF → JoinMyPDF</a>
     </div>
   </div>
 </footer>`;
@@ -500,6 +555,17 @@ function landingPageHtml(L) {
   const scenarios = moneyContent
     ? moneyContent.scenarios.map((t) => `<li>${esc(t)}</li>`).join("\n")
     : "";
+  const landingJsonLd = [
+    breadcrumbSchema([
+      { name: "Home", item: `${BASE}/` },
+      { name: L.h1, item: `${BASE}${path}` },
+    ]),
+    webPageSchema({
+      name: L.title,
+      description: L.description,
+      url: `${BASE}${path}`,
+    }),
+  ];
 
   if (moneyContent) {
     const visual = screenshotBlock(L.slug);
@@ -509,6 +575,7 @@ function landingPageHtml(L) {
       title: L.title,
       description: L.description,
       canonicalPath: path,
+      jsonLd: landingJsonLd,
     })}
 <body>
 ${siteHeader()}
@@ -516,11 +583,11 @@ ${siteHeader()}
     <section class="hero">
       <h1>${esc(L.h1)}</h1>
       <p class="lead">${esc(L.hero)}</p>
-      <div class="links" style="margin-top:14px">
+      <div class="links hero-actions">
         <a class="btn cta" href="/app/">${esc(moneyContent.ctaPrimary)}</a>
-        <a class="btn cta" href="/app/" style="background:var(--panel);color:var(--text);border:1px solid var(--line)">${esc(moneyContent.ctaSecondary)}</a>
+        <a class="btn cta btn-secondary" href="/app/">${esc(moneyContent.ctaSecondary)}</a>
       </div>
-      <p class="muted" style="margin-top:12px">Trusted as a shared visual workspace for planning complex systems and cross-functional execution.</p>
+      <p class="muted hero-trust">Trusted as a shared visual workspace for planning complex systems and cross-functional execution.</p>
     </section>
 
     <section class="section card">
@@ -576,10 +643,11 @@ ${blogLinkList(blogs)}
       </ul>
       <h2>Core money page</h2>
       <p class="lead">${landingLinkBySlug(core)} is a priority MapDiagram page for high-intent visitors and product-led conversion paths.</p>
-      <p class="muted" style="margin-top:14px">Explore more on the <a href="/blog/">MapDiagram blog</a> or jump straight into the <a href="/app/">editor</a>.</p>
+      <p class="muted related-footer-note">Explore more on the <a href="/blog/">MapDiagram blog</a> or jump straight into the <a href="/app/">editor</a>.</p>
     </section>
   </main>
 ${buildCompactFooterHtml()}
+${shareDockScript()}
 </body>
 </html>
 `;
@@ -589,6 +657,7 @@ ${buildCompactFooterHtml()}
     title: L.title,
     description: L.description,
     canonicalPath: path,
+    jsonLd: landingJsonLd,
 })}
 <body>
 ${siteHeader()}
@@ -640,10 +709,11 @@ ${blogLinkList(blogs)}
       </ul>
       <h2>Core money page</h2>
       <p class="lead">${landingLinkBySlug(core)} is a priority MapDiagram page for high-intent visitors and product-led conversion paths.</p>
-      <p class="muted" style="margin-top:14px">Explore more on the <a href="/blog/">MapDiagram blog</a> or jump straight into the <a href="/app/">editor</a>.</p>
+      <p class="muted related-footer-note">Explore more on the <a href="/blog/">MapDiagram blog</a> or jump straight into the <a href="/app/">editor</a>.</p>
     </section>
   </main>
 ${buildFooterHtml()}
+${shareDockScript()}
 </body>
 </html>
 `;
@@ -661,16 +731,43 @@ function blogPageHtml(B) {
   const path = `/blog/${B.slug}/`;
   const bodyHtml = wrapFirstCompareTable(B.body);
   const [corePrimary, coreSecondary] = coreMoneyForBlog(B);
+  const articleHeadline = B.title.replace(/\s*\|\s*MapDiagram\s*$/, "");
+  const pageUrl = `${BASE}${path}`;
+  const blogJsonLd = [
+    breadcrumbSchema([
+      { name: "Home", item: `${BASE}/` },
+      { name: "Blog", item: `${BASE}/blog/` },
+      { name: articleHeadline, item: pageUrl },
+    ]),
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: articleHeadline,
+      description: B.description,
+      url: pageUrl,
+      datePublished: "2026-01-15",
+      dateModified: "2026-05-14",
+      author: { "@type": "Organization", name: "MapDiagram" },
+      publisher: {
+        "@type": "Organization",
+        name: "MapDiagram",
+        url: BASE,
+      },
+      mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+    },
+  ];
   return `${head({
     title: B.title,
     description: B.description,
     canonicalPath: path,
+    ogType: "article",
+    jsonLd: blogJsonLd,
 })}
 <body>
 ${siteHeader()}
   <main class="wrap">
     <article class="article">
-      <h1>${esc(B.title.replace(/\s*\|\s*MapDiagram\s*$/, ""))}</h1>
+      <h1>${esc(articleHeadline)}</h1>
       <p class="lead">${esc(B.description)}</p>
       ${bodyHtml}
       <h2>Most important tools</h2>
@@ -684,6 +781,7 @@ ${siteHeader()}
     </article>
   </main>
 ${buildFooterHtml()}
+${shareDockScript()}
 </body>
 </html>
 `;
@@ -712,6 +810,7 @@ function main() {
   const footerOnly = buildFooterHtml();
   mkdirSync(join(ROOT, "partials"), { recursive: true });
   writeFileSync(join(ROOT, "partials", "footer.html"), footerOnly + "\n", "utf8");
+  writeFileSync(join(ROOT, "partials", "nav.html"), siteHeader() + "\n", "utf8");
 
   for (const L of LANDINGS) {
     const dir = join(ROOT, `diagram-tool-for-${L.slug}`);
@@ -736,6 +835,7 @@ function main() {
     `${BASE}/terms/`,
     `${BASE}/faq/`,
     `${BASE}/diagram-builder/`,
+    `${BASE}/workflow-hub/`,
     `${BASE}/flowchart-maker/`,
     `${BASE}/mind-map-tool/`,
     `${BASE}/family-tree-maker/`,
@@ -763,11 +863,22 @@ function main() {
   writeSitemap([...staticUrls, ...landingUrls, ...blogUrls]);
 
   patchRootFooters();
+  patchRootHeaders();
   patchHomepageMoneySection();
 
   console.log(
     `Wrote ${LANDINGS.length} landing pages, ${BLOGS.length} blog posts, partials/footer.html, sitemap.xml`,
   );
+}
+
+function patchRootHeaders() {
+  const header = siteHeader();
+  const targets = [join(ROOT, "index.html"), join(ROOT, "blog", "index.html")];
+  for (const p of targets) {
+    let html = readFileSync(p, "utf8");
+    html = html.replace(/<header class="nav">[\s\S]*?<\/header>/, header);
+    writeFileSync(p, html, "utf8");
+  }
 }
 
 function patchRootFooters() {

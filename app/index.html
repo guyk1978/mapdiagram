@@ -1,31 +1,30 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="app-shell-page">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-LDVB4978S7"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-LDVB4978S7');
-</script>
+  <script src="/assets/site-analytics.js" defer></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MapDiagram App | Interactive Diagram Editor</title>
   <meta name="description" content="Open the MapDiagram editor and create diagrams interactively in your browser.">
+  <link rel="canonical" href="https://mapdiagram.com/app/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mapdiagram.com/app/">
+  <meta property="og:title" content="MapDiagram App | Interactive Diagram Editor">
+  <meta property="og:description" content="Open the MapDiagram editor and create diagrams interactively in your browser.">
+  <meta property="og:image" content="https://mapdiagram.com/assets/ui-preview.svg">
+  <meta property="og:site_name" content="MapDiagram">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://mapdiagram.com/app/">
+  <meta name="twitter:title" content="MapDiagram App | Interactive Diagram Editor">
+  <meta name="twitter:description" content="Open the MapDiagram editor and create diagrams interactively in your browser.">
+  <meta name="twitter:image" content="https://mapdiagram.com/assets/ui-preview.svg">
   <link rel="stylesheet" href="/assets/site.css">
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="manifest" href="/assets/site.webmanifest">
   <script src="/assets/theme-engine.js"></script>
-  <style>
-    html, body { height: 100%; margin: 0; overflow: hidden; }
-    .app-shell { height: 100vh; height: 100dvh; margin: 0; padding: 0; }
-    iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--bg, #0b1020); }
-  </style>
 </head>
 <body>
-  <main class="app-shell"><iframe id="editorFrame" src="/app/tool.html" title="MapDiagram editor"></iframe></main>
+  <main class="app-shell"><iframe id="editorFrame" src="/app/tool.html" title="MapDiagram editor" allow="clipboard-read; clipboard-write; fullscreen"></iframe></main>
 <script>
 (function () {
   function pushThemeToIframe() {
