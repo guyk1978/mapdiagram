@@ -982,6 +982,9 @@
       transform: translateY(0);
     }
   }
+  /* `[hidden]` must win over shared `display:flex` below, or help/palette stay visible inside the node inspector overlay. */
+  .command-palette-overlay[hidden],
+  .kbd-help-overlay[hidden],
   .import-diff-overlay[hidden] {
     display: none !important;
   }
@@ -2693,8 +2696,9 @@
       </div>
     </div>
   </div>
-  <div id="toastHost" class="toast-host" aria-live="polite"></div>
-  <div id="commandPaletteOverlay" class="command-palette-overlay" hidden>
+</div>
+<div id="toastHost" class="toast-host" aria-live="polite"></div>
+<div id="commandPaletteOverlay" class="command-palette-overlay" hidden>
     <div class="command-palette" role="dialog" aria-modal="true" aria-labelledby="commandPaletteTitle">
       <h2 id="commandPaletteTitle" class="sr-only">Command palette</h2>
       <div class="command-palette-head">
@@ -2713,7 +2717,6 @@
       <dl id="kbdHelpBody" class="kbd-help-dl"></dl>
     </div>
   </div>
-</div>
 <div id="importDiffOverlay" class="import-diff-overlay" hidden>
   <div class="import-diff-dialog" role="dialog" aria-modal="true" aria-labelledby="importDiffTitle">
     <h2 id="importDiffTitle">Import comparison</h2>
@@ -5975,6 +5978,8 @@
     const node = getNodeById(nodeId);
     if (!node) return;
     closeImportDiffOverlay();
+    closeCommandPalette();
+    closeKeyboardHelpOverlay();
     if (focusOverlay.classList.contains("open") && runtime.focusNodeId === nodeId) return;
     normalizeNode(node);
     runtime.focusModalHistoryPrimed = false;
@@ -6051,6 +6056,8 @@
     if (pwd) pwd.value = "";
     runtime.focusClosing = true;
     focusOverlay.classList.remove("open");
+    closeCommandPalette();
+    closeKeyboardHelpOverlay();
     setTimeout(() => {
       runtime.focusNodeId = null;
       runtime.focusClosing = false;
@@ -8064,6 +8071,7 @@
   }
 
   function openCommandPalette(reset) {
+    if (focusOverlay && focusOverlay.classList.contains("open") && runtime.focusNodeId) return;
     const ov = document.getElementById("commandPaletteOverlay");
     const input = document.getElementById("commandPaletteInput");
     if (!ov || !input) return;
@@ -8077,6 +8085,10 @@
   function closeCommandPalette() {
     const ov = document.getElementById("commandPaletteOverlay");
     if (ov) ov.hidden = true;
+    try {
+      const inp = document.getElementById("commandPaletteInput");
+      if (inp && document.activeElement === inp && typeof inp.blur === "function") inp.blur();
+    } catch (_) {}
   }
 
   function moveCommandPaletteSelection(delta) {
@@ -8096,6 +8108,7 @@
   }
 
   function openKeyboardHelpOverlay() {
+    if (focusOverlay && focusOverlay.classList.contains("open") && runtime.focusNodeId) return;
     const ov = document.getElementById("keyboardHelpOverlay");
     const body = document.getElementById("kbdHelpBody");
     if (!ov || !body) return;
@@ -8133,6 +8146,10 @@
   function closeKeyboardHelpOverlay() {
     const ov = document.getElementById("keyboardHelpOverlay");
     if (ov) ov.hidden = true;
+    try {
+      const ae = document.activeElement;
+      if (ae && ov && ov.contains(ae) && typeof ae.blur === "function") ae.blur();
+    } catch (_) {}
   }
 
   function initCommandPaletteAndHelpUi() {
@@ -8169,12 +8186,18 @@
     ov.addEventListener("pointerdown", (e) => {
       if (e.target === ov) closeCommandPalette();
     });
-    helpBtn?.addEventListener("click", () => {
+    helpBtn?.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (focusOverlay && focusOverlay.classList.contains("open") && runtime.focusNodeId) return;
       closeCommandPalette();
       openKeyboardHelpOverlay();
     });
     document.getElementById("kbdHelpClose")?.addEventListener("click", () => closeKeyboardHelpOverlay());
     document.getElementById("keyboardHelpOverlay")?.addEventListener("pointerdown", (e) => {
+      if (e.target.id === "keyboardHelpOverlay") closeKeyboardHelpOverlay();
+    });
+    document.getElementById("keyboardHelpOverlay")?.addEventListener("click", (e) => {
       if (e.target.id === "keyboardHelpOverlay") closeKeyboardHelpOverlay();
     });
   }
@@ -10576,6 +10599,7 @@
     const typing = isTypingFocusTarget(ae);
     if (!typing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
       e.preventDefault();
+      if (runtime.focusNodeId) return;
       if (cpOv && !cpOv.hidden) closeCommandPalette();
       else openCommandPalette(true);
       return;
