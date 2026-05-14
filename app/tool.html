@@ -982,6 +982,9 @@
       transform: translateY(0);
     }
   }
+  .import-diff-overlay[hidden] {
+    display: none !important;
+  }
   .command-palette-overlay,
   .kbd-help-overlay,
   .import-diff-overlay {
@@ -1329,22 +1332,25 @@
   .body {
     height: 100%;
     width: 100%;
-    padding: 10px 12px;
+    padding: 12px 14px;
     color: var(--node-body-text);
     font-weight: 600;
     line-height: 1.35;
     cursor: move;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    text-align: center;
     min-height: 0;
   }
   .node-icon{
     width:24px;height:24px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;
     font-size:14px;background:var(--node-icon-bg);border:1px solid var(--node-icon-border);margin-bottom:6px;overflow:hidden;
+    flex-shrink:0;
   }
-  .node-title{font-size:14px;font-weight:700;line-height:1.2;color:var(--node-title)}
-  .node-subtitle{font-size:11px;line-height:1.24;color:var(--node-subtitle);margin-top:3px}
-  .node-desc{font-size:11px;line-height:1.35;color:var(--node-desc);margin-top:7px}
+  .node-title{font-size:14px;font-weight:700;line-height:1.25;color:var(--node-title);width:100%;text-align:center}
+  .node-subtitle{font-size:11px;line-height:1.24;color:var(--node-subtitle);margin-top:4px;width:100%;text-align:center}
+  .node-desc{font-size:11px;line-height:1.35;color:var(--node-desc);margin-top:6px;width:100%;text-align:center;max-width:100%}
   .body[contenteditable="true"] {
     cursor: text;
     user-select: text;
@@ -1388,75 +1394,33 @@
     box-shadow:0 0 18px rgba(122,162,255,.22);
   }
   .preview-label{font-size:12px;color:var(--node-title);font-weight:600}
-  .handle {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 28px;
-    height: 28px;
-    border-radius: 999px;
-    background: var(--handle-fill);
-    border: 2px solid var(--handle-ring);
-    z-index: 2;
-    transition: transform 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
-  }
-  .handle.in { left: -15px; }
-  .handle.out { right: -15px; cursor: crosshair; }
-  .handle:hover {
-    transform: translateY(-50%) scale(1.14);
-    background: var(--handle-hover);
-    box-shadow: 0 0 0 4px rgba(108, 148, 255, 0.18);
-  }
-  .handle:active {
-    transform: translateY(-50%) scale(1.24);
-    background: var(--accent);
-    box-shadow: 0 0 0 8px rgba(122, 162, 255, 0.16);
-  }
-  .node.shape-diamond .handle {
-    transform: translateY(-50%) rotate(-45deg);
-  }
-  .node.shape-diamond .handle:hover {
-    transform: translateY(-50%) rotate(-45deg) scale(1.14);
-  }
-  .node.shape-diamond .handle:active {
-    transform: translateY(-50%) rotate(-45deg) scale(1.24);
-  }
+  /* Legacy connection handles removed — edges attach on the node body perimeter. */
+  .handle,
   .out-zone {
-    position: absolute;
-    top: 12px;
-    right: -2px;
-    width: 22px;
-    height: calc(100% - 24px);
-    border-radius: 10px;
-    cursor: crosshair;
-    background: transparent;
-  }
-  .node-freeform .out-zone {
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: auto;
-    height: auto;
-    border-radius: inherit;
-  }
-  .node-freeform .handle {
     display: none !important;
+    pointer-events: none !important;
   }
   .node-body-freeform {
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 8px 10px;
+    padding: 10px 12px;
     height: 100%;
     box-sizing: border-box;
   }
+  .node-freeform.node {
+    background-image: linear-gradient(165deg, rgba(22, 30, 48, 0.55), rgba(12, 16, 26, 0.62));
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  }
+  html[data-theme="light"] .node-freeform.node {
+    background-image: linear-gradient(165deg, rgba(255, 255, 255, 0.92), rgba(245, 248, 252, 0.88));
+    box-shadow: 0 6px 18px rgba(30, 50, 90, 0.1), 0 0 0 1px rgba(60, 80, 120, 0.12) inset;
+  }
   .node-title-freeform {
-    font-size: 15px;
-    font-weight: 700;
     line-height: 1.25;
     word-break: break-word;
+    max-width: 100%;
   }
   .node.node-hidden-canvas {
     visibility: hidden;
@@ -1758,12 +1722,6 @@
       min-width: 150px;
       min-height: 84px;
     }
-    .handle{
-      width: 34px;
-      height: 34px;
-    }
-    .handle.in{ left: -18px; }
-    .handle.out{ right: -18px; }
     .topbar{
       position: sticky;
       top: 0;
@@ -2351,7 +2309,7 @@
       <section class="section right-section section-critical node-builder active diagram-sub-on" data-tab="diagram" data-diagram-sub="node" id="diagramSectionNode" aria-labelledby="diagramHeadingSelNode quickEditInspectorHint">
         <h3 id="diagramHeadingSelNode">Selected Node</h3>
         <p id="quickEditInspectorHint" class="sr-only">Quick inspector: changes apply to the selected node on the canvas.</p>
-        <p class="muted" id="quickEditSurfaceHint">Edit titles here or click a node once to open the full editor (media, visibility, lock, free-style).</p>
+        <p class="muted" id="quickEditSurfaceHint">Edit titles here or click a node once for the full inspector. Long-press (or middle-click) a node to start a link from its edge.</p>
         <textarea id="nodeText" placeholder="Double-click node or edit here"></textarea>
         <input id="nodeSubtitle" type="text" placeholder="Subtitle (optional)">
         <input id="nodeDescription" type="text" placeholder="Description (optional)">
@@ -2517,6 +2475,9 @@
         <label class="muted" style="display:flex;align-items:center;gap:8px;margin-top:4px">
           <input type="checkbox" id="pngExportTransparent"> Transparent PNG background
         </label>
+        <label class="muted" style="display:flex;align-items:center;gap:8px;margin-top:4px">
+          <input type="checkbox" id="pngExportIncludeHidden"> Include hidden nodes in PNG
+        </label>
         <div class="saved-views-block" style="margin-top:10px">
           <div class="muted" style="font-size:12px;margin-bottom:4px">Saved views (camera + snapshot)</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
@@ -2614,9 +2575,11 @@
     </div>
     <div class="node-insp-panels">
       <div id="nodeInspPanelContent" class="node-insp-panel active" data-node-insp-panel="content" role="tabpanel" aria-labelledby="nodeInspTabContent">
+        <p class="node-insp-muted" style="margin:0 0 4px">Content</p>
         <label>Title <input type="text" id="nodeInspTitle" autocomplete="off"></label>
         <label>Subtitle <input type="text" id="nodeInspSubtitle" autocomplete="off"></label>
         <label>Description <textarea id="nodeInspDescription" rows="3"></textarea></label>
+        <p class="node-insp-muted" style="margin:10px 0 4px">Semantic</p>
         <label>Semantic role
           <select id="nodeInspSemanticRole">
             <option value="input">input</option>
@@ -2632,6 +2595,37 @@
         <label>Tags (comma-separated) <input type="text" id="nodeInspTags" placeholder="api, auth, …"></label>
       </div>
       <div id="nodeInspPanelStyle" class="node-insp-panel" data-node-insp-panel="style" role="tabpanel" aria-labelledby="nodeInspTabStyle">
+        <p class="node-insp-muted" style="margin:0 0 4px">Typography</p>
+        <div class="node-insp-row" style="flex-wrap:wrap;gap:8px">
+          <label style="min-width:88px">Size
+            <select id="nodeInspTitleFontSize" aria-label="Title font size">
+              <option value="11">11 px</option>
+              <option value="12">12 px</option>
+              <option value="13">13 px</option>
+              <option value="14">14 px</option>
+              <option value="15">15 px</option>
+              <option value="16">16 px</option>
+              <option value="18">18 px</option>
+              <option value="20">20 px</option>
+              <option value="22">22 px</option>
+            </select>
+          </label>
+          <label style="min-width:88px">Weight
+            <select id="nodeInspTitleFontWeight" aria-label="Title font weight">
+              <option value="400">Regular</option>
+              <option value="500">Medium</option>
+              <option value="600">Semibold</option>
+              <option value="700">Bold</option>
+            </select>
+          </label>
+          <label style="flex:1;min-width:120px">Family
+            <select id="nodeInspTitleFontFamily" aria-label="Title font family">
+              <option value="ui">UI / Inter</option>
+              <option value="serif">Serif</option>
+              <option value="mono">Monospace</option>
+            </select>
+          </label>
+        </div>
         <div class="node-insp-row">
           <label style="min-width:120px">Color <input type="color" id="focusColor" value="#ffd482"></label>
           <label style="flex:1;min-width:140px">Shape
@@ -2648,12 +2642,18 @@
         <label>Shadow <input type="range" id="nodeInspShadow" min="0" max="40" step="1" value="20"></label>
         <label>Radius <input type="range" id="nodeInspRadius" min="0" max="28" step="1" value="12"></label>
         <label>Border color <input type="color" id="nodeInspBorderColor" value="#9cb8ff"></label>
-        <label class="node-insp-row" style="align-items:center;gap:8px">
-          <input type="checkbox" id="nodeInspFreeform"> Free-style node (single centered label, connect from anywhere)
-        </label>
-        <label class="node-insp-row" style="align-items:center;gap:8px">
-          <input type="checkbox" id="nodeInspHidden"> Hidden on canvas (still in project / outline)
-        </label>
+        <label>Border width <input type="range" id="nodeInspBorderWidth" min="0" max="6" step="0.5" value="1.5"></label>
+        <div class="node-insp-row" style="align-items:center;gap:14px;flex-wrap:wrap;margin-top:2px">
+          <label class="node-insp-row" style="align-items:center;gap:8px;margin:0">
+            <input type="checkbox" id="nodeInspFreeform"> Free-style
+          </label>
+          <label class="node-insp-row" style="align-items:center;gap:8px;margin:0">
+            <input type="checkbox" id="nodeInspHidden"> Hidden
+          </label>
+          <label class="node-insp-row" style="align-items:center;gap:8px;margin:0">
+            <input type="checkbox" id="nodeInspStyleLock"> Lock
+          </label>
+        </div>
       </div>
       <div id="nodeInspPanelMedia" class="node-insp-panel" data-node-insp-panel="media" role="tabpanel" aria-labelledby="nodeInspTabMedia">
         <div class="node-insp-row">
@@ -2713,14 +2713,14 @@
       <dl id="kbdHelpBody" class="kbd-help-dl"></dl>
     </div>
   </div>
-  <div id="importDiffOverlay" class="import-diff-overlay" hidden>
-    <div class="import-diff-dialog" role="dialog" aria-modal="true" aria-labelledby="importDiffTitle">
-      <h2 id="importDiffTitle">Import comparison</h2>
-      <pre id="importDiffBody" class="import-diff-pre"></pre>
-      <div class="import-diff-actions">
-        <button type="button" id="importDiffApplyBtn">Apply import</button>
-        <button type="button" id="importDiffCancelBtn" class="text-btn-sm">Cancel</button>
-      </div>
+</div>
+<div id="importDiffOverlay" class="import-diff-overlay" hidden>
+  <div class="import-diff-dialog" role="dialog" aria-modal="true" aria-labelledby="importDiffTitle">
+    <h2 id="importDiffTitle">Import comparison</h2>
+    <pre id="importDiffBody" class="import-diff-pre"></pre>
+    <div class="import-diff-actions">
+      <button type="button" id="importDiffApplyBtn">Apply import</button>
+      <button type="button" id="importDiffCancelBtn" class="text-btn-sm">Cancel</button>
     </div>
   </div>
 </div>
@@ -2831,12 +2831,20 @@
   const connectionListBody = document.getElementById("connectionListBody");
   const SESSION_DIAGRAM_SUB = "mapdiagram-diagram-sub-tab";
   const SESSION_CONN_LIST_FILTER = "mapdiagram-connection-list-filter";
+  const SESSION_PNG_INCLUDE_HIDDEN = "mapdiagram-png-include-hidden";
   const suggestionsEl = document.getElementById("suggestions");
   const focusOverlay = document.getElementById("focusOverlay");
   const focusModal = document.getElementById("focusModal");
   const focusColor = document.getElementById("focusColor");
   const focusShape = document.getElementById("focusShape");
   const focusCloseBtn = document.getElementById("focusCloseBtn");
+  function openJsonImportPicker() {
+    if (focusOverlay && focusOverlay.classList.contains("open")) {
+      showToast("Close the node inspector before importing JSON.", "warn");
+      return;
+    }
+    fileInput?.click();
+  }
   const userChip = document.getElementById("userChip");
   const userCreditBadge = document.getElementById("userCreditBadge");
   const aiBillingRow = document.getElementById("aiBillingRow");
@@ -2957,6 +2965,10 @@
     groupBoxCacheProjectId: null,
     /** @type {object|null} Phase 3 — JSON.parse result awaiting Apply in import diff overlay. */
     pendingImportParsed: null,
+    /** First edit in node inspector modal captures one undo snapshot (see primeFocusModalHistoryOnce). */
+    focusModalHistoryPrimed: false,
+    /** Skip opening node inspector after Alt-drag connect or long-press connect. */
+    skipNodeInspectorOpenOnce: false,
   };
 
   /** Phase 2 — connection multi-select: clear `p.connections` selection only. */
@@ -4323,6 +4335,12 @@
     runtime.redo = [];
   }
 
+  function primeFocusModalHistoryOnce() {
+    if (!runtime.focusNodeId || runtime.focusModalHistoryPrimed) return;
+    pushHistory();
+    runtime.focusModalHistoryPrimed = true;
+  }
+
   function restoreSnapshot(stackFrom, stackTo) {
     if (!stackFrom.length) return;
     const p = getProject();
@@ -4334,6 +4352,13 @@
       view: p.view
     }));
     const snap = stackFrom.pop();
+    if (runtime.focusNodeId) {
+      runtime.focusClosing = true;
+      runtime.focusNodeId = null;
+      focusOverlay.classList.remove("open");
+      runtime.focusClosing = false;
+      runtime.focusModalHistoryPrimed = false;
+    }
     p.nodes = snap.nodes;
     p.connections = snap.connections;
     p.userGroups = snap.userGroups || [];
@@ -4459,7 +4484,15 @@
     if (n.style.shadow == null) n.style.shadow = 20;
     if (n.style.radius == null) n.style.radius = (n.shape === "rounded" ? 16 : 12);
     if (!n.style.borderColor) n.style.borderColor = "#9cb8ff";
+    if (n.style.borderWidth == null || !Number.isFinite(Number(n.style.borderWidth))) n.style.borderWidth = 1.5;
+    else n.style.borderWidth = Math.max(0, Math.min(6, Number(n.style.borderWidth)));
     if (n.style.freeform == null) n.style.freeform = false;
+    if (n.style.titleFontSize == null || !Number.isFinite(Number(n.style.titleFontSize))) n.style.titleFontSize = 14;
+    else n.style.titleFontSize = Math.max(10, Math.min(28, Math.round(Number(n.style.titleFontSize))));
+    const tw0 = Number(n.style.titleFontWeight);
+    n.style.titleFontWeight = [400, 500, 600, 700].includes(tw0) ? tw0 : 600;
+    const fam = String(n.style.titleFontFamily || "ui");
+    n.style.titleFontFamily = ["ui", "serif", "mono"].includes(fam) ? fam : "ui";
     return n.style;
   }
 
@@ -4706,6 +4739,10 @@
     if (!n) return false;
     ensureNodeExtendedModel(n);
     return !!n.visibility.hidden;
+  }
+
+  function pngExportIncludesHiddenNodes() {
+    return !!document.getElementById("pngExportIncludeHidden")?.checked;
   }
 
   function isNodeDragHardLocked(n) {
@@ -5632,6 +5669,7 @@
     const movingCy = nextY + moving.height / 2;
     for (const n of p.nodes) {
       if (n.id === nodeId) continue;
+      if (isNodeHiddenCanvas(n)) continue;
       const w = getNodeWorldPosition(n);
       const cx = w.x + n.width / 2;
       const cy = w.y + n.height / 2;
@@ -5797,6 +5835,23 @@
     }
   }
 
+  function nodeTitleFontStackCss(st) {
+    const fam = st && st.titleFontFamily;
+    if (fam === "serif") return 'Georgia, "Times New Roman", serif';
+    if (fam === "mono") return 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+    return 'Inter, "Segoe UI", system-ui, -apple-system, sans-serif';
+  }
+
+  function applyNodeTitleTypography(titleEl, n) {
+    if (!titleEl || !n) return;
+    const st = ensureNodeStyle(n);
+    const px = Math.max(10, Math.min(28, Number(st.titleFontSize) || 14));
+    const w = [400, 500, 600, 700].includes(Number(st.titleFontWeight)) ? Number(st.titleFontWeight) : 600;
+    titleEl.style.fontSize = `${px}px`;
+    titleEl.style.fontWeight = String(w);
+    titleEl.style.fontFamily = nodeTitleFontStackCss(st);
+  }
+
   function renderNodeBody(body, n) {
     ensureNodeExtendedModel(n);
     body.innerHTML = "";
@@ -5806,6 +5861,7 @@
       const title = document.createElement("div");
       title.className = "node-title node-title-freeform";
       title.textContent = n.title || n.text || "Node";
+      applyNodeTitleTypography(title, n);
       body.appendChild(title);
       return;
     }
@@ -5831,6 +5887,7 @@
     const title = document.createElement("div");
     title.className = "node-title";
     title.textContent = n.title || n.text || "Node";
+    applyNodeTitleTypography(title, n);
     body.appendChild(title);
     if (n.subtitle) {
       const subtitle = document.createElement("div");
@@ -5869,6 +5926,9 @@
     el.style.opacity = String(Math.max(0.2, Math.min(1, Number(st.opacity) || 0.9)));
     el.style.setProperty("--node-radius", `${Math.max(0, Math.min(28, Number(st.radius) || 12))}px`);
     el.style.borderColor = st.borderColor || accent;
+    const bw = Math.max(0, Math.min(6, Number(st.borderWidth) || 1.5));
+    el.style.borderWidth = `${bw}px`;
+    el.style.borderStyle = "solid";
     const glow = Math.max(0, Math.min(40, Number(st.glow) || 0));
     const shadow = Math.max(0, Math.min(40, Number(st.shadow) || 0));
     const shadowOuter = light ? `0 10px ${12 + shadow}px rgba(30,50,90,.12)` : `0 10px ${12 + shadow}px rgba(0,0,0,.46)`;
@@ -5900,6 +5960,7 @@
       del.type = "button";
       del.textContent = "Remove";
       del.addEventListener("click", () => {
+        primeFocusModalHistoryOnce();
         node.attachments = (node.attachments || []).filter((x) => x.id !== att.id);
         refreshNodeInspectorAttachmentList(node);
         updateNodeDom(node.id);
@@ -5913,7 +5974,10 @@
   function openFocusModal(nodeId) {
     const node = getNodeById(nodeId);
     if (!node) return;
+    closeImportDiffOverlay();
+    if (focusOverlay.classList.contains("open") && runtime.focusNodeId === nodeId) return;
     normalizeNode(node);
+    runtime.focusModalHistoryPrimed = false;
     runtime.focusNodeId = nodeId;
     setNodeInspectorTab("content");
     const ti = document.getElementById("nodeInspTitle");
@@ -5939,6 +6003,14 @@
     if (sh) sh.value = String(stStyle.shadow ?? 20);
     if (ra) ra.value = String(stStyle.radius ?? 12);
     if (bc) bc.value = stStyle.borderColor || "#9cb8ff";
+    const bww = document.getElementById("nodeInspBorderWidth");
+    if (bww) bww.value = String(stStyle.borderWidth ?? 1.5);
+    const fsz = document.getElementById("nodeInspTitleFontSize");
+    if (fsz) fsz.value = String(stStyle.titleFontSize ?? 14);
+    const fwt = document.getElementById("nodeInspTitleFontWeight");
+    if (fwt) fwt.value = String(stStyle.titleFontWeight ?? 600);
+    const ffam = document.getElementById("nodeInspTitleFontFamily");
+    if (ffam) ffam.value = stStyle.titleFontFamily || "ui";
     const prev = document.getElementById("nodeInspImagePreview");
     const bgChk = document.getElementById("nodeInspBgImage");
     if (bgChk) {
@@ -5960,6 +6032,8 @@
     const pwd = document.getElementById("nodeInspPassword");
     if (secL) secL.checked = !!(node.security && node.security.locked);
     if (secM) secM.value = (node.security && node.security.lockMode) || "none";
+    const stLk = document.getElementById("nodeInspStyleLock");
+    if (stLk) stLk.checked = !!(node.security && node.security.locked);
     if (pwd) pwd.value = "";
     const hid = document.getElementById("nodeInspHidden");
     const ff = document.getElementById("nodeInspFreeform");
@@ -5972,6 +6046,7 @@
   function closeFocusModal() {
     if (!runtime.focusNodeId || runtime.focusClosing) return;
     syncNodeInspectorToModel();
+    runtime.focusModalHistoryPrimed = false;
     const pwd = document.getElementById("nodeInspPassword");
     if (pwd) pwd.value = "";
     runtime.focusClosing = true;
@@ -5988,7 +6063,8 @@
     return { x: w.x + n.width / 2, y: w.y + n.height / 2 };
   }
 
-  function anchorFreeformPerimeter(n, toward) {
+  /** Intersection of ray (center → toward) with axis-aligned node bounds — edge attachment anywhere on the body. */
+  function anchorRectPerimeter(n, toward) {
     const w = getNodeWorldPosition(n);
     const cx = w.x + n.width / 2;
     const cy = w.y + n.height / 2;
@@ -6007,15 +6083,15 @@
   }
 
   function anchor(n, type, towardPoint) {
-    const st = ensureNodeStyle(n);
     const w = getNodeWorldPosition(n);
-    if (st.freeform) {
-      const tw =
-        towardPoint && typeof towardPoint.x === "number" && typeof towardPoint.y === "number" ? towardPoint : null;
-      if (tw) return anchorFreeformPerimeter(n, tw);
-      return { x: w.x + n.width / 2, y: w.y + n.height / 2 };
-    }
-    return type === "out" ? { x: w.x + n.width, y: w.y + n.height / 2 } : { x: w.x, y: w.y + n.height / 2 };
+    const tw =
+      towardPoint && typeof towardPoint.x === "number" && typeof towardPoint.y === "number" ? towardPoint : null;
+    if (tw) return anchorRectPerimeter(n, tw);
+    const bias =
+      type === "out"
+        ? { x: w.x + n.width + 50, y: w.y + n.height / 2 }
+        : { x: w.x - 50, y: w.y + n.height / 2 };
+    return anchorRectPerimeter(n, bias);
   }
 
   function anchorNodeForConnection(nodeId, end, towardPoint) {
@@ -6041,6 +6117,7 @@
     const ex = excludeIds || new Set();
     return p.nodes
       .filter((n) => !ex.has(n.id))
+      .filter((n) => !isNodeHiddenCanvas(n))
       .filter((n) => {
         const w = getNodeWorldPosition(n);
         const cx = w.x + n.width / 2;
@@ -6192,6 +6269,7 @@
     const p = getProject();
     let nodes = subsetNodeIds ? p.nodes.filter((n) => subsetNodeIds.has(n.id)) : p.nodes.slice();
     nodes = nodes.filter((n) => n.layoutMode !== "graph");
+    nodes = nodes.filter((n) => !isNodeHiddenCanvas(n));
     if (!nodes.length) return;
     const nodeSet = new Set(nodes.map((n) => n.id));
     const incoming = new Map();
@@ -6317,6 +6395,7 @@
           const overlapY = Math.min(ay2, by2) - Math.max(ay1, by1);
           if (overlapX > 0 && overlapY > 0) {
             if (a.layoutMode === "graph" || b.layoutMode === "graph") continue;
+            if (isNodeHiddenCanvas(a) || isNodeHiddenCanvas(b)) continue;
             const ga = userGroupIdForNode(a.id);
             const gb = userGroupIdForNode(b.id);
             if (ga !== gb) continue;
@@ -6357,7 +6436,7 @@
   function smartRebalance(seedNodeIds = []) {
     const seeds = seedNodeIds.filter((id) => {
       const node = getNodeById(id);
-      return node && node.layoutMode !== "graph";
+      return node && node.layoutMode !== "graph" && !isNodeHiddenCanvas(node);
     });
     if (!seeds.length) return;
     const p = getProject();
@@ -6368,11 +6447,11 @@
       const n = q.shift();
       if (!n || subset.has(n)) continue;
       const node = getNodeById(n);
-      if (node && node.layoutMode === "graph") continue;
+      if (node && (node.layoutMode === "graph" || isNodeHiddenCanvas(node))) continue;
       subset.add(n);
       for (const next of graph.adjacency.get(n) || []) {
         const nb = getNodeById(next);
-        if (nb && nb.layoutMode === "graph") continue;
+        if (nb && (nb.layoutMode === "graph" || isNodeHiddenCanvas(nb))) continue;
         q.push(next);
       }
     }
@@ -6637,24 +6716,22 @@
 
   function createNodeElement(n) {
     normalizeNode(n);
+    const st0 = ensureNodeStyle(n);
     const el = document.createElement("div");
     el.className = `node shape-${n.shape}`;
     el.dataset.nodeId = n.id;
     const body = document.createElement("div");
     body.className = "body";
     renderNodeBody(body, n);
-    const inH = document.createElement("div");
-    inH.className = "handle in";
-    inH.dataset.nodeId = n.id;
-    const outH = document.createElement("div");
-    outH.className = "handle out";
-    outH.dataset.nodeId = n.id;
-    const outZone = document.createElement("div");
-    outZone.className = "out-zone";
-    outZone.dataset.nodeId = n.id;
 
     body.addEventListener("pointerdown", (e) => {
       if (body.isContentEditable) return;
+      if (e.button === 1 && !runtime.connecting) {
+        e.stopPropagation();
+        e.preventDefault();
+        startConnectionDrag(n, e);
+        return;
+      }
       e.stopPropagation();
       if (e.pointerId != null && body.setPointerCapture) body.setPointerCapture(e.pointerId);
       if (e.pointerType === "touch") {
@@ -6708,6 +6785,7 @@
       runtime.bodyConnectPressTimer = setTimeout(() => {
         if (runtime.bodyPressNodeId === n.id && runtime.dragging && runtime.dragging.nodeId === n.id) {
           runtime.dragging = null;
+          runtime.skipNodeInspectorOpenOnce = true;
           startConnectionDrag(n, e);
         }
       }, 300);
@@ -6726,6 +6804,10 @@
       runtime.bodyPressPointerId = null;
       runtime.bodyPressStart = null;
       runtime.bodyPressNodeId = null;
+      if (runtime.skipNodeInspectorOpenOnce) {
+        runtime.skipNodeInspectorOpenOnce = false;
+        return;
+      }
       if (!start || !same) return;
       if (runtime.focusNodeId) return;
       if (e.ctrlKey || e.metaKey) return;
@@ -6734,40 +6816,17 @@
       const dy = e.clientY - start.y;
       if (dx * dx + dy * dy > 100) return;
       revealDiagramNodeInspectorAndOpenExtended(n.id);
+      e.stopPropagation();
     });
     body.addEventListener("dblclick", (e) => {
       e.stopPropagation();
+      e.preventDefault();
       revealDiagramNodeInspectorAndOpenExtended(n.id);
     });
 
-    outH.addEventListener("pointerdown", (e) => {
-      e.stopPropagation();
-      if (runtime.connectPressTimer) clearTimeout(runtime.connectPressTimer);
-      if (e.pointerType === "touch") {
-        runtime.connectPressTimer = setTimeout(() => startConnectionDrag(n, e), 300);
-      } else {
-        startConnectionDrag(n, e);
-      }
-    });
-    outZone.addEventListener("pointerdown", (e) => {
-      e.stopPropagation();
-      if (runtime.connectPressTimer) clearTimeout(runtime.connectPressTimer);
-      if (e.pointerType === "touch") {
-        runtime.connectPressTimer = setTimeout(() => startConnectionDrag(n, e), 300);
-      } else {
-        startConnectionDrag(n, e);
-      }
-    });
-    outH.addEventListener("pointerup", () => {
-      if (runtime.connectPressTimer) clearTimeout(runtime.connectPressTimer);
-    });
-    outZone.addEventListener("pointerup", () => {
-      if (runtime.connectPressTimer) clearTimeout(runtime.connectPressTimer);
-    });
-    const st0 = ensureNodeStyle(n);
+    el.append(body);
     if (st0.freeform) el.classList.add("node-freeform");
     if (isNodeHiddenCanvas(n)) el.classList.add("node-hidden-canvas");
-    el.append(body, inH, outH, outZone);
     applyNodeVisualStyles(el, n);
     renderNodeChromeOverlays(el, n);
     resizeObserver.observe(el);
@@ -6847,6 +6906,7 @@
         const auto = autoCurve(from, to);
         const obsRects = p.nodes
           .filter((n) => n.id !== c.from)
+          .filter((n) => !isNodeHiddenCanvas(n))
           .map((n) => {
             const w = getNodeWorldPosition(n);
             return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
@@ -6892,6 +6952,7 @@
         const auto = autoCurve(from, to);
         const obsRects = p.nodes
           .filter((n) => n.id !== c.to)
+          .filter((n) => !isNodeHiddenCanvas(n))
           .map((n) => {
             const w = getNodeWorldPosition(n);
             return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
@@ -6938,6 +6999,7 @@
       const curve = getCurveData(c.id, from, to);
       const obstacles = p.nodes
         .filter((n) => n.id !== fromNode.id && n.id !== toNode.id)
+        .filter((n) => !isNodeHiddenCanvas(n))
         .map((n) => {
           const w = getNodeWorldPosition(n);
           return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
@@ -7945,7 +8007,7 @@
       { id: "dup", label: "Duplicate selected nodes", keys: "Ctrl+D", keywords: "copy", run: () => duplicateSelectedNodesAction() },
       { id: "exportJson", label: "Export JSON", keys: "", keywords: "download save", run: () => document.getElementById("exportBtn")?.click() },
       { id: "exportPng", label: "Export PNG", keys: "", keywords: "image picture", run: () => exportAsPng() },
-      { id: "import", label: "Import JSON…", keys: "", keywords: "upload open", run: () => fileInput?.click() },
+      { id: "import", label: "Import JSON…", keys: "", keywords: "upload open", run: () => openJsonImportPicker() },
       { id: "smart", label: "Smart Clean diagram", keys: "", keywords: "tidy", run: () => document.getElementById("smartCleanBtn")?.click() },
       { id: "refreshPaths", label: "Refresh connection paths", keys: "", keywords: "reroute edges", run: () => document.getElementById("refreshConnectionPathsBtn")?.click() },
       { id: "autoLayout", label: "Auto layout", keys: "", keywords: "graph arrange", run: () => document.getElementById("autoLayoutBtn")?.click() },
@@ -8135,6 +8197,10 @@
       closeImportDiffOverlay();
     });
     cancel?.addEventListener("click", () => closeImportDiffOverlay());
+    const ov = document.getElementById("importDiffOverlay");
+    ov?.addEventListener("pointerdown", (e) => {
+      if (e.target === ov) closeImportDiffOverlay();
+    });
   }
 
   function primaryNodeSelectionIdList() {
@@ -8149,6 +8215,7 @@
 
   function nodeCanWorkspaceTransform(n) {
     if (!n) return false;
+    if (isNodeHiddenCanvas(n)) return false;
     if (isNodeDragHardLocked(n)) return false;
     if (isNodeUnderPinnedGroup(getProject(), n.id)) return false;
     return true;
@@ -8598,10 +8665,12 @@
       markDirty();
       return;
     }
-    const minX = Math.min(...p.nodes.map((n) => getNodeWorldPosition(n).x));
-    const minY = Math.min(...p.nodes.map((n) => getNodeWorldPosition(n).y));
-    const maxX = Math.max(...p.nodes.map((n) => getNodeWorldPosition(n).x + n.width));
-    const maxY = Math.max(...p.nodes.map((n) => getNodeWorldPosition(n).y + n.height));
+    const vis = p.nodes.filter((n) => !isNodeHiddenCanvas(n));
+    const boundsNodes = vis.length ? vis : p.nodes;
+    const minX = Math.min(...boundsNodes.map((n) => getNodeWorldPosition(n).x));
+    const minY = Math.min(...boundsNodes.map((n) => getNodeWorldPosition(n).y));
+    const maxX = Math.max(...boundsNodes.map((n) => getNodeWorldPosition(n).x + n.width));
+    const maxY = Math.max(...boundsNodes.map((n) => getNodeWorldPosition(n).y + n.height));
     const contentW = Math.max(100, maxX - minX + 120);
     const contentH = Math.max(100, maxY - minY + 120);
     const r = workspace.getBoundingClientRect();
@@ -8626,7 +8695,7 @@
       maxY = Math.max(maxY, y + h);
     };
     for (const n of p.nodes) {
-      if (isNodeHiddenCanvas(n)) continue;
+      if (isNodeHiddenCanvas(n) && !pngExportIncludesHiddenNodes()) continue;
       const w = getNodeWorldPosition(n);
       bump(w.x, w.y, n.width, n.height);
     }
@@ -8764,6 +8833,7 @@
         const auto = autoCurve(from, to);
         const obsRects = p.nodes
           .filter((n) => n.id !== c.from)
+          .filter((n) => !isNodeHiddenCanvas(n))
           .map((n) => {
             const w = getNodeWorldPosition(n);
             return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
@@ -8780,6 +8850,16 @@
         pngStrokePathD(ctx, d);
         ctx.setLineDash([]);
         pngDrawArrowAtTip(ctx, auto.cp2.x, auto.cp2.y, to.x, to.y, col, 7);
+        if (String(c.label || "").trim()) {
+          const off = c.labelOffset || { dx: 0, dy: 0 };
+          pngDrawEdgeLabel(
+            ctx,
+            c.label,
+            (from.x + to.x) / 2 + (off.dx || 0),
+            (from.y + to.y) / 2 - 4 + (off.dy || 0),
+            false
+          );
+        }
         continue;
       }
       if (c.kind === "group-node") {
@@ -8791,6 +8871,7 @@
         const auto = autoCurve(from, to);
         const obsRects = p.nodes
           .filter((n) => n.id !== c.to)
+          .filter((n) => !isNodeHiddenCanvas(n))
           .map((n) => {
             const w = getNodeWorldPosition(n);
             return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
@@ -8807,6 +8888,16 @@
         pngStrokePathD(ctx, d);
         ctx.setLineDash([]);
         pngDrawArrowAtTip(ctx, auto.cp2.x, auto.cp2.y, to.x, to.y, col, 7);
+        if (String(c.label || "").trim()) {
+          const off = c.labelOffset || { dx: 0, dy: 0 };
+          pngDrawEdgeLabel(
+            ctx,
+            c.label,
+            (from.x + to.x) / 2 + (off.dx || 0),
+            (from.y + to.y) / 2 - 4 + (off.dy || 0),
+            false
+          );
+        }
         continue;
       }
       if (!isNodeNodeConnection(c)) continue;
@@ -8819,6 +8910,7 @@
       const curve = getCurveData(c.id, from, to);
       const obstacles = p.nodes
         .filter((n) => n.id !== fromNode.id && n.id !== toNode.id)
+        .filter((n) => !isNodeHiddenCanvas(n))
         .map((n) => {
           const w = getNodeWorldPosition(n);
           return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
@@ -8864,47 +8956,73 @@
     }
 
     for (const n of p.nodes) {
-      if (isNodeHiddenCanvas(n)) continue;
+      if (isNodeHiddenCanvas(n) && !pngExportIncludesHiddenNodes()) continue;
       normalizeNode(n);
       const st = ensureNodeStyle(n);
       const w = getNodeWorldPosition(n);
       const x = w.x;
       const y = w.y;
       const rad = Math.max(0, Number(st.radius) || 12);
+      const bw = Math.max(0, Math.min(6, Number(st.borderWidth) || 1.5));
       ctx.globalAlpha = Math.max(0.2, Math.min(1, Number(st.opacity) || 0.9));
       ctx.fillStyle = n.color || "#ffd482";
       ctx.strokeStyle = st.borderColor || "#9cb8ff";
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = bw;
+      const shp = n.shape || "rect";
       ctx.beginPath();
-      ctx.roundRect(x, y, n.width, n.height, rad);
+      if (shp === "circle") {
+        ctx.ellipse(x + n.width / 2, y + n.height / 2, n.width / 2, n.height / 2, 0, 0, Math.PI * 2);
+      } else if (shp === "diamond") {
+        const cx = x + n.width / 2;
+        const cy = y + n.height / 2;
+        ctx.moveTo(cx, y);
+        ctx.lineTo(x + n.width, cy);
+        ctx.lineTo(cx, y + n.height);
+        ctx.lineTo(x, cy);
+        ctx.closePath();
+      } else {
+        const rr = shp === "rounded" ? Math.max(rad, 14) : rad;
+        ctx.roundRect(x, y, n.width, n.height, rr);
+      }
       ctx.fill();
       ctx.stroke();
       ctx.globalAlpha = 1;
       const titleFill = isLight ? "#0f172a" : "#e8edff";
       const subFill = isLight ? "rgba(15,23,42,.85)" : "rgba(228,236,255,.85)";
+      const px = Math.max(10, Math.min(28, Number(st.titleFontSize) || 14));
+      const wgt = [400, 500, 600, 700].includes(Number(st.titleFontWeight)) ? Number(st.titleFontWeight) : 600;
+      const fam = nodeTitleFontStackCss(st);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const cx = x + n.width / 2;
+      const cy = y + n.height / 2;
+      const title = n.title || n.text || "Node";
       if (st.freeform) {
         ctx.fillStyle = titleFill;
-        ctx.font = "700 15px Inter, Segoe UI, Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(n.title || n.text || "Node", x + n.width / 2, y + n.height / 2);
-        ctx.textAlign = "start";
-        ctx.textBaseline = "alphabetic";
+        ctx.font = `${wgt} ${px}px ${fam}`;
+        ctx.fillText(title, cx, cy);
       } else {
+        const hasSub = !!String(n.subtitle || "").trim();
+        const hasDesc = !!String(n.description || "").trim();
+        let y0 = cy;
+        if (hasSub && hasDesc) y0 = cy - 18;
+        else if (hasSub || hasDesc) y0 = cy - 10;
         ctx.fillStyle = titleFill;
-        ctx.font = "700 14px Inter, Segoe UI, Arial";
-        ctx.fillText(n.title || n.text || "Node", x + 12, y + 24);
-        if (n.subtitle) {
-          ctx.font = "12px Inter, Segoe UI, Arial";
+        ctx.font = `${wgt} ${px}px ${fam}`;
+        ctx.fillText(title, cx, y0);
+        if (hasSub) {
+          ctx.font = `500 12px ${fam}`;
           ctx.fillStyle = subFill;
-          ctx.fillText(n.subtitle, x + 12, y + 42);
+          ctx.fillText(n.subtitle, cx, y0 + 16);
         }
-        if (n.description) {
-          ctx.font = "11px Inter, Segoe UI, Arial";
+        if (hasDesc) {
+          ctx.font = `400 11px ${fam}`;
           ctx.fillStyle = isLight ? "rgba(15,23,42,.72)" : "rgba(228,236,255,.72)";
-          ctx.fillText(n.description.slice(0, 68), x + 12, y + 62);
+          ctx.fillText(String(n.description).slice(0, 68), cx, y0 + (hasSub ? 32 : 16));
         }
       }
+      ctx.textAlign = "start";
+      ctx.textBaseline = "alphabetic";
     }
   }
 
@@ -8917,7 +9035,10 @@
     const sc = Math.max(0.5, Math.min(3, Number(scaleEl?.value) || 1));
     const transparent = !!document.getElementById("pngExportTransparent")?.checked;
     const wb = getDiagramWorldBoundsForPngExport(p);
-    if (!wb) return;
+    if (!wb) {
+      showToast("Nothing to export in the current bounds. Try “Include hidden nodes in PNG” or add visible nodes.", "warn");
+      return;
+    }
     const { minX, minY, maxX, maxY } = wb;
     const width = Math.ceil(maxX - minX + pad * 2);
     const height = Math.ceil(maxY - minY + pad * 2);
@@ -9492,6 +9613,17 @@
   fitViewInPanelBtn.onclick = fitToScreen;
   exportJsonPanelBtn.onclick = () => document.getElementById("exportBtn").click();
   exportPngPanelBtn.onclick = exportAsPng;
+  const pngExportIncludeHiddenEl = document.getElementById("pngExportIncludeHidden");
+  if (pngExportIncludeHiddenEl) {
+    try {
+      if (sessionStorage.getItem(SESSION_PNG_INCLUDE_HIDDEN) === "1") pngExportIncludeHiddenEl.checked = true;
+    } catch (_) {}
+    pngExportIncludeHiddenEl.addEventListener("change", () => {
+      try {
+        sessionStorage.setItem(SESSION_PNG_INCLUDE_HIDDEN, pngExportIncludeHiddenEl.checked ? "1" : "0");
+      } catch (_) {}
+    });
+  }
   connectorStyleSelect.addEventListener("change", () => {
     runtime.connectorStyle = connectorStyleSelect.value;
     renderConnections();
@@ -9843,7 +9975,7 @@
     URL.revokeObjectURL(url);
   };
   exportPngBtn.onclick = exportAsPng;
-  document.getElementById("importBtn").onclick = () => fileInput.click();
+  document.getElementById("importBtn").onclick = () => openJsonImportPicker();
   fileInput.addEventListener("change", () => {
     if (!fileInput.files.length) return;
     const reader = new FileReader();
@@ -10514,6 +10646,9 @@
   focusOverlay.addEventListener("pointerdown", (e) => {
     if (e.target === focusOverlay) closeFocusModal();
   });
+  focusOverlay.addEventListener("click", (e) => {
+    if (e.target === focusOverlay) closeFocusModal();
+  });
   focusModal.addEventListener("pointerdown", (e) => e.stopPropagation());
   document.getElementById("nodeInspTabs")?.addEventListener("click", (e) => {
     const btn = e.target.closest(".node-insp-tab");
@@ -10562,6 +10697,20 @@
     if (sh) stStyle.shadow = Number(sh.value);
     if (ra) stStyle.radius = Number(ra.value);
     if (bc) stStyle.borderColor = bc.value;
+    const bww = document.getElementById("nodeInspBorderWidth");
+    if (bww) stStyle.borderWidth = Math.max(0, Math.min(6, Number(bww.value) || 1.5));
+    const fsz = document.getElementById("nodeInspTitleFontSize");
+    if (fsz) stStyle.titleFontSize = Math.max(10, Math.min(28, Math.round(Number(fsz.value) || 14)));
+    const fwt = document.getElementById("nodeInspTitleFontWeight");
+    if (fwt) {
+      const wv = Number(fwt.value);
+      stStyle.titleFontWeight = [400, 500, 600, 700].includes(wv) ? wv : 600;
+    }
+    const ffam = document.getElementById("nodeInspTitleFontFamily");
+    if (ffam) {
+      const fv = String(ffam.value || "ui");
+      stStyle.titleFontFamily = ["ui", "serif", "mono"].includes(fv) ? fv : "ui";
+    }
     const hid = document.getElementById("nodeInspHidden");
     const ff = document.getElementById("nodeInspFreeform");
     if (hid) node.visibility.hidden = !!hid.checked;
@@ -10601,32 +10750,43 @@
     if (!runtime.focusNodeId) return;
     if (e.target.id === "nodeInspPassword") return;
     if (e.target.closest("#nodeInspTabs")) return;
+    primeFocusModalHistoryOnce();
     syncNodeInspectorToModel();
   });
   focusModal.addEventListener("change", (e) => {
     if (!runtime.focusNodeId) return;
     if (e.target.id === "nodeInspPassword") return;
-    if (e.target.id === "nodeInspHidden" || e.target.id === "nodeInspFreeform") return;
+    if (e.target.id === "nodeInspHidden" || e.target.id === "nodeInspFreeform" || e.target.id === "nodeInspStyleLock") return;
+    primeFocusModalHistoryOnce();
     syncNodeInspectorToModel();
   });
   focusColor.addEventListener("input", () => {
     if (!runtime.focusNodeId) return;
+    primeFocusModalHistoryOnce();
     syncNodeInspectorToModel();
   });
   focusShape.addEventListener("change", () => {
     if (!runtime.focusNodeId) return;
+    primeFocusModalHistoryOnce();
     syncNodeInspectorToModel();
   });
 
   document.getElementById("nodeInspHidden")?.addEventListener("change", () => {
     if (!runtime.focusNodeId) return;
-    pushHistory();
+    primeFocusModalHistoryOnce();
     syncNodeInspectorToModel();
   });
   document.getElementById("nodeInspFreeform")?.addEventListener("change", () => {
     if (!runtime.focusNodeId) return;
-    pushHistory();
+    primeFocusModalHistoryOnce();
     syncNodeInspectorToModel();
+  });
+
+  document.getElementById("nodeInspStyleLock")?.addEventListener("change", () => {
+    const secL = document.getElementById("nodeInspSecLocked");
+    const stLk = document.getElementById("nodeInspStyleLock");
+    if (secL && stLk) secL.checked = stLk.checked;
+    document.getElementById("nodeInspSecLocked")?.dispatchEvent(new Event("change", { bubbles: true }));
   });
 
   document.getElementById("nodeInspImagePick")?.addEventListener("click", () => {
@@ -10638,6 +10798,7 @@
     if (!f || !node || !f.type.startsWith("image/")) return;
     const r = new FileReader();
     r.onload = () => {
+      primeFocusModalHistoryOnce();
       ensureNodeExtendedModel(node);
       node.media.imageUrl = String(r.result || "");
       if (document.getElementById("nodeInspBgImage")?.checked) node.media.backgroundImage = node.media.imageUrl;
@@ -10655,6 +10816,7 @@
   document.getElementById("nodeInspImageClear")?.addEventListener("click", () => {
     const node = getNodeById(runtime.focusNodeId);
     if (!node) return;
+    primeFocusModalHistoryOnce();
     ensureNodeExtendedModel(node);
     node.media.imageUrl = null;
     node.media.thumbnailUrl = null;
@@ -10679,6 +10841,7 @@
     if (!f || !node) return;
     const r = new FileReader();
     r.onload = () => {
+      primeFocusModalHistoryOnce();
       ensureNodeExtendedModel(node);
       node.attachments.push({
         id: uid(),
@@ -10695,13 +10858,17 @@
     e.target.value = "";
   });
 
-  document.getElementById("nodeInspSecLocked")?.addEventListener("change", () => {
+  document.getElementById("nodeInspSecLocked")?.addEventListener("change", (e) => {
+    e.stopPropagation();
     const node = getNodeById(runtime.focusNodeId);
     if (!node) return;
+    primeFocusModalHistoryOnce();
     const secM = document.getElementById("nodeInspLockMode");
     const ck = document.getElementById("nodeInspSecLocked");
+    const stLk = document.getElementById("nodeInspStyleLock");
     ensureNodeExtendedModel(node);
     node.security.locked = !!(ck && ck.checked);
+    if (stLk) stLk.checked = node.security.locked;
     if (!node.security.locked) {
       node.security.lockMode = "none";
       if (secM) secM.value = "none";
