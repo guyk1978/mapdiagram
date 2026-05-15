@@ -1,0 +1,31 @@
+{
+  "slug": "hiring-pipeline",
+  "title": "Hiring Pipeline",
+  "description": "Screen, interview, offer, and onboard candidates.",
+  "category": "HR",
+  "tags": ["hiring", "recruiting"],
+  "promptSeed": "hiring pipeline from application to offer",
+  "spec": {
+    "version": 1,
+    "title": "Hiring Pipeline",
+    "direction": "TB",
+    "nodes": [
+      { "id": "start", "label": "Start", "kind": "start" },
+      { "id": "apply", "label": "Application", "kind": "process" },
+      { "id": "screen", "label": "Screening", "kind": "process" },
+      { "id": "pass", "label": "Pass screen?", "kind": "decision" },
+      { "id": "interview", "label": "Interview", "kind": "process" },
+      { "id": "offer", "label": "Offer", "kind": "process" },
+      { "id": "end", "label": "Hired", "kind": "end" }
+    ],
+    "edges": [
+      { "from": "start", "to": "apply" },
+      { "from": "apply", "to": "screen" },
+      { "from": "screen", "to": "pass" },
+      { "from": "pass", "to": "interview", "label": "Yes" },
+      { "from": "pass", "to": "end", "label": "No" },
+      { "from": "interview", "to": "offer" },
+      { "from": "offer", "to": "end" }
+    ]
+  }
+}

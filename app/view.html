@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script src="/assets/site-analytics.js" defer></script>
+  <script src="/assets/product-analytics.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flowchart | MapDiagram</title>
+  <meta name="description" content="View a shared flowchart on MapDiagram.">
+  <meta name="robots" content="noindex, nofollow" id="metaRobots">
+  <link rel="canonical" href="https://mapdiagram.com/app/view.html" id="canonicalLink">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="MapDiagram">
+  <meta property="og:title" content="Flowchart | MapDiagram" id="ogTitle">
+  <meta property="og:description" content="View a shared flowchart created with MapDiagram." id="ogDescription">
+  <meta property="og:image" content="https://mapdiagram.com/assets/ui-preview.svg" id="ogImage">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Flowchart | MapDiagram" id="twTitle">
+  <meta name="twitter:description" content="View a shared flowchart created with MapDiagram." id="twDescription">
+  <meta name="twitter:image" content="https://mapdiagram.com/assets/ui-preview.svg" id="twImage">
+  <link rel="stylesheet" href="/assets/site.css">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <script src="/assets/theme-engine.js"></script>
+  <style>
+    :root { color-scheme: dark; }
+    body.public-view-page {
+      margin: 0;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: var(--workspace-base, #0b0f1a);
+      font-family: Inter, "Segoe UI", system-ui, sans-serif;
+    }
+    .pv-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(154, 170, 205, 0.14);
+      background: rgba(11, 15, 26, 0.92);
+      backdrop-filter: blur(10px);
+    }
+    .pv-header h1 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: rgba(228, 236, 255, 0.96);
+    }
+    .pv-brand {
+      font-size: 0.78rem;
+      color: rgba(169, 188, 230, 0.72);
+      margin-top: 2px;
+    }
+    .pv-actions { display: flex; gap: 10px; flex-shrink: 0; }
+    .pv-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.86rem;
+      text-decoration: none;
+      border: 1px solid rgba(154, 170, 205, 0.22);
+      color: rgba(228, 236, 255, 0.92);
+      background: rgba(20, 28, 48, 0.6);
+    }
+    .pv-btn-primary {
+      background: linear-gradient(135deg, rgba(122, 162, 255, 0.35), rgba(90, 130, 230, 0.5));
+      border-color: rgba(122, 162, 255, 0.45);
+    }
+    .pv-main { flex: 1; min-height: 0; position: relative; }
+    .pv-viewer {
+      position: absolute;
+      inset: 0;
+      border: none;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+    }
+    .pv-loading, .pv-error {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      color: rgba(200, 210, 235, 0.85);
+      background: rgba(11, 15, 26, 0.96);
+      z-index: 2;
+    }
+    .pv-footer {
+      padding: 16px 20px 22px;
+      text-align: center;
+      border-top: 1px solid rgba(154, 170, 205, 0.12);
+    }
+    .pv-footer a {
+      color: rgba(143, 178, 255, 0.95);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .pv-footer p { margin: 6px 0 0; font-size: 0.82rem; color: rgba(169, 188, 230, 0.65); }
+  </style>
+</head>
+<body class="public-view-page">
+  <header class="pv-header">
+    <div>
+      <h1 id="pvTitle">Flowchart</h1>
+      <div class="pv-brand">Made with MapDiagram</div>
+    </div>
+    <div class="pv-actions">
+      <a class="pv-btn pv-btn-primary" id="pvOpenEditor" href="/app/">Open in Editor</a>
+    </div>
+  </header>
+  <main class="pv-main">
+    <div id="pvLoading" class="pv-loading">Loading flowchart…</div>
+    
+    <div id="pvError" class="pv-error" hidden>
+      <p>This flowchart could not be found.</p>
+      <a class="pv-btn pv-btn-primary" href="/app/">Create your own</a>
+    </div>
+    <iframe id="pvFrame" class="pv-viewer" title="Flowchart viewer" hidden></iframe>
+  </main>
+  <footer class="pv-footer">
+    <a href="/app/">Create your own flowchart</a>
+    <p>Free AI flowchart generator — professional diagrams in minutes.</p>
+  </footer>
+  <script src="/assets/supabase-config.js"></script>
+  <script>
+  (function () {
+    const params = new URLSearchParams(location.search);
+    const slug = (params.get("slug") || "").trim().toLowerCase();
+    const loading = document.getElementById("pvLoading");
+    const err = document.getElementById("pvError");
+    const frame = document.getElementById("pvFrame");
+    const titleEl = document.getElementById("pvTitle");
+
+    function setMeta(title, indexable) {
+      const t = title || "Flowchart";
+      document.title = t + " | MapDiagram";
+      titleEl.textContent = t;
+      const desc = "View \"" + t + "\" — a flowchart shared via MapDiagram.";
+      document.getElementById("ogTitle").content = t + " | MapDiagram";
+      document.getElementById("ogDescription").content = desc;
+      document.getElementById("twTitle").content = t + " | MapDiagram";
+      document.getElementById("twDescription").content = desc;
+      const canon = "https://mapdiagram.com/app/view.html?slug=" + encodeURIComponent(slug);
+      document.getElementById("canonicalLink").href = canon;
+      document.getElementById("metaRobots").content = indexable ? "index, follow" : "noindex, nofollow";
+    }
+
+    if (!slug) {
+      loading.hidden = true;
+      err.hidden = false;
+      return;
+    }
+
+    const base = (window.MAPDIAGRAM_SUPABASE && window.MAPDIAGRAM_SUPABASE.url) || window.MAPDIAGRAM_SUPABASE_URL || "";
+    const anon = (window.MAPDIAGRAM_SUPABASE && window.MAPDIAGRAM_SUPABASE.anonKey) || window.MAPDIAGRAM_SUPABASE_ANON_KEY || "";
+    if (!base) {
+      loading.hidden = true;
+      err.hidden = false;
+      return;
+    }
+
+    fetch(base.replace(/\/$/, "") + "/functions/v1/public-flowchart?slug=" + encodeURIComponent(slug), {
+      headers: { apikey: anon, Authorization: "Bearer " + anon },
+    })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (!res.ok || !res.j || !res.j.data) throw new Error("not_found");
+        setMeta(res.j.title, !!res.j.is_indexable);
+        if (window.MapDiagramAnalytics) MapDiagramAnalytics.publicView({ slug: slug });
+        frame.src = "/app/tool.html?publicView=" + encodeURIComponent(slug);
+        frame.hidden = false;
+        loading.hidden = true;
+        try {
+          sessionStorage.setItem("md-public-flowchart-" + slug, JSON.stringify(res.j));
+        } catch (_) {}
+      })
+      .catch(function () {
+        loading.hidden = true;
+        err.hidden = false;
+      });
+  })();
+  </script>
+</body>
+</html>

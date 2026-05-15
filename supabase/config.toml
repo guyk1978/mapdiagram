@@ -15,3 +15,6 @@ verify_jwt = false
 
 [functions.billing-mock-purchase]
 verify_jwt = false
+
+[functions.public-flowchart]
+verify_jwt = false

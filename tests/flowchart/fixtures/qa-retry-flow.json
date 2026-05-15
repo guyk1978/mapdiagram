@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "title": "QA Retry Flow",
+  "direction": "TB",
+  "nodes": [
+    { "id": "start", "label": "Start", "kind": "start" },
+    { "id": "build", "label": "Build release", "kind": "process" },
+    { "id": "qa", "label": "QA test", "kind": "process" },
+    { "id": "pass", "label": "Tests pass?", "kind": "decision" },
+    { "id": "fix", "label": "Fix issues", "kind": "process" },
+    { "id": "ship", "label": "Ship", "kind": "end" }
+  ],
+  "edges": [
+    { "from": "start", "to": "build" },
+    { "from": "build", "to": "qa" },
+    { "from": "qa", "to": "pass" },
+    { "from": "pass", "to": "fix", "label": "No" },
+    { "from": "pass", "to": "ship", "label": "Yes" },
+    { "from": "fix", "to": "qa", "meta": { "isBackEdge": true } }
+  ]
+}

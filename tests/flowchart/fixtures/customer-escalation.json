@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "title": "Customer Escalation",
+  "direction": "TB",
+  "nodes": [
+    { "id": "start", "label": "Start", "kind": "start" },
+    { "id": "contact", "label": "Customer contacts", "kind": "process" },
+    { "id": "resolve", "label": "Resolved?", "kind": "decision" },
+    { "id": "l1", "label": "L1 support", "kind": "process" },
+    { "id": "escalate", "label": "Escalate?", "kind": "decision" },
+    { "id": "l2", "label": "L2 specialist", "kind": "process" },
+    { "id": "closed", "label": "Closed", "kind": "end" }
+  ],
+  "edges": [
+    { "from": "start", "to": "contact" },
+    { "from": "contact", "to": "resolve" },
+    { "from": "resolve", "to": "closed", "label": "Yes" },
+    { "from": "resolve", "to": "l1", "label": "No" },
+    { "from": "l1", "to": "escalate" },
+    { "from": "escalate", "to": "closed", "label": "No" },
+    { "from": "escalate", "to": "l2", "label": "Yes" },
+    { "from": "l2", "to": "closed" }
+  ]
+}

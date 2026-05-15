@@ -1,0 +1,21 @@
+{
+  "name": "mapdiagram",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:flowchart": "vite build --config vite.flowchart.config.ts",
+    "build:arch": "vite build --config vite.architecture.config.ts",
+    "build:compilers": "npm run build:flowchart && npm run build:arch",
+    "test:flowchart": "vitest run tests/flowchart",
+    "test": "npm run test:flowchart"
+  },
+  "devDependencies": {
+    "@types/dagre": "^0.7.52",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7",
+    "vitest": "^3.0.5"
+  },
+  "dependencies": {
+    "dagre": "^0.8.5"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "title": "Support Escalation",
+  "direction": "TB",
+  "nodes": [
+    { "id": "start", "label": "Start", "kind": "start" },
+    { "id": "ticket", "label": "Ticket opened", "kind": "process" },
+    { "id": "triage", "label": "Triage", "kind": "process" },
+    { "id": "escalate", "label": "Escalate?", "kind": "decision" },
+    { "id": "l1", "label": "L1 resolve", "kind": "process" },
+    { "id": "l2", "label": "L2 resolve", "kind": "process" },
+    { "id": "end", "label": "Closed", "kind": "end" }
+  ],
+  "edges": [
+    { "from": "start", "to": "ticket" },
+    { "from": "ticket", "to": "triage" },
+    { "from": "triage", "to": "escalate" },
+    { "from": "escalate", "to": "l1", "label": "No" },
+    { "from": "escalate", "to": "l2", "label": "Yes" },
+    { "from": "l1", "to": "end" },
+    { "from": "l2", "to": "end" }
+  ]
+}

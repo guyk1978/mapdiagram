@@ -1,0 +1,26 @@
+{
+  "slug": "customer-onboarding",
+  "title": "Customer Onboarding",
+  "description": "Signup, setup, training, and go-live.",
+  "category": "Success",
+  "tags": ["customer", "onboarding"],
+  "promptSeed": "customer onboarding from signup to go-live",
+  "spec": {
+    "version": 1,
+    "title": "Customer Onboarding",
+    "direction": "TB",
+    "nodes": [
+      { "id": "start", "label": "Start", "kind": "start" },
+      { "id": "signup", "label": "Sign up", "kind": "process" },
+      { "id": "setup", "label": "Account setup", "kind": "process" },
+      { "id": "training", "label": "Product training", "kind": "process" },
+      { "id": "live", "label": "Go live", "kind": "end" }
+    ],
+    "edges": [
+      { "from": "start", "to": "signup" },
+      { "from": "signup", "to": "setup" },
+      { "from": "setup", "to": "training" },
+      { "from": "training", "to": "live" }
+    ]
+  }
+}

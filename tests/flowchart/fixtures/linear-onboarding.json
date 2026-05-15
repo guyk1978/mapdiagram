@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "title": "Linear Onboarding",
+  "direction": "TB",
+  "nodes": [
+    { "id": "start", "label": "Start", "kind": "start" },
+    { "id": "signup", "label": "Sign up", "kind": "process" },
+    { "id": "verify", "label": "Verify email", "kind": "process" },
+    { "id": "welcome", "label": "Welcome tour", "kind": "process" },
+    { "id": "end", "label": "Complete", "kind": "end" }
+  ],
+  "edges": [
+    { "from": "start", "to": "signup" },
+    { "from": "signup", "to": "verify" },
+    { "from": "verify", "to": "welcome" },
+    { "from": "welcome", "to": "end" }
+  ]
+}

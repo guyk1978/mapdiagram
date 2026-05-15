@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "title": "Deep Branch Tree",
+  "direction": "TB",
+  "nodes": [
+    { "id": "start", "label": "Start", "kind": "start" },
+    { "id": "root", "label": "Root check", "kind": "decision" },
+    { "id": "a", "label": "Path A", "kind": "process" },
+    { "id": "b", "label": "Path B", "kind": "process" },
+    { "id": "a1", "label": "A detail?", "kind": "decision" },
+    { "id": "a_yes", "label": "A proceed", "kind": "process" },
+    { "id": "a_no", "label": "A hold", "kind": "process" },
+    { "id": "b1", "label": "B detail?", "kind": "decision" },
+    { "id": "b_yes", "label": "B proceed", "kind": "process" },
+    { "id": "b_no", "label": "B hold", "kind": "process" },
+    { "id": "finalize", "label": "Finalize", "kind": "process" },
+    { "id": "end", "label": "Done", "kind": "end" }
+  ],
+  "edges": [
+    { "from": "start", "to": "root" },
+    { "from": "root", "to": "a", "label": "Yes" },
+    { "from": "root", "to": "b", "label": "No" },
+    { "from": "a", "to": "a1" },
+    { "from": "a1", "to": "a_yes", "label": "Yes" },
+    { "from": "a1", "to": "a_no", "label": "No" },
+    { "from": "b", "to": "b1" },
+    { "from": "b1", "to": "b_yes", "label": "Yes" },
+    { "from": "b1", "to": "b_no", "label": "No" },
+    { "from": "a_yes", "to": "finalize" },
+    { "from": "a_no", "to": "finalize" },
+    { "from": "b_yes", "to": "finalize" },
+    { "from": "b_no", "to": "finalize" },
+    { "from": "finalize", "to": "end" }
+  ]
+}

@@ -553,6 +553,107 @@
     z-index:5;
     display:none;
   }
+  body.flowchart-mode .marquee{
+    border:1px solid rgba(122,162,255,.55);
+    background:rgba(122,162,255,.11);
+    box-shadow:0 0 0 1px rgba(122,162,255,.18) inset, 0 8px 24px rgba(60,90,160,.12);
+    border-radius:6px;
+  }
+  .fc-flow-group{
+    position:absolute;
+    border-radius:14px;
+    border:1px solid rgba(122,162,255,.26);
+    background:rgba(122,162,255,.06);
+    box-shadow:0 0 0 1px rgba(255,255,255,.03) inset;
+    pointer-events:none;
+    box-sizing:border-box;
+  }
+  .fc-flow-group-label{
+    position:absolute;
+    left:10px;
+    top:6px;
+    font-size:11px;
+    font-weight:650;
+    letter-spacing:.02em;
+    color:rgba(168,186,220,.92);
+    pointer-events:none;
+    max-width:calc(100% - 20px);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  html[data-theme="light"] .fc-flow-group{
+    background:rgba(122,162,255,.07);
+    border-color:rgba(90,120,200,.28);
+  }
+  html[data-theme="light"] .fc-flow-group-label{color:rgba(70,90,130,.85)}
+  .fc-multi-select-bar{
+    position:absolute;
+    z-index:14;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:5px 8px;
+    border-radius:12px;
+    border:1px solid rgba(122,162,255,.35);
+    background:rgba(14,18,30,.94);
+    box-shadow:0 12px 32px rgba(0,0,0,.4);
+    backdrop-filter:blur(10px);
+  }
+  html[data-theme="light"] .fc-multi-select-bar{
+    background:rgba(255,255,255,.96);
+    border-color:rgba(122,162,255,.4);
+    box-shadow:0 10px 28px rgba(30,50,90,.14);
+  }
+  .fc-multi-select-bar:not([hidden]){pointer-events:auto}
+  .fc-multi-select-bar{
+    opacity:0;
+    transform:translateY(4px);
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .fc-multi-select-bar.is-visible{opacity:1;transform:translateY(0)}
+  .fc-multi-count{
+    font-size:11px;
+    font-weight:600;
+    color:var(--muted);
+    padding:0 6px 0 4px;
+    white-space:nowrap;
+  }
+  .fc-multi-select-bar button{
+    padding:6px 10px;
+    border:none;
+    border-radius:8px;
+    background:transparent;
+    color:var(--text);
+    font-size:11px;
+    font-weight:600;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .fc-multi-select-bar button:hover:not(:disabled){background:rgba(122,162,255,.18)}
+  .fc-multi-select-bar button.fc-quick-danger:hover:not(:disabled){
+    background:rgba(239,91,91,.2);
+    color:#ffb4b4;
+  }
+  .fc-multi-select-bar button:disabled{opacity:.4;cursor:not-allowed}
+  .fc-delete-confirm{
+    position:absolute;
+    left:50%;
+    top:18%;
+    transform:translateX(-50%);
+    z-index:20;
+    min-width:min(360px, calc(100% - 32px));
+    padding:16px 18px;
+    border-radius:14px;
+    border:1px solid rgba(239,91,91,.35);
+    background:rgba(18,14,22,.96);
+    box-shadow:0 20px 50px rgba(0,0,0,.45);
+    text-align:center;
+    pointer-events:auto;
+  }
+  html[data-theme="light"] .fc-delete-confirm{background:rgba(255,252,252,.98)}
+  .fc-delete-confirm p{margin:0 0 8px;font-size:14px;font-weight:600}
+  .fc-delete-confirm .fc-delete-hint{margin:0;font-size:12px;color:var(--muted);font-weight:500}
   /* User group frame drawn UNDER nodes so new nodes are never visually “inside” or blocked. */
   #canvas-underlays{
     position:absolute;
@@ -2148,9 +2249,706 @@
       box-shadow: 0 12px 40px rgba(20, 40, 80, 0.12);
     }
   }
+
+  /* —— Flowchart mode (Phase 0) —— */
+  .flowchart-mode #railSystemBtn,
+  .flowchart-mode #railDataBtn,
+  .flowchart-mode #railInsightBtn,
+  .flowchart-mode [data-flowchart-hide],
+  .flowchart-mode #tabAi,
+  .flowchart-mode #diagramSubTabGroups,
+  .flowchart-mode #diagramSubTabSuggest,
+  .flowchart-mode #semantic-overlays,
+  .flowchart-mode #quickEditSurfaceHint {
+    display: none !important;
+  }
+  .flowchart-mode .workspace {
+    background:
+      radial-gradient(circle at 1px 1px, rgba(154, 170, 205, 0.09) 1px, transparent 0) 0 0 / 32px 32px,
+      var(--workspace-base);
+  }
+  .flowchart-mode .node.fc-node-process {
+    width: 190px;
+    height: 88px;
+    min-height: 68px;
+    border-radius: 14px;
+  }
+  .flowchart-mode .node.fc-node-start,
+  .flowchart-mode .node.fc-node-end {
+    width: 128px;
+    height: 72px;
+    min-width: 108px;
+    min-height: 64px;
+    border-radius: 999px;
+    aspect-ratio: auto;
+  }
+  .flowchart-mode .node.fc-node-start {
+    --node-fill-accent: #6fd4a0;
+    border-color: rgba(111, 212, 160, 0.55);
+    box-shadow:
+      0 12px 28px rgba(79, 208, 135, 0.22),
+      0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  }
+  .flowchart-mode .node.fc-node-end {
+    --node-fill-accent: #9aa8c8;
+    border-color: rgba(154, 168, 200, 0.5);
+    box-shadow:
+      0 12px 28px rgba(100, 120, 170, 0.18),
+      0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  }
+  .flowchart-mode .node.fc-node-decision.shape-diamond {
+    width: 130px;
+    height: 130px;
+    min-width: 110px;
+    min-height: 110px;
+    border-color: rgba(255, 212, 130, 0.55);
+  }
+  .flowchart-mode .node.fc-node-process {
+    border-color: rgba(143, 178, 255, 0.48);
+  }
+  .flowchart-mode .node.selected {
+    box-shadow:
+      0 0 0 2px rgba(122, 162, 255, 0.72),
+      0 0 24px rgba(122, 162, 255, 0.28),
+      0 14px 34px rgba(0, 0, 0, 0.24);
+  }
+  .flowchart-mode .conn {
+    stroke: rgba(169, 188, 230, 0.88);
+    stroke-width: 2.35;
+    opacity: 0.98;
+  }
+  .flowchart-mode .conn:hover {
+    stroke-width: 2.85;
+  }
+  .flowchart-mode .conn.selected {
+    stroke-width: 3.5;
+  }
+  .flowchart-mode .conn.fc-conn-back {
+    stroke: rgba(143, 163, 200, 0.72);
+    stroke-width: 2;
+    opacity: 0.88;
+  }
+  body.public-view-mode .sidebar,
+  body.public-view-mode .rightbar,
+  body.public-view-mode #topbarOffscreenTools,
+  body.public-view-mode .fc-assistant-root,
+  body.public-view-mode .fc-empty-state,
+  body.public-view-mode #fcQuickEdit,
+  body.public-view-mode #fcMultiSelectBar,
+  body.public-view-mode #fcDeleteConfirm,
+  body.public-view-mode #minimapHost,
+  body.public-view-mode .topbar-desktop-quick,
+  body.public-view-mode #toggleShareDockBtn,
+  body.public-view-mode #shareBtn { display: none !important; }
+  body.public-view-mode #app { grid-template-columns: 1fr !important; }
+  body.public-view-mode .topbar-minimal-start .desktop-sidebar-toggles { display: none; }
+  .fc-template-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(8, 10, 18, 0.72);
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .fc-template-overlay.open { display: flex; }
+  .fc-template-modal {
+    width: min(720px, 100%); max-height: 85vh; overflow: auto;
+    background: var(--panel-bg, #12182a); border-radius: 16px;
+    border: 1px solid rgba(154, 170, 205, 0.2); padding: 20px;
+  }
+  .fc-template-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .fc-template-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .fc-template-filters button {
+    padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(154,170,205,.25);
+    background: rgba(20,28,48,.5); color: inherit; cursor: pointer; font-size: 12px;
+  }
+  .fc-template-filters button.active { border-color: rgba(122,162,255,.6); }
+  .fc-template-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .fc-template-card {
+    text-align: left; padding: 14px; border-radius: 12px;
+    border: 1px solid rgba(154,170,205,.2); background: rgba(16,22,38,.6);
+    cursor: pointer; color: inherit;
+  }
+  .fc-template-card strong { display: block; margin-bottom: 4px; }
+  .fc-template-card span { font-size: 12px; opacity: 0.8; display: block; }
+  .fc-template-card em { font-size: 11px; opacity: 0.55; font-style: normal; }
+  #publishFlowchartBtn.publishing { opacity: 0.7; }
+  .flowchart-mode .conn.fc-conn-back.selected {
+    stroke: rgba(122, 200, 160, 0.95);
+    stroke-width: 3.2;
+    opacity: 1;
+  }
+  .fc-empty-state {
+    position: absolute;
+    inset: 0;
+    z-index: 12;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    pointer-events: none;
+    background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(122, 162, 255, 0.08), transparent 70%);
+  }
+  .fc-empty-card {
+    pointer-events: auto;
+    max-width: 420px;
+    width: 100%;
+    padding: 28px 26px;
+    border-radius: 18px;
+    border: 1px solid rgba(122, 162, 255, 0.28);
+    background: linear-gradient(165deg, rgba(22, 28, 42, 0.96), rgba(14, 18, 30, 0.94));
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+    text-align: center;
+  }
+  html[data-theme="light"] .fc-empty-card {
+    background: linear-gradient(165deg, rgba(255, 255, 255, 0.98), rgba(246, 248, 252, 0.96));
+    border-color: rgba(122, 162, 255, 0.35);
+    box-shadow: 0 20px 48px rgba(30, 50, 90, 0.12);
+  }
+  .fc-empty-card h2 {
+    margin: 0 0 8px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .fc-empty-card p {
+    margin: 0 0 16px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+  .fc-empty-card textarea {
+    width: 100%;
+    min-height: 72px;
+    resize: vertical;
+    margin-bottom: 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(97, 121, 171, 0.45);
+    background: rgba(8, 12, 22, 0.5);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.4;
+    box-sizing: border-box;
+  }
+  html[data-theme="light"] .fc-empty-card textarea {
+    background: #fff;
+    border-color: rgba(200, 210, 230, 0.85);
+  }
+  .fc-starter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .fc-starter-chips button {
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(122, 162, 255, 0.35);
+    background: rgba(122, 162, 255, 0.1);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  }
+  .fc-starter-chips button:hover {
+    background: rgba(122, 162, 255, 0.2);
+    border-color: rgba(122, 162, 255, 0.55);
+    transform: translateY(-1px);
+  }
+
+  body.public-view-mode #fcAssistantRoot { display: none !important; }
+  .fc-assistant-root {
+    position: absolute;
+    inset: 0;
+    z-index: 12;
+    pointer-events: none;
+  }
+  .fc-assistant-root[data-state="collapsed"] { pointer-events: none; }
+  .fc-assistant-root[data-state="collapsed"] .fc-assistant-fab {
+    pointer-events: auto;
+  }
+  .fc-canvas-empty-hint {
+    position: absolute;
+    left: 50%;
+    top: 44%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: rgba(154, 170, 205, 0.85);
+    background: transparent;
+    border: none;
+    pointer-events: none;
+    max-width: 280px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.22s ease;
+  }
+  .fc-canvas-empty-hint:not([hidden]) { opacity: 0.72; }
+  html[data-theme="light"] .fc-canvas-empty-hint:not([hidden]) { color: rgba(80, 96, 130, 0.75); }
+  .fc-assistant-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 8, 14, 0.35);
+    backdrop-filter: blur(2px);
+    pointer-events: auto;
+    opacity: 0;
+    transition: opacity 0.26s ease;
+  }
+  .fc-assistant-backdrop:not([hidden]) { opacity: 1; }
+  .fc-assistant-shell {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+    transition:
+      opacity 0.34s cubic-bezier(0.34, 1.18, 0.64, 1),
+      transform 0.34s cubic-bezier(0.34, 1.18, 0.64, 1);
+  }
+  .fc-assistant-root[data-state="onboarding"] .fc-assistant-shell {
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(122, 162, 255, 0.08), transparent 70%);
+    pointer-events: auto;
+  }
+  .fc-assistant-root[data-state="panel"] .fc-assistant-shell {
+    right: 20px;
+    bottom: 88px;
+    left: auto;
+    top: auto;
+    width: min(420px, calc(100% - 40px));
+    max-height: min(72vh, 520px);
+    pointer-events: auto;
+  }
+  .fc-assistant-root[data-state="panel"] .fc-assistant-card > * {
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 0.3s cubic-bezier(0.34, 1.15, 0.64, 1),
+      transform 0.3s cubic-bezier(0.34, 1.15, 0.64, 1);
+  }
+  .fc-assistant-root[data-state="panel"].fc-panel-visible .fc-assistant-card > * {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .fc-assistant-root[data-state="panel"].fc-panel-visible .fc-assistant-card > .fc-assistant-card-head { transition-delay: 0.04s; }
+  .fc-assistant-root[data-state="panel"].fc-panel-visible .fc-assistant-card > .fc-assistant-lead { transition-delay: 0.08s; }
+  .fc-assistant-root[data-state="panel"].fc-panel-visible .fc-assistant-card > textarea { transition-delay: 0.12s; }
+  .fc-assistant-root[data-state="panel"].fc-panel-visible .fc-assistant-card > .fc-starter-chips { transition-delay: 0.16s; }
+  .fc-assistant-root[data-state="panel"].fc-panel-visible .fc-assistant-card > .fc-assistant-actions { transition-delay: 0.2s; }
+  .fc-assistant-root[data-state="onboarding"] .fc-assistant-shell,
+  .fc-assistant-root[data-state="panel"] .fc-assistant-shell {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  .fc-assistant-card {
+    pointer-events: auto;
+    width: 100%;
+    max-width: 440px;
+    max-height: min(72vh, 520px);
+    overflow: auto;
+    padding: 22px 22px 18px;
+    border-radius: 18px;
+    border: 1px solid rgba(122, 162, 255, 0.28);
+    background: linear-gradient(165deg, rgba(22, 28, 42, 0.97), rgba(14, 18, 30, 0.95));
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+    backdrop-filter: blur(14px);
+    text-align: left;
+  }
+  html[data-theme="light"] .fc-assistant-card {
+    background: linear-gradient(165deg, rgba(255, 255, 255, 0.98), rgba(246, 248, 252, 0.96));
+    border-color: rgba(122, 162, 255, 0.35);
+    box-shadow: 0 20px 48px rgba(30, 50, 90, 0.14);
+  }
+  .fc-assistant-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .fc-assistant-card-head h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .fc-assistant-close {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(122, 162, 255, 0.1);
+    color: var(--text);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .fc-assistant-close:hover { background: rgba(122, 162, 255, 0.22); }
+  .fc-assistant-lead {
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+  .fc-assistant-root[data-state="onboarding"] .fc-assistant-lead,
+  .fc-assistant-root[data-state="onboarding"] .fc-assistant-card-head h2 {
+    text-align: center;
+  }
+  .fc-assistant-root[data-state="onboarding"] .fc-assistant-card-head {
+    justify-content: center;
+    position: relative;
+  }
+  .fc-assistant-root[data-state="onboarding"] .fc-assistant-close {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+  .fc-assistant-card textarea {
+    width: 100%;
+    min-height: 72px;
+    resize: vertical;
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(97, 121, 171, 0.45);
+    background: rgba(8, 12, 22, 0.5);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.4;
+    box-sizing: border-box;
+  }
+  html[data-theme="light"] .fc-assistant-card textarea {
+    background: #fff;
+    border-color: rgba(200, 210, 230, 0.85);
+  }
+  .fc-assistant-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-top: 4px;
+  }
+  .fc-assistant-actions .btn-ai-primary {
+    margin-left: auto;
+    min-width: 140px;
+  }
+  .fc-assistant-root[data-state="onboarding"] .fc-assistant-actions {
+    justify-content: center;
+  }
+  .fc-assistant-root[data-state="onboarding"] .fc-assistant-actions .btn-ai-primary {
+    margin-left: 0;
+    width: 100%;
+    margin-top: 8px;
+  }
+  .fc-assistant-fab {
+    position: absolute;
+    right: 22px;
+    bottom: 22px;
+    z-index: 13;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px 12px 14px;
+    border: 1px solid rgba(122, 162, 255, 0.45);
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(90, 130, 230, 0.95), rgba(122, 162, 255, 0.88));
+    color: #fff;
+    font-size: 13px;
+    font-weight: 650;
+    cursor: pointer;
+    box-shadow: 0 10px 28px rgba(60, 90, 180, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+    pointer-events: auto;
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      transform 0.26s cubic-bezier(0.34, 1.12, 0.64, 1),
+      box-shadow 0.26s ease,
+      opacity 0.26s ease;
+  }
+  .fc-assistant-fab:hover:not(.is-fc-dragging) {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 36px rgba(60, 90, 180, 0.42);
+  }
+  .fc-assistant-fab.is-fc-dragging {
+    opacity: 0.35;
+    pointer-events: none;
+    transform: translateY(0);
+    box-shadow: 0 8px 20px rgba(60, 90, 180, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  }
+  .fc-assistant-fab.is-fc-obstructed {
+    opacity: 0.78;
+    transform: translateY(calc(-1 * var(--fc-fab-lift, 28px)));
+  }
+  .fc-assistant-fab.is-fc-obstructed:hover:not(.is-fc-dragging) {
+    transform: translateY(calc(-1 * var(--fc-fab-lift, 28px) - 2px));
+  }
+  .fc-assistant-fab-icon { font-size: 14px; opacity: 0.95; }
+  .fc-assistant-fab-hint {
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.75;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.15);
+  }
+  @media (max-width: 720px) {
+    .fc-assistant-root[data-state="panel"] .fc-assistant-shell {
+      left: 10px;
+      right: 10px;
+      bottom: 0;
+      top: auto;
+      width: auto;
+      max-height: 70vh;
+    }
+    .fc-assistant-root[data-state="panel"] .fc-assistant-card {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      max-height: 70vh;
+    }
+    .fc-assistant-fab {
+      right: 16px;
+      bottom: 16px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fc-assistant-shell,
+    .fc-assistant-backdrop,
+    .fc-canvas-empty-hint,
+    .fc-assistant-fab,
+    .fc-assistant-root[data-state="panel"] .fc-assistant-card > * { transition: none; }
+  }
+
+  .fc-quick-edit {
+    position: absolute;
+    z-index: 14;
+    display: flex;
+    gap: 4px;
+    padding: 5px 6px;
+    border-radius: 12px;
+    border: 1px solid rgba(122, 162, 255, 0.35);
+    background: rgba(14, 18, 30, 0.94);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+  }
+  html[data-theme="light"] .fc-quick-edit {
+    background: rgba(255, 255, 255, 0.96);
+    border-color: rgba(122, 162, 255, 0.4);
+    box-shadow: 0 10px 28px rgba(30, 50, 90, 0.14);
+  }
+  .fc-quick-edit button {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .fc-quick-edit button:hover:not(:disabled) {
+    background: rgba(122, 162, 255, 0.18);
+  }
+  .fc-quick-edit button.fc-quick-danger:hover {
+    background: rgba(239, 91, 91, 0.2);
+    color: #ffb4b4;
+  }
+  .flowchart-mode .node-picker {
+    max-height: 280px;
+  }
+  .flowchart-mode .picker-category h4 {
+    display: none;
+  }
+
+  /* —— Flowchart mode polish (Phase 0.5) —— */
+  .flowchart-mode #autoLayoutBtn {
+    display: none !important;
+  }
+  .flowchart-mode #improveFlowchartLayoutBtn {
+    display: inline-flex;
+  }
+  #improveFlowchartLayoutBtn {
+    display: none;
+  }
+  .flowchart-mode .node:not(.is-dragging):not(.fc-enter) {
+    transition:
+      left 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+      top 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+      width 0.28s ease,
+      height 0.28s ease,
+      box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      filter 0.24s ease,
+      border-color 0.24s ease,
+      opacity 0.28s ease;
+  }
+  .flowchart-mode .node.is-dragging {
+    transition: none !important;
+    cursor: grabbing;
+    z-index: 8;
+  }
+  .flowchart-mode .node.fc-layout-moving:not(.is-dragging) {
+    transition:
+      left 0.48s cubic-bezier(0.22, 1, 0.36, 1),
+      top 0.48s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.32s ease,
+      transform 0.32s ease;
+  }
+  .flowchart-mode .node:hover:not(.is-dragging):not(.selected) {
+    transform: rotate(var(--node-rotation)) translateY(-1px) scale(1.012);
+  }
+  .flowchart-mode .node.selected:not(.is-dragging) {
+    transform: rotate(var(--node-rotation)) translateY(-2px) scale(1.015);
+    z-index: 6;
+  }
+  .flowchart-mode .node.fc-node-start {
+    opacity: 0.94;
+    filter: saturate(0.92);
+  }
+  .flowchart-mode .node.fc-node-end {
+    opacity: 0.9;
+    filter: saturate(0.88);
+  }
+  .flowchart-mode .node.fc-node-decision.shape-diamond {
+    filter: saturate(1.08);
+    box-shadow:
+      0 16px 36px rgba(255, 200, 100, 0.16),
+      0 0 0 1px rgba(255, 212, 130, 0.35) inset;
+  }
+  @keyframes fcNodeEnter {
+    from {
+      opacity: 0;
+      transform: rotate(var(--node-rotation)) scale(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: rotate(var(--node-rotation)) scale(1);
+    }
+  }
+  .flowchart-mode .node.fc-enter {
+    animation: fcNodeEnter 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .flowchart-mode .node.fc-editing {
+    z-index: 10;
+    box-shadow:
+      0 0 0 2px rgba(122, 162, 255, 0.55),
+      0 18px 40px rgba(0, 0, 0, 0.28);
+  }
+  .flowchart-mode .node.fc-editing .body.fc-body-editing {
+    background: rgba(122, 162, 255, 0.12);
+    box-shadow: 0 0 0 1px rgba(122, 162, 255, 0.35) inset;
+    border-radius: 10px;
+    cursor: text;
+  }
+  .flowchart-mode .node.fc-editing .node-title {
+    outline: none;
+    caret-color: var(--accent);
+  }
+  .flowchart-mode .conn {
+    transition: stroke 0.22s ease, stroke-width 0.22s ease, filter 0.22s ease, opacity 0.22s ease;
+  }
+  .flowchart-mode .conn.conn-draw-in {
+    animation: fcConnDraw 0.46s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @keyframes fcConnDraw {
+    from {
+      stroke-dashoffset: var(--conn-len, 280);
+      opacity: 0.35;
+    }
+    to {
+      stroke-dashoffset: 0;
+      opacity: 1;
+    }
+  }
+  .flowchart-mode .conn-hit {
+    transition: stroke 0.18s ease;
+  }
+  .fc-empty-state {
+    padding: 32px 28px;
+    background:
+      radial-gradient(ellipse 55% 45% at 50% 42%, rgba(122, 162, 255, 0.1), transparent 72%),
+      radial-gradient(ellipse 40% 30% at 50% 58%, rgba(79, 208, 135, 0.04), transparent 70%);
+  }
+  .fc-empty-card {
+    max-width: 440px;
+    padding: 32px 30px 28px;
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+  }
+  .fc-empty-card h2 {
+    font-size: 1.35rem;
+    letter-spacing: -0.03em;
+    margin-bottom: 10px;
+  }
+  .fc-empty-card p {
+    margin-bottom: 20px;
+    font-size: 13.5px;
+    max-width: 34em;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .fc-starter-chips {
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .fc-starter-chips button {
+    padding: 8px 14px;
+    font-size: 12.5px;
+    letter-spacing: 0.01em;
+    transition:
+      background 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.22s ease,
+      transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.22s ease;
+  }
+  .fc-starter-chips button:hover {
+    box-shadow: 0 6px 16px rgba(122, 162, 255, 0.18);
+    transform: translateY(-2px);
+  }
+  .fc-starter-chips button:active {
+    transform: translateY(0);
+  }
+  .fc-quick-edit:not([hidden]) {
+    pointer-events: auto;
+  }
+  .fc-quick-edit {
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .fc-quick-edit.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .fc-quick-edit button {
+    transition: background 0.14s ease, color 0.14s ease, transform 0.1s ease;
+  }
+  .fc-quick-edit button:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  .fc-quick-edit button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .flowchart-mode .workspace.fc-composing #viewport {
+    transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  }
 </style>
 </head>
-<body>
+<body class="flowchart-mode">
 <div class="app" id="app">
   <header class="topbar topbar--minimal">
     <div class="topbar-minimal-row">
@@ -2167,7 +2965,7 @@
         <div class="topbar-menu-sep" role="separator" aria-hidden="true"></div>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="autoLayoutBtn">Auto layout</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="toggleShareDockBtn">Share panel</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="shareBtn">Share link</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="publishFlowchartBtn">Publish flowchart</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="exportBtn">Export JSON</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="exportPngBtn">Export PNG</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="importBtn">Import JSON</button>
@@ -2210,6 +3008,7 @@
         </div>
         <button type="button" id="themeToggleBtn" class="icon-btn theme-toggle-btn" title="Toggle light / dark theme" aria-label="Toggle light / dark theme"><span class="icon-svg icon-theme-sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span><span class="icon-svg icon-theme-moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 6.5 6.5 0 1 0 21 14.5Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span></button>
         <button id="fitViewBtn" class="icon-btn" type="button" title="Fit to screen" aria-label="Fit to screen"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3H5v4M15 3h4v4M3 9V5h4M21 9V5h-4M9 21H5v-4M15 21h4v-4M3 15v4h4M21 15v4h-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+        <button id="improveFlowchartLayoutBtn" class="icon-btn" type="button" title="Improve layout (Ctrl+L)" aria-label="Improve flowchart layout"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h6v4H4V6zm10 0h6v4h-6V6zM4 14h6v4H4v-4zm10 0h6v4h-6v-4z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" opacity=".55"/></svg></span></button>
         </div>
         <div class="group mobile-inspector-actions" aria-label="Quick group actions">
           <button type="button" id="mobileQuickGroupBtn" class="text-btn-sm" title="Create group from selection" aria-label="Create group from selection">Group</button>
@@ -2233,7 +3032,7 @@
       </div>
       <div class="group topbar-collapse-1024" role="toolbar" aria-label="Share and export">
         <button type="button" id="toggleShareDockBtn" class="text-btn-sm" title="Expand or minimize share panel (icons stay available)" aria-label="Expand or minimize share panel (icons stay available)">Share</button>
-        <button id="shareBtn" class="icon-btn" type="button" title="Create Share Link" aria-label="Create Share Link"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 1 0-7l1-1a5 5 0 0 1 7 7l-1 1M14 11a5 5 0 0 1 0 7l-1 1a5 5 0 0 1-7-7l1-1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
+        <button id="publishFlowchartBtn" class="icon-btn" type="button" title="Publish flowchart" aria-label="Publish flowchart"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 1 0-7l1-1a5 5 0 0 1 7 7l-1 1M14 11a5 5 0 0 1 0 7l-1 1a5 5 0 0 1-7-7l1-1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
         <button id="exportBtn" class="icon-btn" type="button" title="Export JSON" aria-label="Export JSON"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v12m0 0 4-4m-4 4-4-4M5 20h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         <button id="exportPngBtn" class="icon-btn" type="button" title="Export PNG" aria-label="Export PNG"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.75"/><path d="m8 12 2.5 2.5 3-4 3.5 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         <button id="importBtn" class="icon-btn" type="button" title="Import JSON" aria-label="Import JSON"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20V8m0 0-4 4m4-4 4 4M5 4h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
@@ -2270,7 +3069,7 @@
         </div>
         <div id="projectList" class="project-list"></div>
       </div>
-      <div class="section">
+      <div class="section" data-flowchart-hide>
         <h3>Templates</h3>
         <select id="templateSelect">
           <option value="blank">Blank Canvas</option>
@@ -2285,7 +3084,7 @@
         <h3>Visual Node Library</h3>
         <div id="nodePicker" class="node-picker"></div>
       </div>
-      <button id="createAiBtn" class="ai-create-btn"><span class="icon-svg" style="width:18px;height:18px" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span> Create with AI</button>
+      <button id="createAiBtn" class="ai-create-btn"><span class="icon-svg" style="width:18px;height:18px" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span> Generate with AI</button>
     </aside>
     <main id="workspace" class="workspace">
       <div id="viewport">
@@ -2302,6 +3101,50 @@
       </div>
       <div id="minimapHost" class="minimap-host" title="Overview map — click to navigate" aria-label="Diagram overview map. Click to navigate.">
         <canvas id="minimapCanvas" width="200" height="140"></canvas>
+      </div>
+            <div id="fcAssistantRoot" class="fc-assistant-root" data-state="collapsed" hidden>
+        <p id="fcCanvasEmptyHint" class="fc-canvas-empty-hint" hidden>Generate a flowchart</p>
+        <div id="fcAssistantBackdrop" class="fc-assistant-backdrop" hidden aria-hidden="true"></div>
+        
+        <div id="fcAssistantShell" class="fc-assistant-shell" aria-hidden="true">
+          <div class="fc-assistant-card" role="document">
+            <div class="fc-assistant-card-head">
+              <h2 id="fcAssistantTitle">Flowchart Assistant</h2>
+              <button type="button" id="fcAssistantCloseBtn" class="fc-assistant-close" aria-label="Close assistant">&times;</button>
+            </div>
+            <p class="fc-assistant-lead">Turn a process into a clean, editable flowchart.</p>
+            <textarea id="flowchartPromptInput" placeholder="Describe your workflow — steps, decisions, and handoffs…" rows="3" aria-label="Describe your workflow"></textarea>
+            <div id="fcStarterChips" class="fc-starter-chips" role="group" aria-label="Starter prompts"></div>
+            <div class="fc-assistant-actions">
+              <button type="button" id="fcTryExampleBtn" class="text-btn-sm">Try example</button>
+              <button type="button" id="fcTemplatesBtn" class="text-btn-sm">Templates</button>
+              <button type="button" id="fcGenerateBtn" class="btn-ai-primary">Generate a clean flowchart</button>
+            </div>
+          </div>
+        </div>
+        <button type="button" id="fcAssistantFab" class="fc-assistant-fab" hidden aria-label="Open flowchart assistant" title="Describe your workflow (Ctrl+K)">
+          <span class="fc-assistant-fab-icon" aria-hidden="true">✦</span>
+          <span class="fc-assistant-fab-label">Assistant</span>
+          <span class="fc-assistant-fab-hint" aria-hidden="true">⌘K</span>
+        </button>
+      </div>
+
+      <div id="fcDeleteConfirm" class="fc-delete-confirm" hidden role="alertdialog" aria-labelledby="fcDeleteConfirmText" aria-modal="true">
+        <p id="fcDeleteConfirmText">Delete selected steps?</p>
+        <p class="fc-delete-hint">Enter to confirm · Esc to cancel</p>
+      </div>
+      <div id="fcMultiSelectBar" class="fc-multi-select-bar" hidden role="toolbar" aria-label="Multi-selection actions">
+        <span id="fcMultiSelectCount" class="fc-multi-count">2 selected</span>
+        <button type="button" id="fcMultiGroupBtn">Group</button>
+        <button type="button" id="fcMultiDupBtn">Duplicate</button>
+        <button type="button" id="fcMultiLayoutBtn">Improve layout</button>
+        <button type="button" id="fcMultiDeleteBtn" class="fc-quick-danger">Delete</button>
+      </div>
+      <div id="fcQuickEdit" class="fc-quick-edit" hidden role="toolbar" aria-label="Quick edit selection">
+        <button type="button" id="fcRenameBtn" title="Rename (F2)">Rename</button>
+        <button type="button" id="fcDuplicateBtn" title="Duplicate (Ctrl+D)">Duplicate</button>
+        <button type="button" id="fcAddConnectedBtn" title="Add connected step (Tab)">+ Connect</button>
+        <button type="button" id="fcDeleteBtn" class="fc-quick-danger" title="Delete">Delete</button>
       </div>
     </main>
     <aside id="rightbar" class="rightbar">
@@ -2470,8 +3313,10 @@
       <section id="inspector-panel-layout" class="section right-section" data-tab="layout" role="tabpanel" aria-labelledby="tabLayout layoutHeading layoutHint" data-inspector-tab-panel="layout" aria-hidden="true">
         <h3 id="layoutHeading">Layout</h3>
         <p id="layoutHint" class="sr-only">Systems layout and minimap visibility.</p>
-        <div class="muted">Use Smart Clean / Auto Layout to apply spacing and structure.</div>
-        <label class="muted">Systems layout
+        <div class="muted" data-flowchart-hide>Use Smart Clean / Auto Layout to apply spacing and structure.</div>
+        <button type="button" id="improveFlowchartLayoutPanelBtn" class="text-btn-sm" style="width:100%;margin-bottom:8px">Improve layout</button>
+        <p class="muted" style="font-size:11px;margin:0 0 10px">Polish spacing locally — no AI. Shortcut: Ctrl+L</p>
+        <label class="muted" data-flowchart-hide>Systems layout
           <select id="hierarchicalLayoutSelect">
             <option value="classic">Classic (nodes only)</option>
             <option value="hierarchical">Hierarchical systems</option>
@@ -2537,10 +3382,10 @@
 <div id="drawerBackdrop" class="drawer-backdrop"></div>
 <div id="aiModalOverlay" class="ai-modal-overlay">
   <div class="ai-modal" role="dialog" aria-modal="true" aria-labelledby="aiModalTitle">
-    <h3 id="aiModalTitle" style="margin:0">Create with AI</h3>
-    <div id="aiModalIntro" class="muted">The model returns a strict <strong>ArchitectureSpec</strong> (JSON only). Diagrams are compiled server-side when billing is on.</div>
+    <h3 id="aiModalTitle" style="margin:0">Generate flowchart</h3>
+    <div id="aiModalIntro" class="muted">Describe your process in plain language. The AI returns <strong>logic only</strong> (FlowchartSpec JSON); layout and visuals are compiled locally.</div>
     <div id="aiCostHint" class="ai-cost-hint" style="display:none"></div>
-    <textarea id="aiPromptInput" placeholder="Example: Design a simplified Uber-like system with focus on simplicity"></textarea>
+    <textarea id="aiPromptInput" placeholder="Example: Employee onboarding from offer letter to first-day setup"></textarea>
     <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap">
       <span id="aiModalCostInline" class="muted" style="font-size:11px;display:none"></span>
       <button id="aiCancelBtn" type="button" aria-label="Cancel AI generation">Cancel</button>
@@ -2746,12 +3591,20 @@
 <script src="/assets/supabase-config.js"></script>
 <script src="/assets/ai-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
-<script src="architecture-engine.js"></script>
+<!-- flowchart-compiler.js lazy-loaded on first Generate -->
 <script src="/shared/share-dock.js"></script>
+<script src="/assets/product-analytics.js"></script>
+<script src="/assets/flowchart-templates-catalog.js"></script>
+<script src="/assets/flowchart-product.js"></script>
 <script>
   const DB_KEY = "mapdiagram-db-v1";
   const SUPABASE_URL = window.MAPDIAGRAM_SUPABASE?.url || window.MAPDIAGRAM_SUPABASE_URL || "";
   const SUPABASE_ANON_KEY = window.MAPDIAGRAM_SUPABASE?.anonKey || window.MAPDIAGRAM_SUPABASE_ANON_KEY || "";
+  const PUBLIC_VIEW_SLUG = (() => {
+    const s = new URLSearchParams(location.search).get("publicView");
+    return s ? String(s).trim().toLowerCase() : null;
+  })();
+  const MD_EDIT_COUNT_KEY = "md-fc-edit-count";
 
   function normalizeSupabaseProjectUrl(raw) {
     const s = String(raw || "").trim();
@@ -2921,6 +3774,14 @@
     graphCache: null,
     graphCacheKey: "",
     layoutAnimating: false,
+    fcConnEnterIds: null,
+    fcAssistantPanelOpen: false,
+    _fcAssistantOnboardFocused: false,
+    fcToolbarInteracting: false,
+    fcMultiBarInteracting: false,
+    fcCanvasPick: null,
+    fcDeleteConfirmOpen: false,
+    spaceKeyHeld: false,
     semanticTypes: {},
     suggestions: [],
     virtualGroups: [],
@@ -2955,6 +3816,10 @@
     /** Desktop (≥1025px): user hid Projects / Inspector columns to widen canvas. */
     deskLeftCollapsed: false,
     deskRightCollapsed: false,
+    readOnly: !!PUBLIC_VIEW_SLUG,
+    publicViewSlug: PUBLIC_VIEW_SLUG,
+    fcEditCount: Number(localStorage.getItem(MD_EDIT_COUNT_KEY) || 0) || 0,
+    generatedAt: null,
     snapAxis: null,
     selectedNodeIds: new Set(),
     marquee: null,
@@ -3025,6 +3890,7 @@
     if (c.strokeWidth != null && !Number.isFinite(Number(c.strokeWidth))) c.strokeWidth = null;
     if (!c.strokeDash || !["solid", "dashed", "dotted"].includes(c.strokeDash)) c.strokeDash = "solid";
     if (c.strokeColor != null && typeof c.strokeColor !== "string") c.strokeColor = null;
+    if (c.meta?.isBackEdge && c.strokeDash === "solid") c.strokeDash = "dashed";
   }
 
   /** Custom edge stroke (hex); null = use theme gradient / bridge colors. */
@@ -3185,6 +4051,7 @@
       connections: [],
       userGroups: [],
       groupConnections: [],
+      flowGroups: [],
       view: { x: 0, y: 0, zoom: 1, grid: true },
       updatedAt: Date.now()
     };
@@ -3235,6 +4102,7 @@
 
   function ensureProjectExtras(p) {
     normalizeGroupsAndNodes(p);
+    ensureFlowGroups(p);
     normalizeBridgeConnections(p);
     for (const c of p.connections || []) normalizeConnectionEdge(c);
     for (const gc of p.groupConnections) {
@@ -3808,6 +4676,14 @@
     ensureProjectExtras(getProject());
     const p = getProject();
     const selArr = [...runtime.selectedNodeIds];
+    if (isFlowchartMode()) {
+      if (altKey) return [primaryNodeId];
+      if (!runtime.selectedNodeIds.has(primaryNodeId)) return [primaryNodeId];
+      if (selArr.length > 1) {
+        return selArr.filter((id) => nodeCanWorkspaceTransform(getNodeById(id)));
+      }
+      return [primaryNodeId];
+    }
     if (!runtime.selectedNodeIds.has(primaryNodeId)) return [primaryNodeId];
     if (altKey) return [primaryNodeId];
     const gid = userGroupIdForNode(primaryNodeId);
@@ -3941,6 +4817,13 @@
   }
 
   function markDirty() {
+    if (!runtime.readOnly) {
+      runtime.fcEditCount = (runtime.fcEditCount || 0) + 1;
+      try { localStorage.setItem(MD_EDIT_COUNT_KEY, String(runtime.fcEditCount)); } catch (_) {}
+      if (runtime.generatedAt && runtime.fcEditCount === 1 && window.MapDiagramAnalytics) {
+        MapDiagramAnalytics.editAfterGenerate({ source: "flowchart" });
+      }
+    }
     runtime.graphCache = null;
     runtime.graphCacheKey = "";
     runtime.groupBoxCache = null;
@@ -4106,7 +4989,7 @@
     }
     if (createAiBtn) {
       createAiBtn.disabled = gateDisabled;
-      createAiBtn.title = gateDisabled ? generateAiWalletBtn?.title || "" : "Create architecture from a text prompt";
+      createAiBtn.title = gateDisabled ? generateAiWalletBtn?.title || "" : "Generate a flowchart from a text prompt";
     }
     if (aiGenerateBtn && aiGenerateBtn.textContent !== "Compiling...") {
       aiGenerateBtn.disabled = gateDisabled;
@@ -4275,6 +5158,7 @@
       connections: Array.isArray(row.data?.connections) ? row.data.connections : [],
       userGroups: Array.isArray(row.data?.userGroups) ? row.data.userGroups : [],
       groupConnections: Array.isArray(row.data?.groupConnections) ? row.data.groupConnections : [],
+      flowGroups: Array.isArray(row.data?.flowGroups) ? row.data.flowGroups : [],
       view: row.data?.view || { x: 0, y: 0, zoom: 1 },
       updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : Date.now()
     }));
@@ -4305,6 +5189,7 @@
         connections: project.connections,
         userGroups: project.userGroups || [],
         groupConnections: project.groupConnections || [],
+        flowGroups: project.flowGroups || [],
         view: project.view
       },
       updated_at: new Date().toISOString()
@@ -4362,25 +5247,24 @@
   function ensureBoot() {
     loadDB();
     if (!runtime.db.projects.length) {
-      const p = blankProject("My First Diagram");
-      p.nodes = [
-        { id: uid(), text: "Start here", color: "#ffd482", x: 120, y: 130, width: 190, height: 110 },
-        { id: uid(), text: "Second node", color: "#b7e3ff", x: 420, y: 280, width: 190, height: 110 }
-      ];
+      const p = blankProject("My First Flowchart");
       runtime.db.projects.push(p);
       runtime.db.activeProjectId = p.projectId;
       saveDB();
     }
     if (!runtime.db.activeProjectId) runtime.db.activeProjectId = runtime.db.projects[0].projectId;
+    applyFlowchartOnboardingIfNeeded();
   }
 
   function pushHistory() {
+    if (runtime.readOnly) return;
     const p = getProject();
     runtime.undo.push(deepCopy({
       nodes: p.nodes,
       connections: p.connections,
       userGroups: p.userGroups || [],
       groupConnections: p.groupConnections || [],
+      flowGroups: deepCopy(p.flowGroups || []),
       view: p.view
     }));
     if (runtime.undo.length > 120) runtime.undo.shift();
@@ -4401,6 +5285,7 @@
       connections: p.connections,
       userGroups: p.userGroups || [],
       groupConnections: p.groupConnections || [],
+      flowGroups: deepCopy(p.flowGroups || []),
       view: p.view
     }));
     const snap = stackFrom.pop();
@@ -4415,6 +5300,7 @@
     p.connections = snap.connections;
     p.userGroups = snap.userGroups || [];
     p.groupConnections = snap.groupConnections || [];
+    p.flowGroups = snap.flowGroups || [];
     p.view = snap.view;
     runtime.selectedNodeId = null;
     runtime.selectedNodeIds.clear();
@@ -4517,8 +5403,10 @@
     { category: "General", label: "Circle", type: "process", shape: "circle", icon: "◯", color: "#a7b9ff", subtitle: "Round", description: "Rounded idea node" },
     { category: "General", label: "Text", type: "note", shape: "rounded", icon: "T", color: "#f3c1ff", subtitle: "Annotation", description: "Context / comments" },
     { category: "General", label: "Container", type: "group", shape: "rounded", icon: "◫", color: "#8ea0d6", subtitle: "Group", description: "Logical container" },
+    { category: "Flowchart", label: "Start", type: "input", shape: "circle", icon: "▶", color: "#7fd9a8", subtitle: "Begin", description: "Flow start" },
     { category: "Flowchart", label: "Process", type: "process", shape: "rounded", icon: "⚙️", color: "#8fb2ff", subtitle: "Step", description: "Action node" },
     { category: "Flowchart", label: "Decision", type: "decision", shape: "diamond", icon: "◆", color: "#ffd482", subtitle: "Branch", description: "Decision point" },
+    { category: "Flowchart", label: "End", type: "output", shape: "circle", icon: "■", color: "#a8b4d4", subtitle: "Finish", description: "Flow end" },
     { category: "Flowchart", label: "Input / Output", type: "input", shape: "rounded", icon: "⇄", color: "#9be0cb", subtitle: "I/O", description: "External input/output" },
     { category: "Flowchart", label: "Arrow marker", type: "process", shape: "rect", icon: "➜", color: "#9ba9ff", subtitle: "Direction", description: "Directional helper node" },
     { category: "Advanced", label: "API Gateway", type: "system", shape: "rect", icon: "🔌", color: "#a8c0ff", subtitle: "Service", description: "API edge" },
@@ -4528,6 +5416,1239 @@
     { category: "Advanced", label: "Queue", type: "data", shape: "rect", icon: "📬", color: "#90d4bf", subtitle: "Async", description: "Message queue" },
     { category: "Advanced", label: "Observability", type: "system", shape: "rounded", icon: "📈", color: "#bda8ff", subtitle: "Tracing", description: "Logs/metrics/traces" }
   ];
+
+  const FLOWCHART_ONBOARDED_KEY = "flowchart-onboarded";
+  const FLOWCHART_MODE_PRESETS = [
+    { label: "Start", type: "input", shape: "circle", icon: "▶", color: "#7fd9a8", subtitle: "Begin", description: "Flow start", fcRole: "start", width: 128, height: 72 },
+    { label: "Process", type: "process", shape: "rounded", icon: "⚙", color: "#8fb2ff", subtitle: "Step", description: "Action step", fcRole: "process", width: 190, height: 88 },
+    { label: "Decision", type: "decision", shape: "diamond", icon: "◆", color: "#ffd482", subtitle: "Branch", description: "Yes / No branch", fcRole: "decision", width: 130, height: 130 },
+    { label: "End", type: "output", shape: "circle", icon: "■", color: "#a8b4d4", subtitle: "Finish", description: "Flow end", fcRole: "end", width: 128, height: 72 }
+  ];
+  const FLOWCHART_STARTER_PROMPTS = {
+    invoice: "Invoice submitted → manager approval → finance review → payment issued",
+    hiring: "Role opened → screening → interviews → offer → onboarding kickoff",
+    triage: "Bug reported → reproduce and prioritize → assign owner → fix → verify → close",
+    onboarding: "Signup complete → welcome email → profile setup → first success milestone",
+    support: "Customer contacts support → triage → escalate if needed → resolve → follow-up"
+  };
+
+  function isFlowchartMode() {
+    return document.body.classList.contains("flowchart-mode");
+  }
+
+  function fcEditorCanSelect() {
+    return isFlowchartMode() && !runtime.readOnly;
+  }
+
+  function ensureFlowGroups(p) {
+    if (!Array.isArray(p.flowGroups)) p.flowGroups = [];
+    const alive = new Set((p.nodes || []).map((n) => n.id));
+    for (const fg of p.flowGroups) {
+      if (!fg.id) fg.id = uid();
+      if (!fg.title) fg.title = "Section";
+      if (!Array.isArray(fg.nodeIds)) fg.nodeIds = [];
+      fg.nodeIds = fg.nodeIds.filter((id) => alive.has(id));
+      if (!fg.color) fg.color = "#7aa2ff";
+      if (fg.collapsed == null) fg.collapsed = false;
+    }
+    p.flowGroups = p.flowGroups.filter((fg) => (fg.nodeIds || []).length >= 2);
+    for (const fg of p.flowGroups) refreshFlowGroupBounds(fg);
+  }
+
+  function pruneFlowGroups(p) {
+    ensureFlowGroups(p);
+  }
+
+  function computeFlowGroupBounds(nodeIds, pad = 18) {
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const id of nodeIds || []) {
+      const n = getNodeById(id);
+      if (!n) continue;
+      const w = getNodeWorldPosition(n);
+      const nw = Number(n.width) || 120;
+      const nh = Number(n.height) || 72;
+      minX = Math.min(minX, w.x);
+      minY = Math.min(minY, w.y);
+      maxX = Math.max(maxX, w.x + nw);
+      maxY = Math.max(maxY, w.y + nh);
+    }
+    if (!Number.isFinite(minX)) return null;
+    return {
+      x: minX - pad,
+      y: minY - pad - 14,
+      width: maxX - minX + pad * 2,
+      height: maxY - minY + pad * 2 + 14,
+    };
+  }
+
+  function refreshFlowGroupBounds(fg) {
+    const b = computeFlowGroupBounds(fg.nodeIds);
+    if (!b) return;
+    fg.x = b.x;
+    fg.y = b.y;
+    fg.width = b.width;
+    fg.height = b.height;
+  }
+
+  function refreshFlowGroupsForNodeIds(nodeIds) {
+    const p = getProject();
+    if (!p?.flowGroups?.length) return;
+    const touched = new Set(nodeIds || []);
+    let changed = false;
+    for (const fg of p.flowGroups) {
+      if ((fg.nodeIds || []).some((id) => touched.has(id))) {
+        refreshFlowGroupBounds(fg);
+        changed = true;
+      }
+    }
+    if (changed) renderFlowGroupOverlays();
+  }
+
+  function renderFlowGroupOverlays() {
+    if (!canvasUnderlays) return;
+    let layer = canvasUnderlays.querySelector(".fc-flow-groups-layer");
+    if (!fcEditorCanSelect()) {
+      if (layer) layer.remove();
+      return;
+    }
+    const p = getProject();
+    ensureFlowGroups(p);
+    if (!layer) {
+      layer = document.createElement("div");
+      layer.className = "fc-flow-groups-layer";
+      canvasUnderlays.appendChild(layer);
+    }
+    layer.replaceChildren();
+    for (const fg of p.flowGroups) {
+      if (fg.collapsed || !fg.nodeIds?.length) continue;
+      refreshFlowGroupBounds(fg);
+      const frame = document.createElement("div");
+      frame.className = "fc-flow-group";
+      frame.dataset.flowGroupId = fg.id;
+      frame.style.left = `${fg.x}px`;
+      frame.style.top = `${fg.y}px`;
+      frame.style.width = `${fg.width}px`;
+      frame.style.height = `${fg.height}px`;
+      if (fg.color) frame.style.borderColor = hexToRgba(fg.color, 0.32);
+      const label = document.createElement("span");
+      label.className = "fc-flow-group-label";
+      label.textContent = fg.title || "Section";
+      frame.appendChild(label);
+      layer.appendChild(frame);
+    }
+  }
+
+  function getFlowchartSelectionBounds() {
+    const ids = primaryNodeSelectionIdList();
+    if (!ids.length) return null;
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const id of ids) {
+      const n = getNodeById(id);
+      if (!n) continue;
+      const w = getNodeWorldPosition(n);
+      const nw = Number(n.width) || 120;
+      const nh = Number(n.height) || 72;
+      minX = Math.min(minX, w.x);
+      minY = Math.min(minY, w.y);
+      maxX = Math.max(maxX, w.x + nw);
+      maxY = Math.max(maxY, w.y + nh);
+    }
+    if (!Number.isFinite(minX)) return null;
+    return { minX, minY, maxX, maxY };
+  }
+
+  function clearFlowchartNodeSelection() {
+    runtime.selectedNodeId = null;
+    runtime.selectedNodeIds.clear();
+    runtime.selectedGroupId = null;
+    runtime.selectedGroupIds.clear();
+    clearAllEdgeSelection();
+    renderSelection();
+  }
+
+  function selectAllFlowchartNodes() {
+    if (!fcEditorCanSelect()) return;
+    const p = getProject();
+    runtime.selectedNodeIds = new Set(p.nodes.map((n) => n.id));
+    runtime.selectedNodeId = p.nodes.length === 1 ? p.nodes[0].id : null;
+    runtime.selectedGroupId = null;
+    runtime.selectedGroupIds.clear();
+    clearAllEdgeSelection();
+    renderSelection();
+  }
+
+  function getFlowchartMultiSelectCount() {
+    const ids = new Set(primaryNodeSelectionIdList());
+    return ids.size;
+  }
+
+  function createFlowGroupFromSelection() {
+    if (!fcEditorCanSelect()) return false;
+    const ids = [...new Set(primaryNodeSelectionIdList())];
+    if (ids.length < 2) {
+      showToast("Select at least 2 steps to group.", "warn");
+      return false;
+    }
+    const p = getProject();
+    ensureFlowGroups(p);
+    const existing = p.flowGroups.find(
+      (fg) => fg.nodeIds.length === ids.length && ids.every((id) => fg.nodeIds.includes(id))
+    );
+    if (existing) {
+      showToast(`Already in “${existing.title}”.`, "info");
+      return false;
+    }
+    pushHistory();
+    const title = `Section ${p.flowGroups.length + 1}`;
+    const b = computeFlowGroupBounds(ids);
+    const fg = {
+      id: uid(),
+      title,
+      nodeIds: [...ids],
+      color: "#7aa2ff",
+      collapsed: false,
+      x: b?.x ?? 0,
+      y: b?.y ?? 0,
+      width: b?.width ?? 200,
+      height: b?.height ?? 120,
+    };
+    p.flowGroups.push(fg);
+    markDirty();
+    renderFlowGroupOverlays();
+    showToast(`Created “${title}”.`, "info");
+    return true;
+  }
+
+  function shouldConfirmFlowchartDelete(count) {
+    const total = getProject()?.nodes?.length || 0;
+    if (!count || !total) return false;
+    return count > 5 || count / total > 0.4;
+  }
+
+  function showFcDeleteConfirm(count) {
+    const el = document.getElementById("fcDeleteConfirm");
+    const text = document.getElementById("fcDeleteConfirmText");
+    if (!el || !text) {
+      if (confirm(`Delete ${count} flowchart step${count === 1 ? "" : "s"}?`)) deleteSelectedNodesAction();
+      return;
+    }
+    runtime.fcDeleteConfirmOpen = true;
+    text.textContent = `Delete ${count} flowchart step${count === 1 ? "" : "s"}?`;
+    el.hidden = false;
+  }
+
+  function hideFcDeleteConfirm() {
+    runtime.fcDeleteConfirmOpen = false;
+    const el = document.getElementById("fcDeleteConfirm");
+    if (el) el.hidden = true;
+  }
+
+  function confirmFcDeletePending() {
+    hideFcDeleteConfirm();
+    deleteSelectedNodesAction();
+  }
+
+  function requestDeleteSelectedNodes() {
+    if (runtime.readOnly) return;
+    const ids = primaryNodeSelectionIdList();
+    if (!ids.length) return;
+    if (fcEditorCanSelect() && shouldConfirmFlowchartDelete(ids.length)) {
+      showFcDeleteConfirm(ids.length);
+      return;
+    }
+    deleteSelectedNodesAction();
+  }
+
+  function syncFcMultiSelectBar() {
+    const bar = document.getElementById("fcMultiSelectBar");
+    if (!bar || !fcEditorCanSelect()) {
+      if (bar) {
+        bar.hidden = true;
+        bar.classList.remove("is-visible");
+      }
+      return;
+    }
+    const count = getFlowchartMultiSelectCount();
+    if (count < 2 || runtime.editingNodeId || runtime.fcMultiBarInteracting) {
+      if (!runtime.fcMultiBarInteracting) {
+        bar.hidden = true;
+        bar.classList.remove("is-visible");
+      }
+      return;
+    }
+    const bounds = getFlowchartSelectionBounds();
+    if (!bounds) {
+      bar.hidden = true;
+      bar.classList.remove("is-visible");
+      return;
+    }
+    const countEl = document.getElementById("fcMultiSelectCount");
+    if (countEl) countEl.textContent = `${count} selected`;
+    const movable = primaryNodeSelectionIdList().filter((id) => nodeCanWorkspaceTransform(getNodeById(id))).length;
+    const groupBtn = document.getElementById("fcMultiGroupBtn");
+    const dupBtn = document.getElementById("fcMultiDupBtn");
+    const layoutBtn = document.getElementById("fcMultiLayoutBtn");
+    const delBtn = document.getElementById("fcMultiDeleteBtn");
+    if (groupBtn) groupBtn.disabled = count < 2;
+    if (dupBtn) dupBtn.disabled = !movable;
+    if (layoutBtn) layoutBtn.disabled = false;
+    if (delBtn) delBtn.disabled = false;
+    bar.hidden = false;
+    const p = getProject();
+    const cx = ((bounds.minX + bounds.maxX) / 2) * p.view.zoom + p.view.x;
+    const top = bounds.minY * p.view.zoom + p.view.y - 52;
+    const wsR = workspace.getBoundingClientRect();
+    const barW = bar.offsetWidth || 360;
+    const left = cx - barW / 2;
+    bar.style.left = `${Math.max(8, Math.min(wsR.width - barW - 8, left))}px`;
+    bar.style.top = `${Math.max(8, top)}px`;
+    bar.classList.add("is-visible");
+  }
+
+  function bindFcMultiSelectBar() {
+    const bar = document.getElementById("fcMultiSelectBar");
+    if (!bar || bar.dataset.fcMultiBound) return;
+    bar.dataset.fcMultiBound = "1";
+    const shield = (e) => {
+      runtime.fcMultiBarInteracting = true;
+      e.stopPropagation();
+    };
+    bar.addEventListener("pointerdown", shield, true);
+    bar.addEventListener("mousedown", shield, true);
+    const endMulti = () => {
+      window.setTimeout(() => {
+        runtime.fcMultiBarInteracting = false;
+        syncFcMultiSelectBar();
+      }, 0);
+    };
+    const run = (e, fn) => {
+      if (runtime.readOnly) return;
+      e.preventDefault();
+      e.stopPropagation();
+      runtime.fcMultiBarInteracting = true;
+      fn();
+      endMulti();
+    };
+    document.getElementById("fcMultiGroupBtn")?.addEventListener("click", (e) => run(e, () => createFlowGroupFromSelection()));
+    document.getElementById("fcMultiDupBtn")?.addEventListener("click", (e) => run(e, () => duplicateSelectedNodesAction()));
+    document.getElementById("fcMultiLayoutBtn")?.addEventListener("click", (e) => run(e, () => improveFlowchartLayoutAction()));
+    document.getElementById("fcMultiDeleteBtn")?.addEventListener("click", (e) => run(e, () => requestDeleteSelectedNodes()));
+  }
+
+  function enableFlowchartMode() {
+    document.body.classList.add("flowchart-mode");
+    const sel = document.getElementById("templateSelect");
+    if (sel) {
+      for (const opt of sel.options) {
+        if (opt.value !== "blank" && opt.value !== "flowchart") opt.hidden = true;
+      }
+    }
+  }
+
+  function applyFlowchartNodeRoleClass(el, n) {
+    if (!isFlowchartMode() || !el || !n) return;
+    el.classList.remove("fc-node-start", "fc-node-process", "fc-node-decision", "fc-node-end");
+    const t = String(n.type || "process").toLowerCase();
+    const title = String(n.title || n.text || "");
+    if (t === "input" || /\bstart\b/i.test(title)) el.classList.add("fc-node-start");
+    else if (t === "output" || /\b(end|complete|finish)\b/i.test(title)) el.classList.add("fc-node-end");
+    else if (t === "decision" || String(n.shape || "") === "diamond") el.classList.add("fc-node-decision");
+    else el.classList.add("fc-node-process");
+  }
+
+  function buildFlowchartOnboardingDiagram() {
+    const mk = (x, y, text, type, shape, color, w, h) => {
+      const o = {
+        id: uid(), x, y, width: w, height: h, text, title: text, subtitle: "", description: "", icon: "",
+        type, shape, color,
+        style: { opacity: 0.92, glow: 12, shadow: 18, radius: shape === "rounded" ? 14 : 12, borderColor: "#9cb8ff" }
+      };
+      return normalizeNode(o);
+    };
+    const start = mk(178, 48, "Start", "input", "circle", "#7fd9a8", 128, 72);
+    const review = mk(147, 160, "Review Request", "process", "rounded", "#8fb2ff", 190, 88);
+    const approve = mk(167, 288, "Approve?", "decision", "diamond", "#ffd482", 130, 130);
+    const revise = mk(32, 440, "Revise", "process", "rounded", "#ffc9a8", 190, 88);
+    const complete = mk(272, 440, "Complete", "output", "circle", "#a8b4d4", 128, 72);
+    const link = (from, to, label = "", labelOffset = null) => {
+      const c = { id: uid(), from: from.id, to: to.id, label };
+      if (labelOffset) c.labelOffset = labelOffset;
+      normalizeConnectionEdge(c);
+      return c;
+    };
+    const reviseLoop = link(revise, review, "", { dx: -32, dy: 8 });
+    reviseLoop.meta = { isBackEdge: true };
+    reviseLoop.strokeDash = "dashed";
+    reviseLoop.strokeColor = "#8fa3c8";
+    return {
+      nodes: [start, review, approve, revise, complete],
+      connections: [
+        link(start, review),
+        link(review, approve),
+        link(approve, revise, "No", { dx: -28, dy: 0 }),
+        link(approve, complete, "Yes", { dx: 28, dy: 0 }),
+        reviseLoop
+      ]
+    };
+  }
+
+  function applyFlowchartOnboardingIfNeeded() {
+    let onboarded = false;
+    try { onboarded = !!localStorage.getItem(FLOWCHART_ONBOARDED_KEY); } catch (_) {}
+    if (onboarded) return;
+    const p = getProject();
+    if (!p || p.nodes.length) {
+      try { localStorage.setItem(FLOWCHART_ONBOARDED_KEY, "1"); } catch (_) {}
+      return;
+    }
+    const data = buildFlowchartOnboardingDiagram();
+    p.nodes = data.nodes;
+    p.connections = data.connections;
+    p.title = "Approval Flow";
+    if (!p.name || p.name === "Untitled") p.name = "My First Flowchart";
+    p.view = { x: 48, y: 32, zoom: 1, grid: true };
+    try { localStorage.setItem(FLOWCHART_ONBOARDED_KEY, "1"); } catch (_) {}
+    saveDB();
+    runtime._fcCenterAfterOnboard = true;
+  }
+
+
+  // ─── Flowchart Assistant State ───
+  const FC_ASSISTANT_GENERATED_KEY = "flowchart-assistant-generated";
+  const FC_ASSISTANT_DISMISSED_KEY = "flowchart-assistant-dismissed";
+  const FC_ASSISTANT_DRAFT_KEY = "flowchart-assistant-draft";
+  const FC_ASSISTANT_LAST_PROMPT_KEY = "flowchart-assistant-last-prompt";
+  const FC_ASSISTANT_RECENT_CHIP_KEY = "flowchart-assistant-recent-chip";
+  const FC_ASSISTANT_PANEL_POS_KEY = "flowchart-assistant-panel-pos";
+  let _fcFabCollisionTimer = null;
+
+  function hasFlowchartBeenGenerated() {
+    try {
+      if (localStorage.getItem(FC_ASSISTANT_GENERATED_KEY) === "1") return true;
+    } catch (_) {}
+    return (getProject()?.nodes?.length || 0) > 0;
+  }
+
+  function getFlowchartAssistantState() {
+    if (!isFlowchartMode() || runtime.readOnly) return "collapsed";
+    if (!hasFlowchartBeenGenerated()) {
+      try {
+        if (localStorage.getItem(FC_ASSISTANT_DISMISSED_KEY) !== "1") return "onboarding";
+      } catch (_) {}
+    }
+    return runtime.fcAssistantPanelOpen ? "panel" : "collapsed";
+  }
+
+  // ─── Flowchart Assistant Persistence ───
+  function persistFlowchartAssistantDraft(save) {
+    const input = document.getElementById("flowchartPromptInput");
+    if (!input) return;
+    try {
+      if (save === false) {
+        localStorage.setItem(FC_ASSISTANT_DRAFT_KEY, input.value);
+        return;
+      }
+      const draft = localStorage.getItem(FC_ASSISTANT_DRAFT_KEY);
+      if (draft != null && !input.value.trim()) input.value = draft;
+    } catch (_) {}
+  }
+
+  function persistFlowchartAssistantLastPrompt(text) {
+    const t = String(text || "").trim();
+    if (!t) return;
+    try { localStorage.setItem(FC_ASSISTANT_LAST_PROMPT_KEY, t); } catch (_) {}
+  }
+
+  function restoreFlowchartAssistantPromptPrefill() {
+    const input = document.getElementById("flowchartPromptInput");
+    if (!input || input.value.trim()) return;
+    try {
+      const draft = localStorage.getItem(FC_ASSISTANT_DRAFT_KEY);
+      const last = localStorage.getItem(FC_ASSISTANT_LAST_PROMPT_KEY);
+      if (draft != null && draft.trim()) input.value = draft;
+      else if (last) input.value = last;
+    } catch (_) {}
+  }
+
+  function persistFlowchartAssistantRecentChip(chipKey) {
+    if (!chipKey) return;
+    try { localStorage.setItem(FC_ASSISTANT_RECENT_CHIP_KEY, chipKey); } catch (_) {}
+  }
+
+  // ─── Flowchart Assistant Motion ───
+  function beginFlowchartAssistantPanelMotion() {
+    const root = document.getElementById("fcAssistantRoot");
+    if (!root) return;
+    root.classList.remove("fc-panel-visible");
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => root.classList.add("fc-panel-visible"));
+    });
+  }
+
+  function endFlowchartAssistantPanelMotion() {
+    document.getElementById("fcAssistantRoot")?.classList.remove("fc-panel-visible");
+  }
+
+  // ─── Flowchart Assistant UI Sync ───
+  function getFcCanvasEmptyHintText() {
+    const hints = [
+      "Generate a flowchart",
+      "Press ⌘K to describe a workflow",
+      "Start from a template",
+    ];
+    const day = Math.floor(Date.now() / 86400000);
+    return hints[day % hints.length];
+  }
+
+  function syncFcAssistantFabDragState() {
+    const fab = document.getElementById("fcAssistantFab");
+    if (!fab) return;
+    fab.classList.toggle("is-fc-dragging", !!(runtime.dragging || runtime.groupDragging));
+  }
+
+  function syncFcAssistantFabCollision() {
+    const fab = document.getElementById("fcAssistantFab");
+    if (!fab || fab.hidden || getFlowchartAssistantState() !== "collapsed") {
+      fab?.classList.remove("is-fc-obstructed");
+      fab?.style.removeProperty("--fc-fab-lift");
+      return;
+    }
+    if (runtime.dragging || runtime.groupDragging) return;
+    const pad = 10;
+    const fabR = fab.getBoundingClientRect();
+    const zone = {
+      left: fabR.left - pad,
+      right: fabR.right + pad,
+      top: fabR.top - pad,
+      bottom: fabR.bottom + pad,
+    };
+    let obstructed = false;
+    let lift = 28;
+    for (const n of getProject()?.nodes || []) {
+      const el = nodesLayer?.querySelector(`[data-node-id="${n.id}"]`);
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      const hit = !(r.right < zone.left || r.left > zone.right || r.bottom < zone.top || r.top > zone.bottom);
+      if (!hit) continue;
+      obstructed = true;
+      const overlap = Math.min(r.bottom, zone.bottom) - Math.max(r.top, zone.top);
+      lift = Math.max(lift, Math.min(96, overlap + 32));
+    }
+    fab.classList.toggle("is-fc-obstructed", obstructed);
+    if (obstructed) fab.style.setProperty("--fc-fab-lift", `${lift}px`);
+    else fab.style.removeProperty("--fc-fab-lift");
+  }
+
+  function ensureFcAssistantFabCollisionWatch() {
+    if (_fcFabCollisionTimer != null) return;
+    _fcFabCollisionTimer = window.setInterval(() => {
+      if (!isFlowchartMode() || runtime.readOnly) return;
+      if (runtime.dragging || runtime.groupDragging) return;
+      if (getFlowchartAssistantState() !== "collapsed") return;
+      syncFcAssistantFabCollision();
+    }, 300);
+  }
+
+  function syncFlowchartAssistantUi() {
+    const root = document.getElementById("fcAssistantRoot");
+    if (!root || !isFlowchartMode() || runtime.readOnly) {
+      if (root) root.hidden = true;
+      return;
+    }
+    root.hidden = false;
+    const state = getFlowchartAssistantState();
+    root.dataset.state = state;
+
+    const hint = document.getElementById("fcCanvasEmptyHint");
+    const emptyCanvas = !(getProject()?.nodes?.length);
+    if (hint) {
+      const showHint = emptyCanvas && state === "collapsed" && hasFlowchartBeenGenerated();
+      hint.hidden = !showHint;
+      if (showHint) hint.textContent = getFcCanvasEmptyHintText();
+    }
+
+    const backdrop = document.getElementById("fcAssistantBackdrop");
+    if (backdrop) {
+      const showBackdrop = state === "panel";
+      backdrop.hidden = !showBackdrop;
+      backdrop.setAttribute("aria-hidden", showBackdrop ? "false" : "true");
+    }
+
+    const shell = document.getElementById("fcAssistantShell");
+    if (shell) {
+      const showShell = state === "onboarding" || state === "panel";
+      shell.hidden = !showShell;
+      shell.setAttribute("aria-hidden", showShell ? "false" : "true");
+    }
+
+    const fab = document.getElementById("fcAssistantFab");
+    if (fab) fab.hidden = state === "onboarding" || state === "panel";
+
+    syncFcAssistantFabDragState();
+    if (state === "collapsed" && !runtime.dragging && !runtime.groupDragging) syncFcAssistantFabCollision();
+    else if (fab) {
+      fab.classList.remove("is-fc-obstructed");
+      fab.style.removeProperty("--fc-fab-lift");
+    }
+
+    if (state === "onboarding" && !runtime._fcAssistantOnboardFocused) {
+      runtime._fcAssistantOnboardFocused = true;
+      requestAnimationFrame(() => document.getElementById("flowchartPromptInput")?.focus());
+    }
+  }
+
+  function syncFlowchartEmptyState() {
+    syncFlowchartAssistantUi();
+  }
+
+  // ─── Flowchart Assistant Events ───
+  function setFlowchartAssistantState(next) {
+    if (next === "panel") runtime.fcAssistantPanelOpen = true;
+    else runtime.fcAssistantPanelOpen = false;
+    if (next === "collapsed" && !hasFlowchartBeenGenerated()) {
+      try { localStorage.setItem(FC_ASSISTANT_DISMISSED_KEY, "1"); } catch (_) {}
+    }
+    if (next !== "panel") endFlowchartAssistantPanelMotion();
+    syncFlowchartAssistantUi();
+  }
+
+  function focusFlowchartAssistantInput(selectAll) {
+    const input = document.getElementById("flowchartPromptInput");
+    if (!input) return;
+    input.focus();
+    if (selectAll !== false && input.value) {
+      try { input.setSelectionRange(0, input.value.length); } catch (_) { input.select(); }
+    }
+  }
+
+  function openFlowchartAssistant() {
+    const alreadyOpen = getFlowchartAssistantState() === "panel";
+    restoreFlowchartAssistantPromptPrefill();
+    if (!alreadyOpen) {
+      setFlowchartAssistantState("panel");
+      beginFlowchartAssistantPanelMotion();
+    }
+    requestAnimationFrame(() => focusFlowchartAssistantInput(true));
+  }
+
+  function closeFlowchartAssistant() {
+    persistFlowchartAssistantDraft(false);
+    setFlowchartAssistantState("collapsed");
+    requestAnimationFrame(() => workspace?.focus?.());
+  }
+
+  function handleFlowchartAssistantShortcut() {
+    if (getFlowchartAssistantState() === "panel") {
+      const input = document.getElementById("flowchartPromptInput");
+      if (input && document.activeElement === input) closeFlowchartAssistant();
+      else openFlowchartAssistant();
+    } else {
+      openFlowchartAssistant();
+    }
+  }
+
+  function toggleFlowchartAssistant() {
+    handleFlowchartAssistantShortcut();
+  }
+
+  function markFlowchartAssistantGenerated() {
+    try { localStorage.setItem(FC_ASSISTANT_GENERATED_KEY, "1"); } catch (_) {}
+    const prompt = getFlowchartPromptText();
+    if (prompt) persistFlowchartAssistantLastPrompt(prompt);
+    persistFlowchartAssistantDraft(false);
+    runtime.fcAssistantPanelOpen = false;
+    endFlowchartAssistantPanelMotion();
+    syncFlowchartAssistantUi();
+  }
+
+  function bindFcStarterChipListeners() {
+    document.querySelectorAll("#fcStarterChips [data-fc-chip]").forEach((btn) => {
+      if (btn.dataset.fcChipBound) return;
+      btn.dataset.fcChipBound = "1";
+      btn.addEventListener("click", () => {
+        const chip = btn.dataset.fcChip;
+        setFlowchartPromptText(FLOWCHART_STARTER_PROMPTS[chip] || "");
+        persistFlowchartAssistantRecentChip(chip);
+        persistFlowchartAssistantDraft(false);
+        focusFlowchartAssistantInput(true);
+        if (window.MapDiagramAnalytics) MapDiagramAnalytics.starterPromptClick({ chip });
+      });
+    });
+  }
+
+  function initFlowchartAssistantUi() {
+    if (document.getElementById("fcAssistantRoot")?.dataset.fcAssistantBound) return;
+    const root = document.getElementById("fcAssistantRoot");
+    if (root) root.dataset.fcAssistantBound = "1";
+    document.getElementById("fcAssistantCloseBtn")?.addEventListener("click", () => closeFlowchartAssistant());
+    document.getElementById("fcAssistantFab")?.addEventListener("click", () => openFlowchartAssistant());
+    document.getElementById("fcAssistantBackdrop")?.addEventListener("pointerdown", () => closeFlowchartAssistant());
+    const input = document.getElementById("flowchartPromptInput");
+    input?.addEventListener("input", () => persistFlowchartAssistantDraft(false));
+    document.getElementById("fcGenerateBtn")?.addEventListener("click", () => void runFlowchartGeneration(getFlowchartPromptText()));
+    restoreFlowchartAssistantPromptPrefill();
+    rotateFcStarterChips();
+    ensureFcAssistantFabCollisionWatch();
+    syncFlowchartAssistantUi();
+  }
+
+  function getFcQuickEditTargetNodeId() {
+    if (runtime.selectedNodeIds.size > 1) return null;
+    const id = runtime.selectedNodeId || [...runtime.selectedNodeIds][0] || null;
+    return id && getNodeById(id) ? id : null;
+  }
+
+  function syncFcQuickEditToolbar() {
+    const bar = document.getElementById("fcQuickEdit");
+    if (!bar || !isFlowchartMode() || runtime.readOnly) {
+      if (bar) {
+        bar.hidden = true;
+        bar.classList.remove("is-visible");
+      }
+      return;
+    }
+    const nodeId = getFcQuickEditTargetNodeId();
+    const n = nodeId ? getNodeById(nodeId) : null;
+    const shouldShow = !!(n && !runtime.editingNodeId);
+    if (!shouldShow) {
+      if (!runtime.fcToolbarInteracting) {
+        bar.hidden = true;
+        bar.classList.remove("is-visible");
+      }
+      return;
+    }
+    const canEdit = nodeCanWorkspaceTransform(n);
+    const renameBtn = document.getElementById("fcRenameBtn");
+    const dupBtn = document.getElementById("fcDuplicateBtn");
+    const connBtn = document.getElementById("fcAddConnectedBtn");
+    const delBtn = document.getElementById("fcDeleteBtn");
+    if (renameBtn) renameBtn.disabled = !canEdit;
+    if (dupBtn) dupBtn.disabled = !canEdit;
+    if (connBtn) connBtn.disabled = !canEdit;
+    if (delBtn) delBtn.disabled = !canEdit;
+    bar.hidden = false;
+    const el = nodesLayer.querySelector(`[data-node-id="${n.id}"]`);
+    if (!el) return;
+    const nodeR = el.getBoundingClientRect();
+    const wsR = workspace.getBoundingClientRect();
+    const barW = bar.offsetWidth || 300;
+    const left = nodeR.left - wsR.left + nodeR.width / 2 - barW / 2;
+    const top = nodeR.top - wsR.top - 48;
+    bar.style.left = `${Math.max(8, Math.min(wsR.width - barW - 8, left))}px`;
+    bar.style.top = `${Math.max(8, top)}px`;
+    bar.classList.add("is-visible");
+  }
+
+  function endFcToolbarInteraction() {
+    window.setTimeout(() => {
+      runtime.fcToolbarInteracting = false;
+      syncFcQuickEditToolbar();
+    }, 0);
+  }
+
+  function bindFcQuickEditToolbar() {
+    const bar = document.getElementById("fcQuickEdit");
+    if (!bar || bar.dataset.fcQuickEditBound) return;
+    bar.dataset.fcQuickEditBound = "1";
+
+    const shield = (e) => {
+      runtime.fcToolbarInteracting = true;
+      e.stopPropagation();
+    };
+    bar.addEventListener("pointerdown", shield, true);
+    bar.addEventListener("mousedown", shield, true);
+
+    const runToolbarAction = (e, action) => {
+      if (runtime.readOnly) return;
+      e.preventDefault();
+      e.stopPropagation();
+      runtime.fcToolbarInteracting = true;
+      const nodeId = getFcQuickEditTargetNodeId();
+      action(nodeId);
+      endFcToolbarInteraction();
+    };
+
+    document.getElementById("fcRenameBtn")?.addEventListener("click", (e) => {
+      runToolbarAction(e, (nodeId) => {
+        if (!nodeId) return;
+        fcStartInlineRename(nodeId);
+      });
+    });
+    document.getElementById("fcDuplicateBtn")?.addEventListener("click", (e) => {
+      runToolbarAction(e, () => {
+        if (!getFcQuickEditTargetNodeId()) return;
+        duplicateSelectedNodesAction();
+      });
+    });
+    document.getElementById("fcAddConnectedBtn")?.addEventListener("click", (e) => {
+      runToolbarAction(e, (nodeId) => fcAddConnectedNodeFromSelection(nodeId));
+    });
+    document.getElementById("fcDeleteBtn")?.addEventListener("click", (e) => {
+      runToolbarAction(e, () => {
+        if (!getFcQuickEditTargetNodeId()) return;
+        requestDeleteSelectedNodes();
+      });
+    });
+  }
+
+  function fcStartInlineRename(nodeId) {
+    if (!nodeId) return;
+    const n = getNodeById(nodeId);
+    if (!n) return;
+    const el = nodesLayer.querySelector(`[data-node-id="${nodeId}"] .body`);
+    if (!el || el.isContentEditable) return;
+    const nodeEl = el.closest(".node");
+    const origTitle = n.title || n.text || "Node";
+    let cancelled = false;
+    runtime.editingNodeId = nodeId;
+    nodeEl?.classList.add("fc-editing");
+    el.classList.add("fc-body-editing");
+    el.contentEditable = "true";
+    el.focus();
+    const titleEl = el.querySelector(".node-title");
+    if (titleEl) {
+      const range = document.createRange();
+      range.selectNodeContents(titleEl);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+    const cleanup = () => {
+      el.contentEditable = "false";
+      el.classList.remove("fc-body-editing");
+      nodeEl?.classList.remove("fc-editing");
+      runtime.editingNodeId = null;
+    };
+    const finish = (save) => {
+      if (runtime.editingNodeId !== nodeId) return;
+      cleanup();
+      const titleEl2 = el.querySelector(".node-title");
+      const next = save ? (titleEl2?.textContent || el.textContent || "").trim() || "Node" : origTitle;
+      const node = getNodeById(nodeId);
+      if (node) {
+        if (save && node.title !== next) {
+          pushHistory();
+          node.title = next;
+          node.text = next;
+          markDirty();
+          scheduleSemanticAnalysis();
+        } else if (!save) {
+          node.title = origTitle;
+          node.text = origTitle;
+        }
+        renderNodeBody(el, node);
+      }
+      renderSelection();
+      syncFcQuickEditToolbar();
+    };
+    const onKey = (ev) => {
+      if (ev.key === "Escape") {
+        ev.preventDefault();
+        ev.stopPropagation();
+        cancelled = true;
+        el.blur();
+      } else if (ev.key === "Enter" && !ev.shiftKey) {
+        ev.preventDefault();
+        el.blur();
+      }
+    };
+    el.addEventListener("keydown", onKey);
+    el.addEventListener("blur", () => {
+      el.removeEventListener("keydown", onKey);
+      finish(!cancelled);
+    }, { once: true });
+  }
+
+  function fcAddConnectedNodeFromSelection(fromId) {
+    fromId = fromId || runtime.selectedNodeId || getFcQuickEditTargetNodeId();
+    if (!fromId) return;
+    const from = getNodeById(fromId);
+    if (!from || !nodeCanWorkspaceTransform(from)) return;
+    pushHistory();
+    const p = getProject();
+    const w = getNodeWorldPosition(from);
+    const h = Number(from.height) || 88;
+    const n = normalizeNode({
+      id: uid(),
+      x: w.x,
+      y: w.y + h + 56,
+      width: 190,
+      height: 88,
+      text: "New step",
+      title: "New step",
+      type: "process",
+      shape: "rounded",
+      color: "#8fb2ff",
+      style: { opacity: 0.92, glow: 12, shadow: 18, radius: 14, borderColor: "#9cb8ff" }
+    });
+    p.nodes.push(n);
+    const connId = uid();
+    const c = { id: connId, from: fromId, to: n.id };
+    normalizeConnectionEdge(c);
+    p.connections.push(c);
+    runtime.selectedNodeIds.clear();
+    runtime.selectedNodeIds.add(n.id);
+    runtime.selectedNodeId = n.id;
+    clearAllEdgeSelection();
+    renderNodes();
+    renderConnections();
+    renderSelection();
+    syncFlowchartEmptyState();
+    flashFcNodeEnter(n.id);
+    flashFcConnEnter(connId);
+    markDirty();
+    scheduleSemanticAnalysis();
+    requestAnimationFrame(() => fcStartInlineRename(n.id));
+  }
+
+  function initFlowchartModeUi() {
+    enableFlowchartMode();
+    runtime.fcConnEnterIds = new Set();
+    initFlowchartAssistantUi();
+    bindFcQuickEditToolbar();
+    bindFcMultiSelectBar();
+    document.getElementById("improveFlowchartLayoutBtn")?.addEventListener("click", () => improveFlowchartLayoutAction());
+    document.getElementById("improveFlowchartLayoutPanelBtn")?.addEventListener("click", () => improveFlowchartLayoutAction());
+    createAiBtn?.removeAttribute("data-flowchart-hide");
+  }
+
+  function getFlowchartPromptText() {
+    const input = document.getElementById("flowchartPromptInput");
+    const modal = document.getElementById("aiPromptInput");
+    if (modal && aiModalOverlay?.classList.contains("open")) return modal.value.trim();
+    return (input?.value || modal?.value || "").trim();
+  }
+
+  function setFlowchartPromptText(text) {
+    const empty = document.getElementById("flowchartPromptInput");
+    const modal = document.getElementById("aiPromptInput");
+    if (empty) empty.value = text;
+    if (modal) modal.value = text;
+  }
+
+  function loadFlowchartCompilerScript() {
+    if (window.FlowchartCompiler) return Promise.resolve(window.FlowchartCompiler);
+    if (runtime._fcCompilerLoadPromise) return runtime._fcCompilerLoadPromise;
+    runtime._fcCompilerLoadPromise = new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = "flowchart-compiler.js";
+      s.async = true;
+      s.onload = () => {
+        if (window.FlowchartCompiler) resolve(window.FlowchartCompiler);
+        else reject(new Error("FlowchartCompiler not on window"));
+      };
+      s.onerror = () => reject(new Error("Failed to load flowchart-compiler.js — run npm run build:flowchart"));
+      document.head.appendChild(s);
+    });
+    return runtime._fcCompilerLoadPromise;
+  }
+
+  async function getFlowchartCompleter(FC) {
+    const aiCfg = window.MAPDIAGRAM_AI || {};
+    if (runtime.supabase) {
+      const { data: sessData } = await runtime.supabase.auth.getSession();
+      const gatewayAccessToken = sessData?.session?.access_token || "";
+      if (gatewayAccessToken) {
+        const keyTrim = String(SUPABASE_ANON_KEY || "").trim();
+        const urlSnap = normalizeSupabaseProjectUrl(SUPABASE_URL);
+        const projectBase = runtime.supabaseProjectBaseUrl || (urlSnap.ok ? urlSnap.baseUrl : "");
+        return (system, user) =>
+          FC.completeOpenAiThroughBillingGateway(
+            {
+              projectBaseUrl: projectBase,
+              supabaseAnonKey: keyTrim,
+              accessToken: gatewayAccessToken,
+              model: aiCfg.model,
+            },
+            system,
+            user
+          );
+      }
+    }
+    return FC.createMockFlowchartCompleter();
+  }
+
+  function revealFlowchartDiagram(spec, payload) {
+    const FC = window.FlowchartCompiler;
+    const plan = FC.buildRevealPlan(spec, payload, { staggerMs: 50 });
+    if (plan.respectReducedMotion || !plan.staggerMs) {
+      fitToScreen();
+      return;
+    }
+    for (let i = 0; i < plan.nodeIds.length; i++) {
+      const nid = plan.nodeIds[i];
+      window.setTimeout(() => flashFcNodeEnter(nid), i * plan.staggerMs);
+    }
+    const edgeStart = plan.nodeIds.length * plan.staggerMs + 60;
+    const connBatch = 3;
+    for (let j = 0; j < plan.connectionIds.length; j += connBatch) {
+      window.setTimeout(() => {
+        for (let k = 0; k < connBatch && j + k < plan.connectionIds.length; k++) {
+          flashFcConnEnter(plan.connectionIds[j + k]);
+        }
+      }, edgeStart + Math.floor(j / connBatch) * 36);
+    }
+    const edgeEnd = edgeStart + Math.ceil(plan.connectionIds.length / connBatch) * 36 + 80;
+    window.setTimeout(() => {
+      centerFlowchartInViewSoft();
+    }, edgeEnd);
+  }
+
+  function applyFlowchartPayload(spec, payload) {
+    pushHistory();
+    const p = getProject();
+    p.nodes = payload.nodes;
+    p.connections = payload.connections;
+    p.title = payload.title;
+    p.name = payload.title;
+    runtime.selectedNodeId = null;
+    runtime.selectedNodeIds.clear();
+    clearAllEdgeSelection();
+    runtime.selectedGroupId = null;
+    runtime.selectedGroupIds.clear();
+    runtime.graphCacheKey = "";
+    renderAll();
+    markDirty();
+    scheduleSemanticAnalysis();
+    revealFlowchartDiagram(spec, payload);
+    if (payload.nodes?.length) markFlowchartAssistantGenerated();
+    pruneFlowGroups(getProject());
+    renderFlowGroupOverlays();
+    workspace?.focus?.();
+  }
+
+  async function runFlowchartGeneration(promptText) {
+    const text = String(promptText || "").trim();
+    if (!text) {
+      if (aiStatus) aiStatus.textContent = "Add a short prompt first.";
+      return;
+    }
+    const btn = document.getElementById("fcGenerateBtn");
+    const prevBtn = btn?.textContent;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Generating…";
+    }
+    if (aiGenerateBtn) {
+      aiGenerateBtn.disabled = true;
+      aiGenerateBtn.textContent = "Compiling…";
+    }
+    if (aiStatus) aiStatus.textContent = "Loading compiler → validate → layout…";
+    try {
+      const FC = await loadFlowchartCompilerScript();
+      const completer = await getFlowchartCompleter(FC);
+      const spec = await FC.compileFlowchartSpecWithRetries(text, completer, 2);
+      const batchId = uid();
+      const payload = FC.compileFlowchartToCanvas(spec, batchId, uid);
+      applyFlowchartPayload(spec, payload);
+      runtime.generatedAt = Date.now();
+      runtime.fcEditCount = 0;
+      if (aiStatus) aiStatus.textContent = `Generated “${spec.title}” (${spec.nodes.length} steps).`;
+      void refreshUserCreditsDisplay();
+      if (aiModalOverlay?.classList.contains("open")) setTimeout(closeAiModal, 450);
+    } catch (err) {
+      const msg = (err && err.message) ? err.message : String(err);
+      if (aiStatus) aiStatus.textContent = msg;
+      console.error("[MapDiagram][Flowchart]", err);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = prevBtn || "Generate a clean flowchart";
+      }
+      if (aiGenerateBtn) {
+        aiGenerateBtn.textContent = "Generate";
+        applyAiCreditGatesToUi();
+      }
+    }
+  }
+
+  function fcNodeCenterX(n) {
+    const w = getNodeWorldPosition(n);
+    return w.x + (Number(n.width) || 190) / 2;
+  }
+
+  function normalizeFlowchartSpacing(options = {}) {
+    const p = getProject();
+    const nodes = p.nodes.filter((n) => !isNodeHiddenCanvas(n));
+    if (nodes.length < 2) return {};
+    const nodeSet = new Set(nodes.map((n) => n.id));
+    const children = new Map();
+    const parents = new Map();
+    for (const c of p.connections) {
+      if (!isNodeNodeConnection(c) || isBranchFromConnection(c)) continue;
+      if (!nodeSet.has(c.from) || !nodeSet.has(c.to)) continue;
+      if (!children.has(c.from)) children.set(c.from, []);
+      children.get(c.from).push(c.to);
+      if (!parents.has(c.to)) parents.set(c.to, []);
+      parents.get(c.to).push(c.from);
+    }
+    const incoming = new Map(nodes.map((n) => [n.id, 0]));
+    for (const [childId, parList] of parents) incoming.set(childId, parList.length);
+    let roots = nodes.filter((n) => !(incoming.get(n.id) || 0));
+    if (!roots.length) {
+      roots = [nodes.reduce((a, b) => (getNodeWorldPosition(a).y < getNodeWorldPosition(b).y ? a : b))];
+    }
+    const depth = new Map();
+    const queue = roots.map((n) => ({ id: n.id, d: 0 }));
+    while (queue.length) {
+      const { id, d } = queue.shift();
+      const prev = depth.get(id);
+      if (prev != null && d <= prev) continue;
+      depth.set(id, d);
+      for (const ch of children.get(id) || []) queue.push({ id: ch, d: d + 1 });
+    }
+    for (const n of nodes) if (!depth.has(n.id)) depth.set(n.id, 0);
+
+    const rowGap = options.rowGap ?? 96;
+    const colGap = options.colGap ?? 208;
+    const padX = options.padX ?? 72;
+    const padY = options.padY ?? 52;
+    const layers = new Map();
+    for (const n of nodes) {
+      const d = depth.get(n.id) || 0;
+      if (!layers.has(d)) layers.set(d, []);
+      layers.get(d).push(n);
+    }
+
+    const targets = {};
+    const layerKeys = [...layers.keys()].sort((a, b) => a - b);
+    for (const lk of layerKeys) {
+      const layer = layers.get(lk).slice().sort((a, b) => fcNodeCenterX(a) - fcNodeCenterX(b));
+      const y = padY + lk * rowGap;
+      if (layer.length === 1) {
+        const n = layer[0];
+        const par = parents.get(n.id) || [];
+        let cx = fcNodeCenterX(n);
+        if (par.length === 1 && targets[par[0]]) {
+          const pn = getNodeById(par[0]);
+          cx = targets[par[0]].x + (Number(pn?.width) || 190) / 2;
+        } else if (!par.length) {
+          cx = Math.max(padX + 120, cx);
+        }
+        targets[n.id] = { x: cx - (Number(n.width) || 190) / 2, y };
+        continue;
+      }
+      const sharedParent = (parents.get(layer[0].id) || [])[0];
+      let centerX = padX + ((layer.length - 1) * colGap) / 2 + 120;
+      if (sharedParent && targets[sharedParent]) {
+        const pn = getNodeById(sharedParent);
+        centerX = targets[sharedParent].x + (Number(pn?.width) || 190) / 2;
+      }
+      const totalSpan = (layer.length - 1) * colGap;
+      let x0 = centerX - totalSpan / 2;
+      layer.forEach((n, i) => {
+        const nw = Number(n.width) || 190;
+        targets[n.id] = { x: x0 + i * colGap - nw / 2, y };
+      });
+    }
+
+    const ids = Object.keys(targets);
+    for (let pass = 0; pass < 3; pass++) {
+      ids.sort((a, b) => targets[a].y - targets[b].y || targets[a].x - targets[b].x);
+      for (let i = 0; i < ids.length; i++) {
+        for (let j = i + 1; j < ids.length; j++) {
+          const na = getNodeById(ids[i]);
+          const nb = getNodeById(ids[j]);
+          if (!na || !nb) continue;
+          const ta = targets[ids[i]];
+          const tb = targets[ids[j]];
+          const gap = 22;
+          const ox = Math.min(ta.x + na.width + gap - tb.x, tb.x + nb.width + gap - ta.x);
+          const oy = Math.min(ta.y + na.height + gap - tb.y, tb.y + nb.height + gap - ta.y);
+          if (ox > 0 && oy > 0) tb.x += ox;
+        }
+      }
+    }
+    return targets;
+  }
+
+  function centerFlowchartInViewSoft() {
+    if (!isFlowchartMode()) return;
+    const p = getProject();
+    const vis = p.nodes.filter((n) => !isNodeHiddenCanvas(n));
+    if (!vis.length || vis.length > 14) return;
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const n of vis) {
+      const w = getNodeWorldPosition(n);
+      minX = Math.min(minX, w.x);
+      minY = Math.min(minY, w.y);
+      maxX = Math.max(maxX, w.x + n.width);
+      maxY = Math.max(maxY, w.y + n.height);
+    }
+    const bw = maxX - minX;
+    const bh = maxY - minY;
+    const r = workspace.getBoundingClientRect();
+    if (bw > r.width * 0.82 || bh > r.height * 0.78) return;
+    const cx = (minX + maxX) / 2;
+    const cy = (minY + maxY) / 2;
+    const zoom = p.view.zoom;
+    workspace.classList.add("fc-composing");
+    p.view.x = r.width / 2 - cx * zoom;
+    p.view.y = r.height / 2 - cy * zoom;
+    updateViewport();
+    window.setTimeout(() => workspace.classList.remove("fc-composing"), 480);
+  }
+
+  function improveFlowchartLayoutAction() {
+    if (!isFlowchartMode()) return;
+    const p = getProject();
+    const vis = p.nodes.filter((n) => !isNodeHiddenCanvas(n));
+    if (vis.length < 2) return;
+    pushHistory();
+    const targets = normalizeFlowchartSpacing();
+    if (!Object.keys(targets).length) return;
+    for (const id of Object.keys(targets)) {
+      const el = nodesLayer.querySelector(`[data-node-id="${id}"]`);
+      if (el) el.classList.add("fc-layout-moving");
+    }
+    animateNodesToPositions(targets, 480);
+    markDirty();
+    scheduleSemanticAnalysis();
+    window.setTimeout(() => {
+      nodesLayer.querySelectorAll(".node.fc-layout-moving").forEach((el) => el.classList.remove("fc-layout-moving"));
+      centerFlowchartInViewSoft();
+    }, 500);
+  }
+
+  function flashFcNodeEnter(nodeId) {
+    if (!nodeId) return;
+    requestAnimationFrame(() => {
+      const el = nodesLayer.querySelector(`[data-node-id="${nodeId}"]`);
+      if (!el) return;
+      el.classList.remove("fc-enter");
+      void el.offsetWidth;
+      el.classList.add("fc-enter");
+      el.addEventListener("animationend", () => el.classList.remove("fc-enter"), { once: true });
+    });
+  }
+
+  function flashFcConnEnter(connId) {
+    if (!connId || !runtime.fcConnEnterIds) return;
+    runtime.fcConnEnterIds.add(connId);
+    scheduleRenderConnections();
+    window.setTimeout(() => {
+      runtime.fcConnEnterIds.delete(connId);
+      scheduleRenderConnections();
+    }, 520);
+  }
+
+  function setFlowchartNodesDragging(dragIds, on) {
+    if (!dragIds || !dragIds.length) return;
+    for (const id of dragIds) {
+      const el = nodesLayer.querySelector(`[data-node-id="${id}"]`);
+      if (el) el.classList.toggle("is-dragging", !!on);
+    }
+    if (isFlowchartMode()) syncFcAssistantFabDragState();
+  }
 
   function ensureNodeStyle(n) {
     n.style = n.style || {};
@@ -5263,6 +7384,7 @@
       if (ch) ch.classList.add("is-dragging");
     }
     scheduleGroupDragOverlayFrame();
+    if (isFlowchartMode()) syncFcAssistantFabDragState();
   }
 
   function updateGroupDrag(e) {
@@ -5326,6 +7448,10 @@
     runtime.groupBoxCache = null;
     scheduleRenderConnections();
     renderSemanticOverlays();
+    if (isFlowchartMode()) {
+      syncFcAssistantFabDragState();
+      syncFcAssistantFabCollision();
+    }
   }
 
   function endGroupDrag() {
@@ -5377,6 +7503,10 @@
     renderSemanticOverlays();
     paintMinimap();
     if (moved) markDirty();
+    if (isFlowchartMode()) {
+      syncFcAssistantFabDragState();
+      syncFcAssistantFabCollision();
+    }
   }
 
   function applyUserGroupSelection(ev, g, opts = {}) {
@@ -5825,12 +7955,18 @@
 
   function finalizeActiveNodeDragIfAny() {
     if (!runtime.dragging) return;
+    const dragIds = runtime.dragging.dragIds || [runtime.dragging.nodeId];
     if (runtime.semOverlayRaf) {
       cancelAnimationFrame(runtime.semOverlayRaf);
       runtime.semOverlayRaf = 0;
     }
     syncNodeSizes();
     runtime.dragging = null;
+    setFlowchartNodesDragging(dragIds, false);
+    if (isFlowchartMode()) {
+      syncFcAssistantFabCollision();
+      refreshFlowGroupsForNodeIds(dragIds);
+    }
     clearSnapGuides();
     resolveNodeCollisions({ immediate: true });
     renderSemanticOverlays();
@@ -5871,6 +8007,11 @@
     }
     workspace.classList.remove("panning");
     workspace.style.cursor = "";
+    runtime.fcCanvasPick = null;
+    if (runtime.marquee) {
+      runtime.marquee = null;
+      if (marquee) marquee.style.display = "none";
+    }
   }
 
   function getSnapTargetByPoint(point, sourceNodeId) {
@@ -5916,6 +8057,7 @@
     el.classList.toggle("node-freeform", !!st.freeform);
     el.classList.toggle("node-hidden-canvas", isNodeHiddenCanvas(node));
     applyNodeVisualStyles(el, node);
+    applyFlowchartNodeRoleClass(el, node);
     if (body && !body.isContentEditable) renderNodeBody(body, node);
     renderNodeChromeOverlays(el, node);
   }
@@ -6274,11 +8416,37 @@
     };
   }
 
-  function getCurveData(connectionId, from, to) {
+  function flowchartEdgeCurve(c, from, to) {
+    if (!isFlowchartMode() || !c) return null;
+    const dist = Math.hypot(to.x - from.x, to.y - from.y);
+    const t = Math.max(48, Math.min(200, dist * 0.4));
+    if (c.meta?.isBackEdge) {
+      const lane = 64;
+      const left = Math.min(from.x, to.x) - lane;
+      return {
+        cp1: { x: left, y: from.y + 18 },
+        cp2: { x: left, y: to.y - 18 },
+        custom: false
+      };
+    }
+    const hint = c.meta?.branchHint;
+    const lab = String(c.label || "").trim().toLowerCase();
+    if (hint === "yes" || lab === "yes") {
+      return { cp1: { x: from.x + t, y: from.y + 14 }, cp2: { x: to.x - t * 0.55, y: to.y - 8 }, custom: false };
+    }
+    if (hint === "no" || lab === "no") {
+      return { cp1: { x: from.x - t, y: from.y + 14 }, cp2: { x: to.x + t * 0.55, y: to.y - 8 }, custom: false };
+    }
+    return null;
+  }
+
+  function getCurveData(connectionId, from, to, conn) {
     const ui = runtime.connectionUi[connectionId];
     if (ui && ui.custom && ui.cp1 && ui.cp2) {
       return { cp1: ui.cp1, cp2: ui.cp2, custom: true };
     }
+    const fc = conn && flowchartEdgeCurve(conn, from, to);
+    if (fc) return fc;
     const auto = autoCurve(from, to);
     return { cp1: auto.cp1, cp2: auto.cp2, custom: false };
   }
@@ -6320,7 +8488,7 @@
     const toPre = anchorNodeForConnection(c.to, "to", anchor(fromNode, "out", nodeWorldCenter(toNode)));
     const from = anchorNodeForConnection(c.from, "from", toPre);
     const to = anchorNodeForConnection(c.to, "to", from);
-    const curve = getCurveData(c.id, from, to);
+    const curve = getCurveData(c.id, from, to, c);
     const obstacles = p.nodes
       .filter((n) => n.id !== fromNode.id && n.id !== toNode.id)
       .filter((n) => !isNodeHiddenCanvas(n))
@@ -6729,8 +8897,25 @@
   }
 
   function renderNodePicker() {
-    const categories = ["General", "Flowchart", "Advanced"];
     nodePicker.innerHTML = "";
+    if (isFlowchartMode()) {
+      const group = document.createElement("div");
+      group.className = "picker-category";
+      const head = document.createElement("h4");
+      head.textContent = "Flowchart";
+      group.appendChild(head);
+      for (const preset of FLOWCHART_MODE_PRESETS) {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "node-preview";
+        card.innerHTML = `<div class="preview-node"><div class="node-icon">${preset.icon}</div><div class="preview-label">${preset.label}</div></div>`;
+        card.addEventListener("click", () => insertPresetNode(preset));
+        group.appendChild(card);
+      }
+      nodePicker.appendChild(group);
+      return;
+    }
+    const categories = ["General", "Flowchart", "Advanced"];
     for (const c of categories) {
       const group = document.createElement("div");
       group.className = "picker-category";
@@ -6869,11 +9054,14 @@
     const r = workspace.getBoundingClientRect();
     const x = (r.width / 2 - p.view.x) / p.view.zoom - 95 + (Math.random() * 30 - 15);
     const y = (r.height / 2 - p.view.y) / p.view.zoom - 55 + (Math.random() * 30 - 15);
+    const fcDims = isFlowchartMode() && preset.width && preset.height
+      ? { width: preset.width, height: preset.height }
+      : { width: 210, height: 118 };
     const n = {
       id: uid(),
       x, y,
-      width: 210,
-      height: 118,
+      width: fcDims.width,
+      height: fcDims.height,
       text: preset.label,
       title: preset.label,
       subtitle: preset.subtitle,
@@ -6885,11 +9073,14 @@
       style: { opacity: 0.88, glow: 14, shadow: 22, radius: preset.shape === "rounded" ? 16 : 12, borderColor: "#9cb8ff" }
     };
     p.nodes.push(n);
+    runtime.selectedNodeIds.clear();
+    runtime.selectedNodeIds.add(n.id);
     runtime.selectedNodeId = n.id;
     clearAllEdgeSelection();
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
     renderAll();
+    if (isFlowchartMode()) flashFcNodeEnter(n.id);
     markDirty();
     scheduleSemanticAnalysis();
   }
@@ -6914,6 +9105,7 @@
 
     body.addEventListener("pointerdown", (e) => {
       if (body.isContentEditable) return;
+      if (runtime.readOnly) return;
       if (e.button === 1 && !runtime.connecting) {
         e.stopPropagation();
         e.preventDefault();
@@ -6930,10 +9122,24 @@
       } else {
         runtime.touchDragPending = null;
       }
+      if (fcEditorCanSelect() && e.shiftKey) {
+        if (runtime.selectedNodeIds.has(n.id)) runtime.selectedNodeIds.delete(n.id);
+        else runtime.selectedNodeIds.add(n.id);
+        if (runtime.selectedNodeIds.size === 0) runtime.selectedNodeId = null;
+        else if (runtime.selectedNodeIds.size === 1) runtime.selectedNodeId = [...runtime.selectedNodeIds][0];
+        else runtime.selectedNodeId = null;
+        clearAllEdgeSelection();
+        runtime.selectedGroupId = null;
+        runtime.selectedGroupIds.clear();
+        renderSelection();
+        return;
+      }
       if (e.ctrlKey || e.metaKey) {
         if (runtime.selectedNodeIds.has(n.id)) runtime.selectedNodeIds.delete(n.id);
         else runtime.selectedNodeIds.add(n.id);
         runtime.selectedNodeId = runtime.selectedNodeIds.size === 1 ? [...runtime.selectedNodeIds][0] : n.id;
+      } else if (fcEditorCanSelect() && runtime.selectedNodeIds.has(n.id) && runtime.selectedNodeIds.size > 1) {
+        runtime.selectedNodeId = n.id;
       } else {
         if (!runtime.selectedNodeIds.has(n.id)) runtime.selectedNodeIds.clear();
         runtime.selectedNodeIds.add(n.id);
@@ -6969,6 +9175,7 @@
           }))
         };
         if (e.pointerType === "touch") runtime.dragging = null;
+        else if (isFlowchartMode() && runtime.dragging) setFlowchartNodesDragging(dragIds, true);
       }
       runtime.bodyPressPointerId = e.pointerId;
       runtime.bodyPressStart = { x: e.clientX, y: e.clientY };
@@ -6995,13 +9202,15 @@
     body.addEventListener("dblclick", (e) => {
       e.stopPropagation();
       e.preventDefault();
-      revealDiagramNodeInspectorAndOpenExtended(n.id);
+      if (isFlowchartMode()) fcStartInlineRename(n.id);
+      else revealDiagramNodeInspectorAndOpenExtended(n.id);
     });
 
     el.append(body);
     if (st0.freeform) el.classList.add("node-freeform");
     if (isNodeHiddenCanvas(n)) el.classList.add("node-hidden-canvas");
     applyNodeVisualStyles(el, n);
+    applyFlowchartNodeRoleClass(el, n);
     renderNodeChromeOverlays(el, n);
     resizeObserver.observe(el);
     return el;
@@ -7178,7 +9387,7 @@
       const toPre = anchorNodeForConnection(c.to, "to", anchor(fromNode, "out", nodeWorldCenter(toNode)));
       const from = anchorNodeForConnection(c.from, "from", toPre);
       const to = anchorNodeForConnection(c.to, "to", from);
-      const curve = getCurveData(c.id, from, to);
+      const curve = getCurveData(c.id, from, to, c);
       const obstacles = p.nodes
         .filter((n) => n.id !== fromNode.id && n.id !== toNode.id)
         .filter((n) => !isNodeHiddenCanvas(n))
@@ -7233,7 +9442,7 @@
       const nnSel = runtime.selectedConnectionIds.has(c.id) || runtime.selectedConnectionId === c.id;
       path.setAttribute(
         "class",
-        `conn${nnSel ? " selected" : ""}${runtime.connectionFeedbackId === c.id ? " confirm" : ""}${connListHoverSuffix(c.id, null)}`
+        `conn${c.meta?.isBackEdge ? " fc-conn-back" : ""}${nnSel ? " selected" : ""}${runtime.connectionFeedbackId === c.id ? " confirm" : ""}${connListHoverSuffix(c.id, null)}`
       );
       if (nnStroke) {
         path.setAttribute("stroke", nnStroke);
@@ -7246,6 +9455,17 @@
       const dashNn = connectionDashArray(c.strokeDash);
       if (dashNn) path.setAttribute("stroke-dasharray", dashNn);
       path.dataset.connId = c.id;
+      if (runtime.fcConnEnterIds?.has(c.id)) {
+        try {
+          const len = path.getTotalLength();
+          path.style.setProperty("--conn-len", String(len));
+          path.style.strokeDasharray = String(len);
+          path.style.strokeDashoffset = String(len);
+          path.classList.add("conn-draw-in");
+        } catch (_) {
+          path.classList.add("conn-draw-in");
+        }
+      }
       connectionsLayer.appendChild(hit);
       connectionsLayer.appendChild(path);
 
@@ -7326,7 +9546,7 @@
       if (!junc) continue;
       const fromPt = junc;
       const to = anchorNodeForConnection(c.to, "to", fromPt);
-      const curve = getCurveData(c.id, fromPt, to);
+      const curve = getCurveData(c.id, fromPt, to, c);
       const obstacles = p.nodes
         .filter((n) => n.id !== toNode.id && n.id !== lay.fromNode.id && n.id !== lay.toNode.id)
         .filter((n) => !isNodeHiddenCanvas(n))
@@ -8285,7 +10505,8 @@
   /** Phase 3: command palette + shortcut help (single registry). */
   function getWorkspaceCommands() {
     return [
-      { id: "palette", label: "Command palette", keys: "Ctrl+K / ⌘K", keywords: "search actions", run: () => openCommandPalette(true) },
+      { id: "fcAssistant", label: "Flowchart assistant", keys: "Ctrl+K / ⌘K", keywords: "generate ai prompt", run: () => toggleFlowchartAssistant() },
+      { id: "palette", label: "Command palette", keys: "Ctrl+Shift+K", keywords: "search actions", run: () => openCommandPalette(true) },
       { id: "shortcuts", label: "Keyboard shortcuts help", keys: "Palette ▸ Shortcuts", keywords: "help keys", run: () => openKeyboardHelpOverlay() },
       { id: "fit", label: "Fit to screen", keys: "", keywords: "zoom view bounds", run: () => fitViewBtn?.click() },
       { id: "fitPanel", label: "Fit to screen (inspector button)", keys: "", keywords: "", run: () => document.getElementById("fitViewInPanelBtn")?.click() },
@@ -8300,6 +10521,7 @@
       { id: "smart", label: "Smart Clean diagram", keys: "", keywords: "tidy", run: () => document.getElementById("smartCleanBtn")?.click() },
       { id: "refreshPaths", label: "Refresh connection paths", keys: "", keywords: "reroute edges", run: () => document.getElementById("refreshConnectionPathsBtn")?.click() },
       { id: "autoLayout", label: "Auto layout", keys: "", keywords: "graph arrange", run: () => document.getElementById("autoLayoutBtn")?.click() },
+      { id: "improveFcLayout", label: "Improve flowchart layout", keys: "Ctrl+L", keywords: "polish spacing rhythm", run: () => improveFlowchartLayoutAction() },
       { id: "alignL", label: "Align selection left", keys: "", keywords: "", run: () => alignDistributeSelection("left") },
       { id: "alignT", label: "Align selection top", keys: "", keywords: "", run: () => alignDistributeSelection("top") },
       { id: "alignHc", label: "Align selection horizontal centers", keys: "", keywords: "", run: () => alignDistributeSelection("hcenter") },
@@ -8309,7 +10531,7 @@
       { id: "expandG", label: "Expand selection to graph neighbors", keys: "", keywords: "connected", run: () => expandSelectionToGraphNeighbors() },
       { id: "expandT", label: "Expand selection to same node type", keys: "", keywords: "", run: () => expandSelectionToSameType() },
       { id: "theme", label: "Toggle light / dark theme", keys: "", keywords: "color appearance", run: () => document.getElementById("themeToggleBtn")?.click() },
-      { id: "share", label: "Create share link", keys: "", keywords: "clipboard url", run: () => document.getElementById("shareBtn")?.click() },
+      { id: "share", label: "Publish flowchart", keys: "", keywords: "public url share", run: () => document.getElementById("publishFlowchartBtn")?.click() },
       { id: "delEdge", label: "Delete selected links", keys: "Delete", keywords: "edges connections remove", run: () => bulkDeleteSelectedEdgesAction() },
       { id: "delNode", label: "Delete selected node(s)", keys: "", keywords: "remove", run: () => document.getElementById("deleteNodeBtn")?.click() }
     ];
@@ -8708,6 +10930,7 @@
     markDirty();
     scheduleRenderConnections();
     scheduleSemanticAnalysis(160);
+    if (isFlowchartMode()) refreshFlowGroupsForNodeIds(ids);
   }
 
   function expandSelectionToGraphNeighbors() {
@@ -8885,6 +11108,8 @@
     syncEdgeInspectorPanel();
     renderOutlineTreePanel();
     syncTopbarConnectionActions();
+    syncFcQuickEditToolbar();
+    syncFcMultiSelectBar();
   }
 
   function syncNodeSizes() {
@@ -8903,12 +11128,18 @@
     renderProjects();
     renderNodes();
     renderConnections();
+    renderFlowGroupOverlays();
     renderSelection();
     renderNodeSemanticClasses();
     renderSemanticOverlays();
     renderSuggestions();
     mobileHint.textContent = "Touch: one finger drag/pan, two fingers pinch zoom.";
     paintMinimap();
+    syncFlowchartEmptyState();
+    if (runtime._fcCenterAfterOnboard && isFlowchartMode()) {
+      runtime._fcCenterAfterOnboard = false;
+      window.setTimeout(() => centerFlowchartInViewSoft(), 80);
+    }
   }
 
   function paintMinimap() {
@@ -9053,7 +11284,8 @@
       if (box) bump(box.x, box.y, box.w, box.h);
     }
     if (!Number.isFinite(minX)) return null;
-    return { minX, minY, maxX, maxY };
+    const padExtra = isFlowchartMode() ? 32 : 16;
+    return { minX: minX - padExtra, minY: minY - padExtra, maxX: maxX + padExtra, maxY: maxY + padExtra };
   }
 
   function pngCtxSetLineDashFromEdge(ctx, edge) {
@@ -9257,7 +11489,7 @@
       const toPre = anchorNodeForConnection(c.to, "to", anchor(fromNode, "out", nodeWorldCenter(toNode)));
       const from = anchorNodeForConnection(c.from, "from", toPre);
       const to = anchorNodeForConnection(c.to, "to", from);
-      const curve = getCurveData(c.id, from, to);
+      const curve = getCurveData(c.id, from, to, c);
       const obstacles = p.nodes
         .filter((n) => n.id !== fromNode.id && n.id !== toNode.id)
         .filter((n) => !isNodeHiddenCanvas(n))
@@ -9317,7 +11549,7 @@
       if (!junc) continue;
       const fromPt = junc;
       const to = anchorNodeForConnection(c.to, "to", fromPt);
-      const curve = getCurveData(c.id, fromPt, to);
+      const curve = getCurveData(c.id, fromPt, to, c);
       const obstacles = p.nodes
         .filter((n) => n.id !== toNode.id && n.id !== lay.fromNode.id && n.id !== lay.toNode.id)
         .filter((n) => !isNodeHiddenCanvas(n))
@@ -9421,12 +11653,25 @@
     }
   }
 
+  function paintPngWatermark(ctx, w, h) {
+    if (!isFlowchartMode()) return;
+    const label = "MapDiagram";
+    ctx.save();
+    ctx.font = "11px Inter, Segoe UI, Arial";
+    ctx.fillStyle = "rgba(169, 188, 230, 0.42)";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "bottom";
+    ctx.fillText(label, w - 14, h - 10);
+    ctx.restore();
+  }
+
   function exportAsPng() {
     const p = getProject();
     if (!p.nodes.length) return;
     const padEl = document.getElementById("pngExportPad");
     const scaleEl = document.getElementById("pngExportScale");
-    const pad = Math.max(8, Math.min(400, Math.round(Number(padEl?.value) || 80)));
+    const basePad = Math.max(8, Math.min(400, Math.round(Number(padEl?.value) || 80)));
+    const pad = isFlowchartMode() ? Math.max(basePad, 96) : basePad;
     const sc = Math.max(0.5, Math.min(3, Number(scaleEl?.value) || 1));
     const transparent = !!document.getElementById("pngExportTransparent")?.checked;
     const wb = getDiagramWorldBoundsForPngExport(p);
@@ -9455,13 +11700,179 @@
     ctx.save();
     ctx.translate(tx, ty);
     paintDiagramToPngContext(ctx, p);
+    paintPngWatermark(ctx, width, height);
     ctx.restore();
     const a = document.createElement("a");
     a.href = canvas.toDataURL("image/png");
     a.download = `${(p.name || "diagram").replace(/\s+/g, "-").toLowerCase()}.png`;
     a.click();
     showToast("PNG export complete (nodes, systems, and all link types).", "info");
+    if (window.MapDiagramAnalytics) MapDiagramAnalytics.exportPng({ flowchart: isFlowchartMode() });
+    if (isFlowchartMode()) {
+      window.setTimeout(() => {
+        showToast("Shared this flowchart? Publish it online.", "info");
+        if (window.MapDiagramAnalytics) MapDiagramAnalytics.shareAfterExport({});
+      }, 900);
+    }
   }
+
+
+  function getFcEditCount() { return runtime.fcEditCount || 0; }
+
+  function enableReadOnlyChrome() {
+    runtime.readOnly = true;
+    document.body.classList.add("public-view-mode");
+    enableFlowchartMode();
+  }
+
+  async function compileFromTemplateSpec(spec, title) {
+    const FC = await loadFlowchartCompilerScript();
+    const batchId = uid();
+    const payload = FC.compileFlowchartToCanvas(spec, batchId, uid);
+    applyFlowchartPayload({ version: 1, title: title || spec.title, direction: spec.direction || "TB", nodes: spec.nodes, edges: spec.edges }, payload);
+  }
+
+  function applyCanvasPayload(title, canvas) {
+    pushHistory();
+    const p = getProject();
+    p.title = title || p.title;
+    p.name = title || p.name;
+    p.nodes = (canvas.nodes || []).map((n) => normalizeNode(n));
+    p.connections = canvas.connections || [];
+    p.userGroups = canvas.userGroups || [];
+    p.groupConnections = canvas.groupConnections || [];
+    renderAll();
+    markDirty();
+    fitToScreen();
+  }
+
+  async function loadFlowchartTemplate(slug) {
+    if (!window.FlowchartProduct) throw new Error("Product module not loaded");
+    await FlowchartProduct.loadFlowchartTemplate(
+      {
+        getProject,
+        deepCopy,
+        normalizeNode,
+        compileFromSpec: compileFromTemplateSpec,
+        applyCanvasPayload,
+      },
+      slug,
+    );
+    showToast("Template applied", "info");
+  }
+
+  async function publishFlowchart() {
+    const p = getProject();
+    if (!p?.nodes?.length) {
+      showToast("Add nodes before publishing", "warn");
+      return;
+    }
+    if (!runtime.supabase || !runtime.authUser) {
+      showToast("Sign in to publish a public link", "warn");
+      if (!runtime.supabase) window.location.href = "/auth/";
+      else openAuthModal();
+      return;
+    }
+    const btn = document.getElementById("publishFlowchartBtn") || document.getElementById("shareBtn");
+    if (btn) btn.classList.add("publishing");
+    try {
+      const snap = FlowchartProduct.buildSnapshot({
+        getProject,
+        deepCopy,
+        getEditCount: getFcEditCount,
+      });
+      const result = await FlowchartProduct.publishToSupabase(
+        {
+          supabase: runtime.supabase,
+          supabaseUrl: SUPABASE_URL,
+          supabaseAnonKey: SUPABASE_ANON_KEY,
+          normalizeSupabaseProjectUrl,
+        },
+        { title: snap.title, data: snap },
+      );
+      const url = result.url || (location.origin + "/app/view.html?slug=" + result.slug);
+      await navigator.clipboard.writeText(url);
+      savedIndicator.textContent = "Public link ready";
+      showToast("Public link ready — copied to clipboard", "info");
+      if (window.MapDiagramAnalytics) MapDiagramAnalytics.publishFlowchart({ slug: result.slug });
+      setTimeout(() => (savedIndicator.textContent = "Saved"), 2000);
+    } catch (err) {
+      showToast((err && err.message) || "Publish failed", "warn");
+    } finally {
+      if (btn) btn.classList.remove("publishing");
+    }
+  }
+
+  function openFlowchartTemplatePicker() {
+    const catalog = window.FLOWCHART_TEMPLATE_CATALOG || [];
+    if (!catalog.length || !window.FlowchartProduct) return;
+    FlowchartProduct.renderTemplatePicker(catalog, (slug) => {
+      void loadFlowchartTemplate(slug).catch((e) => showToast(e.message || "Template failed", "warn"));
+    });
+  }
+
+  async function initPublicViewIfNeeded() {
+    if (!PUBLIC_VIEW_SLUG || !window.FlowchartProduct) return;
+    try {
+      await FlowchartProduct.bootstrapPublicView(
+        {
+          getProject,
+          normalizeNode,
+          renderAll,
+          fitToScreen,
+          enableReadOnlyChrome,
+          supabaseUrl: SUPABASE_URL,
+          supabaseAnonKey: SUPABASE_ANON_KEY,
+          normalizeSupabaseProjectUrl,
+        },
+        PUBLIC_VIEW_SLUG,
+      );
+    } catch (e) {
+      showToast("Could not load shared flowchart", "warn");
+    }
+  }
+
+  function initFlowchartProductUi() {
+    const pub = document.getElementById("publishFlowchartBtn");
+    if (pub) pub.onclick = () => void publishFlowchart();
+    const tplBtn = document.getElementById("fcTemplatesBtn");
+    if (tplBtn) tplBtn.onclick = () => openFlowchartTemplatePicker();
+    const tryEx = document.getElementById("fcTryExampleBtn");
+    if (tryEx) tryEx.onclick = () => void loadFlowchartTemplate("invoice-approval");
+    rotateFcStarterChips();
+    void initPublicViewIfNeeded();
+    const tplSlug = new URLSearchParams(location.search).get("template");
+    if (tplSlug && !PUBLIC_VIEW_SLUG) {
+      window.setTimeout(() => {
+        void loadFlowchartTemplate(tplSlug).catch(() => {});
+      }, 400);
+    }
+  }
+
+  function rotateFcStarterChips() {
+    const popular = [
+      { key: "invoice", label: "Invoice approval" },
+      { key: "hiring", label: "Hiring pipeline" },
+      { key: "triage", label: "Bug triage" },
+      { key: "onboarding", label: "Customer onboarding" },
+      { key: "support", label: "Support escalation" },
+    ];
+    const chips = document.getElementById("fcStarterChips");
+    if (!chips) return;
+    let recent = null;
+    try { recent = localStorage.getItem(FC_ASSISTANT_RECENT_CHIP_KEY); } catch (_) {}
+    const idx = Math.floor(Date.now() / 8000) % popular.length;
+    let ordered = popular.slice(idx).concat(popular.slice(0, idx));
+    if (recent) {
+      const hit = ordered.find((p) => p.key === recent);
+      if (hit) ordered = [hit, ...ordered.filter((p) => p.key !== recent)];
+    }
+    chips.innerHTML = ordered
+      .map((p) => '<button type="button" data-fc-chip="' + p.key + '">' + p.label + "</button>")
+      .join("");
+    bindFcStarterChipListeners();
+  }
+
 
   function createShareLink() {
     const p = getProject();
@@ -9473,6 +11884,7 @@
       connections: p.connections,
       userGroups: p.userGroups || [],
       groupConnections: p.groupConnections || [],
+      flowGroups: p.flowGroups || [],
       view: p.view
     });
     saveDB();
@@ -9496,6 +11908,7 @@
     p.connections = shared.connections || [];
     p.userGroups = shared.userGroups || [];
     p.groupConnections = shared.groupConnections || [];
+    p.flowGroups = shared.flowGroups || [];
     p.view = shared.view || { x: 0, y: 0, zoom: 1 };
     runtime.db.projects.unshift(p);
     runtime.db.activeProjectId = p.projectId;
@@ -9538,7 +11951,8 @@
     savedIndicator.textContent = "Smart clean applied";
     setTimeout(() => (savedIndicator.textContent = "Saved"), 900);
   };
-  document.getElementById("shareBtn").onclick = createShareLink;
+  const _pubBtn = document.getElementById("publishFlowchartBtn");
+  if (_pubBtn) _pubBtn.onclick = () => void publishFlowchart();
 
   const themeToggleBtn = document.getElementById("themeToggleBtn");
   const toggleShareDockBtn = document.getElementById("toggleShareDockBtn");
@@ -9707,6 +12121,7 @@
     clearAllEdgeSelection();
     runtime.groupBoxCache = null;
     dedupeUserGroupMembership(p);
+    pruneFlowGroups(p);
     renderAll();
     markDirty();
     scheduleSemanticAnalysis();
@@ -10064,6 +12479,13 @@
     applyAiCreditGatesToUi();
   }
   createAiBtn.onclick = () => {
+    const t = getFlowchartPromptText();
+    if (t) setFlowchartPromptText(t);
+    if (isFlowchartMode()) {
+      openFlowchartAssistant();
+      if (isNarrowScreen()) closeDrawers();
+      return;
+    }
     void openAiModalIfAllowed();
     if (isServerAiBillingConfigured() && aiBillingRow) {
       aiBillingRow.style.display = runtime.authUser ? "block" : "none";
@@ -10090,88 +12512,8 @@
   if (mockBuy100Btn) mockBuy100Btn.onclick = () => void startMockCreditPurchase(100);
 
   aiGenerateBtn.onclick = async () => {
-    const promptText = aiPromptInput.value.trim();
-    if (!promptText) {
-      aiStatus.textContent = "Add a short prompt first.";
-      return;
-    }
-    if (typeof ArchitectureEngine === "undefined") {
-      aiStatus.textContent = "Architecture engine not loaded. Run npm run build:arch and ensure architecture-engine.js is beside this page.";
-      return;
-    }
-    const aiCfg = window.MAPDIAGRAM_AI || {};
-    if (!runtime.supabase) {
-      aiStatus.textContent = "Supabase is required. Configure assets/supabase-config.js — AI uses server credits only.";
-      return;
-    }
-    const { data: sessData } = await runtime.supabase.auth.getSession();
-    const gatewayAccessToken = sessData?.session?.access_token || "";
-    if (!gatewayAccessToken) {
-      aiStatus.textContent = "Log in to use AI. Calls go through the billing gateway only.";
-      return;
-    }
-    await syncAiWalletFromBackend();
-    const r0 = getAiReservePerStep();
-    if (!runtime.authUser) {
-      aiStatus.textContent = "Log in to use AI credits.";
-      return;
-    }
-    if (
-      runtime.aiCredits !== null &&
-      (!Number.isFinite(runtime.aiCredits) || runtime.aiCredits <= 0 || runtime.aiCredits < r0)
-    ) {
-      aiStatus.textContent = `Insufficient credits (need at least ${r0} per step). Open the AI tab to buy credits.`;
-      setRightTab("ai");
-      return;
-    }
-    aiGenerateBtn.disabled = true;
-    aiGenerateBtn.textContent = "Compiling...";
-    aiStatus.textContent = "LLM → JSON → validate → layout…";
-    try {
-      const keyTrim = String(SUPABASE_ANON_KEY || "").trim();
-      const urlSnap = normalizeSupabaseProjectUrl(SUPABASE_URL);
-      const projectBase = runtime.supabaseProjectBaseUrl || (urlSnap.ok ? urlSnap.baseUrl : "");
-      console.info("[MapDiagram][EdgeFn] POST fetch ai-complete", {
-        hasBaseUrl: !!projectBase,
-        host: runtime.supabaseMeta?.host || urlSnap.host || null,
-        anonKeyLen: keyTrim.length,
-        hasSessionToken: !!gatewayAccessToken,
-      });
-      const completer = (system, user) =>
-        ArchitectureEngine.completeOpenAiThroughBillingGateway(
-          {
-            projectBaseUrl: projectBase,
-            supabaseAnonKey: keyTrim,
-            accessToken: gatewayAccessToken,
-            model: aiCfg.model,
-          },
-          system,
-          user
-        );
-      const spec = await ArchitectureEngine.compileArchitectureSpecWithRetries(promptText, completer, 2);
-      const batchId = uid();
-      const payload = ArchitectureEngine.renderDiagramFromSpec(spec, batchId, uid);
-      pushHistory();
-      const p = getProject();
-      p.nodes.push(...payload.nodes);
-      p.connections.push(...payload.connections);
-      p.title = payload.title;
-      runtime.selectedGroupId = null;
-      runtime.selectedGroupIds.clear();
-      runtime.selectedGroupConnId = null;
-      fitToScreen();
-      renderAll();
-      markDirty();
-      scheduleSemanticAnalysis();
-      aiStatus.textContent = "Architecture compiled from validated ArchitectureSpec.";
-      void refreshUserCreditsDisplay();
-      setTimeout(closeAiModal, 450);
-    } catch (err) {
-      aiStatus.textContent = (err && err.message) ? err.message : String(err);
-    } finally {
-      aiGenerateBtn.textContent = "Generate";
-      applyAiCreditGatesToUi();
-    }
+    setFlowchartPromptText(aiPromptInput.value.trim());
+    await runFlowchartGeneration(aiPromptInput.value.trim());
   };
   function setRailActive(btn) {
     [railSelectBtn, railShapesBtn, railFlowBtn, railSystemBtn, railDataBtn, railInsightBtn, railSettingsBtn].forEach((b) => b.classList.remove("active"));
@@ -10563,9 +12905,40 @@
   workspace.addEventListener("pointerdown", (e) => {
     if (runtime.focusNodeId) return;
     runtime.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (runtime.readOnly) return;
+    if (runtime.fcToolbarInteracting || runtime.fcMultiBarInteracting) return;
+    if (e.target.closest("#fcQuickEdit, .fc-quick-edit, #fcMultiSelectBar, .fc-multi-select-bar, #fcDeleteConfirm, .fc-delete-confirm, #fcAssistantRoot, .fc-assistant-root")) return;
     if (e.target.closest(".node") || e.target.closest(".conn") || e.target.closest(".conn-hit")) return;
     /* Group label/handles live above nodes; ignore canvas clear/pan when interacting with a group frame */
     if (e.target.closest(".group-chrome")) return;
+    if (fcEditorCanSelect() && (e.altKey || runtime.spaceKeyHeld)) {
+      if (runtime.pointers.size >= 2) {
+        const pinchMeta = getPointerCenterAndDistance();
+        if (pinchMeta) {
+          runtime.pinch = {
+            startDistance: pinchMeta.distance || 1,
+            startZoom: getProject().view.zoom
+          };
+          runtime.panning = null;
+        }
+        return;
+      }
+      runtime.panning = { x: e.clientX, y: e.clientY, vx: getProject().view.x, vy: getProject().view.y };
+      workspace.classList.add("panning");
+      return;
+    }
+    if (fcEditorCanSelect() && !e.altKey && !runtime.spaceKeyHeld) {
+      const r = workspace.getBoundingClientRect();
+      runtime.fcCanvasPick = {
+        pointerId: e.pointerId,
+        startX: e.clientX - r.left,
+        startY: e.clientY - r.top,
+        x: e.clientX - r.left,
+        y: e.clientY - r.top,
+        shiftKey: e.shiftKey,
+      };
+      return;
+    }
     runtime.selectedNodeId = null;
     runtime.selectedNodeIds.clear();
     runtime.selectedGroupId = null;
@@ -10574,7 +12947,7 @@
     renderSelection();
     if (e.shiftKey || runtime.selectionMode) {
       const r = workspace.getBoundingClientRect();
-      runtime.marquee = { startX: e.clientX - r.left, startY: e.clientY - r.top, x: e.clientX - r.left, y: e.clientY - r.top };
+      runtime.marquee = { startX: e.clientX - r.left, startY: e.clientY - r.top, x: e.clientX - r.left, y: e.clientY - r.top, additive: !!e.shiftKey };
       marquee.style.display = "block";
       marquee.style.left = `${runtime.marquee.startX}px`;
       marquee.style.top = `${runtime.marquee.startY}px`;
@@ -10649,10 +13022,43 @@
                 return [id, { wx: w.x, wy: w.y }];
               }))
             };
+            if (isFlowchartMode()) setFlowchartNodesDragging(dragIds, true);
           }
         }
         runtime.touchDragPending = null;
       }
+    }
+    if (runtime.fcCanvasPick && !runtime.marquee) {
+      const r = workspace.getBoundingClientRect();
+      const pick = runtime.fcCanvasPick;
+      pick.x = e.clientX - r.left;
+      pick.y = e.clientY - r.top;
+      const dist = Math.hypot(pick.x - pick.startX, pick.y - pick.startY);
+      if (dist > 6) {
+        if (!pick.shiftKey) {
+          runtime.selectedNodeId = null;
+          runtime.selectedNodeIds.clear();
+          runtime.selectedGroupId = null;
+          runtime.selectedGroupIds.clear();
+          clearAllEdgeSelection();
+        }
+        runtime.marquee = {
+          startX: pick.startX,
+          startY: pick.startY,
+          x: pick.x,
+          y: pick.y,
+          additive: !!pick.shiftKey,
+        };
+        marquee.style.display = "block";
+        marquee.style.left = `${pick.startX}px`;
+        marquee.style.top = `${pick.startY}px`;
+        marquee.style.width = "0px";
+        marquee.style.height = "0px";
+        runtime.fcCanvasPick = null;
+        runtime.panning = null;
+        workspace.classList.remove("panning");
+      }
+      return;
     }
     if (runtime.marquee) {
       const r = workspace.getBoundingClientRect();
@@ -10840,6 +13246,10 @@
       finalizeActiveNodeDragIfAny();
     }
     if (runtime.focusNodeId) return;
+    if (runtime.fcCanvasPick) {
+      if (!runtime.marquee && !runtime.fcCanvasPick.shiftKey) clearFlowchartNodeSelection();
+      runtime.fcCanvasPick = null;
+    }
     if (runtime.marquee) {
       const p = getProject();
       const m = runtime.marquee;
@@ -10847,7 +13257,7 @@
       const y1 = Math.min(m.startY, m.y);
       const x2 = Math.max(m.startX, m.x);
       const y2 = Math.max(m.startY, m.y);
-      runtime.selectedNodeIds.clear();
+      if (!m.additive) runtime.selectedNodeIds.clear();
       for (const n of p.nodes) {
         const w = getNodeWorldPosition(n);
         const nx = w.x * p.view.zoom + p.view.x;
@@ -10865,7 +13275,7 @@
       runtime.marquee = null;
       marquee.style.display = "none";
       renderSelection();
-      if (runtime.selectionMode && runtime.selectedNodeIds.size >= 2) {
+      if (!isFlowchartMode() && runtime.selectionMode && runtime.selectedNodeIds.size >= 2) {
         createUserGroupFromSelection({ showAlertWhenEmpty: false, autoPrompt: true });
       }
       return;
@@ -11048,18 +13458,25 @@
     zoomAt(e.clientX, e.clientY, getProject().view.zoom + step);
   }, { passive: false });
 
+  document.addEventListener("keyup", (e) => {
+    if (e.code === "Space") runtime.spaceKeyHeld = false;
+  });
+
   document.addEventListener("keydown", (e) => {
+    if (e.code === "Space" && !isTypingFocusTarget(document.activeElement)) runtime.spaceKeyHeld = true;
     if (runtime.focusNodeId && e.key === "Escape") {
       closeFocusModal();
       return;
     }
     if (e.key === "Escape" && runtime.editingNodeId) {
       const body = nodesLayer.querySelector(`[data-node-id="${runtime.editingNodeId}"] .body`);
-      if (body) {
+      if (body && isFlowchartMode()) {
+        body.blur();
+      } else if (body) {
         body.contentEditable = "false";
         body.textContent = getNodeById(runtime.editingNodeId)?.text || "";
+        runtime.editingNodeId = null;
       }
-      runtime.editingNodeId = null;
       return;
     }
     if (e.key === "Escape" && runtime.groupDragging) {
@@ -11081,8 +13498,43 @@
       closeImportDiffOverlay();
       return;
     }
+    if (runtime.fcDeleteConfirmOpen) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        hideFcDeleteConfirm();
+        return;
+      }
+      if (e.key === "Enter") {
+        e.preventDefault();
+        confirmFcDeletePending();
+        return;
+      }
+    }
+    if (isFlowchartMode() && e.key === "Escape" && getFlowchartAssistantState() === "panel") {
+      e.preventDefault();
+      closeFlowchartAssistant();
+      return;
+    }
     const ae = document.activeElement;
     const typing = isTypingFocusTarget(ae);
+    if (fcEditorCanSelect() && e.key === "Escape" && !typing && !runtime.editingNodeId) {
+      hideFcDeleteConfirm();
+      clearFlowchartNodeSelection();
+      return;
+    }
+    if (!typing && (e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "k" && isFlowchartMode()) {
+      e.preventDefault();
+      if (runtime.focusNodeId) return;
+      if (cpOv && !cpOv.hidden) closeCommandPalette();
+      else openCommandPalette(true);
+      return;
+    }
+    if (!typing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k" && isFlowchartMode()) {
+      e.preventDefault();
+      if (runtime.focusNodeId) return;
+      toggleFlowchartAssistant();
+      return;
+    }
     if (!typing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
       e.preventDefault();
       if (runtime.focusNodeId) return;
@@ -11090,9 +13542,19 @@
       else openCommandPalette(true);
       return;
     }
+    if (!typing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a" && isFlowchartMode()) {
+      e.preventDefault();
+      selectAllFlowchartNodes();
+      return;
+    }
     if (!typing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") {
       e.preventDefault();
       duplicateSelectedNodesAction();
+      return;
+    }
+    if (!typing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l" && isFlowchartMode()) {
+      e.preventDefault();
+      improveFlowchartLayoutAction();
       return;
     }
     const inCanvas =
@@ -11100,6 +13562,16 @@
       ae === document.documentElement ||
       ae?.id === "workspace" ||
       !!ae?.closest?.("#workspace");
+    if (!typing && e.key === "F2" && isFlowchartMode() && runtime.selectedNodeId) {
+      e.preventDefault();
+      fcStartInlineRename(runtime.selectedNodeId);
+      return;
+    }
+    if (!typing && e.key === "Tab" && isFlowchartMode() && inCanvas && runtime.selectedNodeId && !e.shiftKey) {
+      e.preventDefault();
+      fcAddConnectedNodeFromSelection();
+      return;
+    }
     if (
       !typing &&
       inCanvas &&
@@ -11115,7 +13587,7 @@
       else nudgeSelectedNodesFromKeys(0, step);
       return;
     }
-    if (e.key === "Delete") {
+    if (e.key === "Delete" || e.key === "Backspace") {
       if (typing) return;
       const { nn, bridges, gcs } = getSelectedConnectionRecords();
       if (nn.length + bridges.length + gcs.length) {
@@ -11123,8 +13595,9 @@
         bulkDeleteSelectedEdgesAction();
         return;
       }
-      if (runtime.selectedNodeId) {
-        document.getElementById("deleteNodeBtn").click();
+      if (primaryNodeSelectionIdList().length) {
+        e.preventDefault();
+        requestDeleteSelectedNodes();
       }
       return;
     }
@@ -11144,6 +13617,8 @@
     mobileHint.textContent = "Touch: one finger drag/pan, two fingers pinch zoom.";
     if (!isNarrowScreen()) closeDrawers();
     applyShareDockFromStorage();
+    syncFcQuickEditToolbar();
+    syncFcMultiSelectBar();
     if (window.innerWidth <= 768) {
       fitToScreen();
     }
@@ -11443,6 +13918,7 @@
     authStatus.textContent = error ? error.message : "Check your email to confirm sign up.";
   });
 
+  initFlowchartModeUi();
   ensureBoot();
   tryOpenSharedProject();
   for (const project of runtime.db.projects) {
