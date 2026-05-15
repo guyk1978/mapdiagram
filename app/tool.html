@@ -56,6 +56,10 @@
     --handle-fill: #4e78ef;
     --handle-ring: #f3f7ff;
     --handle-hover: #6c94ff;
+    --fc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --fc-dur-micro: 120ms;
+    --fc-dur-select: 160ms;
+    --fc-dur-overlay: 220ms;
     --drawer-scrim: rgba(6, 10, 16, 0.52);
     /* Desktop main grid: rail + left panel + canvas + inspector (widths collapse via .app on wide viewports). */
     --layout-rail: 54px;
@@ -558,29 +562,129 @@
     background:rgba(122,162,255,.11);
     box-shadow:0 0 0 1px rgba(122,162,255,.18) inset, 0 8px 24px rgba(60,90,160,.12);
     border-radius:6px;
+    animation:fcMarqueeIn var(--fc-dur-select) var(--fc-ease);
+  }
+  @keyframes fcMarqueeIn{
+    from{opacity:0}
+    to{opacity:1}
   }
   .fc-flow-group{
     position:absolute;
     border-radius:14px;
-    border:1px solid rgba(122,162,255,.26);
-    background:rgba(122,162,255,.06);
-    box-shadow:0 0 0 1px rgba(255,255,255,.03) inset;
+    border:1px solid rgba(122,162,255,.28);
+    background:rgba(122,162,255,.07);
+    box-shadow:0 0 0 1px rgba(255,255,255,.04) inset;
+    backdrop-filter:blur(6px);
     pointer-events:none;
     box-sizing:border-box;
+    z-index:1;
+    transition:
+      box-shadow var(--fc-dur-select) var(--fc-ease),
+      border-color var(--fc-dur-select) var(--fc-ease),
+      background var(--fc-dur-select) var(--fc-ease);
+  }
+  .fc-flow-group.is-header-hover:not(.is-dragging),
+  .fc-flow-group:has(.fc-flow-group-header:hover):not(.is-dragging){
+    border-color:rgba(122,162,255,.48);
+    background:rgba(122,162,255,.1);
+    box-shadow:0 0 0 1px rgba(122,162,255,.22) inset, 0 10px 28px rgba(50,80,150,.14);
+  }
+  .fc-flow-group.selected{
+    border-color:rgba(122,162,255,.62);
+    box-shadow:0 0 0 1px rgba(122,162,255,.35), 0 0 0 3px rgba(122,162,255,.14);
+  }
+  .fc-flow-group.is-dragging{
+    transition:none;
+    box-shadow:0 14px 36px rgba(40,70,140,.22), 0 0 0 1px rgba(122,162,255,.28) inset;
+  }
+  .fc-flow-group-header{
+    position:absolute;
+    left:0;
+    right:0;
+    top:0;
+    height:28px;
+    padding:0 10px 0 8px;
+    gap:6px;
+    display:flex;
+    align-items:center;
+    cursor:grab;
+    border-radius:14px 14px 0 0;
+    background:rgba(90,118,190,.22);
+    border-bottom:1px solid rgba(122,162,255,.22);
+    box-sizing:border-box;
+    transition:background var(--fc-dur-micro) var(--fc-ease), opacity var(--fc-dur-micro) var(--fc-ease);
+  }
+  .fc-flow-group.is-dragging .fc-flow-group-header{
+    cursor:grabbing;
+    opacity:1;
+    background:rgba(100,130,210,.28);
+  }
+  .fc-flow-group-icon{
+    flex:0 0 auto;
+    font-size:11px;
+    line-height:1;
+    opacity:.72;
+    color:rgba(168,190,230,.95);
+    pointer-events:none;
   }
   .fc-flow-group-label{
-    position:absolute;
-    left:10px;
-    top:6px;
     font-size:11px;
     font-weight:650;
     letter-spacing:.02em;
-    color:rgba(168,186,220,.92);
-    pointer-events:none;
-    max-width:calc(100% - 20px);
+    color:rgba(168,186,220,.95);
+    max-width:100%;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
+    pointer-events:auto;
+    user-select:none;
+  }
+  .fc-flow-group-label.fc-editing{
+    outline:1px solid rgba(122,162,255,.55);
+    border-radius:4px;
+    background:rgba(8,12,22,.35);
+    padding:0 4px;
+  }
+  .fc-flow-group-handle{
+    position:absolute;
+    width:14px;
+    height:14px;
+    border-radius:50%;
+    border:2px solid rgba(122,162,255,.75);
+    background:rgba(14,18,30,.9);
+    pointer-events:auto;
+    z-index:2;
+    cursor:crosshair;
+  }
+  .fc-flow-group-handle.out{right:-7px;top:50%;transform:translateY(-50%)}
+  .fc-flow-group-handle.in{left:-7px;top:50%;transform:translateY(-50%)}
+  .fc-flow-group-border-edges{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    border-radius:inherit;
+  }
+  .fc-flow-group-border-edges .edge{
+    position:absolute;
+    pointer-events:none;
+    background:transparent;
+  }
+  .fc-flow-groups-layer{
+    pointer-events:none;
+  }
+  .fc-flow-group-border-edges .edge.top{left:0;right:0;top:0;height:8px}
+  .fc-flow-group-border-edges .edge.bottom{left:0;right:0;bottom:0;height:8px}
+  .fc-flow-group-border-edges .edge.left{left:0;top:28px;bottom:0;width:8px}
+  .fc-flow-group-border-edges .edge.right{right:0;top:28px;bottom:0;width:8px}
+  body.fc-debug-interaction .fc-flow-group-border-edges .edge{outline:1px dashed rgba(255,120,80,.35)}
+  body.fc-debug-interaction .fc-flow-group-header{outline:1px dashed rgba(80,255,160,.35)}
+  .fc-group-quick-edit{margin-top:2px}
+  #refreshCanvasBtn.is-refreshing .icon-svg{
+    animation:fc-refresh-spin .55s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes fc-refresh-spin{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(360deg)}
   }
   html[data-theme="light"] .fc-flow-group{
     background:rgba(122,162,255,.07);
@@ -1356,9 +1460,16 @@
     animation: previewFlow 0.95s linear infinite;
     filter: drop-shadow(0 0 4px rgba(122, 162, 255, 0.35));
   }
-  .conn.preview-valid{stroke:rgba(116,232,162,.92)!important;filter:drop-shadow(0 0 6px rgba(116,232,162,.35))}
-  .conn.preview-invalid{stroke:rgba(255,129,129,.9)!important;filter:drop-shadow(0 0 6px rgba(255,129,129,.32))}
-  .conn.preview-neutral{stroke:rgba(143,192,255,.92)!important}
+  .conn.preview-valid{stroke:rgba(116,232,162,.94)!important;opacity:.98;filter:drop-shadow(0 0 8px rgba(116,232,162,.42))}
+  .conn.preview-invalid{stroke:rgba(255,129,129,.88)!important;opacity:.72;filter:drop-shadow(0 0 5px rgba(255,129,129,.28))}
+  .conn.preview-neutral{stroke:rgba(143,192,255,.88)!important;opacity:.82}
+  .conn.fc-conn-preview{
+    transition:opacity var(--fc-dur-micro) var(--fc-ease), stroke var(--fc-dur-micro) var(--fc-ease);
+  }
+  .conn.fc-preview-out{
+    opacity:0!important;
+    transition:opacity var(--fc-dur-micro) var(--fc-ease)!important;
+  }
   .conn:not([stroke-dasharray]) {
     stroke-linecap: round;
     animation: drawIn 0.22s ease-out;
@@ -1423,9 +1534,13 @@
   }
   .node.connect-target {
     box-shadow:
-      0 0 0 2px rgba(79, 208, 135, 0.45),
-      0 0 16px rgba(79, 208, 135, 0.2),
+      0 0 0 2px rgba(79, 208, 135, 0.55),
+      0 0 20px rgba(79, 208, 135, 0.32),
       0 14px 34px rgba(0,0,0,.24);
+    transform: rotate(var(--node-rotation)) translateY(-2px) scale(1.028);
+    transition:
+      box-shadow var(--fc-dur-micro) var(--fc-ease),
+      transform var(--fc-dur-micro) var(--fc-ease);
   }
   .node.shape-rounded { border-radius: 16px; }
   .node.shape-circle {
@@ -2308,9 +2423,17 @@
   }
   .flowchart-mode .node.selected {
     box-shadow:
-      0 0 0 2px rgba(122, 162, 255, 0.72),
-      0 0 24px rgba(122, 162, 255, 0.28),
-      0 14px 34px rgba(0, 0, 0, 0.24);
+      0 0 0 2px rgba(122, 162, 255, 0.78),
+      0 0 28px rgba(122, 162, 255, 0.32),
+      0 16px 36px rgba(0, 0, 0, 0.26);
+  }
+  .flowchart-mode .conn.confirm {
+    animation: fcConnConfirm 520ms var(--fc-ease);
+  }
+  @keyframes fcConnConfirm {
+    0% { stroke-width: 2.2; opacity: 0.65; }
+    40% { stroke-width: 3.6; opacity: 1; filter: drop-shadow(0 0 12px rgba(79, 208, 135, 0.65)); }
+    100% { stroke-width: 2.35; opacity: 0.98; }
   }
   .flowchart-mode .conn {
     stroke: rgba(169, 188, 230, 0.88);
@@ -2334,6 +2457,7 @@
   body.public-view-mode .fc-assistant-root,
   body.public-view-mode .fc-empty-state,
   body.public-view-mode #fcQuickEdit,
+  body.public-view-mode #fcGroupQuickEdit,
   body.public-view-mode #fcMultiSelectBar,
   body.public-view-mode #fcDeleteConfirm,
   body.public-view-mode #minimapHost,
@@ -2727,6 +2851,11 @@
     .fc-canvas-empty-hint,
     .fc-assistant-fab,
     .fc-assistant-root[data-state="panel"] .fc-assistant-card > * { transition: none; }
+    .flowchart-mode .node,
+    .fc-flow-group,
+    .fc-quick-edit,
+    .marquee,
+    .conn.fc-conn-preview { transition: none !important; animation: none !important; }
   }
 
   .fc-quick-edit {
@@ -2781,17 +2910,32 @@
   #improveFlowchartLayoutBtn {
     display: none;
   }
-  .flowchart-mode .node:not(.is-dragging):not(.fc-enter) {
+  .flowchart-mode .node:not(.is-dragging):not(.fc-enter):not(.fc-settle) {
     transition:
-      left 0.38s cubic-bezier(0.22, 1, 0.36, 1),
-      top 0.38s cubic-bezier(0.22, 1, 0.36, 1),
-      width 0.28s ease,
-      height 0.28s ease,
-      box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-      filter 0.24s ease,
-      border-color 0.24s ease,
-      opacity 0.28s ease;
+      left 0.38s var(--fc-ease),
+      top 0.38s var(--fc-ease),
+      width var(--fc-dur-overlay) var(--fc-ease),
+      height var(--fc-dur-overlay) var(--fc-ease),
+      box-shadow var(--fc-dur-select) var(--fc-ease),
+      transform var(--fc-dur-select) var(--fc-ease),
+      filter var(--fc-dur-select) var(--fc-ease),
+      border-color var(--fc-dur-select) var(--fc-ease),
+      opacity var(--fc-dur-overlay) var(--fc-ease);
+  }
+  @keyframes fcNodeSettle {
+    from { transform: rotate(var(--node-rotation)) translateY(-1px) scale(1.012); }
+    to { transform: rotate(var(--node-rotation)) translateY(0) scale(1); }
+  }
+  .flowchart-mode .node.fc-settle:not(.is-dragging) {
+    animation: fcNodeSettle 140ms var(--fc-ease) both;
+  }
+  @keyframes fcConnectPulse {
+    0% { box-shadow: 0 0 0 0 rgba(79, 208, 135, 0.55), 0 0 0 2px rgba(79, 208, 135, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(79, 208, 135, 0), 0 0 0 2px rgba(79, 208, 135, 0.15); }
+    100% { box-shadow: none; }
+  }
+  .flowchart-mode .node.fc-connect-pulse {
+    animation: fcConnectPulse 480ms var(--fc-ease) both;
   }
   .flowchart-mode .node.is-dragging {
     transition: none !important;
@@ -2809,8 +2953,21 @@
     transform: rotate(var(--node-rotation)) translateY(-1px) scale(1.012);
   }
   .flowchart-mode .node.selected:not(.is-dragging) {
-    transform: rotate(var(--node-rotation)) translateY(-2px) scale(1.015);
+    transform: rotate(var(--node-rotation)) translateY(-2px) scale(1.018);
     z-index: 6;
+    transition:
+      box-shadow var(--fc-dur-micro) var(--fc-ease),
+      transform var(--fc-dur-micro) var(--fc-ease),
+      filter var(--fc-dur-micro) var(--fc-ease);
+  }
+  .flowchart-mode .node.fc-multi-picked:not(.selected):not(.is-dragging) {
+    box-shadow:
+      0 0 0 1px rgba(122, 162, 255, 0.42),
+      0 0 14px rgba(122, 162, 255, 0.14),
+      0 12px 28px rgba(0, 0, 0, 0.2);
+  }
+  body.flowchart-mode.fc-connecting .workspace {
+    cursor: crosshair;
   }
   .flowchart-mode .node.fc-node-start {
     opacity: 0.94;
@@ -2924,20 +3081,35 @@
   }
   .fc-quick-edit {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(6px);
+    pointer-events: none;
     transition:
-      opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+      opacity var(--fc-dur-overlay) var(--fc-ease),
+      transform var(--fc-dur-overlay) var(--fc-ease);
   }
   .fc-quick-edit.is-visible {
     opacity: 1;
     transform: translateY(0);
+    pointer-events: auto;
   }
   .fc-quick-edit button {
-    transition: background 0.14s ease, color 0.14s ease, transform 0.1s ease;
+    transition: background var(--fc-dur-micro) var(--fc-ease), color var(--fc-dur-micro) var(--fc-ease);
   }
   .fc-quick-edit button:active:not(:disabled) {
-    transform: scale(0.97);
+    background: rgba(122, 162, 255, 0.28);
+  }
+  .fc-quick-edit button.fc-quick-danger {
+    color: var(--text);
+  }
+  .fc-quick-edit button.fc-quick-danger:hover:not(:disabled) {
+    background: rgba(239, 91, 91, 0.22);
+    color: #ffb4b4;
+  }
+  .flowchart-mode .workspace.panning {
+    cursor: grabbing;
+  }
+  .flowchart-mode .workspace.panning #viewport {
+    transition: transform 80ms linear;
   }
   .fc-quick-edit button:disabled {
     opacity: 0.4;
@@ -3008,6 +3180,7 @@
         </div>
         <button type="button" id="themeToggleBtn" class="icon-btn theme-toggle-btn" title="Toggle light / dark theme" aria-label="Toggle light / dark theme"><span class="icon-svg icon-theme-sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span><span class="icon-svg icon-theme-moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 6.5 6.5 0 1 0 21 14.5Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span></button>
         <button id="fitViewBtn" class="icon-btn" type="button" title="Fit to screen" aria-label="Fit to screen"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3H5v4M15 3h4v4M3 9V5h4M21 9V5h-4M9 21H5v-4M15 21h4v-4M3 15v4h4M21 15v4h-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+        <button id="refreshCanvasBtn" class="icon-btn" type="button" title="Refresh layout and canvas rendering (Shift+R)" aria-label="Refresh canvas"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><path d="M20 4v6h-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         <button id="improveFlowchartLayoutBtn" class="icon-btn" type="button" title="Improve layout (Ctrl+L)" aria-label="Improve flowchart layout"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h6v4H4V6zm10 0h6v4h-6V6zM4 14h6v4H4v-4zm10 0h6v4h-6v-4z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" opacity=".55"/></svg></span></button>
         </div>
         <div class="group mobile-inspector-actions" aria-label="Quick group actions">
@@ -3140,7 +3313,12 @@
         <button type="button" id="fcMultiLayoutBtn">Improve layout</button>
         <button type="button" id="fcMultiDeleteBtn" class="fc-quick-danger">Delete</button>
       </div>
-      <div id="fcQuickEdit" class="fc-quick-edit" hidden role="toolbar" aria-label="Quick edit selection">
+      <div id="fcGroupQuickEdit" class="fc-quick-edit fc-group-quick-edit" hidden role="toolbar" aria-label="Group actions">
+        <button type="button" id="fcGroupRenameBtn" title="Rename (F2)">Rename</button>
+        <button type="button" id="fcGroupDupBtn" title="Duplicate group">Duplicate</button>
+        <button type="button" id="fcGroupConnectBtn" title="Connect from group">+ Connect</button>
+        <button type="button" id="fcGroupDeleteBtn" class="fc-quick-danger" title="Delete group">Delete</button>
+      </div>      <div id="fcQuickEdit" class="fc-quick-edit" hidden role="toolbar" aria-label="Quick edit selection">
         <button type="button" id="fcRenameBtn" title="Rename (F2)">Rename</button>
         <button type="button" id="fcDuplicateBtn" title="Duplicate (Ctrl+D)">Duplicate</button>
         <button type="button" id="fcAddConnectedBtn" title="Add connected step (Tab)">+ Connect</button>
@@ -3782,6 +3960,8 @@
     fcCanvasPick: null,
     fcDeleteConfirmOpen: false,
     spaceKeyHeld: false,
+    selectedFlowGroupId: null,
+    flowGroupDragging: null,
     semanticTypes: {},
     suggestions: [],
     virtualGroups: [],
@@ -5302,6 +5482,8 @@
     p.groupConnections = snap.groupConnections || [];
     p.flowGroups = snap.flowGroups || [];
     p.view = snap.view;
+    clearFcInteractionState();
+    recomputeAllFlowGroupBounds();
     runtime.selectedNodeId = null;
     runtime.selectedNodeIds.clear();
     runtime.selectedConnectionId = null;
@@ -5432,6 +5614,154 @@
     support: "Customer contacts support → triage → escalate if needed → resolve → follow-up"
   };
 
+// Lightweight flow-group helpers — no interaction mutex, nodes always win.
+
+function recomputeGroupBounds(groupId) {
+  const fg = flowGroupById(getProject(), groupId);
+  if (fg) refreshFlowGroupBounds(fg);
+  return fg;
+}
+
+function syncFlowGroupOverlayFrame(fgId) {
+  const fg = recomputeGroupBounds(fgId);
+  if (!fg || !canvasUnderlays) return;
+  const frame = canvasUnderlays.querySelector(`[data-flow-group-id="${fgId}"]`);
+  if (!frame) return;
+  frame.style.left = `${fg.x}px`;
+  frame.style.top = `${fg.y}px`;
+  frame.style.width = `${fg.width}px`;
+  frame.style.height = `${fg.height}px`;
+}
+
+function clearPendingConnectionState() {
+  runtime.connecting = null;
+  runtime.previewFrom = null;
+  document.body.classList.remove("fc-connecting");
+  if (runtime.previewPath) {
+    const path = runtime.previewPath;
+    runtime.previewPath = null;
+    path.classList.add("fc-preview-out");
+    window.setTimeout(() => path.remove(), 130);
+  }
+  workspace.style.cursor = "";
+  if (isFlowchartMode()) renderSelection();
+}
+
+function clearFcInteractionState(opts = {}) {
+  if (runtime.flowGroupDragging) {
+    const gd = runtime.flowGroupDragging;
+    canvasUnderlays?.querySelector(`[data-flow-group-id="${gd.fgId}"]`)?.classList.remove("is-dragging");
+    runtime.flowGroupDragging = null;
+  }
+  if (runtime.groupDragging) abortGroupDrag();
+  releaseStoredNodeBodyPointerCapture();
+  if (runtime.dragging) {
+    const ids = runtime.dragging.dragIds || [runtime.dragging.nodeId];
+    setFlowchartNodesDragging(ids, false);
+  }
+  runtime.dragging = null;
+  runtime.panning = null;
+  clearPendingConnectionState();
+  if (runtime.groupPreviewPath) {
+    runtime.groupPreviewPath.remove();
+    runtime.groupPreviewPath = null;
+  }
+  runtime.groupConnecting = null;
+  runtime.cpDragging = null;
+  runtime.pinch = null;
+  runtime.bodyPressPointerId = null;
+  runtime.bodyPressStart = null;
+  runtime.bodyPressNodeId = null;
+  if (runtime.bodyConnectPressTimer) {
+    clearTimeout(runtime.bodyConnectPressTimer);
+    runtime.bodyConnectPressTimer = null;
+  }
+  workspace.classList.remove("panning");
+  workspace.style.cursor = "";
+  runtime.fcCanvasPick = null;
+  if (runtime.marquee) {
+    runtime.marquee = null;
+    if (marquee) marquee.style.display = "none";
+  }
+}
+
+function scheduleRenderConnections() {
+  if (runtime.renderConnectionsRaf) cancelAnimationFrame(runtime.renderConnectionsRaf);
+  runtime.renderConnectionsRaf = requestAnimationFrame(() => {
+    runtime.renderConnectionsRaf = null;
+    renderConnections();
+    renderSelection();
+  });
+}
+
+function startFlowGroupDrag(fg, frame, e) {
+  if (e.button !== 0) return;
+  e.stopPropagation();
+  pushHistory();
+  const starts = {};
+  for (const id of fg.nodeIds || []) {
+    const n = getNodeById(id);
+    if (!n) continue;
+    const w = getNodeWorldPosition(n);
+    starts[id] = { wx: w.x, wy: w.y };
+  }
+  runtime.flowGroupDragging = {
+    fgId: fg.id,
+    pointerId: e.pointerId,
+    startX: e.clientX,
+    startY: e.clientY,
+    starts,
+    nodeIds: [...(fg.nodeIds || [])],
+  };
+  frame?.classList.add("is-dragging");
+}
+
+function updateFlowGroupDrag(e) {
+  const gd = runtime.flowGroupDragging;
+  if (!gd || (gd.pointerId != null && gd.pointerId !== e.pointerId)) return;
+  const p = getProject();
+  const dx = (e.clientX - gd.startX) / p.view.zoom;
+  const dy = (e.clientY - gd.startY) / p.view.zoom;
+  for (const id of gd.nodeIds || []) {
+    const start = gd.starts?.[id];
+    const dn = getNodeById(id);
+    if (!dn || !start) continue;
+    setNodeWorldPosition(dn, start.wx + dx, start.wy + dy);
+    const el = nodesLayer.querySelector(`[data-node-id="${id}"]`);
+    if (el) {
+      const wpos = getNodeWorldPosition(dn);
+      el.style.left = `${wpos.x}px`;
+      el.style.top = `${wpos.y}px`;
+    }
+  }
+  syncFlowGroupOverlayFrame(gd.fgId);
+  scheduleRenderConnections();
+}
+
+function finalizeFlowGroupDragIfAny() {
+  const gd = runtime.flowGroupDragging;
+  if (!gd) return;
+  const nodeIds = gd.nodeIds || [];
+  canvasUnderlays?.querySelector(`[data-flow-group-id="${gd.fgId}"]`)?.classList.remove("is-dragging");
+  recomputeGroupBounds(gd.fgId);
+  runtime.flowGroupDragging = null;
+  renderFlowGroupOverlays();
+  scheduleRenderConnections();
+  markDirty();
+  if (isFlowchartMode()) settleFcNodeElements(nodeIds);
+}
+
+function stripFlowGroupBridgeConnections(p) {
+  p.connections = (p.connections || []).filter(
+    (c) =>
+      !(
+        c &&
+        (c.kind === "node-flowgroup" || c.kind === "flowgroup-node" || c.kind === "flowgroup-flowgroup")
+      )
+  );
+}
+
+
   function isFlowchartMode() {
     return document.body.classList.contains("flowchart-mode");
   }
@@ -5445,13 +5775,14 @@
     const alive = new Set((p.nodes || []).map((n) => n.id));
     for (const fg of p.flowGroups) {
       if (!fg.id) fg.id = uid();
-      if (!fg.title) fg.title = "Section";
+      if (!fg.title) fg.title = "Group";
       if (!Array.isArray(fg.nodeIds)) fg.nodeIds = [];
       fg.nodeIds = fg.nodeIds.filter((id) => alive.has(id));
       if (!fg.color) fg.color = "#7aa2ff";
       if (fg.collapsed == null) fg.collapsed = false;
     }
     p.flowGroups = p.flowGroups.filter((fg) => (fg.nodeIds || []).length >= 2);
+    stripFlowGroupBridgeConnections(p);
     for (const fg of p.flowGroups) refreshFlowGroupBounds(fg);
   }
 
@@ -5459,7 +5790,26 @@
     ensureFlowGroups(p);
   }
 
-  function computeFlowGroupBounds(nodeIds, pad = 18) {
+  const FC_FLOW_GROUP_PAD = { top: 32, side: 24, bottom: 24, header: 28 };
+
+  function flowGroupById(p, id) {
+    return (p?.flowGroups || []).find((fg) => fg.id === id) || null;
+  }
+
+  function getFlowGroupBox(fgId) {
+    const fg = flowGroupById(getProject(), fgId);
+    if (!fg) return null;
+    refreshFlowGroupBounds(fg);
+    return { x: fg.x, y: fg.y, w: fg.width, h: fg.height };
+  }
+
+  function recomputeAllFlowGroupBounds() {
+    const p = getProject();
+    ensureFlowGroups(p);
+    for (const fg of p.flowGroups) refreshFlowGroupBounds(fg);
+  }
+
+  function computeFlowGroupBounds(nodeIds) {
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
@@ -5476,11 +5826,12 @@
       maxY = Math.max(maxY, w.y + nh);
     }
     if (!Number.isFinite(minX)) return null;
+    const p = FC_FLOW_GROUP_PAD;
     return {
-      x: minX - pad,
-      y: minY - pad - 14,
-      width: maxX - minX + pad * 2,
-      height: maxY - minY + pad * 2 + 14,
+      x: minX - p.side,
+      y: minY - p.top - p.header,
+      width: maxX - minX + p.side * 2,
+      height: maxY - minY + p.top + p.bottom + p.header,
     };
   }
 
@@ -5507,6 +5858,39 @@
     if (changed) renderFlowGroupOverlays();
   }
 
+  function selectFlowGroup(fgId) {
+    runtime.selectedFlowGroupId = fgId || null;
+    runtime.selectedNodeId = null;
+    runtime.selectedNodeIds.clear();
+    runtime.selectedGroupId = null;
+    runtime.selectedGroupIds.clear();
+    clearAllEdgeSelection();
+    renderSelection();
+  }
+
+  function clearFlowGroupSelection() {
+    runtime.selectedFlowGroupId = null;
+  }
+
+  function bindFlowGroupFrameEvents(frame, fg) {
+    if (frame.dataset.fcFgBound) return;
+    frame.dataset.fcFgBound = "1";
+    const header = frame.querySelector(".fc-flow-group-header");
+    const label = frame.querySelector(".fc-flow-group-label");
+    const setHover = (on) => frame.classList.toggle("is-header-hover", !!on);
+    header?.addEventListener("pointerenter", () => setHover(true));
+    header?.addEventListener("pointerleave", () => setHover(false));
+    header?.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0 || label?.isContentEditable) return;
+      startFlowGroupDrag(fg, frame, e);
+    });
+    label?.addEventListener("dblclick", (e) => {
+      e.stopPropagation();
+      fcStartFlowGroupTitleEdit(fg.id);
+    });
+    label?.addEventListener("pointerdown", (e) => e.stopPropagation());
+  }
+
   function renderFlowGroupOverlays() {
     if (!canvasUnderlays) return;
     let layer = canvasUnderlays.querySelector(".fc-flow-groups-layer");
@@ -5526,17 +5910,28 @@
       if (fg.collapsed || !fg.nodeIds?.length) continue;
       refreshFlowGroupBounds(fg);
       const frame = document.createElement("div");
-      frame.className = "fc-flow-group";
+      frame.className = "fc-flow-group" + (runtime.selectedFlowGroupId === fg.id ? " selected" : "");
       frame.dataset.flowGroupId = fg.id;
       frame.style.left = `${fg.x}px`;
       frame.style.top = `${fg.y}px`;
       frame.style.width = `${fg.width}px`;
       frame.style.height = `${fg.height}px`;
-      if (fg.color) frame.style.borderColor = hexToRgba(fg.color, 0.32);
+      if (fg.color) {
+        frame.style.borderColor = hexToRgba(fg.color, 0.32);
+        frame.style.background = hexToRgba(fg.color, 0.06);
+      }
+      const header = document.createElement("div");
+      header.className = "fc-flow-group-header";
+      const icon = document.createElement("span");
+      icon.className = "fc-flow-group-icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.textContent = "▦";
       const label = document.createElement("span");
       label.className = "fc-flow-group-label";
-      label.textContent = fg.title || "Section";
-      frame.appendChild(label);
+      label.textContent = fg.title || "Group";
+      header.append(icon, label);
+      frame.append(header);
+      bindFlowGroupFrameEvents(frame, fg);
       layer.appendChild(frame);
     }
   }
@@ -5563,12 +5958,25 @@
     return { minX, minY, maxX, maxY };
   }
 
+  function hideFcToolbarsImmediate() {
+    for (const id of ["fcQuickEdit", "fcGroupQuickEdit", "fcMultiSelectBar"]) {
+      const bar = document.getElementById(id);
+      if (!bar) continue;
+      bar.hidden = true;
+      bar.classList.remove("is-visible");
+    }
+    runtime.fcToolbarInteracting = false;
+    runtime.fcMultiBarInteracting = false;
+  }
+
   function clearFlowchartNodeSelection() {
     runtime.selectedNodeId = null;
     runtime.selectedNodeIds.clear();
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
+    clearFlowGroupSelection();
     clearAllEdgeSelection();
+    hideFcToolbarsImmediate();
     renderSelection();
   }
 
@@ -5605,7 +6013,7 @@
       return false;
     }
     pushHistory();
-    const title = `Section ${p.flowGroups.length + 1}`;
+    const title = p.flowGroups.length ? `Group ${p.flowGroups.length + 1}` : "Group";
     const b = computeFlowGroupBounds(ids);
     const fg = {
       id: uid(),
@@ -5620,7 +6028,9 @@
     };
     p.flowGroups.push(fg);
     markDirty();
-    renderFlowGroupOverlays();
+    clearFcInteractionState();
+    clearFlowchartNodeSelection();
+    renderAll();
     showToast(`Created “${title}”.`, "info");
     return true;
   }
@@ -5739,6 +6149,225 @@
     document.getElementById("fcMultiDupBtn")?.addEventListener("click", (e) => run(e, () => duplicateSelectedNodesAction()));
     document.getElementById("fcMultiLayoutBtn")?.addEventListener("click", (e) => run(e, () => improveFlowchartLayoutAction()));
     document.getElementById("fcMultiDeleteBtn")?.addEventListener("click", (e) => run(e, () => requestDeleteSelectedNodes()));
+  }
+
+
+  function fcStartFlowGroupTitleEdit(fgId) {
+    const fg = flowGroupById(getProject(), fgId);
+    if (!fg) return;
+    const frame = canvasUnderlays?.querySelector(`[data-flow-group-id="${fgId}"]`);
+    const label = frame?.querySelector(".fc-flow-group-label");
+    if (!label || label.isContentEditable) return;
+    const orig = fg.title || "Group";
+    label.classList.add("fc-editing");
+    label.contentEditable = "true";
+    label.focus();
+    const range = document.createRange();
+    range.selectNodeContents(label);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    const finish = (save) => {
+      label.contentEditable = "false";
+      label.classList.remove("fc-editing");
+      const next = save ? (label.textContent || "").trim() || "Group" : orig;
+      fg.title = next;
+      label.textContent = next;
+      markDirty();
+      renderFlowGroupOverlays();
+      syncFcGroupQuickEditToolbar();
+    };
+    const onKey = (ev) => {
+      if (ev.key === "Escape") {
+        ev.preventDefault();
+        ev.stopPropagation();
+        label.textContent = orig;
+        label.blur();
+      } else if (ev.key === "Enter") {
+        ev.preventDefault();
+        label.blur();
+      }
+    };
+    label.addEventListener("keydown", onKey);
+    label.addEventListener("blur", () => {
+      label.removeEventListener("keydown", onKey);
+      finish(label.textContent.trim() !== orig);
+    }, { once: true });
+  }
+
+  function getFlowGroupBoxForAnchor(fgId) {
+    const box = getFlowGroupBox(fgId);
+    if (!box) return null;
+    return { x: box.x, y: box.y, w: box.w, h: box.h };
+  }
+
+  function isFlowGroupBridgeConnection(c) {
+    return !!(c && (c.kind === "node-flowgroup" || c.kind === "flowgroup-node" || c.kind === "flowgroup-flowgroup"));
+  }
+
+  function duplicateFlowGroupAction(fgId) {
+    const fg = flowGroupById(getProject(), fgId);
+    if (!fg || !(fg.nodeIds || []).length) return;
+    pushHistory();
+    const p = getProject();
+    const ox = 36;
+    const oy = 36;
+    const idMap = new Map();
+    for (const nid of fg.nodeIds) {
+      const n = getNodeById(nid);
+      if (!n || !nodeCanWorkspaceTransform(n)) continue;
+      const clone = normalizeNode(deepCopy(n));
+      clone.id = uid();
+      const w = getNodeWorldPosition(n);
+      setNodeWorldPosition(clone, w.x + ox, w.y + oy);
+      p.nodes.push(clone);
+      idMap.set(nid, clone.id);
+    }
+    const newConns = [];
+    for (const c of p.connections) {
+      if (!isNodeNodeConnection(c)) continue;
+      if (idMap.has(c.from) && idMap.has(c.to)) {
+        const nc = deepCopy(c);
+        nc.id = uid();
+        nc.from = idMap.get(c.from);
+        nc.to = idMap.get(c.to);
+        newConns.push(nc);
+      }
+    }
+    for (const nc of newConns) p.connections.push(nc);
+    const newIds = [...idMap.values()];
+    const b = computeFlowGroupBounds(newIds);
+    const ng = {
+      id: uid(),
+      title: `${fg.title || "Group"} copy`,
+      nodeIds: newIds,
+      color: fg.color || "#7aa2ff",
+      collapsed: false,
+      x: b?.x ?? fg.x + ox,
+      y: b?.y ?? fg.y + oy,
+      width: b?.width ?? fg.width,
+      height: b?.height ?? fg.height,
+    };
+    p.flowGroups.push(ng);
+    runtime.selectedFlowGroupId = ng.id;
+    runtime.selectedNodeIds.clear();
+    runtime.selectedNodeId = null;
+    renderAll();
+    markDirty();
+    scheduleSemanticAnalysis();
+    showToast("Group duplicated.", "info");
+  }
+
+  function deleteFlowGroupOnly(fgId) {
+    const p = getProject();
+    p.flowGroups = (p.flowGroups || []).filter((g) => g.id !== fgId);
+    p.connections = (p.connections || []).filter((c) => {
+      if (c.kind === "node-flowgroup" && c.toFlowGroupId === fgId) return false;
+      if (c.kind === "flowgroup-node" && c.fromFlowGroupId === fgId) return false;
+      if (c.kind === "flowgroup-flowgroup" && (c.fromFlowGroupId === fgId || c.toFlowGroupId === fgId)) return false;
+      return true;
+    });
+    if (runtime.selectedFlowGroupId === fgId) runtime.selectedFlowGroupId = null;
+  }
+
+  function requestDeleteFlowGroup(fgId) {
+    const fg = flowGroupById(getProject(), fgId);
+    if (!fg) return;
+    const delContents = confirm(
+      `Delete group "${fg.title}" and all ${fg.nodeIds.length} steps inside?\n\nPress OK to delete everything.\nPress Cancel to remove only the group frame (steps stay).`
+    );
+    pushHistory();
+    if (delContents) {
+      runtime.selectedNodeIds = new Set(fg.nodeIds);
+      runtime.selectedNodeId = fg.nodeIds[0] || null;
+      deleteSelectedNodesAction();
+    } else {
+      deleteFlowGroupOnly(fgId);
+      renderFlowGroupOverlays();
+      renderConnections();
+      renderSelection();
+      markDirty();
+      showToast("Group removed — steps kept.", "info");
+    }
+  }
+
+  function fcAddConnectedFromFlowGroup(fgId) {
+    const fg = flowGroupById(getProject(), fgId);
+    if (!fg || !fg.nodeIds?.length) return;
+    const fromId = fg.nodeIds[fg.nodeIds.length - 1];
+    runtime.selectedNodeIds.clear();
+    runtime.selectedNodeIds.add(fromId);
+    runtime.selectedNodeId = fromId;
+    runtime.selectedFlowGroupId = null;
+    fcAddConnectedNodeFromSelection(fromId);
+  }
+
+  function syncFcGroupQuickEditToolbar() {
+    const bar = document.getElementById("fcGroupQuickEdit");
+    if (!bar || !fcEditorCanSelect()) {
+      if (bar) {
+        bar.hidden = true;
+        bar.classList.remove("is-visible");
+      }
+      return;
+    }
+    const fgId = runtime.selectedFlowGroupId;
+    const fg = fgId ? flowGroupById(getProject(), fgId) : null;
+    if (!fg || getFlowchartMultiSelectCount() > 0 || runtime.editingNodeId) {
+      bar.hidden = true;
+      bar.classList.remove("is-visible");
+      return;
+    }
+    refreshFlowGroupBounds(fg);
+    bar.hidden = false;
+    const wsR = workspace.getBoundingClientRect();
+    const p = getProject();
+    const cx = (fg.x + fg.width / 2) * p.view.zoom + p.view.x;
+    const top = fg.y * p.view.zoom + p.view.y - 56;
+    const barW = bar.offsetWidth || 320;
+    bar.style.left = `${Math.max(8, Math.min(wsR.width - barW - 8, cx - barW / 2))}px`;
+    bar.style.top = `${Math.max(8, top)}px`;
+    bar.classList.add("is-visible");
+  }
+
+  function bindFcGroupQuickEditToolbar() {
+    const bar = document.getElementById("fcGroupQuickEdit");
+    if (!bar || bar.dataset.fcGroupQb) return;
+    bar.dataset.fcGroupQb = "1";
+    const shield = (e) => {
+      runtime.fcToolbarInteracting = true;
+      e.stopPropagation();
+    };
+    bar.addEventListener("pointerdown", shield, true);
+    const run = (e, fn) => {
+      if (runtime.readOnly) return;
+      e.preventDefault();
+      e.stopPropagation();
+      runtime.fcToolbarInteracting = true;
+      const id = runtime.selectedFlowGroupId;
+      fn(id);
+      window.setTimeout(() => {
+        runtime.fcToolbarInteracting = false;
+        syncFcGroupQuickEditToolbar();
+      }, 0);
+    };
+    document.getElementById("fcGroupRenameBtn")?.addEventListener("click", (e) => run(e, (id) => fcStartFlowGroupTitleEdit(id)));
+    document.getElementById("fcGroupDupBtn")?.addEventListener("click", (e) => run(e, (id) => duplicateFlowGroupAction(id)));
+    document.getElementById("fcGroupConnectBtn")?.addEventListener("click", (e) => run(e, (id) => fcAddConnectedFromFlowGroup(id)));
+    document.getElementById("fcGroupDeleteBtn")?.addEventListener("click", (e) => run(e, (id) => requestDeleteFlowGroup(id)));
+  }
+
+  function refreshCanvasView() {
+    if (!isFlowchartMode()) return;
+    const btn = document.getElementById("refreshCanvasBtn");
+    btn?.classList.add("is-refreshing");
+    clearFcInteractionState();
+    recomputeAllFlowGroupBounds();
+    normalizeFlowchartSpacing();
+    renderAll();
+    scheduleSemanticAnalysis(400);
+    window.setTimeout(() => btn?.classList.remove("is-refreshing"), 550);
+    showToast("Canvas refreshed.", "info");
   }
 
   function enableFlowchartMode() {
@@ -5909,7 +6538,7 @@
   function syncFcAssistantFabDragState() {
     const fab = document.getElementById("fcAssistantFab");
     if (!fab) return;
-    fab.classList.toggle("is-fc-dragging", !!(runtime.dragging || runtime.groupDragging));
+    fab.classList.toggle("is-fc-dragging", !!(runtime.dragging || runtime.groupDragging || runtime.flowGroupDragging));
   }
 
   function syncFcAssistantFabCollision() {
@@ -6113,6 +6742,11 @@
       }
       return;
     }
+    if (runtime.selectedFlowGroupId) {
+      bar.hidden = true;
+      bar.classList.remove("is-visible");
+      return;
+    }
     const nodeId = getFcQuickEditTargetNodeId();
     const n = nodeId ? getNodeById(nodeId) : null;
     const shouldShow = !!(n && !runtime.editingNodeId);
@@ -6139,7 +6773,8 @@
     const wsR = workspace.getBoundingClientRect();
     const barW = bar.offsetWidth || 300;
     const left = nodeR.left - wsR.left + nodeR.width / 2 - barW / 2;
-    const top = nodeR.top - wsR.top - 48;
+    const gap = Math.max(52, Math.min(72, 40 + nodeR.height * 0.12));
+    const top = nodeR.top - wsR.top - gap;
     bar.style.left = `${Math.max(8, Math.min(wsR.width - barW - 8, left))}px`;
     bar.style.top = `${Math.max(8, top)}px`;
     bar.classList.add("is-visible");
@@ -6313,6 +6948,8 @@
     initFlowchartAssistantUi();
     bindFcQuickEditToolbar();
     bindFcMultiSelectBar();
+    bindFcGroupQuickEditToolbar();
+    document.getElementById("refreshCanvasBtn")?.addEventListener("click", () => refreshCanvasView());
     document.getElementById("improveFlowchartLayoutBtn")?.addEventListener("click", () => improveFlowchartLayoutAction());
     document.getElementById("improveFlowchartLayoutPanelBtn")?.addEventListener("click", () => improveFlowchartLayoutAction());
     createAiBtn?.removeAttribute("data-flowchart-hide");
@@ -6629,6 +7266,28 @@
       el.classList.add("fc-enter");
       el.addEventListener("animationend", () => el.classList.remove("fc-enter"), { once: true });
     });
+  }
+
+  function pulseFcConnectTarget(nodeId) {
+    if (!nodeId || !isFlowchartMode()) return;
+    const el = nodesLayer.querySelector(`[data-node-id="${nodeId}"]`);
+    if (!el) return;
+    el.classList.remove("fc-connect-pulse");
+    void el.offsetWidth;
+    el.classList.add("fc-connect-pulse");
+    el.addEventListener("animationend", () => el.classList.remove("fc-connect-pulse"), { once: true });
+  }
+
+  function settleFcNodeElements(nodeIds) {
+    if (!isFlowchartMode()) return;
+    for (const id of nodeIds || []) {
+      const el = nodesLayer.querySelector(`[data-node-id="${id}"]`);
+      if (!el || el.classList.contains("is-dragging")) continue;
+      el.classList.remove("fc-settle");
+      void el.offsetWidth;
+      el.classList.add("fc-settle");
+      el.addEventListener("animationend", () => el.classList.remove("fc-settle"), { once: true });
+    }
   }
 
   function flashFcConnEnter(connId) {
@@ -7895,13 +8554,14 @@
 
   function startConnectionDrag(nodeObj, pointerEvent) {
     runtime.connecting = { fromNodeId: nodeObj.id, hoverNodeId: null, hoverGroupInId: null };
+    if (isFlowchartMode()) document.body.classList.add("fc-connecting");
     const wp =
       pointerEvent && Number.isFinite(pointerEvent.clientX)
         ? world(pointerEvent.clientX, pointerEvent.clientY)
         : nodeWorldCenter(nodeObj);
     runtime.previewFrom = anchor(nodeObj, "out", wp);
     runtime.previewPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    runtime.previewPath.setAttribute("class", "conn");
+    runtime.previewPath.setAttribute("class", "conn fc-conn-preview");
     runtime.previewPath.setAttribute("stroke-dasharray", "6 4");
     runtime.previewPath.classList.add("preview-neutral");
     connectionsLayer.appendChild(runtime.previewPath);
@@ -7923,10 +8583,11 @@
     runtime.connecting = { branchFromParentId: parentConnId, branchT: t0, hoverNodeId: null, hoverGroupInId: null };
     runtime.previewFrom = { x: j.x, y: j.y };
     runtime.previewPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    runtime.previewPath.setAttribute("class", "conn");
+    runtime.previewPath.setAttribute("class", "conn fc-conn-preview");
     runtime.previewPath.setAttribute("stroke-dasharray", "6 4");
     runtime.previewPath.classList.add("preview-neutral");
     connectionsLayer.appendChild(runtime.previewPath);
+    if (isFlowchartMode()) document.body.classList.add("fc-connecting");
     workspace.style.cursor = "crosshair";
     clearConnectionSelectionState();
     renderSelection();
@@ -7966,6 +8627,10 @@
     if (isFlowchartMode()) {
       syncFcAssistantFabCollision();
       refreshFlowGroupsForNodeIds(dragIds);
+      for (const fg of getProject().flowGroups || []) {
+        if ((fg.nodeIds || []).some((id) => dragIds.includes(id))) recomputeGroupBounds(fg.id);
+      }
+      settleFcNodeElements(dragIds);
     }
     clearSnapGuides();
     resolveNodeCollisions({ immediate: true });
@@ -7988,35 +8653,12 @@
   }
 
   function clearInteractionStates() {
-    if (runtime.groupDragging) abortGroupDrag();
-    releaseStoredNodeBodyPointerCapture();
-    runtime.dragging = null;
-    runtime.panning = null;
-    runtime.connecting = null;
-    runtime.previewFrom = null;
-    if (runtime.previewPath) runtime.previewPath.remove();
-    runtime.previewPath = null;
-    runtime.cpDragging = null;
-    runtime.pinch = null;
-    runtime.bodyPressPointerId = null;
-    runtime.bodyPressStart = null;
-    runtime.bodyPressNodeId = null;
-    if (runtime.bodyConnectPressTimer) {
-      clearTimeout(runtime.bodyConnectPressTimer);
-      runtime.bodyConnectPressTimer = null;
-    }
-    workspace.classList.remove("panning");
-    workspace.style.cursor = "";
-    runtime.fcCanvasPick = null;
-    if (runtime.marquee) {
-      runtime.marquee = null;
-      if (marquee) marquee.style.display = "none";
-    }
+    clearFcInteractionState();
   }
 
   function getSnapTargetByPoint(point, sourceNodeId) {
     const p = getProject();
-    const threshold = 26;
+    const threshold = isFlowchartMode() ? 34 : 26;
     let best = null;
     let bestDist = Infinity;
     const src = sourceNodeId ? getNodeById(sourceNodeId) : null;
@@ -8543,15 +9185,6 @@
     const density = p.connections.length > 20 || p.nodes.length > 18;
     const overlap = Math.abs(from.x - to.x) < 180;
     return density || overlap;
-  }
-
-  function scheduleRenderConnections() {
-    if (runtime.renderConnectionsRaf) cancelAnimationFrame(runtime.renderConnectionsRaf);
-    runtime.renderConnectionsRaf = requestAnimationFrame(() => {
-      runtime.renderConnectionsRaf = null;
-      renderConnections();
-      renderSelection();
-    });
   }
 
   function highlightConnectionVisual(connId, on) {
@@ -9131,6 +9764,7 @@
         clearAllEdgeSelection();
         runtime.selectedGroupId = null;
         runtime.selectedGroupIds.clear();
+        clearFlowGroupSelection();
         renderSelection();
         return;
       }
@@ -9148,6 +9782,7 @@
       clearAllEdgeSelection();
       runtime.selectedGroupId = null;
       runtime.selectedGroupIds.clear();
+      clearFlowGroupSelection();
       const dragIds = resolveDragIdsForNodePointer(n.id, e.altKey);
       const pDown = getProject();
       const blocked =
@@ -9372,6 +10007,145 @@
         if (brCol2) {
           path.setAttribute("stroke", brCol2);
           path.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-bn2-${c.id}`, brCol2));
+        } else {
+          path.setAttribute("marker-end", "url(#arrow-head)");
+        }
+        path.dataset.connId = c.id;
+        connectionsLayer.append(hit, path);
+        continue;
+      }
+      if (c.kind === "node-flowgroup") {
+        const fromNode = getNodeById(c.from);
+        const toBox = getFlowGroupBox(c.toFlowGroupId);
+        if (!fromNode || !toBox) continue;
+        const toCenter = { x: toBox.x + toBox.w / 2, y: toBox.y + toBox.h / 2 };
+        const from = anchorNodeForConnection(c.from, "from", toCenter);
+        const to = groupAnchor(toBox, "in", from);
+        const auto = autoCurve(from, to);
+        const obsRects = p.nodes
+          .filter((n) => n.id !== c.from)
+          .filter((n) => !isNodeHiddenCanvas(n))
+          .map((n) => {
+            const w = getNodeWorldPosition(n);
+            return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+          })
+          .concat(nodesInsideGroupBoxObstacles(toBox, new Set([c.from])));
+        const d = runtime.connectorStyle === "orthogonal"
+          ? orthogonalPath(from, to, obsRects)
+          : curvePath(from, auto.cp1, auto.cp2, to);
+        const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        hit.setAttribute("d", d);
+        hit.setAttribute("class", "conn-hit");
+        hit.dataset.connId = c.id;
+        hit.addEventListener("pointerdown", (e) => {
+          e.stopPropagation();
+          selectOrDeleteConnectionEdge(e, c.id, p);
+        });
+        bindConnHitHover(hit, c.id);
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", d);
+        path.setAttribute(
+          "class",
+          `conn bridge-conn${runtime.selectedConnectionIds.has(c.id) || runtime.selectedConnectionId === c.id ? " selected" : ""}${connListHoverSuffix(c.id, null)}`
+        );
+        path.setAttribute("stroke-width", String(connectionStrokeWidthPx(c, 2.15)));
+        const dashFg = connectionDashArray(c.strokeDash);
+        if (dashFg) path.setAttribute("stroke-dasharray", dashFg);
+        const brColFg = connectionStrokeColorOrNull(c);
+        if (brColFg) {
+          path.setAttribute("stroke", brColFg);
+          path.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-nfg-${c.id}`, brColFg));
+        } else {
+          path.setAttribute("marker-end", "url(#arrow-head)");
+        }
+        path.dataset.connId = c.id;
+        connectionsLayer.append(hit, path);
+        continue;
+      }
+      if (c.kind === "flowgroup-node") {
+        const toNode = getNodeById(c.to);
+        const fromBox = getFlowGroupBox(c.fromFlowGroupId);
+        if (!toNode || !fromBox) continue;
+        const from = groupAnchor(fromBox, "out", anchor(toNode, "in", { x: fromBox.x + fromBox.w / 2, y: fromBox.y + fromBox.h / 2 }));
+        const to = anchorNodeForConnection(c.to, "to", from);
+        const auto = autoCurve(from, to);
+        const obsRects = p.nodes
+          .filter((n) => n.id !== c.to)
+          .filter((n) => !isNodeHiddenCanvas(n))
+          .map((n) => {
+            const w = getNodeWorldPosition(n);
+            return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+          })
+          .concat(nodesInsideGroupBoxObstacles(fromBox, new Set([c.to])));
+        const d = runtime.connectorStyle === "orthogonal"
+          ? orthogonalPath(from, to, obsRects)
+          : curvePath(from, auto.cp1, auto.cp2, to);
+        const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        hit.setAttribute("d", d);
+        hit.setAttribute("class", "conn-hit");
+        hit.dataset.connId = c.id;
+        hit.addEventListener("pointerdown", (e) => {
+          e.stopPropagation();
+          selectOrDeleteConnectionEdge(e, c.id, p);
+        });
+        bindConnHitHover(hit, c.id);
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", d);
+        path.setAttribute(
+          "class",
+          `conn bridge-conn${runtime.selectedConnectionIds.has(c.id) || runtime.selectedConnectionId === c.id ? " selected" : ""}${connListHoverSuffix(c.id, null)}`
+        );
+        path.setAttribute("stroke-width", String(connectionStrokeWidthPx(c, 2.15)));
+        const dashFgn = connectionDashArray(c.strokeDash);
+        if (dashFgn) path.setAttribute("stroke-dasharray", dashFgn);
+        const brColFgn = connectionStrokeColorOrNull(c);
+        if (brColFgn) {
+          path.setAttribute("stroke", brColFgn);
+          path.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-fgn-${c.id}`, brColFgn));
+        } else {
+          path.setAttribute("marker-end", "url(#arrow-head)");
+        }
+        path.dataset.connId = c.id;
+        connectionsLayer.append(hit, path);
+        continue;
+      }
+      if (c.kind === "flowgroup-flowgroup") {
+        const fromBox = getFlowGroupBox(c.fromFlowGroupId);
+        const toBox = getFlowGroupBox(c.toFlowGroupId);
+        if (!fromBox || !toBox) continue;
+        const anchors = smartGroupAnchors(fromBox, toBox);
+        const from = anchors.from;
+        const to = anchors.to;
+        const auto = autoCurve(from, to);
+        const obs = [
+          ...nodesInsideGroupBoxObstacles(fromBox, new Set()),
+          ...nodesInsideGroupBoxObstacles(toBox, new Set()),
+        ];
+        const d = runtime.connectorStyle === "orthogonal"
+          ? orthogonalPath(from, to, obs)
+          : curvePath(from, auto.cp1, auto.cp2, to);
+        const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        hit.setAttribute("d", d);
+        hit.setAttribute("class", "conn-hit");
+        hit.dataset.connId = c.id;
+        hit.addEventListener("pointerdown", (e) => {
+          e.stopPropagation();
+          selectOrDeleteConnectionEdge(e, c.id, p);
+        });
+        bindConnHitHover(hit, c.id);
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", d);
+        path.setAttribute(
+          "class",
+          `conn bridge-conn${runtime.selectedConnectionIds.has(c.id) || runtime.selectedConnectionId === c.id ? " selected" : ""}${connListHoverSuffix(c.id, null)}`
+        );
+        path.setAttribute("stroke-width", String(connectionStrokeWidthPx(c, 2.15)));
+        const dashFgg = connectionDashArray(c.strokeDash);
+        if (dashFgg) path.setAttribute("stroke-dasharray", dashFgg);
+        const brColFgg = connectionStrokeColorOrNull(c);
+        if (brColFgg) {
+          path.setAttribute("stroke", brColFgg);
+          path.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-fgg-${c.id}`, brColFgg));
         } else {
           path.setAttribute("marker-end", "url(#arrow-head)");
         }
@@ -11039,11 +11813,14 @@
 
   function renderSelection() {
     const p = getProject();
+    const multiCount = runtime.selectedNodeIds.size;
     for (const el of nodesLayer.querySelectorAll(".node")) {
-      const selected = el.dataset.nodeId === runtime.selectedNodeId;
-      const multi = runtime.selectedNodeIds.has(el.dataset.nodeId);
+      const id = el.dataset.nodeId;
+      const selected = id === runtime.selectedNodeId;
+      const multi = runtime.selectedNodeIds.has(id);
       el.classList.toggle("selected", selected || multi);
-      el.classList.toggle("connect-target", runtime.connecting && el.dataset.nodeId === runtime.connecting.hoverNodeId);
+      el.classList.toggle("fc-multi-picked", multiCount > 1 && multi);
+      el.classList.toggle("connect-target", runtime.connecting && id === runtime.connecting.hoverNodeId);
     }
     for (const c of connectionsLayer.querySelectorAll(".conn")) {
       const cid = c.dataset.connId;
@@ -11109,6 +11886,7 @@
     renderOutlineTreePanel();
     syncTopbarConnectionActions();
     syncFcQuickEditToolbar();
+    syncFcGroupQuickEditToolbar();
     syncFcMultiSelectBar();
   }
 
@@ -12092,6 +12870,20 @@
           }
           return true;
         }
+        if (c.kind === "node-flowgroup") {
+          if (ids.has(c.from)) {
+            removedConnIds.push(c.id);
+            return false;
+          }
+          return true;
+        }
+        if (c.kind === "flowgroup-node") {
+          if (ids.has(c.to)) {
+            removedConnIds.push(c.id);
+            return false;
+          }
+          return true;
+        }
         if (isBranchFromConnection(c)) {
           if (ids.has(c.to)) {
             removedConnIds.push(c.id);
@@ -12907,7 +13699,7 @@
     runtime.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (runtime.readOnly) return;
     if (runtime.fcToolbarInteracting || runtime.fcMultiBarInteracting) return;
-    if (e.target.closest("#fcQuickEdit, .fc-quick-edit, #fcMultiSelectBar, .fc-multi-select-bar, #fcDeleteConfirm, .fc-delete-confirm, #fcAssistantRoot, .fc-assistant-root")) return;
+    if (e.target.closest("#fcQuickEdit, #fcGroupQuickEdit, .fc-quick-edit, .fc-group-quick-edit, #fcMultiSelectBar, .fc-multi-select-bar, #fcDeleteConfirm, .fc-delete-confirm, #fcAssistantRoot, .fc-assistant-root, .fc-flow-group-header")) return;
     if (e.target.closest(".node") || e.target.closest(".conn") || e.target.closest(".conn-hit")) return;
     /* Group label/handles live above nodes; ignore canvas clear/pan when interacting with a group frame */
     if (e.target.closest(".group-chrome")) return;
@@ -13079,6 +13871,10 @@
       updateGroupDrag(e);
       return;
     }
+    if (runtime.flowGroupDragging) {
+      updateFlowGroupDrag(e);
+      return;
+    }
     if (runtime.dragging) {
       if (runtime.bodyPressStart && runtime.bodyPressPointerId === e.pointerId) {
         const moved = Math.hypot(e.clientX - runtime.bodyPressStart.x, e.clientY - runtime.bodyPressStart.y);
@@ -13109,6 +13905,7 @@
         }
       }
       scheduleRenderConnections();
+      if (isFlowchartMode()) refreshFlowGroupsForNodeIds(runtime.dragging.dragIds || [n.id]);
       scheduleSemanticOverlaysDuringDrag();
       scheduleCollisionResolve(240);
       return;
@@ -13143,9 +13940,7 @@
           if (targetNode && runtime.previewFrom) point = anchorNodeForConnection(hoveredNodeId, "to", runtime.previewFrom);
         } else if (hoverGroupInId) {
           const toBox = getUserGroupBox(hoverGroupInId);
-          if (toBox && runtime.previewFrom) {
-            point = groupAnchor(toBox, "in", runtime.previewFrom);
-          }
+          if (toBox && runtime.previewFrom) point = groupAnchor(toBox, "in", runtime.previewFrom);
         }
         const from = runtime.previewFrom;
         if (!from) return;
@@ -13247,7 +14042,11 @@
     }
     if (runtime.focusNodeId) return;
     if (runtime.fcCanvasPick) {
-      if (!runtime.marquee && !runtime.fcCanvasPick.shiftKey) clearFlowchartNodeSelection();
+      if (!runtime.marquee && !runtime.fcCanvasPick.shiftKey) {
+        clearFlowchartNodeSelection();
+      } else {
+        hideFcToolbarsImmediate();
+      }
       runtime.fcCanvasPick = null;
     }
     if (runtime.marquee) {
@@ -13271,6 +14070,7 @@
       runtime.selectedNodeId = runtime.selectedNodeIds.size === 1 ? [...runtime.selectedNodeIds][0] : null;
       runtime.selectedGroupId = null;
       runtime.selectedGroupIds.clear();
+      clearFlowGroupSelection();
       runtime.selectedGroupConnId = null;
       runtime.marquee = null;
       marquee.style.display = "none";
@@ -13283,6 +14083,11 @@
 
     if (runtime.groupDragging) {
       if (e.pointerId === runtime.groupDragging.pointerId) endGroupDrag();
+      return;
+    }
+    if (runtime.flowGroupDragging) {
+      const gd = runtime.flowGroupDragging;
+      if (gd.pointerId == null || gd.pointerId === e.pointerId) finalizeFlowGroupDragIfAny();
       return;
     }
 
@@ -13324,15 +14129,14 @@
             }
             markDirty();
             smartRebalance([parent.from, parent.to, toNodeId]);
+            if (isFlowchartMode()) {
+              pulseFcConnectTarget(toNodeId);
+              flashFcConnEnter(connectionId);
+            }
           }
         }
-        if (runtime.previewPath) runtime.previewPath.remove();
-        runtime.previewPath = null;
-        runtime.previewFrom = null;
-        runtime.connecting = null;
-        workspace.style.cursor = "";
-        renderConnections();
-        renderSelection();
+        clearPendingConnectionState();
+        scheduleRenderConnections();
         scheduleSemanticAnalysis();
         return;
       }
@@ -13350,7 +14154,8 @@
           smartRebalance([fromNodeId]);
         }
       } else {
-        const toNodeId = findConnectionTargetFromEvent(e, fromNodeId) || runtime.connecting.hoverNodeId || getSnapTargetByPoint(point, fromNodeId) || null;
+        const toNodeId =
+          findConnectionTargetFromEvent(e, fromNodeId) || runtime.connecting.hoverNodeId || getSnapTargetByPoint(point, fromNodeId) || null;
         if (toNodeId && fromNodeId && toNodeId !== fromNodeId) {
           const p = getProject();
           const exists = p.connections.some((c) => isNodeNodeConnection(c) && c.from === fromNodeId && c.to === toNodeId);
@@ -13379,16 +14184,15 @@
             }
             markDirty();
             smartRebalance([fromNodeId]);
+            if (isFlowchartMode()) {
+              pulseFcConnectTarget(toNodeId);
+              flashFcConnEnter(connectionId);
+            }
           }
         }
       }
-      if (runtime.previewPath) runtime.previewPath.remove();
-      runtime.previewPath = null;
-      runtime.previewFrom = null;
-      runtime.connecting = null;
-      workspace.style.cursor = "";
-      renderConnections();
-      renderSelection();
+      clearPendingConnectionState();
+      scheduleRenderConnections();
       scheduleSemanticAnalysis();
       return;
     }
@@ -13518,6 +14322,17 @@
     const ae = document.activeElement;
     const typing = isTypingFocusTarget(ae);
     if (fcEditorCanSelect() && e.key === "Escape" && !typing && !runtime.editingNodeId) {
+      if (runtime.connecting) {
+        e.preventDefault();
+        clearPendingConnectionState();
+        scheduleRenderConnections();
+        return;
+      }
+      if (runtime.flowGroupDragging) {
+        e.preventDefault();
+        finalizeFlowGroupDragIfAny();
+        return;
+      }
       hideFcDeleteConfirm();
       clearFlowchartNodeSelection();
       return;
@@ -13562,9 +14377,21 @@
       ae === document.documentElement ||
       ae?.id === "workspace" ||
       !!ae?.closest?.("#workspace");
-    if (!typing && e.key === "F2" && isFlowchartMode() && runtime.selectedNodeId) {
+    if (!typing && e.key === "F2" && isFlowchartMode()) {
+      if (runtime.selectedFlowGroupId) {
+        e.preventDefault();
+        fcStartFlowGroupTitleEdit(runtime.selectedFlowGroupId);
+        return;
+      }
+      if (runtime.selectedNodeId) {
+        e.preventDefault();
+        fcStartInlineRename(runtime.selectedNodeId);
+        return;
+      }
+    }
+    if (!typing && e.shiftKey && e.key.toLowerCase() === "r" && isFlowchartMode()) {
       e.preventDefault();
-      fcStartInlineRename(runtime.selectedNodeId);
+      refreshCanvasView();
       return;
     }
     if (!typing && e.key === "Tab" && isFlowchartMode() && inCanvas && runtime.selectedNodeId && !e.shiftKey) {
@@ -13598,6 +14425,11 @@
       if (primaryNodeSelectionIdList().length) {
         e.preventDefault();
         requestDeleteSelectedNodes();
+        return;
+      }
+      if (runtime.selectedFlowGroupId && isFlowchartMode()) {
+        e.preventDefault();
+        requestDeleteFlowGroup(runtime.selectedFlowGroupId);
       }
       return;
     }
