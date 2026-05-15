@@ -3086,12 +3086,13 @@
       return;
     }
     if (e.shiftKey || e.ctrlKey || e.metaKey) {
+      clearGroupConnSelectionState();
       toggleShiftConnectionEdgeSelection(connId);
       runtime.selectedNodeId = null;
       runtime.selectedNodeIds.clear();
       runtime.selectedGroupId = null;
       runtime.selectedGroupIds.clear();
-      renderSelection();
+      scheduleRenderConnections();
       return;
     }
     clearGroupConnSelectionState();
@@ -3102,7 +3103,7 @@
     runtime.selectedNodeIds.clear();
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
-    renderSelection();
+    scheduleRenderConnections();
   }
 
   function toggleShiftGroupConnSelection(gcId) {
@@ -3130,12 +3131,13 @@
       return;
     }
     if (e.shiftKey || e.ctrlKey || e.metaKey) {
+      clearConnectionSelectionState();
       toggleShiftGroupConnSelection(gcId);
       runtime.selectedNodeId = null;
       runtime.selectedGroupId = null;
       runtime.selectedGroupIds.clear();
       runtime.selectedNodeIds.clear();
-      renderSelection();
+      scheduleRenderConnections();
       return;
     }
     clearConnectionSelectionState();
@@ -3159,7 +3161,7 @@
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
     runtime.selectedNodeIds.clear();
-    renderSelection();
+    scheduleRenderConnections();
   }
 
   const resizeObserver = new ResizeObserver(() => {
@@ -5387,7 +5389,7 @@
     }
     runtime.selectedGroupConnId = null;
     runtime.selectedNodeId = null;
-    runtime.selectedConnectionId = null;
+    clearConnectionSelectionState();
     runtime.selectedNodeIds.clear();
     rightbar.classList.remove("compact");
     runtime.inspectorCompact = false;
@@ -7028,6 +7030,11 @@
       if (!validGcIds.has(id)) runtime.selectedGroupConnIds.delete(id);
     }
     if (runtime.selectedConnectionId && !validIds.has(runtime.selectedConnectionId)) runtime.selectedConnectionId = null;
+    if (runtime.selectedConnectionIds.size === 1) {
+      runtime.selectedConnectionId = [...runtime.selectedConnectionIds][0];
+    } else if (!runtime.selectedConnectionIds.size) {
+      runtime.selectedConnectionId = null;
+    }
     if (runtime.selectedGroupConnId && !validGcIds.has(runtime.selectedGroupConnId)) runtime.selectedGroupConnId = null;
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
@@ -8773,13 +8780,17 @@
     const wrap = document.getElementById("topbarConnSelActions");
     const brB = document.getElementById("topbarBranchConnBtn");
     if (!wrap || !brB) return;
+    const soleConnId =
+      runtime.selectedConnectionIds.size === 1
+        ? [...runtime.selectedConnectionIds][0]
+        : runtime.selectedConnectionId && runtime.selectedConnectionIds.has(runtime.selectedConnectionId)
+          ? runtime.selectedConnectionId
+          : null;
     const oneConn =
-      runtime.selectedConnectionIds.size === 1 &&
-      runtime.selectedConnectionId &&
-      runtime.selectedConnectionIds.has(runtime.selectedConnectionId) &&
+      !!soleConnId &&
       !runtime.selectedGroupConnId &&
       !runtime.selectedGroupConnIds.size;
-    const c = oneConn ? getConnById(runtime.selectedConnectionId) : null;
+    const c = oneConn ? getConnById(soleConnId) : null;
     const show = !!(
       c &&
       (isNodeNodeConnection(c) || isBranchFromConnection(c) || c.kind === "node-group" || c.kind === "group-node")
@@ -9713,7 +9724,12 @@
   document.getElementById("duplicateNodesPanelBtn")?.addEventListener("click", () => duplicateSelectedNodesAction());
   document.getElementById("topbarDeleteConnBtn")?.addEventListener("click", () => bulkDeleteSelectedEdgesAction());
   document.getElementById("topbarBranchConnBtn")?.addEventListener("click", () => {
-    const id = runtime.selectedConnectionId;
+    const id =
+      runtime.selectedConnectionId && runtime.selectedConnectionIds.has(runtime.selectedConnectionId)
+        ? runtime.selectedConnectionId
+        : runtime.selectedConnectionIds.size === 1
+          ? [...runtime.selectedConnectionIds][0]
+          : null;
     if (!id || !runtime.selectedConnectionIds.has(id)) return;
     const c = getConnById(id);
     if (!c || !isNodeNodeConnection(c)) return;
@@ -10534,15 +10550,14 @@
   workspace.addEventListener("pointerdown", (e) => {
     if (runtime.focusNodeId) return;
     runtime.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (e.target.closest(".node") || e.target.closest(".conn")) return;
+    if (e.target.closest(".node") || e.target.closest(".conn") || e.target.closest(".conn-hit")) return;
     /* Group label/handles live above nodes; ignore canvas clear/pan when interacting with a group frame */
     if (e.target.closest(".group-chrome")) return;
     runtime.selectedNodeId = null;
-    runtime.selectedConnectionId = null;
     runtime.selectedNodeIds.clear();
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
-    runtime.selectedGroupConnId = null;
+    clearAllEdgeSelection();
     renderSelection();
     if (e.shiftKey || runtime.selectionMode) {
       const r = workspace.getBoundingClientRect();
