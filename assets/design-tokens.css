@@ -67,7 +67,10 @@
   --z-floating-toolbar: 95;
 
   --z-share-dock: 9990;
-  --z-focus-modal: 9999;
+  /* Portal root for canvas-independent modals (extended inspector). */
+  --z-modal-root: 10035;
+  /* Extended node inspector — above drawer/chrome/toasts, below raised system overlays (palette, import diff). */
+  --z-focus-modal: 10038;
 
   --z-softlock: 10010;
   --z-modal: 10020;

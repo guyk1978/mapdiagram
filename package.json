@@ -7,7 +7,8 @@
     "build:arch": "vite build --config vite.architecture.config.ts",
     "build:compilers": "npm run build:flowchart && npm run build:arch",
     "test:flowchart": "vitest run tests/flowchart",
-    "test": "npm run test:flowchart"
+    "test:stabilization": "vitest run tests/stabilization",
+    "test": "npm run test:flowchart && npm run test:stabilization"
   },
   "devDependencies": {
     "@types/dagre": "^0.7.52",

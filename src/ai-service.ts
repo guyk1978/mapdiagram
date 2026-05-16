@@ -63,10 +63,15 @@ export async function completeOpenAiThroughBillingGateway(
     idempotencyLen: idem.length,
   });
 
+  const AI_FETCH_TIMEOUT_MS = 120_000;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), AI_FETCH_TIMEOUT_MS);
+
   let res: Response;
   try {
     res = await fetch(url, {
       method: "POST",
+      signal: controller.signal,
       headers: {
         Authorization: `Bearer ${accessToken}`,
         apikey: anonKey,
@@ -86,7 +91,12 @@ export async function completeOpenAiThroughBillingGateway(
       errName: e?.name ?? "unknown",
       errMessage: (e?.message ?? String(err)).slice(0, 400),
     });
+    if (e?.name === "AbortError") {
+      throw new Error(`AI billing gateway timed out after ${AI_FETCH_TIMEOUT_MS / 1000}s`);
+    }
     throw err;
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   const raw = await res.text();

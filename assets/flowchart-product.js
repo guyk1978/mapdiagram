@@ -12,22 +12,38 @@
     return res.json();
   }
 
+  var MD_PUBLISH_TIMEOUT_MS = 90000;
+
   async function publishToSupabase(hooks, payload) {
     const urlSnap = hooks.normalizeSupabaseProjectUrl(hooks.supabaseUrl);
     if (!urlSnap.ok) throw new Error("Supabase not configured");
     const { data: sess } = await hooks.supabase.auth.getSession();
     const token = sess && sess.session ? sess.session.access_token : "";
     if (!token) throw new Error("Sign in to publish a public link");
-    const res = await fetch(urlSnap.baseUrl + "/functions/v1/public-flowchart", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: hooks.supabaseAnonKey,
-        Authorization: "Bearer " + token,
-      },
-      body: JSON.stringify({ title: payload.title, data: payload.data }),
-    });
-    const json = await res.json().catch(function () {
+
+    var controller = new AbortController();
+    var tid = setTimeout(function () {
+      controller.abort();
+    }, MD_PUBLISH_TIMEOUT_MS);
+    var res;
+    try {
+      res = await fetch(urlSnap.baseUrl + "/functions/v1/public-flowchart", {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+          apikey: hooks.supabaseAnonKey,
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify({ title: payload.title, data: payload.data }),
+      });
+    } catch (err) {
+      clearTimeout(tid);
+      if (err && err.name === "AbortError") throw new Error("publish_timeout");
+      throw err;
+    }
+    clearTimeout(tid);
+    var json = await res.json().catch(function () {
       return {};
     });
     if (!res.ok) throw new Error(json.error || json.detail || "publish_failed");
@@ -76,10 +92,19 @@
     }
     if (!row || !row.data) {
       const urlSnap = hooks.normalizeSupabaseProjectUrl(hooks.supabaseUrl);
-      const res = await fetch(
-        urlSnap.baseUrl + "/functions/v1/public-flowchart?slug=" + encodeURIComponent(slug),
-        { headers: { apikey: hooks.supabaseAnonKey, Authorization: "Bearer " + hooks.supabaseAnonKey } },
-      );
+      var ctrl = new AbortController();
+      var tmr = setTimeout(function () {
+        ctrl.abort();
+      }, MD_PUBLISH_TIMEOUT_MS);
+      var res;
+      try {
+        res = await fetch(urlSnap.baseUrl + "/functions/v1/public-flowchart?slug=" + encodeURIComponent(slug), {
+          headers: { apikey: hooks.supabaseAnonKey, Authorization: "Bearer " + hooks.supabaseAnonKey },
+          signal: ctrl.signal,
+        });
+      } finally {
+        clearTimeout(tmr);
+      }
       row = await res.json();
       if (!res.ok) throw new Error("not_found");
     }
@@ -168,7 +193,15 @@
           var card = document.createElement("button");
           card.type = "button";
           card.className = "fc-template-card";
-          card.innerHTML = "<strong>" + t.title + "</strong><span>" + t.description + "</span><em>" + t.category + "</em>";
+          var strong = document.createElement("strong");
+          strong.textContent = String(t.title || "");
+          var span = document.createElement("span");
+          span.textContent = String(t.description || "");
+          var em = document.createElement("em");
+          em.textContent = String(t.category || "");
+          card.appendChild(strong);
+          card.appendChild(span);
+          card.appendChild(em);
           card.onclick = function () {
             overlay.classList.remove("open");
             onPick(t.slug);

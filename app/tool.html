@@ -979,6 +979,21 @@
   .project-actions button{min-height:30px;padding:4px 8px;font-size:12px}
   .group-controls{display:none;gap:8px}
   .group-controls.active{display:grid}
+  .group-meta-line{font-size:11px;color:var(--muted);margin:0}
+  .topbar-group-actions{display:none;align-items:center;gap:4px;flex-shrink:0}
+  .topbar-group-actions.is-visible{display:inline-flex!important}
+  .topbar-group-actions .text-btn-sm{min-height:36px;padding:4px 10px;font-size:11px}
+  #stickyMultiSelectBtn.is-active{
+    background:linear-gradient(150deg,rgba(101,131,255,.42),rgba(137,108,255,.38));
+    border-color:rgba(130,161,255,.85);
+    box-shadow:0 0 0 1px rgba(130,161,255,.35) inset;
+  }
+  #mobileStickyMultiSelectBtn.is-active{
+    background:linear-gradient(150deg,rgba(101,131,255,.35),rgba(137,108,255,.3));
+    border-color:rgba(130,161,255,.72);
+  }
+  body.md-sticky-multiselect .workspace{cursor:cell}
+  body.md-sticky-multiselect .workspace.panning{cursor:grabbing}
   .connection-list-panel {
     margin-top: 10px;
     padding-top: 10px;
@@ -1721,7 +1736,7 @@
   }
   .node-insp-tab:hover{background:rgba(60,80,120,.25)}
   .node-insp-tab.active{background:rgba(80,110,180,.35);border-color:rgba(130,160,220,.45);color:#eef4ff}
-  .node-insp-panels{padding:14px 16px 18px;overflow:auto;max-height:min(62vh,560px)}
+  .node-insp-panels{padding:12px 14px 14px;overflow:auto;max-height:min(52vh,420px);min-height:0}
   .node-insp-panel{display:none;gap:10px}
   .node-insp-panel.active{display:grid}
   .node-insp-panel label{display:grid;gap:4px;font-size:11px;color:#9cb0d8}
@@ -1777,39 +1792,76 @@
     border-color: #5e4b2f;
     background: #2e271b;
   }
+  /* Canvas-independent overlay portal — modals mount here, never inside #viewport / transformed layers. */
+  .md-modal-root {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal-root);
+    pointer-events: none;
+    isolation: isolate;
+  }
+  .md-modal-root > .focus-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-focus-modal);
+  }
   .focus-modal-overlay {
     position: fixed;
     inset: 0;
+    box-sizing: border-box;
+    padding: max(12px, env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px))
+      max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
     background: var(--overlay-scrim);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: var(--z-focus-modal);
+    isolation: isolate;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.22s ease;
   }
+  .focus-modal-overlay.md-focus-modal-instant,
+  .focus-modal-overlay.md-focus-modal-instant .focus-modal {
+    transition: none !important;
+  }
   .focus-modal-overlay.open {
     opacity: 1;
     pointer-events: auto;
+    visibility: visible;
+  }
+  .focus-modal-overlay:not(.open):not(.md-focus-modal-measuring) {
+    visibility: hidden;
+  }
+  .focus-modal-overlay.md-focus-modal-measuring {
+    visibility: visible;
+    opacity: 0;
+    pointer-events: none;
   }
   .focus-modal {
-    width: min(90vw, 1200px);
-    max-height: 90vh;
+    width: min(720px, 90vw);
+    max-width: min(720px, 90vw);
+    max-height: 82vh;
     background: var(--modal-surface);
     border: 1px solid var(--modal-border);
-    border-radius: 16px;
-    box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42);
+    border-radius: 14px;
+    box-shadow: 0 22px 56px rgba(0, 0, 0, 0.38);
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
     overflow: hidden;
     transform: scale(0.96);
     opacity: 0;
+    visibility: visible;
+    pointer-events: none;
     transition: transform 0.22s ease, opacity 0.22s ease;
+    position: relative;
+    z-index: 1;
   }
-  .focus-modal-overlay.open .focus-modal {
+  .focus-modal-overlay.open .focus-modal,
+  .focus-modal-overlay.md-focus-modal-measuring .focus-modal.md-focus-modal-ready,
+  .focus-modal.md-focus-modal-ready {
     transform: scale(1);
     opacity: 1;
+    pointer-events: auto;
   }
   .focus-head {
     display: flex;
@@ -1817,7 +1869,8 @@
     justify-content: space-between;
     gap: 10px;
     border-bottom: 1px solid #2e3c59;
-    padding: 12px;
+    padding: 10px 12px;
+    flex-shrink: 0;
     background: rgba(17, 23, 36, 0.95);
   }
   .focus-head-title {
@@ -1976,12 +2029,13 @@
     .topbar::-webkit-scrollbar{ display:none; }
     .mobile-inspector-actions{display:inline-flex}
     .focus-modal {
-      width: 95vw;
-      max-height: 95vh;
+      width: 96vw;
+      max-width: 96vw;
+      max-height: 90vh;
       border-radius: 12px;
     }
     .node-insp-panels {
-      max-height: 52vh;
+      max-height: min(52vh, 380px);
     }
   }
   /* —— Light theme: airy chrome, workspace-forward, accent-only emphasis (see also :root html[data-theme="light"] tokens). —— */
@@ -2383,11 +2437,15 @@
   .flowchart-mode #railInsightBtn,
   .flowchart-mode [data-flowchart-hide],
   .flowchart-mode #tabAi,
-  .flowchart-mode #diagramSubTabGroups,
   .flowchart-mode #diagramSubTabSuggest,
-  .flowchart-mode #semantic-overlays,
   .flowchart-mode #quickEditSurfaceHint {
     display: none !important;
+  }
+  .flowchart-mode .semantic-group {
+    display: none !important;
+  }
+  .flowchart-mode .group-controls.active {
+    display: grid !important;
   }
   .flowchart-mode .workspace {
     --fc-ws-void: #080c14;
@@ -3176,6 +3234,7 @@
 </style>
 </head>
 <body class="flowchart-mode">
+<div id="modal-root" class="md-modal-root" data-md-portal-root aria-hidden="true"></div>
 <div class="app" id="app">
   <header class="topbar topbar--minimal">
     <div class="topbar-minimal-row">
@@ -3188,6 +3247,7 @@
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="undoBtn">Undo</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="redoBtn">Redo</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="duplicateNodesToolbarBtn">Duplicate selection</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="stickyMultiSelectBtn">Multi-select mode</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="themeToggleBtn">Toggle theme</button>
         <div class="topbar-menu-sep" role="separator" aria-hidden="true"></div>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="autoLayoutBtn">Auto layout</button>
@@ -3229,9 +3289,15 @@
         <button id="undoBtn" class="icon-btn" type="button" title="Undo" aria-label="Undo"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 14 4 9l5-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 15v-2a4 4 0 0 0-4-4H4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         <button id="redoBtn" class="icon-btn" type="button" title="Redo" aria-label="Redo"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m15 14 5-5-5-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v-2a4 4 0 0 1 4-4h12" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         <button id="duplicateNodesToolbarBtn" class="icon-btn" type="button" title="Duplicate selection (Ctrl+D)" aria-label="Duplicate selection"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="8" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.75"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
+        <button type="button" id="stickyMultiSelectBtn" class="icon-btn" title="Multi-select mode (M)" aria-label="Multi-select mode" aria-pressed="false"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="7" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.75"/><rect x="9" y="5" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.75" opacity=".85"/><path d="M12 12h4M12 16v-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
         <div id="topbarConnSelActions" class="group" role="toolbar" aria-label="Selected connection" hidden>
           <button type="button" id="topbarDeleteConnBtn" class="icon-btn" title="Delete connection" aria-label="Delete connection"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16M10 11v6M14 11v6M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1v2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7l1 14a1 1 0 0 0 1 .9h6a1 1 0 0 0 1-.9l1-14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
           <button type="button" id="topbarBranchConnBtn" class="icon-btn" title="Branch from this connection" aria-label="Branch from this connection"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6v12M6 12h8a3 3 0 0 1 3 3v3M14 12h4a2 2 0 0 1 2 2v4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 6v4M16 8h4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
+        </div>
+        <div id="topbarGroupSelActions" class="topbar-group-actions group" role="toolbar" aria-label="Selected group">
+          <button type="button" id="topbarDupGroupBtn" class="text-btn-sm" title="Duplicate group">Duplicate Group</button>
+          <button type="button" id="topbarUngroupBtn" class="text-btn-sm" title="Ungroup (keep nodes)">Ungroup</button>
+          <button type="button" id="topbarFocusGroupBtn" class="text-btn-sm" title="Focus group">Focus Group</button>
         </div>
         <button type="button" id="themeToggleBtn" class="icon-btn theme-toggle-btn" title="Toggle light / dark theme" aria-label="Toggle light / dark theme"><span class="icon-svg icon-theme-sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span><span class="icon-svg icon-theme-moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 6.5 6.5 0 1 0 21 14.5Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span></button>
         <button id="fitViewBtn" class="icon-btn" type="button" title="Fit to screen" aria-label="Fit to screen"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3H5v4M15 3h4v4M3 9V5h4M21 9V5h-4M9 21H5v-4M15 21h4v-4M3 15v4h4M21 15v4h-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
@@ -3239,8 +3305,11 @@
         <button id="improveFlowchartLayoutBtn" class="icon-btn" type="button" title="Improve layout (Ctrl+L)" aria-label="Improve flowchart layout"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h6v4H4V6zm10 0h6v4h-6V6zM4 14h6v4H4v-4zm10 0h6v4h-6v-4z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" opacity=".55"/></svg></span></button>
         </div>
         <div class="group mobile-inspector-actions" aria-label="Quick group actions">
+          <button type="button" id="mobileStickyMultiSelectBtn" class="text-btn-sm" title="Multi-select mode (M)" aria-label="Multi-select mode" aria-pressed="false">Multi-select</button>
           <button type="button" id="mobileQuickGroupBtn" class="text-btn-sm" title="Create group from selection" aria-label="Create group from selection">Group</button>
           <button type="button" id="mobileQuickUngroupBtn" class="text-btn-sm" title="Ungroup selection" aria-label="Ungroup selection">Ungroup</button>
+          <button type="button" id="mobileDupGroupBtn" class="text-btn-sm" title="Duplicate selected group" hidden>Duplicate Group</button>
+          <button type="button" id="mobileFocusGroupBtn" class="text-btn-sm" title="Focus selected group" hidden>Focus Group</button>
         </div>
       </div>
     </div>
@@ -3506,13 +3575,19 @@
         </div>
         <div id="groupControls" class="group-controls">
           <h3>Selected Group</h3>
+          <p id="groupChildCountLine" class="group-meta-line" aria-live="polite"></p>
           <label class="muted">Name <input id="groupNameInput" placeholder="Group name"></label>
           <label class="muted">Color <input id="groupColorInput" type="color" value="#8baeff"></label>
           <label class="muted">Parent (nest under) <select id="groupParentSelect"><option value="">— Root —</option></select></label>
+          <label class="muted" style="display:flex;align-items:center;gap:8px;margin:0">
+            <input type="checkbox" id="groupPinChk"> Pin group (no drag)
+          </label>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-            <button id="duplicateGroupBtn" type="button">Duplicate system</button>
-            <button id="groupFocusModeBtn" type="button">Focus system</button>
-            <button id="ungroupSelectedGroupBtn" type="button">Ungroup (keep nodes)</button>
+            <button id="duplicateGroupBtn" type="button">Duplicate</button>
+            <button id="groupFocusModeBtn" type="button">Focus</button>
+            <button id="ungroupSelectedGroupBtn" type="button">Ungroup</button>
+            <button id="groupBringForwardBtn" type="button">Forward</button>
+            <button id="groupSendBackwardBtn" type="button">Back</button>
             <button id="deleteGroupContentsBtn" type="button" class="danger">Delete group + nodes</button>
           </div>
           <p class="muted" style="margin:0;font-size:11px">Tip: with nodes from several groups selected, dragging moves only the group of the node you grab. Group links stay attached.</p>
@@ -3831,6 +3906,7 @@
 <script src="/assets/product-analytics.js"></script>
 <script src="/assets/flowchart-templates-catalog.js"></script>
 <script src="/assets/flowchart-product.js"></script>
+<script src="/assets/md-runtime-diagnostics.js"></script>
 <script>
   const DB_KEY = "mapdiagram-db-v1";
   const SUPABASE_URL = window.MAPDIAGRAM_SUPABASE?.url || window.MAPDIAGRAM_SUPABASE_URL || "";
@@ -3940,6 +4016,7 @@
   const SESSION_CONN_LIST_FILTER = "mapdiagram-connection-list-filter";
   const SESSION_PNG_INCLUDE_HIDDEN = "mapdiagram-png-include-hidden";
   const suggestionsEl = document.getElementById("suggestions");
+  const modalRoot = document.getElementById("modal-root");
   const focusOverlay = document.getElementById("focusOverlay");
   const focusModal = document.getElementById("focusModal");
   const focusColor = document.getElementById("focusColor");
@@ -4061,6 +4138,8 @@
     selectedNodeIds: new Set(),
     marquee: null,
     selectionMode: false,
+    /** Toolbar toggle: additive selection without holding Shift (touch / a11y). */
+    stickyMultiSelect: false,
     touchDragPending: null,
     groupConnecting: null,
     groupPreviewPath: null,
@@ -4088,9 +4167,319 @@
     pendingImportParsed: null,
     /** First edit in node inspector modal captures one undo snapshot (see primeFocusModalHistoryOnce). */
     focusModalHistoryPrimed: false,
+    /** Watchdog: rolls back orphan backdrop if modal never paints. */
+    focusModalWatchdog: null,
     /** Last node .body that called setPointerCapture — released when the inspector closes or pointer ends. */
     activeNodeBodyCapture: null,
+    /** Phase 5 — cache node root elements for drag/update hot paths (invalidated in renderNodes). */
+    nodeElById: new Map(),
   };
+
+  /** Phase 5 — resolve node DOM root; prefers cache from renderNodes, falls back to querySelector. */
+  function getNodeDomEl(nodeId) {
+    if (!nodeId) return null;
+    const cached = runtime.nodeElById.get(nodeId);
+    if (cached && cached.isConnected) return cached;
+    if (cached && !cached.isConnected) runtime.nodeElById.delete(nodeId);
+    return nodesLayer.querySelector(`[data-node-id="${nodeId}"]`);
+  }
+
+  /* ========== Interaction integrity (portal, caches, assertions) ========== */
+  const MD_GROUP_DUP_OFFSET = 40;
+  const MD_FORBIDDEN_PORTAL_ANCESTORS = ["#viewport", "#workspace", "#nodes", "#connections", "#canvas-underlays", "#semantic-overlays"];
+
+  function isMdDebugGroups() {
+    try {
+      return localStorage.getItem("md_debug_groups") === "1";
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function mdDebugWarn(code, detail) {
+    if (!isMdDebugGroups()) return;
+    console.warn(`[md:groups:${code}]`, detail || "");
+  }
+
+  function invalidateInteractionCaches(opts = {}) {
+    runtime.groupBoxCache = null;
+    if (opts.clearNodeEl) runtime.nodeElById.clear();
+    if (opts.clearGraph) {
+      runtime.graphCache = null;
+      runtime.graphCacheKey = "";
+    }
+  }
+
+  function pruneNodeElCache() {
+    for (const [id, el] of runtime.nodeElById) {
+      if (!el || !el.isConnected) runtime.nodeElById.delete(id);
+    }
+  }
+
+  function sanitizeSelectionState() {
+    const p = getProject();
+    const nodeIds = new Set(p.nodes.map((n) => n.id));
+    const groupIds = new Set((p.userGroups || []).map((g) => g.id));
+    const connIds = new Set((p.connections || []).map((c) => c.id));
+    const gcIds = new Set((p.groupConnections || []).map((g) => g.id));
+    for (const id of [...runtime.selectedNodeIds]) {
+      if (!nodeIds.has(id)) runtime.selectedNodeIds.delete(id);
+    }
+    if (runtime.selectedNodeId && !nodeIds.has(runtime.selectedNodeId)) runtime.selectedNodeId = null;
+    if (runtime.selectedNodeIds.size === 1) runtime.selectedNodeId = [...runtime.selectedNodeIds][0];
+    for (const id of [...runtime.selectedGroupIds]) {
+      if (!groupIds.has(id)) runtime.selectedGroupIds.delete(id);
+    }
+    if (runtime.selectedGroupId && !groupIds.has(runtime.selectedGroupId)) {
+      runtime.selectedGroupId = runtime.selectedGroupIds.size ? [...runtime.selectedGroupIds][0] : null;
+    }
+    for (const id of [...runtime.selectedConnectionIds]) {
+      if (!connIds.has(id)) runtime.selectedConnectionIds.delete(id);
+    }
+    if (runtime.selectedConnectionId && !connIds.has(runtime.selectedConnectionId)) runtime.selectedConnectionId = null;
+    for (const id of [...runtime.selectedGroupConnIds]) {
+      if (!gcIds.has(id)) runtime.selectedGroupConnIds.delete(id);
+    }
+    if (runtime.selectedGroupConnId && !gcIds.has(runtime.selectedGroupConnId)) runtime.selectedGroupConnId = null;
+    if (runtime.focusNodeId && !nodeIds.has(runtime.focusNodeId)) runtime.focusNodeId = null;
+    syncFocusModalOrphanGuard();
+  }
+
+  function assertProjectIntegrity(context) {
+    if (!isMdDebugGroups()) return;
+    const p = getProject();
+    const nodeIds = p.nodes.map((n) => n.id);
+    const dupNodes = nodeIds.filter((id, i) => nodeIds.indexOf(id) !== i);
+    if (dupNodes.length) mdDebugWarn("dup-node-id", { context, ids: dupNodes });
+    const gids = (p.userGroups || []).map((g) => g.id);
+    const dupG = gids.filter((id, i) => gids.indexOf(id) !== i);
+    if (dupG.length) mdDebugWarn("dup-group-id", { context, ids: dupG });
+    for (const gid of runtime.selectedGroupIds) {
+      if (!userGroupById(p, gid)) mdDebugWarn("stale-group-selection", { context, gid });
+    }
+    for (const nid of runtime.selectedNodeIds) {
+      if (!getNodeById(nid)) mdDebugWarn("stale-node-selection", { context, nid });
+    }
+    for (const gid of gids) {
+      const box = getUserGroupBox(gid);
+      if (!box) mdDebugWarn("missing-group-frame", { context, gid });
+    }
+    pruneNodeElCache();
+  }
+
+  function mountIntoModalRoot(el) {
+    if (!el || !modalRoot) return;
+    if (el.parentElement === modalRoot) return;
+    for (const sel of MD_FORBIDDEN_PORTAL_ANCESTORS) {
+      if (el.closest(sel)) {
+        mdDebugWarn("portal-forbidden-ancestor", { sel, id: el.id });
+        break;
+      }
+    }
+    modalRoot.appendChild(el);
+  }
+
+  function ensureFocusOverlayPortal() {
+    if (!focusOverlay) return;
+    mountIntoModalRoot(focusOverlay);
+    if (isMdDebugGroups()) {
+      for (const sel of MD_FORBIDDEN_PORTAL_ANCESTORS) {
+        if (focusOverlay.closest(sel)) mdDebugWarn("focus-inside-canvas", { sel });
+      }
+    }
+  }
+
+  const MD_FOCUS_MODAL_READY_CLASS = "md-focus-modal-ready";
+  const MD_FOCUS_MODAL_MEASURING_CLASS = "md-focus-modal-measuring";
+  const MD_FOCUS_MODAL_INSTANT_CLASS = "md-focus-modal-instant";
+
+  function getFocusModalEl() {
+    return document.getElementById("focusModal") || focusModal;
+  }
+
+  function isFocusModalDomValid() {
+    if (!focusOverlay) return false;
+    const modalEl = getFocusModalEl();
+    return !!(modalEl && focusOverlay.contains(modalEl));
+  }
+
+  function repairFocusModalDom() {
+    if (!focusOverlay) return false;
+    const modalEl = getFocusModalEl();
+    if (!modalEl) return false;
+    if (!focusOverlay.contains(modalEl)) focusOverlay.appendChild(modalEl);
+    return true;
+  }
+
+  function clearFocusModalRescueClasses() {
+    const modalEl = getFocusModalEl();
+    modalEl?.classList.remove(MD_FOCUS_MODAL_READY_CLASS);
+    focusOverlay?.classList.remove(MD_FOCUS_MODAL_MEASURING_CLASS);
+    focusOverlay?.classList.remove(MD_FOCUS_MODAL_INSTANT_CLASS);
+  }
+
+  /** Layout-based check — do not use opacity (CSS transitions report 0 at t=0). */
+  function isFocusModalLayoutValid() {
+    const modalEl = getFocusModalEl();
+    if (!modalEl || !focusOverlay) return false;
+    if (!isFocusModalDomValid()) return false;
+    const r = modalEl.getBoundingClientRect();
+    const st = getComputedStyle(modalEl);
+    if (st.display === "none" || st.visibility === "hidden") return false;
+    return r.width >= 40 && r.height >= 40;
+  }
+
+  /** Always clears backdrop + portal state (safe when focusNodeId is already null). */
+  function teardownFocusModalUi() {
+    if (runtime.focusModalWatchdog) {
+      clearTimeout(runtime.focusModalWatchdog);
+      runtime.focusModalWatchdog = null;
+    }
+    runtime.focusNodeId = null;
+    runtime.focusModalHistoryPrimed = false;
+    runtime.focusClosing = false;
+    clearFocusModalRescueClasses();
+    focusOverlay?.classList.remove("open");
+    focusOverlay?.setAttribute("aria-hidden", "true");
+    if (modalRoot) modalRoot.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("md-focus-modal-open");
+  }
+
+  function syncFocusModalOrphanGuard() {
+    if (!focusOverlay?.classList.contains("open")) return;
+    if (!runtime.focusNodeId || !getNodeById(runtime.focusNodeId) || !isFocusModalDomValid()) {
+      teardownFocusModalUi();
+    }
+  }
+
+  function scheduleFocusModalVisibilityWatch() {
+    if (runtime.focusModalWatchdog) clearTimeout(runtime.focusModalWatchdog);
+    runtime.focusModalWatchdog = setTimeout(() => {
+      runtime.focusModalWatchdog = null;
+      if (!focusOverlay?.classList.contains("open")) return;
+      if (!isFocusModalLayoutValid()) {
+        if (isMdDebugGroups()) console.warn("[md] focus modal watchdog rollback");
+        teardownFocusModalUi();
+        showToast("Extended editor could not be shown.", "warn");
+      }
+    }, 450);
+  }
+
+  function populateFocusModalFields(node) {
+    const ti = document.getElementById("nodeInspTitle");
+    const st = document.getElementById("nodeInspSubtitle");
+    const de = document.getElementById("nodeInspDescription");
+    if (ti) ti.value = node.title || node.text || "";
+    if (st) st.value = node.subtitle || "";
+    if (de) de.value = node.description || "";
+    const roleSel = document.getElementById("nodeInspSemanticRole");
+    if (roleSel) roleSel.value = (node.semantic && node.semantic.role) || "custom";
+    const tagsIn = document.getElementById("nodeInspTags");
+    if (tagsIn) tagsIn.value = (node.semantic && node.semantic.tags && node.semantic.tags.join(", ")) || "";
+    if (focusColor) focusColor.value = node.color || "#ffd482";
+    if (focusShape) focusShape.value = node.shape || "rect";
+    const stStyle = ensureNodeStyle(node);
+    const op = document.getElementById("nodeInspOpacity");
+    const gl = document.getElementById("nodeInspGlow");
+    const sh = document.getElementById("nodeInspShadow");
+    const ra = document.getElementById("nodeInspRadius");
+    const bc = document.getElementById("nodeInspBorderColor");
+    if (op) op.value = String(stStyle.opacity ?? 0.9);
+    if (gl) gl.value = String(stStyle.glow ?? 12);
+    if (sh) sh.value = String(stStyle.shadow ?? 20);
+    if (ra) ra.value = String(stStyle.radius ?? 12);
+    if (bc) bc.value = stStyle.borderColor || "#9cb8ff";
+    const bww = document.getElementById("nodeInspBorderWidth");
+    if (bww) bww.value = String(stStyle.borderWidth ?? 1.5);
+    const fsz = document.getElementById("nodeInspTitleFontSize");
+    if (fsz) fsz.value = String(stStyle.titleFontSize ?? 14);
+    const fwt = document.getElementById("nodeInspTitleFontWeight");
+    if (fwt) fwt.value = String(stStyle.titleFontWeight ?? 600);
+    const ffam = document.getElementById("nodeInspTitleFontFamily");
+    if (ffam) ffam.value = stStyle.titleFontFamily || "ui";
+    const prev = document.getElementById("nodeInspImagePreview");
+    const bgChk = document.getElementById("nodeInspBgImage");
+    if (bgChk) bgChk.checked = !!(node.media && node.media.backgroundImage);
+    if (prev) {
+      const src = (node.media && (node.media.backgroundImage || node.media.imageUrl)) || "";
+      if (src) {
+        prev.src = src;
+        prev.style.display = "block";
+      } else {
+        prev.removeAttribute("src");
+        prev.style.display = "none";
+      }
+    }
+    refreshNodeInspectorAttachmentList(node);
+    const secL = document.getElementById("nodeInspSecLocked");
+    const secM = document.getElementById("nodeInspLockMode");
+    const pwd = document.getElementById("nodeInspPassword");
+    if (secL) secL.checked = !!(node.security && node.security.locked);
+    if (secM) secM.value = (node.security && node.security.lockMode) || "none";
+    const stLk = document.getElementById("nodeInspStyleLock");
+    if (stLk) stLk.checked = !!(node.security && node.security.locked);
+    if (pwd) pwd.value = "";
+    const hid = document.getElementById("nodeInspHidden");
+    const ff = document.getElementById("nodeInspFreeform");
+    if (hid) hid.checked = isNodeHiddenCanvas(node);
+    if (ff) ff.checked = !!ensureNodeStyle(node).freeform;
+  }
+
+  function countGroupSubtreeMembers(p, groupId) {
+    const nodes = getAllNodeIdsInGroupSubtree(p, groupId).size;
+    const groups = 1 + getDescendantGroupIds(p, groupId).length;
+    return { nodes, groups };
+  }
+
+  function bumpSelectedGroupsZIndex(delta) {
+    const p = getProject();
+    const targets = runtime.selectedGroupIds.size
+      ? [...runtime.selectedGroupIds]
+      : runtime.selectedGroupId
+        ? [runtime.selectedGroupId]
+        : [];
+    if (!targets.length) return;
+    pushHistory();
+    for (const gid of targets) {
+      const g = userGroupById(p, gid);
+      if (!g) continue;
+      g.zIndex = Math.max(0, (g.zIndex || 0) + delta);
+    }
+    invalidateInteractionCaches();
+    renderSemanticOverlays();
+    renderSelection();
+    markDirty();
+  }
+
+  function syncTopbarGroupActions() {
+    const wrap = document.getElementById("topbarGroupSelActions");
+    const hasGroup = !!(runtime.selectedGroupId || runtime.selectedGroupIds.size);
+    if (wrap) wrap.classList.toggle("is-visible", hasGroup);
+    const mDup = document.getElementById("mobileDupGroupBtn");
+    const mFocus = document.getElementById("mobileFocusGroupBtn");
+    if (mDup) mDup.hidden = !hasGroup;
+    if (mFocus) mFocus.hidden = !hasGroup;
+  }
+
+  function syncGroupInspectorMeta() {
+    const line = document.getElementById("groupChildCountLine");
+    const pin = document.getElementById("groupPinChk");
+    const p = getProject();
+    const g = p.userGroups.find((x) => x.id === runtime.selectedGroupId) || null;
+    if (line) {
+      if (!g) line.textContent = "";
+      else {
+        const c = countGroupSubtreeMembers(p, g.id);
+        line.textContent = `${c.nodes} node${c.nodes === 1 ? "" : "s"} · ${c.groups} group${c.groups === 1 ? "" : "s"}`;
+      }
+    }
+    if (pin) {
+      pin.disabled = !g;
+      pin.checked = !!(g && g.pinned);
+    }
+  }
+
+  ensureFocusOverlayPortal();
 
   /** Phase 2 — connection multi-select: clear `p.connections` selection only. */
   function clearConnectionSelectionState() {
@@ -4190,7 +4579,7 @@
       showToast("Connection removed.", "info");
       return;
     }
-    if (e.shiftKey || e.ctrlKey || e.metaKey) {
+    if (isAdditiveSelection(e) || e.ctrlKey || e.metaKey) {
       clearGroupConnSelectionState();
       toggleShiftConnectionEdgeSelection(connId);
       runtime.selectedNodeId = null;
@@ -4237,7 +4626,7 @@
       showToast("System link removed.", "info");
       return;
     }
-    if (e.shiftKey || e.ctrlKey || e.metaKey) {
+    if (isAdditiveSelection(e) || e.ctrlKey || e.metaKey) {
       clearConnectionSelectionState();
       toggleShiftGroupConnSelection(gcId);
       runtime.selectedNodeId = null;
@@ -4273,10 +4662,29 @@
     renderSelection();
   }
 
+  let resizeObsCoalesceRaf = null;
+  let resizeObsDirtyTimer = null;
   const resizeObserver = new ResizeObserver(() => {
-    syncNodeSizes();
-    renderConnections();
-    markDirty();
+    if (resizeObsCoalesceRaf != null) cancelAnimationFrame(resizeObsCoalesceRaf);
+    resizeObsCoalesceRaf = requestAnimationFrame(() => {
+      resizeObsCoalesceRaf = null;
+      const prof = window.MDRuntimeProfiler;
+      if (prof && prof.perfEnabled()) prof.markStart("resizeObserver");
+      try {
+        syncNodeSizes();
+        runtime.groupBoxCache = null;
+        scheduleRenderConnections();
+        renderSemanticOverlays();
+        paintMinimap();
+      } finally {
+        if (prof && prof.perfEnabled()) prof.markEnd("resizeObserver", false);
+      }
+      if (resizeObsDirtyTimer) clearTimeout(resizeObsDirtyTimer);
+      resizeObsDirtyTimer = setTimeout(() => {
+        resizeObsDirtyTimer = null;
+        markDirty();
+      }, 160);
+    });
   });
 
   function blankProject(name) {
@@ -5027,6 +5435,7 @@
     if (!runtime.selectedGroupIds.has(runtime.selectedGroupId)) {
       runtime.selectedGroupId = runtime.selectedGroupIds.size ? [...runtime.selectedGroupIds][0] : null;
     }
+    invalidateInteractionCaches({ clearNodeEl: true });
     if (removeGroupIds.has(runtime.focusGroupId)) {
       runtime.focusGroupId = null;
       runtime.focusGroupStack = [];
@@ -5047,10 +5456,24 @@
   }
 
   function saveDB() {
-    localStorage.setItem(DB_KEY, JSON.stringify(runtime.db));
-    savedIndicator.textContent = "Saved";
-    savedIndicator.classList.add("ok");
-    setTimeout(() => savedIndicator.classList.remove("ok"), 900);
+    try {
+      localStorage.setItem(DB_KEY, JSON.stringify(runtime.db));
+      savedIndicator.textContent = "Saved";
+      savedIndicator.classList.add("ok");
+      setTimeout(() => savedIndicator.classList.remove("ok"), 900);
+      const prof = window.MDRuntimeProfiler;
+      if (prof && prof.perfEnabled()) prof.counterInc("saveDB_ok");
+    } catch (err) {
+      console.warn("[MapDiagram] saveDB failed", err);
+      savedIndicator.textContent = "Save failed";
+      savedIndicator.classList.remove("ok");
+      showToast(
+        "Could not save to browser storage (quota or privacy mode). Export a backup JSON from the Export menu.",
+        "warn",
+      );
+      const prof = window.MDRuntimeProfiler;
+      if (prof && prof.perfEnabled()) prof.counterInc("saveDB_err");
+    }
   }
 
   function markDirty() {
@@ -5516,6 +5939,9 @@
 
   function restoreSnapshot(stackFrom, stackTo) {
     if (!stackFrom.length) return;
+    const prof = window.MDRuntimeProfiler;
+    if (prof && prof.perfEnabled()) prof.markStart("undo_restoreSnapshot");
+    try {
     const p = getProject();
     stackTo.push(deepCopy({
       nodes: p.nodes,
@@ -5526,12 +5952,8 @@
       view: p.view
     }));
     const snap = stackFrom.pop();
-    if (runtime.focusNodeId) {
-      runtime.focusClosing = true;
-      runtime.focusNodeId = null;
-      focusOverlay.classList.remove("open");
-      runtime.focusClosing = false;
-      runtime.focusModalHistoryPrimed = false;
+    if (runtime.focusNodeId || focusOverlay?.classList.contains("open")) {
+      teardownFocusModalUi();
     }
     p.nodes = snap.nodes;
     p.connections = snap.connections;
@@ -5539,6 +5961,11 @@
     p.groupConnections = snap.groupConnections || [];
     p.flowGroups = snap.flowGroups || [];
     p.view = snap.view;
+    runtime.selectedFlowGroupId = null;
+    const validConnIds = new Set((snap.connections || []).map((c) => c.id));
+    for (const k of Object.keys(runtime.connectionUi)) {
+      if (!validConnIds.has(k)) delete runtime.connectionUi[k];
+    }
     clearFcInteractionState();
     recomputeAllFlowGroupBounds();
     runtime.selectedNodeId = null;
@@ -5549,8 +5976,14 @@
     runtime.selectedGroupIds.clear();
     runtime.selectedGroupConnId = null;
     runtime.selectedGroupConnIds.clear();
+    invalidateInteractionCaches({ clearNodeEl: true, clearGraph: true });
     renderAll();
+    sanitizeSelectionState();
+    assertProjectIntegrity("restoreSnapshot");
     markDirty();
+    } finally {
+      if (prof && prof.perfEnabled()) prof.markEnd("undo_restoreSnapshot", false);
+    }
   }
 
   function applyTemplate(kind) {
@@ -5784,7 +6217,7 @@ function updateFlowGroupDrag(e) {
     const dn = getNodeById(id);
     if (!dn || !start) continue;
     setNodeWorldPosition(dn, start.wx + dx, start.wy + dy);
-    const el = nodesLayer.querySelector(`[data-node-id="${id}"]`);
+    const el = getNodeDomEl(id);
     if (el) {
       const wpos = getNodeWorldPosition(dn);
       el.style.left = `${wpos.x}px`;
@@ -5814,6 +6247,43 @@ function finalizeFlowGroupDragIfAny() {
 
   function fcEditorCanSelect() {
     return isFlowchartMode() && !runtime.readOnly;
+  }
+
+  function isAdditiveSelection(ev) {
+    return !!(ev && (ev.shiftKey || runtime.stickyMultiSelect));
+  }
+
+  function syncStickyMultiSelectUi() {
+    const on = !!runtime.stickyMultiSelect;
+    document.body.classList.toggle("md-sticky-multiselect", on);
+    const btn = document.getElementById("stickyMultiSelectBtn");
+    if (btn) {
+      btn.classList.toggle("is-active", on);
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+      btn.title = on ? "Multi-select mode (on) — click to turn off (M)" : "Multi-select mode (M)";
+    }
+    const mob = document.getElementById("mobileStickyMultiSelectBtn");
+    if (mob) {
+      mob.classList.toggle("is-active", on);
+      mob.setAttribute("aria-pressed", on ? "true" : "false");
+      mob.textContent = on ? "Multi-select ON" : "Multi-select";
+    }
+  }
+
+  function setStickyMultiSelect(on, opts = {}) {
+    const next = !!on && !runtime.readOnly;
+    runtime.stickyMultiSelect = next;
+    syncStickyMultiSelectUi();
+    if (opts.toast && next && savedIndicator) {
+      savedIndicator.textContent = "Multi-select ON";
+      setTimeout(() => {
+        if (savedIndicator.textContent === "Multi-select ON") savedIndicator.textContent = "Saved";
+      }, 1400);
+    }
+  }
+
+  function toggleStickyMultiSelect() {
+    setStickyMultiSelect(!runtime.stickyMultiSelect, { toast: true });
   }
 
   function ensureFlowGroups(p) {
@@ -6905,7 +7375,7 @@ function finalizeFlowGroupDragIfAny() {
     if (connBtn) connBtn.disabled = !canEdit;
     if (delBtn) delBtn.disabled = !canEdit;
     bar.hidden = false;
-    const el = nodesLayer.querySelector(`[data-node-id="${n.id}"]`);
+    const el = getNodeDomEl(n.id);
     if (!el) return;
     const nodeR = el.getBoundingClientRect();
     const wsR = workspace.getBoundingClientRect();
@@ -6974,17 +7444,17 @@ function finalizeFlowGroupDragIfAny() {
     if (!nodeId) return;
     const n = getNodeById(nodeId);
     if (!n) return;
-    const el = nodesLayer.querySelector(`[data-node-id="${nodeId}"] .body`);
-    if (!el || el.isContentEditable) return;
-    const nodeEl = el.closest(".node");
+    const bodyEl = getNodeDomEl(nodeId)?.querySelector(".body");
+    if (!bodyEl || bodyEl.isContentEditable) return;
+    const nodeEl = bodyEl.closest(".node");
     const origTitle = n.title || n.text || "Node";
     let cancelled = false;
     runtime.editingNodeId = nodeId;
     nodeEl?.classList.add("fc-editing");
-    el.classList.add("fc-body-editing");
-    el.contentEditable = "true";
-    el.focus();
-    const titleEl = el.querySelector(".node-title");
+    bodyEl.classList.add("fc-body-editing");
+    bodyEl.contentEditable = "true";
+    bodyEl.focus();
+    const titleEl = bodyEl.querySelector(".node-title");
     if (titleEl) {
       const range = document.createRange();
       range.selectNodeContents(titleEl);
@@ -6993,16 +7463,16 @@ function finalizeFlowGroupDragIfAny() {
       sel.addRange(range);
     }
     const cleanup = () => {
-      el.contentEditable = "false";
-      el.classList.remove("fc-body-editing");
+      bodyEl.contentEditable = "false";
+      bodyEl.classList.remove("fc-body-editing");
       nodeEl?.classList.remove("fc-editing");
       runtime.editingNodeId = null;
     };
     const finish = (save) => {
       if (runtime.editingNodeId !== nodeId) return;
       cleanup();
-      const titleEl2 = el.querySelector(".node-title");
-      const next = save ? (titleEl2?.textContent || el.textContent || "").trim() || "Node" : origTitle;
+      const titleEl2 = bodyEl.querySelector(".node-title");
+      const next = save ? (titleEl2?.textContent || bodyEl.textContent || "").trim() || "Node" : origTitle;
       const node = getNodeById(nodeId);
       if (node) {
         if (save && node.title !== next) {
@@ -7015,7 +7485,7 @@ function finalizeFlowGroupDragIfAny() {
           node.title = origTitle;
           node.text = origTitle;
         }
-        renderNodeBody(el, node);
+        renderNodeBody(bodyEl, node);
       }
       renderSelection();
       syncFcQuickEditToolbar();
@@ -7025,15 +7495,15 @@ function finalizeFlowGroupDragIfAny() {
         ev.preventDefault();
         ev.stopPropagation();
         cancelled = true;
-        el.blur();
+        bodyEl.blur();
       } else if (ev.key === "Enter" && !ev.shiftKey) {
         ev.preventDefault();
-        el.blur();
+        bodyEl.blur();
       }
     };
-    el.addEventListener("keydown", onKey);
-    el.addEventListener("blur", () => {
-      el.removeEventListener("keydown", onKey);
+    bodyEl.addEventListener("keydown", onKey);
+    bodyEl.addEventListener("blur", () => {
+      bodyEl.removeEventListener("keydown", onKey);
       finish(!cancelled);
     }, { once: true });
   }
@@ -7382,7 +7852,7 @@ function finalizeFlowGroupDragIfAny() {
     const targets = normalizeFlowchartSpacing();
     if (!Object.keys(targets).length) return;
     for (const id of Object.keys(targets)) {
-      const el = nodesLayer.querySelector(`[data-node-id="${id}"]`);
+      const el = getNodeDomEl(id);
       if (el) el.classList.add("fc-layout-moving");
     }
     animateNodesToPositions(targets, 480);
@@ -7397,7 +7867,7 @@ function finalizeFlowGroupDragIfAny() {
   function flashFcNodeEnter(nodeId) {
     if (!nodeId) return;
     requestAnimationFrame(() => {
-      const el = nodesLayer.querySelector(`[data-node-id="${nodeId}"]`);
+      const el = getNodeDomEl(nodeId);
       if (!el) return;
       el.classList.remove("fc-enter");
       void el.offsetWidth;
@@ -7408,7 +7878,7 @@ function finalizeFlowGroupDragIfAny() {
 
   function pulseFcConnectTarget(nodeId) {
     if (!nodeId || !isFlowchartMode()) return;
-    const el = nodesLayer.querySelector(`[data-node-id="${nodeId}"]`);
+    const el = getNodeDomEl(nodeId);
     if (!el) return;
     el.classList.remove("fc-connect-pulse");
     void el.offsetWidth;
@@ -7419,7 +7889,7 @@ function finalizeFlowGroupDragIfAny() {
   function settleFcNodeElements(nodeIds) {
     if (!isFlowchartMode()) return;
     for (const id of nodeIds || []) {
-      const el = nodesLayer.querySelector(`[data-node-id="${id}"]`);
+      const el = getNodeDomEl(id);
       if (!el || el.classList.contains("is-dragging")) continue;
       el.classList.remove("fc-settle");
       void el.offsetWidth;
@@ -7441,7 +7911,7 @@ function finalizeFlowGroupDragIfAny() {
   function setFlowchartNodesDragging(dragIds, on) {
     if (!dragIds || !dragIds.length) return;
     for (const id of dragIds) {
-      const el = nodesLayer.querySelector(`[data-node-id="${id}"]`);
+      const el = getNodeDomEl(id);
       if (el) el.classList.toggle("is-dragging", !!on);
     }
     if (isFlowchartMode()) syncFcAssistantFabDragState();
@@ -7973,7 +8443,7 @@ function finalizeFlowGroupDragIfAny() {
     ensureProjectExtras(p);
     const root = userGroupById(p, rootId);
     if (!root) return null;
-    const OFF = 80;
+    const OFF = MD_GROUP_DUP_OFFSET;
     const subtree = getSubtreeGroupIdsSet(p, rootId);
     const sortedOld = [...subtree]
       .map((id) => userGroupById(p, id))
@@ -8034,12 +8504,14 @@ function finalizeFlowGroupDragIfAny() {
     for (const { ng } of newGroups) p.userGroups.push(ng);
     const oldNodeSet = allOldNodes;
     const snapConn = [...p.connections];
+    const connIdMap = {};
     for (const c of snapConn) {
       if (isNodeNodeConnection(c) && oldNodeSet.has(c.from) && oldNodeSet.has(c.to)) {
         const nc = deepCopy(c);
         nc.id = uid();
         nc.from = nodeMap[c.from].id;
         nc.to = nodeMap[c.to].id;
+        connIdMap[c.id] = nc.id;
         p.connections.push(nc);
       } else if (c.kind === "node-group" && oldNodeSet.has(c.from) && subtree.has(c.toGroupId)) {
         const nc = deepCopy(c);
@@ -8065,6 +8537,19 @@ function finalizeFlowGroupDragIfAny() {
         p.groupConnections.push(ngc);
       }
     }
+    for (const c of snapConn) {
+      if (!isBranchFromConnection(c)) continue;
+      if (!oldNodeSet.has(c.to)) continue;
+      const mappedParent = connIdMap[c.parentConnectionId];
+      const nnTo = nodeMap[c.to];
+      if (!mappedParent || !nnTo) continue;
+      const nc = deepCopy(c);
+      nc.id = uid();
+      nc.parentConnectionId = mappedParent;
+      nc.to = nnTo.id;
+      normalizeConnectionEdge(nc);
+      p.connections.push(nc);
+    }
     reindexUserGroupHierarchy(p);
     dedupeUserGroupMembership(p);
     const alive = new Set(p.userGroups.map((g) => g.id));
@@ -8074,8 +8559,19 @@ function finalizeFlowGroupDragIfAny() {
     runtime.selectedGroupIds.add(newRootId);
     runtime.selectedGroupId = newRootId;
     runtime.selectedGroupConnId = null;
-    runtime.groupBoxCache = null;
+    runtime.selectedGroupConnIds.clear();
+    runtime.selectedNodeIds.clear();
+    runtime.selectedNodeId = null;
+    clearConnectionSelectionState();
+    const newGroupIds = newGroups.map(({ ng }) => ng.id);
+    syncStoredGroupBoundsForGroupIds(p, newGroupIds);
+    for (const k of Object.keys(runtime.connectionUi)) {
+      if (!p.connections.some((c) => c.id === k)) delete runtime.connectionUi[k];
+    }
+    invalidateInteractionCaches({ clearNodeEl: true, clearGraph: true });
     renderAll();
+    sanitizeSelectionState();
+    assertProjectIntegrity("duplicateUserGroup");
     markDirty();
     scheduleSemanticAnalysis();
     return newRootId;
@@ -8202,7 +8698,7 @@ function finalizeFlowGroupDragIfAny() {
     }
     for (const id of gd.affectedNodeIds || []) {
       const dn = getNodeById(id);
-      const el = nodesLayer.querySelector(`[data-node-id="${id}"]`);
+      const el = getNodeDomEl(id);
       if (!dn || !el) continue;
       const wpos = getNodeWorldPosition(dn);
       el.style.left = `${wpos.x}px`;
@@ -8227,7 +8723,7 @@ function finalizeFlowGroupDragIfAny() {
     }
     for (const id of gd.affectedNodeIds || []) {
       const dn = getNodeById(id);
-      const el = nodesLayer.querySelector(`[data-node-id="${id}"]`);
+      const el = getNodeDomEl(id);
       if (!dn || !el) continue;
       const wpos = getNodeWorldPosition(dn);
       el.style.left = `${wpos.x}px`;
@@ -8290,7 +8786,7 @@ function finalizeFlowGroupDragIfAny() {
     runtime.groupBoxCache = null;
     for (const id of affectedNodeIds || []) {
       const dn = getNodeById(id);
-      const el = nodesLayer.querySelector(`[data-node-id="${id}"]`);
+      const el = getNodeDomEl(id);
       if (!dn || !el) continue;
       const wpos = getNodeWorldPosition(dn);
       el.style.left = `${wpos.x}px`;
@@ -8309,7 +8805,7 @@ function finalizeFlowGroupDragIfAny() {
   function applyUserGroupSelection(ev, g, opts = {}) {
     ev.stopPropagation();
     ev.preventDefault();
-    if (ev.shiftKey) {
+    if (isAdditiveSelection(ev)) {
       if (runtime.selectedGroupIds.has(g.id)) runtime.selectedGroupIds.delete(g.id);
       else runtime.selectedGroupIds.add(g.id);
       runtime.selectedGroupId = runtime.selectedGroupIds.has(g.id)
@@ -8331,10 +8827,14 @@ function finalizeFlowGroupDragIfAny() {
       inspectorToggleBtn.setAttribute("title", "Compact inspector");
     }
     setRightTab("diagram");
+    applyDiagramSubTab("groups");
     if (isNarrowScreen()) openDrawer("right");
     refreshGroupParentSelectOptions();
     renderSelection();
     if (opts.refreshOverlay !== false) renderSemanticOverlays();
+    sanitizeSelectionState();
+    syncTopbarGroupActions();
+    syncGroupInspectorMeta();
     requestAnimationFrame(() => {
       try {
         groupControls.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -8828,7 +9328,7 @@ function finalizeFlowGroupDragIfAny() {
     const node = getNodeById(nodeId);
     if (!node) return;
     normalizeNode(node);
-    const el = nodesLayer.querySelector(`[data-node-id="${nodeId}"]`);
+    const el = getNodeDomEl(nodeId);
     if (!el) return;
     const body = el.querySelector(".body");
     el.classList.remove("shape-rect", "shape-circle", "shape-diamond", "shape-rounded");
@@ -9017,94 +9517,88 @@ function finalizeFlowGroupDragIfAny() {
     });
   }
 
+  function resolvePrimarySelectedNodeId() {
+    if (runtime.selectedNodeId && getNodeById(runtime.selectedNodeId)) return runtime.selectedNodeId;
+    if (runtime.selectedNodeIds.size) {
+      const first = [...runtime.selectedNodeIds].find((id) => getNodeById(id));
+      if (first) return first;
+    }
+    return null;
+  }
+
   function openFocusModal(nodeId) {
     const node = getNodeById(nodeId);
-    if (!node) return;
-    closeImportDiffOverlay();
-    closeCommandPalette();
-    closeKeyboardHelpOverlay();
-    if (focusOverlay.classList.contains("open") && runtime.focusNodeId === nodeId) return;
-    resetNodeInspectorGestureState();
-    normalizeNode(node);
-    runtime.focusModalHistoryPrimed = false;
-    runtime.focusNodeId = nodeId;
-    setNodeInspectorTab("content");
-    const ti = document.getElementById("nodeInspTitle");
-    const st = document.getElementById("nodeInspSubtitle");
-    const de = document.getElementById("nodeInspDescription");
-    if (ti) ti.value = node.title || node.text || "";
-    if (st) st.value = node.subtitle || "";
-    if (de) de.value = node.description || "";
-    const roleSel = document.getElementById("nodeInspSemanticRole");
-    if (roleSel) roleSel.value = (node.semantic && node.semantic.role) || "custom";
-    const tagsIn = document.getElementById("nodeInspTags");
-    if (tagsIn) tagsIn.value = (node.semantic && node.semantic.tags && node.semantic.tags.join(", ")) || "";
-    focusColor.value = node.color || "#ffd482";
-    focusShape.value = node.shape || "rect";
-    const stStyle = ensureNodeStyle(node);
-    const op = document.getElementById("nodeInspOpacity");
-    const gl = document.getElementById("nodeInspGlow");
-    const sh = document.getElementById("nodeInspShadow");
-    const ra = document.getElementById("nodeInspRadius");
-    const bc = document.getElementById("nodeInspBorderColor");
-    if (op) op.value = String(stStyle.opacity ?? 0.9);
-    if (gl) gl.value = String(stStyle.glow ?? 12);
-    if (sh) sh.value = String(stStyle.shadow ?? 20);
-    if (ra) ra.value = String(stStyle.radius ?? 12);
-    if (bc) bc.value = stStyle.borderColor || "#9cb8ff";
-    const bww = document.getElementById("nodeInspBorderWidth");
-    if (bww) bww.value = String(stStyle.borderWidth ?? 1.5);
-    const fsz = document.getElementById("nodeInspTitleFontSize");
-    if (fsz) fsz.value = String(stStyle.titleFontSize ?? 14);
-    const fwt = document.getElementById("nodeInspTitleFontWeight");
-    if (fwt) fwt.value = String(stStyle.titleFontWeight ?? 600);
-    const ffam = document.getElementById("nodeInspTitleFontFamily");
-    if (ffam) ffam.value = stStyle.titleFontFamily || "ui";
-    const prev = document.getElementById("nodeInspImagePreview");
-    const bgChk = document.getElementById("nodeInspBgImage");
-    if (bgChk) {
-      bgChk.checked = !!(node.media && node.media.backgroundImage);
+    if (!node || !focusOverlay) return false;
+    if (focusOverlay.classList.contains("open") && runtime.focusNodeId === nodeId) return true;
+    if (focusOverlay.classList.contains("open")) teardownFocusModalUi();
+
+    let opened = false;
+    try {
+      ensureFocusOverlayPortal();
+      if (!repairFocusModalDom()) throw new Error("focus modal DOM repair failed");
+      closeImportDiffOverlay();
+      closeCommandPalette();
+      closeKeyboardHelpOverlay();
+      resetNodeInspectorGestureState();
+      normalizeNode(node);
+      setNodeInspectorTab("content");
+      populateFocusModalFields(node);
+
+      const modalEl = getFocusModalEl();
+      if (!modalEl) throw new Error("focusModal element missing");
+
+      clearFocusModalRescueClasses();
+      focusOverlay.classList.add(MD_FOCUS_MODAL_MEASURING_CLASS);
+      modalEl.classList.add(MD_FOCUS_MODAL_READY_CLASS);
+      void modalEl.offsetHeight;
+      if (!isFocusModalLayoutValid()) throw new Error("focus modal failed pre-open layout check");
+
+      focusOverlay.classList.remove(MD_FOCUS_MODAL_MEASURING_CLASS);
+      runtime.focusNodeId = nodeId;
+      runtime.focusModalHistoryPrimed = false;
+      focusOverlay.classList.add(MD_FOCUS_MODAL_INSTANT_CLASS, "open");
+      focusOverlay.setAttribute("aria-hidden", "false");
+      if (modalRoot) modalRoot.setAttribute("aria-hidden", "false");
+      document.body.classList.add("md-focus-modal-open");
+
+      requestAnimationFrame(() => {
+        if (!focusOverlay.classList.contains("open")) return;
+        if (!isFocusModalLayoutValid()) {
+          if (isMdDebugGroups()) console.warn("[md] focus modal rAF layout rollback");
+          teardownFocusModalUi();
+          showToast("Extended editor could not be shown.", "warn");
+          return;
+        }
+        setTimeout(() => focusOverlay?.classList.remove(MD_FOCUS_MODAL_INSTANT_CLASS), 280);
+      });
+      scheduleFocusModalVisibilityWatch();
+      opened = true;
+      setTimeout(() => document.getElementById("nodeInspTitle")?.focus(), 0);
+    } catch (err) {
+      if (isMdDebugGroups()) console.warn("[md] openFocusModal failed", err);
+      teardownFocusModalUi();
+      showToast("Could not open extended editor.", "warn");
+      opened = false;
     }
-    if (prev) {
-      const src = (node.media && (node.media.backgroundImage || node.media.imageUrl)) || "";
-      if (src) {
-        prev.src = src;
-        prev.style.display = "block";
-      } else {
-        prev.removeAttribute("src");
-        prev.style.display = "none";
-      }
-    }
-    refreshNodeInspectorAttachmentList(node);
-    const secL = document.getElementById("nodeInspSecLocked");
-    const secM = document.getElementById("nodeInspLockMode");
-    const pwd = document.getElementById("nodeInspPassword");
-    if (secL) secL.checked = !!(node.security && node.security.locked);
-    if (secM) secM.value = (node.security && node.security.lockMode) || "none";
-    const stLk = document.getElementById("nodeInspStyleLock");
-    if (stLk) stLk.checked = !!(node.security && node.security.locked);
-    if (pwd) pwd.value = "";
-    const hid = document.getElementById("nodeInspHidden");
-    const ff = document.getElementById("nodeInspFreeform");
-    if (hid) hid.checked = isNodeHiddenCanvas(node);
-    if (ff) ff.checked = !!ensureNodeStyle(node).freeform;
-    focusOverlay.classList.add("open");
-    setTimeout(() => ti && ti.focus(), 0);
+    return opened;
   }
 
   function closeFocusModal() {
-    if (!runtime.focusNodeId || runtime.focusClosing) return;
-    resetNodeInspectorGestureState();
-    syncNodeInspectorToModel();
-    runtime.focusModalHistoryPrimed = false;
-    const pwd = document.getElementById("nodeInspPassword");
-    if (pwd) pwd.value = "";
+    const overlayOpen = !!(focusOverlay && focusOverlay.classList.contains("open"));
+    if (!overlayOpen && !runtime.focusNodeId) return;
+    if (runtime.focusClosing && overlayOpen) return;
+
+    if (runtime.focusNodeId) {
+      resetNodeInspectorGestureState();
+      syncNodeInspectorToModel();
+      const pwd = document.getElementById("nodeInspPassword");
+      if (pwd) pwd.value = "";
+    }
     runtime.focusClosing = true;
-    focusOverlay.classList.remove("open");
+    teardownFocusModalUi();
     closeCommandPalette();
     closeKeyboardHelpOverlay();
     setTimeout(() => {
-      runtime.focusNodeId = null;
       runtime.focusClosing = false;
     }, 220);
   }
@@ -9374,7 +9868,7 @@ function finalizeFlowGroupDragIfAny() {
         const wx = s.wx + (target.x - s.wx) * k;
         const wy = s.wy + (target.y - s.wy) * k;
         setNodeWorldPosition(n, wx, wy);
-        const el = nodesLayer.querySelector(`[data-node-id="${nodeId}"]`);
+        const el = getNodeDomEl(nodeId);
         if (el) {
           const wpos = getNodeWorldPosition(n);
           el.style.left = `${wpos.x}px`;
@@ -9541,7 +10035,7 @@ function finalizeFlowGroupDragIfAny() {
     }
     if (!collidedIds.size) return;
     for (const nodeId of collidedIds) {
-      const el = nodesLayer.querySelector(`[data-node-id="${nodeId}"]`);
+      const el = getNodeDomEl(nodeId);
       const n = getNodeById(nodeId);
       if (el && n) {
         const w = getNodeWorldPosition(n);
@@ -9625,7 +10119,24 @@ function finalizeFlowGroupDragIfAny() {
     for (const p of runtime.db.projects) {
       const el = document.createElement("div");
       el.className = `project-item${p.projectId === runtime.db.activeProjectId ? " active" : ""}`;
-      el.innerHTML = `<div>${p.name}</div><div class="muted">${p.nodes.length} nodes</div><div class="project-actions"><button type="button" data-action="edit">Edit</button><button type="button" data-action="delete" class="danger">Delete</button></div>`;
+      const titleRow = document.createElement("div");
+      titleRow.textContent = p.name || "Untitled";
+      const metaRow = document.createElement("div");
+      metaRow.className = "muted";
+      metaRow.textContent = `${(p.nodes && p.nodes.length) || 0} nodes`;
+      const actions = document.createElement("div");
+      actions.className = "project-actions";
+      const editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.dataset.action = "edit";
+      editBtn.textContent = "Edit";
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.dataset.action = "delete";
+      delBtn.className = "danger";
+      delBtn.textContent = "Delete";
+      actions.append(editBtn, delBtn);
+      el.append(titleRow, metaRow, actions);
       el.onclick = (ev) => {
         const action = ev.target?.dataset?.action;
         if (action === "edit") {
@@ -9893,7 +10404,7 @@ function finalizeFlowGroupDragIfAny() {
       } else {
         runtime.touchDragPending = null;
       }
-      if (fcEditorCanSelect() && e.shiftKey) {
+      if (isAdditiveSelection(e) && (!isFlowchartMode() || fcEditorCanSelect())) {
         if (runtime.selectedNodeIds.has(n.id)) runtime.selectedNodeIds.delete(n.id);
         else runtime.selectedNodeIds.add(n.id);
         if (runtime.selectedNodeIds.size === 0) runtime.selectedNodeId = null;
@@ -9991,6 +10502,7 @@ function finalizeFlowGroupDragIfAny() {
 
   function renderNodes() {
     const p = getProject();
+    runtime.nodeElById.clear();
     nodesLayer.innerHTML = "";
     for (const n of p.nodes) {
       const el = createNodeElement(n);
@@ -10010,6 +10522,7 @@ function finalizeFlowGroupDragIfAny() {
         el.style.pointerEvents = "";
       }
       nodesLayer.appendChild(el);
+      runtime.nodeElById.set(n.id, el);
     }
     renderSelection();
   }
@@ -10832,7 +11345,7 @@ function finalizeFlowGroupDragIfAny() {
       const kind = btn.dataset.connRowKind;
       const id = btn.dataset.connRowId;
       if (!id || (kind !== "conn" && kind !== "gc")) return;
-      if (e.shiftKey || e.ctrlKey || e.metaKey) {
+      if (isAdditiveSelection(e) || e.ctrlKey || e.metaKey) {
         if (kind === "conn") toggleShiftConnectionEdgeSelection(id);
         else toggleShiftGroupConnSelection(id);
         runtime.selectedNodeId = null;
@@ -11950,6 +12463,7 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function renderSelection() {
+    sanitizeSelectionState();
     const p = getProject();
     const multiCount = runtime.selectedNodeIds.size;
     for (const el of nodesLayer.querySelectorAll(".node")) {
@@ -12023,6 +12537,8 @@ function finalizeFlowGroupDragIfAny() {
     syncEdgeInspectorPanel();
     renderOutlineTreePanel();
     syncTopbarConnectionActions();
+    syncTopbarGroupActions();
+    syncGroupInspectorMeta();
     syncFcQuickEditToolbar();
     syncFcGroupQuickEditToolbar();
     syncFcMultiSelectBar();
@@ -12043,23 +12559,30 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function renderAll() {
-    ensureProjectExtras(getProject());
-    updateViewport();
-    if (nodePicker && !nodePicker.children.length) renderNodePicker();
-    renderProjects();
-    renderNodes();
-    renderConnections();
-    renderFlowGroupOverlays();
-    renderSelection();
-    renderNodeSemanticClasses();
-    renderSemanticOverlays();
-    renderSuggestions();
-    mobileHint.textContent = "Touch: one finger drag/pan, two fingers pinch zoom.";
-    paintMinimap();
-    syncFlowchartEmptyState();
-    if (runtime._fcCenterAfterOnboard && isFlowchartMode()) {
-      runtime._fcCenterAfterOnboard = false;
-      window.setTimeout(() => centerFlowchartInViewSoft(), 80);
+    const prof = window.MDRuntimeProfiler;
+    if (prof && prof.perfEnabled()) prof.markStart("renderAll");
+    try {
+      pruneNodeElCache();
+      ensureProjectExtras(getProject());
+      updateViewport();
+      if (nodePicker && !nodePicker.children.length) renderNodePicker();
+      renderProjects();
+      renderNodes();
+      renderConnections();
+      renderFlowGroupOverlays();
+      renderSelection();
+      renderNodeSemanticClasses();
+      renderSemanticOverlays();
+      renderSuggestions();
+      mobileHint.textContent = "Touch: one finger drag/pan, two fingers pinch zoom.";
+      paintMinimap();
+      syncFlowchartEmptyState();
+      if (runtime._fcCenterAfterOnboard && isFlowchartMode()) {
+        runtime._fcCenterAfterOnboard = false;
+        window.setTimeout(() => centerFlowchartInViewSoft(), 80);
+      }
+    } finally {
+      if (prof && prof.perfEnabled()) prof.markEnd("renderAll", false);
     }
   }
 
@@ -12896,7 +13419,7 @@ function finalizeFlowGroupDragIfAny() {
       const p = getProject();
       if (p && p.nodes && nodesLayer) {
         for (const n of p.nodes) {
-          const el = nodesLayer.querySelector(`[data-node-id="${n.id}"]`);
+          const el = getNodeDomEl(n.id);
           if (el) applyNodeVisualStyles(el, n);
         }
       }
@@ -12910,7 +13433,7 @@ function finalizeFlowGroupDragIfAny() {
       const p = getProject();
       if (!p || !p.nodes || !nodesLayer) return;
       for (const n of p.nodes) {
-        const el = nodesLayer.querySelector(`[data-node-id="${n.id}"]`);
+        const el = getNodeDomEl(n.id);
         if (el) applyNodeVisualStyles(el, n);
       }
     } catch (_) {}
@@ -13363,11 +13886,13 @@ function finalizeFlowGroupDragIfAny() {
     if (topbarMoreMenu?.classList.contains("open")) closeTopbarMenu();
   });
   document.getElementById("openExtendedEditorBtn")?.addEventListener("click", () => {
-    if (!runtime.selectedNodeId) {
+    const nodeId = resolvePrimarySelectedNodeId();
+    if (!nodeId) {
       alert("Select a node on the canvas first.");
       return;
     }
-    revealDiagramNodeInspectorAndOpenExtended(runtime.selectedNodeId);
+    runtime.selectedNodeId = nodeId;
+    revealDiagramNodeInspectorAndOpenExtended(nodeId);
   });
   const nodeInspTabsEl = document.getElementById("nodeInspTabs");
   const nodeInspTabOrder = ["content", "style", "media", "attachments", "security"];
@@ -13651,11 +14176,6 @@ function finalizeFlowGroupDragIfAny() {
     }
     applyDesktopSidebarCollapse();
   });
-  let deskSbResizeTimer;
-  window.addEventListener("resize", () => {
-    window.clearTimeout(deskSbResizeTimer);
-    deskSbResizeTimer = window.setTimeout(() => applyDesktopSidebarCollapse(), 100);
-  });
   loadDesktopSidebarPrefs();
   applyDesktopSidebarCollapse();
 
@@ -13710,7 +14230,7 @@ function finalizeFlowGroupDragIfAny() {
     if (!n) return;
     n.title = nodeText.value || "Node";
     n.text = n.title;
-    const body = nodesLayer.querySelector(`[data-node-id="${n.id}"] .body`);
+    const body = getNodeDomEl(n.id)?.querySelector(".body");
     if (body && !body.isContentEditable) renderNodeBody(body, n);
     markDirty();
     scheduleSemanticAnalysis();
@@ -13719,7 +14239,7 @@ function finalizeFlowGroupDragIfAny() {
     const n = getNodeById(runtime.selectedNodeId);
     if (!n) return;
     n.color = nodeColor.value;
-    const el = nodesLayer.querySelector(`[data-node-id="${n.id}"]`);
+    const el = getNodeDomEl(n.id);
     if (el) applyNodeVisualStyles(el, n);
     markDirty();
   });
@@ -13727,7 +14247,7 @@ function finalizeFlowGroupDragIfAny() {
     const n = getNodeById(runtime.selectedNodeId);
     if (!n) return;
     n.shape = nodeShape.value;
-    const el = nodesLayer.querySelector(`[data-node-id="${n.id}"]`);
+    const el = getNodeDomEl(n.id);
     if (el) {
       el.classList.remove("shape-rect", "shape-circle", "shape-diamond", "shape-rounded");
       el.classList.add(`shape-${n.shape}`);
@@ -13802,6 +14322,36 @@ function finalizeFlowGroupDragIfAny() {
       duplicateUserGroup(runtime.selectedGroupId);
     });
   }
+  const groupBringForwardBtn = document.getElementById("groupBringForwardBtn");
+  const groupSendBackwardBtn = document.getElementById("groupSendBackwardBtn");
+  const groupPinChk = document.getElementById("groupPinChk");
+  if (groupBringForwardBtn) groupBringForwardBtn.addEventListener("click", () => bumpSelectedGroupsZIndex(1));
+  if (groupSendBackwardBtn) groupSendBackwardBtn.addEventListener("click", () => bumpSelectedGroupsZIndex(-1));
+  if (groupPinChk) {
+    groupPinChk.addEventListener("change", () => {
+      const g = getProject().userGroups.find((x) => x.id === runtime.selectedGroupId);
+      if (!g) return;
+      pushHistory();
+      g.pinned = !!groupPinChk.checked;
+      g.locked = g.pinned;
+      invalidateInteractionCaches();
+      renderSemanticOverlays();
+      renderSelection();
+      markDirty();
+    });
+  }
+  const topbarDupGroupBtn = document.getElementById("topbarDupGroupBtn");
+  const topbarUngroupBtn = document.getElementById("topbarUngroupBtn");
+  const topbarFocusGroupBtn = document.getElementById("topbarFocusGroupBtn");
+  const topbarGroupForwardBtn = document.getElementById("topbarGroupForwardBtn");
+  const topbarGroupBackwardBtn = document.getElementById("topbarGroupBackwardBtn");
+  document.getElementById("stickyMultiSelectBtn")?.addEventListener("click", () => toggleStickyMultiSelect());
+  document.getElementById("mobileStickyMultiSelectBtn")?.addEventListener("click", () => toggleStickyMultiSelect());
+  if (topbarDupGroupBtn) topbarDupGroupBtn.addEventListener("click", () => duplicateGroupBtn?.click());
+  if (topbarUngroupBtn) topbarUngroupBtn.addEventListener("click", () => ungroupSelectedGroupBtn?.click());
+  if (topbarFocusGroupBtn) topbarFocusGroupBtn.addEventListener("click", () => groupFocusModeBtn?.click());
+  document.getElementById("mobileDupGroupBtn")?.addEventListener("click", () => duplicateGroupBtn?.click());
+  document.getElementById("mobileFocusGroupBtn")?.addEventListener("click", () => groupFocusModeBtn?.click());
   if (exitGroupFocusBtn) {
     exitGroupFocusBtn.addEventListener("click", () => exitGroupFocusMode());
   }
@@ -13876,9 +14426,15 @@ function finalizeFlowGroupDragIfAny() {
     clearFlowGroupSelection();
     clearAllEdgeSelection();
     renderSelection();
-    if (e.shiftKey || runtime.selectionMode) {
+    if (isAdditiveSelection(e) || runtime.selectionMode) {
       const r = workspace.getBoundingClientRect();
-      runtime.marquee = { startX: e.clientX - r.left, startY: e.clientY - r.top, x: e.clientX - r.left, y: e.clientY - r.top, additive: !!e.shiftKey };
+      runtime.marquee = {
+        startX: e.clientX - r.left,
+        startY: e.clientY - r.top,
+        x: e.clientX - r.left,
+        y: e.clientY - r.top,
+        additive: isAdditiveSelection(e)
+      };
       marquee.style.display = "block";
       marquee.style.left = `${runtime.marquee.startX}px`;
       marquee.style.top = `${runtime.marquee.startY}px`;
@@ -14004,7 +14560,7 @@ function finalizeFlowGroupDragIfAny() {
         const start = runtime.dragging.starts?.[id];
         if (!dn || start == null || start.wx == null) continue;
         setNodeWorldPosition(dn, start.wx + snapDx, start.wy + snapDy);
-        const el = nodesLayer.querySelector(`[data-node-id="${id}"]`);
+        const el = getNodeDomEl(id);
         if (el) {
           const wpos = getNodeWorldPosition(dn);
           el.style.left = `${wpos.x}px`;
@@ -14472,12 +15028,16 @@ function finalizeFlowGroupDragIfAny() {
 
   document.addEventListener("keydown", (e) => {
     if (e.code === "Space" && !isTypingFocusTarget(document.activeElement)) runtime.spaceKeyHeld = true;
-    if (runtime.focusNodeId && e.key === "Escape") {
+    if (e.key === "Escape" && (focusOverlay?.classList.contains("open") || runtime.focusNodeId)) {
       closeFocusModal();
       return;
     }
+    if (e.key === "Escape" && runtime.stickyMultiSelect && !isTypingFocusTarget(document.activeElement)) {
+      setStickyMultiSelect(false);
+      return;
+    }
     if (e.key === "Escape" && runtime.editingNodeId) {
-      const body = nodesLayer.querySelector(`[data-node-id="${runtime.editingNodeId}"] .body`);
+      const body = getNodeDomEl(runtime.editingNodeId)?.querySelector(".body");
       if (body && isFlowchartMode()) {
         body.blur();
       } else if (body) {
@@ -14525,6 +15085,18 @@ function finalizeFlowGroupDragIfAny() {
     }
     const ae = document.activeElement;
     const typing = isTypingFocusTarget(ae);
+    if (
+      !typing &&
+      !e.ctrlKey &&
+      !e.metaKey &&
+      !e.altKey &&
+      e.key.toLowerCase() === "m" &&
+      !runtime.focusNodeId
+    ) {
+      e.preventDefault();
+      toggleStickyMultiSelect();
+      return;
+    }
     if (fcEditorCanSelect() && e.key === "Escape" && !typing && !runtime.editingNodeId) {
       if (runtime.connecting) {
         e.preventDefault();
@@ -14649,28 +15221,32 @@ function finalizeFlowGroupDragIfAny() {
     }
   });
 
+  let mdWindowResizeDebounced = null;
   window.addEventListener("resize", () => {
-    mobileHint.textContent = "Touch: one finger drag/pan, two fingers pinch zoom.";
-    if (!isNarrowScreen()) closeDrawers();
-    applyShareDockFromStorage();
-    syncFcQuickEditToolbar();
-    syncFcMultiSelectBar();
-    if (window.innerWidth <= 768) {
-      fitToScreen();
-    }
+    clearTimeout(mdWindowResizeDebounced);
+    mdWindowResizeDebounced = setTimeout(() => {
+      mdWindowResizeDebounced = null;
+      mobileHint.textContent = "Touch: one finger drag/pan, two fingers pinch zoom.";
+      if (!isNarrowScreen()) closeDrawers();
+      applyShareDockFromStorage();
+      syncFcQuickEditToolbar();
+      syncFcMultiSelectBar();
+      if (window.innerWidth <= 768) fitToScreen();
+      applyDesktopSidebarCollapse();
+    }, 100);
   });
 
   workspace.addEventListener("touchstart", (e) => e.preventDefault(), { passive: false });
   workspace.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
 
-  focusCloseBtn.addEventListener("click", closeFocusModal);
-  focusOverlay.addEventListener("pointerdown", (e) => {
+  focusCloseBtn?.addEventListener("click", closeFocusModal);
+  focusOverlay?.addEventListener("pointerdown", (e) => {
     if (e.target === focusOverlay) closeFocusModal();
   });
-  focusOverlay.addEventListener("click", (e) => {
+  focusOverlay?.addEventListener("click", (e) => {
     if (e.target === focusOverlay) closeFocusModal();
   });
-  focusModal.addEventListener("pointerdown", (e) => e.stopPropagation());
+  focusModal?.addEventListener("pointerdown", (e) => e.stopPropagation());
   document.getElementById("nodeInspTabs")?.addEventListener("click", (e) => {
     const btn = e.target.closest(".node-insp-tab");
     if (!btn || !btn.dataset.nodeInspTab) return;
@@ -14767,26 +15343,26 @@ function finalizeFlowGroupDragIfAny() {
     scheduleSemanticAnalysis(220);
   }
 
-  focusModal.addEventListener("input", (e) => {
+  focusModal?.addEventListener("input", (e) => {
     if (!runtime.focusNodeId) return;
     if (e.target.id === "nodeInspPassword") return;
     if (e.target.closest("#nodeInspTabs")) return;
     primeFocusModalHistoryOnce();
     syncNodeInspectorToModel();
   });
-  focusModal.addEventListener("change", (e) => {
+  focusModal?.addEventListener("change", (e) => {
     if (!runtime.focusNodeId) return;
     if (e.target.id === "nodeInspPassword") return;
     if (e.target.id === "nodeInspHidden" || e.target.id === "nodeInspFreeform" || e.target.id === "nodeInspStyleLock") return;
     primeFocusModalHistoryOnce();
     syncNodeInspectorToModel();
   });
-  focusColor.addEventListener("input", () => {
+  focusColor?.addEventListener("input", () => {
     if (!runtime.focusNodeId) return;
     primeFocusModalHistoryOnce();
     syncNodeInspectorToModel();
   });
-  focusShape.addEventListener("change", () => {
+  focusShape?.addEventListener("change", () => {
     if (!runtime.focusNodeId) return;
     primeFocusModalHistoryOnce();
     syncNodeInspectorToModel();
@@ -14974,6 +15550,7 @@ function finalizeFlowGroupDragIfAny() {
     const f = sessionStorage.getItem(SESSION_CONN_LIST_FILTER);
     if (connectionListFilter && (f === "all" || f === "selection" || f === "warnings")) connectionListFilter.value = f;
   } catch (_) {}
+  syncStickyMultiSelectUi();
   renderAll();
   setRightTab("diagram");
   if (window.innerWidth <= 768) {
