@@ -8,10 +8,13 @@
     "build:compilers": "npm run build:flowchart && npm run build:arch",
     "test:flowchart": "vitest run tests/flowchart",
     "test:stabilization": "vitest run tests/stabilization",
-    "test": "npm run test:flowchart && npm run test:stabilization"
+    "test:runtime": "vitest run tests/runtime",
+    "build:tool-runtime": "vite build --config vite.tool-runtime.config.ts",
+    "test": "npm run test:flowchart && npm run test:stabilization && npm run test:runtime"
   },
   "devDependencies": {
     "@types/dagre": "^0.7.52",
+    "happy-dom": "^20.9.0",
     "typescript": "^5.7.3",
     "vite": "^6.0.7",
     "vitest": "^3.0.5"

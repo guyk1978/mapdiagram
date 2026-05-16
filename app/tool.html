@@ -3907,6 +3907,7 @@
 <script src="/assets/flowchart-templates-catalog.js"></script>
 <script src="/assets/flowchart-product.js"></script>
 <script src="/assets/md-runtime-diagnostics.js"></script>
+<script src="/app/runtime/mapdiagram-runtime.js"></script>
 <script>
   const DB_KEY = "mapdiagram-db-v1";
   const SUPABASE_URL = window.MAPDIAGRAM_SUPABASE?.url || window.MAPDIAGRAM_SUPABASE_URL || "";
@@ -4188,6 +4189,14 @@
   const MD_GROUP_DUP_OFFSET = 40;
   const MD_FORBIDDEN_PORTAL_ANCESTORS = ["#viewport", "#workspace", "#nodes", "#connections", "#canvas-underlays", "#semantic-overlays"];
 
+  let mdCtx = null;
+  let overlayRuntime = null;
+  let selectionRuntime = null;
+  let viewportRuntime = null;
+  let renderRuntime = null;
+  let groupRuntime = null;
+  let commandRuntime = null;
+
   function isMdDebugGroups() {
     try {
       return localStorage.getItem("md_debug_groups") === "1";
@@ -4202,47 +4211,18 @@
   }
 
   function invalidateInteractionCaches(opts = {}) {
-    runtime.groupBoxCache = null;
-    if (opts.clearNodeEl) runtime.nodeElById.clear();
-    if (opts.clearGraph) {
-      runtime.graphCache = null;
-      runtime.graphCacheKey = "";
-    }
+    initMapDiagramRuntimes();
+    if (renderRuntime) renderRuntime.invalidateInteractionCaches(opts);
   }
 
   function pruneNodeElCache() {
-    for (const [id, el] of runtime.nodeElById) {
-      if (!el || !el.isConnected) runtime.nodeElById.delete(id);
-    }
+    initMapDiagramRuntimes();
+    if (renderRuntime) renderRuntime.pruneNodeElCache();
   }
 
   function sanitizeSelectionState() {
-    const p = getProject();
-    const nodeIds = new Set(p.nodes.map((n) => n.id));
-    const groupIds = new Set((p.userGroups || []).map((g) => g.id));
-    const connIds = new Set((p.connections || []).map((c) => c.id));
-    const gcIds = new Set((p.groupConnections || []).map((g) => g.id));
-    for (const id of [...runtime.selectedNodeIds]) {
-      if (!nodeIds.has(id)) runtime.selectedNodeIds.delete(id);
-    }
-    if (runtime.selectedNodeId && !nodeIds.has(runtime.selectedNodeId)) runtime.selectedNodeId = null;
-    if (runtime.selectedNodeIds.size === 1) runtime.selectedNodeId = [...runtime.selectedNodeIds][0];
-    for (const id of [...runtime.selectedGroupIds]) {
-      if (!groupIds.has(id)) runtime.selectedGroupIds.delete(id);
-    }
-    if (runtime.selectedGroupId && !groupIds.has(runtime.selectedGroupId)) {
-      runtime.selectedGroupId = runtime.selectedGroupIds.size ? [...runtime.selectedGroupIds][0] : null;
-    }
-    for (const id of [...runtime.selectedConnectionIds]) {
-      if (!connIds.has(id)) runtime.selectedConnectionIds.delete(id);
-    }
-    if (runtime.selectedConnectionId && !connIds.has(runtime.selectedConnectionId)) runtime.selectedConnectionId = null;
-    for (const id of [...runtime.selectedGroupConnIds]) {
-      if (!gcIds.has(id)) runtime.selectedGroupConnIds.delete(id);
-    }
-    if (runtime.selectedGroupConnId && !gcIds.has(runtime.selectedGroupConnId)) runtime.selectedGroupConnId = null;
-    if (runtime.focusNodeId && !nodeIds.has(runtime.focusNodeId)) runtime.focusNodeId = null;
-    syncFocusModalOrphanGuard();
+    initMapDiagramRuntimes();
+    if (selectionRuntime) selectionRuntime.sanitizeSelection();
   }
 
   function assertProjectIntegrity(context) {
@@ -4268,101 +4248,23 @@
   }
 
   function mountIntoModalRoot(el) {
-    if (!el || !modalRoot) return;
-    if (el.parentElement === modalRoot) return;
-    for (const sel of MD_FORBIDDEN_PORTAL_ANCESTORS) {
-      if (el.closest(sel)) {
-        mdDebugWarn("portal-forbidden-ancestor", { sel, id: el.id });
-        break;
-      }
-    }
-    modalRoot.appendChild(el);
+    initMapDiagramRuntimes();
+    if (overlayRuntime) overlayRuntime.mountIntoModalRoot(el);
   }
 
   function ensureFocusOverlayPortal() {
-    if (!focusOverlay) return;
-    mountIntoModalRoot(focusOverlay);
-    if (isMdDebugGroups()) {
-      for (const sel of MD_FORBIDDEN_PORTAL_ANCESTORS) {
-        if (focusOverlay.closest(sel)) mdDebugWarn("focus-inside-canvas", { sel });
-      }
-    }
+    initMapDiagramRuntimes();
+    if (overlayRuntime) overlayRuntime.ensureFocusOverlayPortal();
   }
 
-  const MD_FOCUS_MODAL_READY_CLASS = "md-focus-modal-ready";
-  const MD_FOCUS_MODAL_MEASURING_CLASS = "md-focus-modal-measuring";
-  const MD_FOCUS_MODAL_INSTANT_CLASS = "md-focus-modal-instant";
-
-  function getFocusModalEl() {
-    return document.getElementById("focusModal") || focusModal;
-  }
-
-  function isFocusModalDomValid() {
-    if (!focusOverlay) return false;
-    const modalEl = getFocusModalEl();
-    return !!(modalEl && focusOverlay.contains(modalEl));
-  }
-
-  function repairFocusModalDom() {
-    if (!focusOverlay) return false;
-    const modalEl = getFocusModalEl();
-    if (!modalEl) return false;
-    if (!focusOverlay.contains(modalEl)) focusOverlay.appendChild(modalEl);
-    return true;
-  }
-
-  function clearFocusModalRescueClasses() {
-    const modalEl = getFocusModalEl();
-    modalEl?.classList.remove(MD_FOCUS_MODAL_READY_CLASS);
-    focusOverlay?.classList.remove(MD_FOCUS_MODAL_MEASURING_CLASS);
-    focusOverlay?.classList.remove(MD_FOCUS_MODAL_INSTANT_CLASS);
-  }
-
-  /** Layout-based check — do not use opacity (CSS transitions report 0 at t=0). */
-  function isFocusModalLayoutValid() {
-    const modalEl = getFocusModalEl();
-    if (!modalEl || !focusOverlay) return false;
-    if (!isFocusModalDomValid()) return false;
-    const r = modalEl.getBoundingClientRect();
-    const st = getComputedStyle(modalEl);
-    if (st.display === "none" || st.visibility === "hidden") return false;
-    return r.width >= 40 && r.height >= 40;
-  }
-
-  /** Always clears backdrop + portal state (safe when focusNodeId is already null). */
   function teardownFocusModalUi() {
-    if (runtime.focusModalWatchdog) {
-      clearTimeout(runtime.focusModalWatchdog);
-      runtime.focusModalWatchdog = null;
-    }
-    runtime.focusNodeId = null;
-    runtime.focusModalHistoryPrimed = false;
-    runtime.focusClosing = false;
-    clearFocusModalRescueClasses();
-    focusOverlay?.classList.remove("open");
-    focusOverlay?.setAttribute("aria-hidden", "true");
-    if (modalRoot) modalRoot.setAttribute("aria-hidden", "true");
-    document.body.classList.remove("md-focus-modal-open");
+    initMapDiagramRuntimes();
+    if (overlayRuntime) overlayRuntime.teardownFocusModalUi();
   }
 
   function syncFocusModalOrphanGuard() {
-    if (!focusOverlay?.classList.contains("open")) return;
-    if (!runtime.focusNodeId || !getNodeById(runtime.focusNodeId) || !isFocusModalDomValid()) {
-      teardownFocusModalUi();
-    }
-  }
-
-  function scheduleFocusModalVisibilityWatch() {
-    if (runtime.focusModalWatchdog) clearTimeout(runtime.focusModalWatchdog);
-    runtime.focusModalWatchdog = setTimeout(() => {
-      runtime.focusModalWatchdog = null;
-      if (!focusOverlay?.classList.contains("open")) return;
-      if (!isFocusModalLayoutValid()) {
-        if (isMdDebugGroups()) console.warn("[md] focus modal watchdog rollback");
-        teardownFocusModalUi();
-        showToast("Extended editor could not be shown.", "warn");
-      }
-    }, 450);
+    initMapDiagramRuntimes();
+    if (overlayRuntime) overlayRuntime.syncFocusModalOrphanGuard();
   }
 
   function populateFocusModalFields(node) {
@@ -4479,7 +4381,7 @@
     }
   }
 
-  ensureFocusOverlayPortal();
+  /* overlay portal mounted in initMapDiagramRuntimes() at boot */
 
   /** Phase 2 — connection multi-select: clear `p.connections` selection only. */
   function clearConnectionSelectionState() {
@@ -4944,17 +4846,9 @@
   }
 
   function getUserGroupBox(groupId) {
-    const p = getProject();
-    if (!groupId) return null;
-    if (!runtime.groupBoxCache) runtime.groupBoxCache = new Map();
-    if (runtime.groupBoxCacheProjectId !== p.projectId) {
-      runtime.groupBoxCache.clear();
-      runtime.groupBoxCacheProjectId = p.projectId;
-    }
-    if (runtime.groupBoxCache.has(groupId)) return runtime.groupBoxCache.get(groupId);
-    const box = computeUserGroupBox(groupId);
-    runtime.groupBoxCache.set(groupId, box);
-    return box;
+    initMapDiagramRuntimes();
+    if (groupRuntime) return groupRuntime.getUserGroupBox(groupId);
+    return computeUserGroupBox(groupId);
   }
 
   /**
@@ -5968,14 +5862,18 @@
     }
     clearFcInteractionState();
     recomputeAllFlowGroupBounds();
-    runtime.selectedNodeId = null;
-    runtime.selectedNodeIds.clear();
-    runtime.selectedConnectionId = null;
-    runtime.selectedConnectionIds.clear();
-    runtime.selectedGroupId = null;
-    runtime.selectedGroupIds.clear();
-    runtime.selectedGroupConnId = null;
-    runtime.selectedGroupConnIds.clear();
+    initMapDiagramRuntimes();
+    if (selectionRuntime) selectionRuntime.clearAllForUndo();
+    else {
+      runtime.selectedNodeId = null;
+      runtime.selectedNodeIds.clear();
+      runtime.selectedConnectionId = null;
+      runtime.selectedConnectionIds.clear();
+      runtime.selectedGroupId = null;
+      runtime.selectedGroupIds.clear();
+      runtime.selectedGroupConnId = null;
+      runtime.selectedGroupConnIds.clear();
+    }
     invalidateInteractionCaches({ clearNodeEl: true, clearGraph: true });
     renderAll();
     sanitizeSelectionState();
@@ -6176,12 +6074,8 @@ function clearFcInteractionState(opts = {}) {
 }
 
 function scheduleRenderConnections() {
-  if (runtime.renderConnectionsRaf) cancelAnimationFrame(runtime.renderConnectionsRaf);
-  runtime.renderConnectionsRaf = requestAnimationFrame(() => {
-    runtime.renderConnectionsRaf = null;
-    renderConnections();
-    renderSelection();
-  });
+  initMapDiagramRuntimes();
+  if (renderRuntime) renderRuntime.scheduleRenderConnections();
 }
 
 function startFlowGroupDrag(fg, frame, e) {
@@ -6250,40 +6144,23 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function isAdditiveSelection(ev) {
-    return !!(ev && (ev.shiftKey || runtime.stickyMultiSelect));
+    initMapDiagramRuntimes();
+    return selectionRuntime ? selectionRuntime.isAdditive(ev) : !!(ev && ev.shiftKey);
   }
 
   function syncStickyMultiSelectUi() {
-    const on = !!runtime.stickyMultiSelect;
-    document.body.classList.toggle("md-sticky-multiselect", on);
-    const btn = document.getElementById("stickyMultiSelectBtn");
-    if (btn) {
-      btn.classList.toggle("is-active", on);
-      btn.setAttribute("aria-pressed", on ? "true" : "false");
-      btn.title = on ? "Multi-select mode (on) — click to turn off (M)" : "Multi-select mode (M)";
-    }
-    const mob = document.getElementById("mobileStickyMultiSelectBtn");
-    if (mob) {
-      mob.classList.toggle("is-active", on);
-      mob.setAttribute("aria-pressed", on ? "true" : "false");
-      mob.textContent = on ? "Multi-select ON" : "Multi-select";
-    }
+    initMapDiagramRuntimes();
+    if (selectionRuntime) selectionRuntime.syncStickyMultiSelectUi();
   }
 
   function setStickyMultiSelect(on, opts = {}) {
-    const next = !!on && !runtime.readOnly;
-    runtime.stickyMultiSelect = next;
-    syncStickyMultiSelectUi();
-    if (opts.toast && next && savedIndicator) {
-      savedIndicator.textContent = "Multi-select ON";
-      setTimeout(() => {
-        if (savedIndicator.textContent === "Multi-select ON") savedIndicator.textContent = "Saved";
-      }, 1400);
-    }
+    initMapDiagramRuntimes();
+    if (selectionRuntime) selectionRuntime.setStickyMultiSelect(on, opts);
   }
 
   function toggleStickyMultiSelect() {
-    setStickyMultiSelect(!runtime.stickyMultiSelect, { toast: true });
+    initMapDiagramRuntimes();
+    if (selectionRuntime) selectionRuntime.toggleStickyMultiSelect();
   }
 
   function ensureFlowGroups(p) {
@@ -8439,142 +8316,12 @@ function finalizeFlowGroupDragIfAny() {
 
   /* ========== GROUP STATE / ACTIONS ========== */
   function duplicateUserGroup(rootId) {
-    const p = getProject();
-    ensureProjectExtras(p);
-    const root = userGroupById(p, rootId);
-    if (!root) return null;
-    const OFF = MD_GROUP_DUP_OFFSET;
-    const subtree = getSubtreeGroupIdsSet(p, rootId);
-    const sortedOld = [...subtree]
-      .map((id) => userGroupById(p, id))
-      .filter(Boolean)
-      .sort((a, b) => (a.hierarchyDepth || 0) - (b.hierarchyDepth || 0));
-    const gidMap = {};
-    const newGroups = [];
-    pushHistory();
-    for (const g of sortedOld) {
-      const ngid = uid();
-      gidMap[g.id] = ngid;
-      const ng = normalizeGroup({
-        id: ngid,
-        name: `${g.name || "Group"} (copy)`,
-        color: g.color || "#8baeff",
-        nodeIds: [],
-        childGroupIds: [],
-        parentGroupId: g.parentGroupId && subtree.has(g.parentGroupId) ? gidMap[g.parentGroupId] : g.parentGroupId,
-        collapsed: false,
-        collapseFrame: null,
-        expandedFrame: null,
-        groupMeta: deepCopy(g.groupMeta || {}),
-        locked: !!g.locked,
-        pinned: !!g.pinned,
-        zIndex: g.zIndex || 0,
-        x: (Number(g.x) || 0) + (p._groupLocalSpace === 2 ? OFF : 0),
-        y: (Number(g.y) || 0) + (p._groupLocalSpace === 2 ? OFF : 0)
-      });
-      newGroups.push({ old: g, ng });
+    initMapDiagramRuntimes();
+    if (commandRuntime?.hasCommand("duplicateGroup")) {
+      return commandRuntime.executeCommand("duplicateGroup", { rootId });
     }
-    for (const { old, ng } of newGroups) {
-      ng.childGroupIds = (old.childGroupIds || []).filter((cid) => subtree.has(cid)).map((cid) => gidMap[cid]);
-    }
-    const nodeMap = {};
-    const allOldNodes = new Set();
-    for (const gid of subtree) {
-      for (const nid of getAllNodeIdsInGroupSubtree(p, gid)) allOldNodes.add(nid);
-    }
-    for (const nid of allOldNodes) {
-      const n = getNodeById(nid);
-      if (!n) continue;
-      const nn = deepCopy(n);
-      nn.id = uid();
-      if (p._groupLocalSpace === 2) {
-        nn.x = n.x;
-        nn.y = n.y;
-      } else {
-        nn.x = (n.x || 0) + OFF;
-        nn.y = (n.y || 0) + OFF;
-      }
-      normalizeNode(nn);
-      nodeMap[nid] = nn;
-      p.nodes.push(nn);
-    }
-    for (const { old, ng } of newGroups) {
-      ng.nodeIds = (old.nodeIds || []).map((oid) => nodeMap[oid]?.id).filter(Boolean);
-    }
-    for (const { ng } of newGroups) p.userGroups.push(ng);
-    const oldNodeSet = allOldNodes;
-    const snapConn = [...p.connections];
-    const connIdMap = {};
-    for (const c of snapConn) {
-      if (isNodeNodeConnection(c) && oldNodeSet.has(c.from) && oldNodeSet.has(c.to)) {
-        const nc = deepCopy(c);
-        nc.id = uid();
-        nc.from = nodeMap[c.from].id;
-        nc.to = nodeMap[c.to].id;
-        connIdMap[c.id] = nc.id;
-        p.connections.push(nc);
-      } else if (c.kind === "node-group" && oldNodeSet.has(c.from) && subtree.has(c.toGroupId)) {
-        const nc = deepCopy(c);
-        nc.id = uid();
-        nc.from = nodeMap[c.from].id;
-        nc.toGroupId = gidMap[c.toGroupId];
-        p.connections.push(nc);
-      } else if (c.kind === "group-node" && oldNodeSet.has(c.to) && subtree.has(c.fromGroupId)) {
-        const nc = deepCopy(c);
-        nc.id = uid();
-        nc.to = nodeMap[c.to].id;
-        nc.fromGroupId = gidMap[c.fromGroupId];
-        p.connections.push(nc);
-      }
-    }
-    const snapGc = [...(p.groupConnections || [])];
-    for (const gc of snapGc) {
-      if (subtree.has(gc.fromGroupId) && subtree.has(gc.toGroupId)) {
-        const ngc = deepCopy(gc);
-        ngc.id = uid();
-        ngc.fromGroupId = gidMap[gc.fromGroupId];
-        ngc.toGroupId = gidMap[gc.toGroupId];
-        p.groupConnections.push(ngc);
-      }
-    }
-    for (const c of snapConn) {
-      if (!isBranchFromConnection(c)) continue;
-      if (!oldNodeSet.has(c.to)) continue;
-      const mappedParent = connIdMap[c.parentConnectionId];
-      const nnTo = nodeMap[c.to];
-      if (!mappedParent || !nnTo) continue;
-      const nc = deepCopy(c);
-      nc.id = uid();
-      nc.parentConnectionId = mappedParent;
-      nc.to = nnTo.id;
-      normalizeConnectionEdge(nc);
-      p.connections.push(nc);
-    }
-    reindexUserGroupHierarchy(p);
-    dedupeUserGroupMembership(p);
-    const alive = new Set(p.userGroups.map((g) => g.id));
-    p.groupConnections = (p.groupConnections || []).filter((c) => alive.has(c.fromGroupId) && alive.has(c.toGroupId));
-    const newRootId = gidMap[rootId];
-    runtime.selectedGroupIds.clear();
-    runtime.selectedGroupIds.add(newRootId);
-    runtime.selectedGroupId = newRootId;
-    runtime.selectedGroupConnId = null;
-    runtime.selectedGroupConnIds.clear();
-    runtime.selectedNodeIds.clear();
-    runtime.selectedNodeId = null;
-    clearConnectionSelectionState();
-    const newGroupIds = newGroups.map(({ ng }) => ng.id);
-    syncStoredGroupBoundsForGroupIds(p, newGroupIds);
-    for (const k of Object.keys(runtime.connectionUi)) {
-      if (!p.connections.some((c) => c.id === k)) delete runtime.connectionUi[k];
-    }
-    invalidateInteractionCaches({ clearNodeEl: true, clearGraph: true });
-    renderAll();
-    sanitizeSelectionState();
-    assertProjectIntegrity("duplicateUserGroup");
-    markDirty();
-    scheduleSemanticAnalysis();
-    return newRootId;
+    if (groupRuntime) return groupRuntime.duplicateUserGroup(rootId);
+    return null;
   }
 
   /* ========== GROUP EVENTS (drag lifecycle) ========== */
@@ -9126,6 +8873,8 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function world(clientX, clientY) {
+    initMapDiagramRuntimes();
+    if (viewportRuntime) return viewportRuntime.world(clientX, clientY);
     const p = getProject();
     const r = workspace.getBoundingClientRect();
     return { x: (clientX - r.left - p.view.x) / p.view.zoom, y: (clientY - r.top - p.view.y) / p.view.zoom };
@@ -9527,80 +9276,13 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function openFocusModal(nodeId) {
-    const node = getNodeById(nodeId);
-    if (!node || !focusOverlay) return false;
-    if (focusOverlay.classList.contains("open") && runtime.focusNodeId === nodeId) return true;
-    if (focusOverlay.classList.contains("open")) teardownFocusModalUi();
-
-    let opened = false;
-    try {
-      ensureFocusOverlayPortal();
-      if (!repairFocusModalDom()) throw new Error("focus modal DOM repair failed");
-      closeImportDiffOverlay();
-      closeCommandPalette();
-      closeKeyboardHelpOverlay();
-      resetNodeInspectorGestureState();
-      normalizeNode(node);
-      setNodeInspectorTab("content");
-      populateFocusModalFields(node);
-
-      const modalEl = getFocusModalEl();
-      if (!modalEl) throw new Error("focusModal element missing");
-
-      clearFocusModalRescueClasses();
-      focusOverlay.classList.add(MD_FOCUS_MODAL_MEASURING_CLASS);
-      modalEl.classList.add(MD_FOCUS_MODAL_READY_CLASS);
-      void modalEl.offsetHeight;
-      if (!isFocusModalLayoutValid()) throw new Error("focus modal failed pre-open layout check");
-
-      focusOverlay.classList.remove(MD_FOCUS_MODAL_MEASURING_CLASS);
-      runtime.focusNodeId = nodeId;
-      runtime.focusModalHistoryPrimed = false;
-      focusOverlay.classList.add(MD_FOCUS_MODAL_INSTANT_CLASS, "open");
-      focusOverlay.setAttribute("aria-hidden", "false");
-      if (modalRoot) modalRoot.setAttribute("aria-hidden", "false");
-      document.body.classList.add("md-focus-modal-open");
-
-      requestAnimationFrame(() => {
-        if (!focusOverlay.classList.contains("open")) return;
-        if (!isFocusModalLayoutValid()) {
-          if (isMdDebugGroups()) console.warn("[md] focus modal rAF layout rollback");
-          teardownFocusModalUi();
-          showToast("Extended editor could not be shown.", "warn");
-          return;
-        }
-        setTimeout(() => focusOverlay?.classList.remove(MD_FOCUS_MODAL_INSTANT_CLASS), 280);
-      });
-      scheduleFocusModalVisibilityWatch();
-      opened = true;
-      setTimeout(() => document.getElementById("nodeInspTitle")?.focus(), 0);
-    } catch (err) {
-      if (isMdDebugGroups()) console.warn("[md] openFocusModal failed", err);
-      teardownFocusModalUi();
-      showToast("Could not open extended editor.", "warn");
-      opened = false;
-    }
-    return opened;
+    initMapDiagramRuntimes();
+    return overlayRuntime ? overlayRuntime.openFocusModal(nodeId) : false;
   }
 
   function closeFocusModal() {
-    const overlayOpen = !!(focusOverlay && focusOverlay.classList.contains("open"));
-    if (!overlayOpen && !runtime.focusNodeId) return;
-    if (runtime.focusClosing && overlayOpen) return;
-
-    if (runtime.focusNodeId) {
-      resetNodeInspectorGestureState();
-      syncNodeInspectorToModel();
-      const pwd = document.getElementById("nodeInspPassword");
-      if (pwd) pwd.value = "";
-    }
-    runtime.focusClosing = true;
-    teardownFocusModalUi();
-    closeCommandPalette();
-    closeKeyboardHelpOverlay();
-    setTimeout(() => {
-      runtime.focusClosing = false;
-    }, 220);
+    initMapDiagramRuntimes();
+    if (overlayRuntime) overlayRuntime.closeFocusModal();
   }
 
   function nodeWorldCenter(n) {
@@ -10081,14 +9763,8 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function updateViewport() {
-    const v = getProject().view;
-    if (v.grid == null) v.grid = true;
-    runtime.showGrid = !!v.grid;
-    workspace.classList.toggle("grid-off", !runtime.showGrid);
-    if (gridToggleBtn) gridToggleBtn.textContent = runtime.showGrid ? "Grid On" : "Grid Off";
-    viewport.style.transform = `translate(${v.x}px, ${v.y}px) scale(${v.zoom})`;
-    document.getElementById("zoomResetBtn").textContent = `${Math.round(v.zoom * 100)}%`;
-    paintMinimap();
+    initMapDiagramRuntimes();
+    if (viewportRuntime) viewportRuntime.updateViewport();
   }
 
   function isNarrowScreen() {
@@ -12667,43 +12343,13 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function zoomAt(clientX, clientY, nextZoom) {
-    const p = getProject();
-    const prev = p.view.zoom;
-    const z = Math.max(0.2, Math.min(2.2, nextZoom));
-    if (z === prev) return;
-    const r = workspace.getBoundingClientRect();
-    const px = clientX - r.left;
-    const py = clientY - r.top;
-    p.view.x = px - (px - p.view.x) * (z / prev);
-    p.view.y = py - (py - p.view.y) * (z / prev);
-    p.view.zoom = z;
-    updateViewport();
-    markDirty();
+    initMapDiagramRuntimes();
+    if (viewportRuntime) viewportRuntime.zoomAt(clientX, clientY, nextZoom);
   }
 
   function fitToScreen() {
-    const p = getProject();
-    if (!p.nodes.length) {
-      p.view = { ...p.view, x: 0, y: 0, zoom: 1 };
-      updateViewport();
-      markDirty();
-      return;
-    }
-    const vis = p.nodes.filter((n) => !isNodeHiddenCanvas(n));
-    const boundsNodes = vis.length ? vis : p.nodes;
-    const minX = Math.min(...boundsNodes.map((n) => getNodeWorldPosition(n).x));
-    const minY = Math.min(...boundsNodes.map((n) => getNodeWorldPosition(n).y));
-    const maxX = Math.max(...boundsNodes.map((n) => getNodeWorldPosition(n).x + n.width));
-    const maxY = Math.max(...boundsNodes.map((n) => getNodeWorldPosition(n).y + n.height));
-    const contentW = Math.max(100, maxX - minX + 120);
-    const contentH = Math.max(100, maxY - minY + 120);
-    const r = workspace.getBoundingClientRect();
-    const zoom = Math.max(0.2, Math.min(2.2, Math.min(r.width / contentW, r.height / contentH)));
-    p.view.zoom = zoom;
-    p.view.x = (r.width - contentW * zoom) / 2 - (minX - 60) * zoom;
-    p.view.y = (r.height - contentH * zoom) / 2 - (minY - 60) * zoom;
-    updateViewport();
-    markDirty();
+    initMapDiagramRuntimes();
+    if (viewportRuntime) viewportRuntime.fitToScreen();
   }
 
   /** Phase 3 — PNG export: world bounds include user system frames (matches on-canvas extent). */
@@ -15550,6 +15196,112 @@ function finalizeFlowGroupDragIfAny() {
     const f = sessionStorage.getItem(SESSION_CONN_LIST_FILTER);
     if (connectionListFilter && (f === "all" || f === "selection" || f === "warnings")) connectionListFilter.value = f;
   } catch (_) {}
+  function initMapDiagramRuntimes() {
+    if (mdCtx) return;
+    const MDRT = globalThis.MapDiagramRuntime;
+    if (!MDRT) {
+      console.warn("[md] MapDiagramRuntime bundle not loaded");
+      return;
+    }
+    mdCtx = MDRT.createRuntimeContext({
+      runtime,
+      getProject,
+      markDirty,
+      dom: { modalRoot, focusOverlay, focusModal, workspace, viewport, savedIndicator },
+      emit(type) {
+        if (type === "selectionChanged") {
+          renderSelection();
+          syncTopbarGroupActions();
+          syncGroupInspectorMeta();
+        }
+      },
+    });
+    renderRuntime = MDRT.createRenderRuntime(mdCtx, {
+      renderConnections,
+      renderSelection,
+      scheduleFullRender: () => renderAll(),
+    });
+    overlayRuntime = MDRT.createOverlayRuntime(mdCtx, {
+      getNodeById,
+      showToast,
+      mdDebugWarn,
+      closeImportDiffOverlay,
+      closeCommandPalette,
+      closeKeyboardHelpOverlay,
+      resetNodeInspectorGestureState,
+      normalizeNode,
+      setNodeInspectorTab,
+      populateFocusModalFields,
+      syncNodeInspectorToModel,
+    });
+    selectionRuntime = MDRT.createSelectionRuntime(mdCtx, {
+      onSelectionChanged() {
+        renderSelection();
+        syncTopbarGroupActions();
+        syncGroupInspectorMeta();
+      },
+      syncFocusModalOrphanGuard: () => overlayRuntime.syncFocusModalOrphanGuard(),
+      clearConnectionSelectionState,
+      clearFlowGroupSelection: clearFlowGroupSelection,
+      savedIndicator,
+      afterGroupSelection(g, opts) {
+        rightbar.classList.remove("compact");
+        runtime.inspectorCompact = false;
+        if (inspectorToggleBtn) {
+          inspectorToggleBtn.setAttribute("aria-label", "Compact inspector");
+          inspectorToggleBtn.setAttribute("title", "Compact inspector");
+        }
+        setRightTab("diagram");
+        applyDiagramSubTab("groups");
+        if (isNarrowScreen()) openDrawer("right");
+        refreshGroupParentSelectOptions();
+        if (opts.refreshOverlay !== false) renderSemanticOverlays();
+        try {
+          groupControls.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        } catch (_) {}
+      },
+    });
+    viewportRuntime = MDRT.createViewportRuntime(mdCtx, {
+      gridToggleBtn,
+      paintMinimap,
+      isNodeHiddenCanvas,
+      getNodeWorldPosition,
+    });
+    groupRuntime = MDRT.createGroupRuntime(mdCtx, {
+      groupDupOffset: MD_GROUP_DUP_OFFSET,
+      pushHistoryOnDuplicate: false,
+      ensureProjectExtras,
+      userGroupById,
+      uid,
+      deepCopy,
+      normalizeGroup,
+      normalizeNode,
+      normalizeConnectionEdge,
+      getSubtreeGroupIdsSet,
+      getAllNodeIdsInGroupSubtree,
+      getNodeById,
+      isNodeNodeConnection,
+      isBranchFromConnection,
+      reindexUserGroupHierarchy,
+      dedupeUserGroupMembership,
+      syncStoredGroupBoundsForGroupIds,
+      scheduleFullRender: () => renderAll(),
+      sanitizeSelection: () => sanitizeSelectionState(),
+      assertProjectIntegrity,
+      scheduleSemanticAnalysis,
+      computeUserGroupBox,
+      selectionRuntime,
+      renderRuntime,
+    });
+    commandRuntime = MDRT.createCommandRuntime(mdCtx, { pushHistory });
+    commandRuntime.registerCommand("duplicateGroup", {
+      describe: "Duplicate user group subtree",
+      execute: ({ rootId }) => groupRuntime.duplicateUserGroup(rootId),
+    });
+    overlayRuntime.ensureFocusOverlayPortal();
+  }
+
+  initMapDiagramRuntimes();
   syncStickyMultiSelectUi();
   renderAll();
   setRightTab("diagram");
