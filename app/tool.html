@@ -12139,7 +12139,7 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function renderSelection() {
-    sanitizeSelectionState();
+    
     const p = getProject();
     const multiCount = runtime.selectedNodeIds.size;
     for (const el of nodesLayer.querySelectorAll(".node")) {

@@ -25,9 +25,10 @@ export function createSelectionRuntime(ctx, deps) {
   }
 
   function notify() {
-    emit("selectionChanged");
-    if (typeof deps.onSelectionChanged === "function") deps.onSelectionChanged();
+  if (typeof deps.onSelectionChanged === "function") {
+    deps.onSelectionChanged();
   }
+}
 
   function sanitizeSelection() {
     const p = ctx.getProject();
