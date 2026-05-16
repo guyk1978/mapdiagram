@@ -10081,18 +10081,16 @@ function finalizeFlowGroupDragIfAny() {
         runtime.touchDragPending = null;
       }
       if (isAdditiveSelection(e) && (!isFlowchartMode() || fcEditorCanSelect())) {
-        if (runtime.selectedNodeIds.has(n.id)) runtime.selectedNodeIds.delete(n.id);
-        else runtime.selectedNodeIds.add(n.id);
-        if (runtime.selectedNodeIds.size === 0) runtime.selectedNodeId = null;
-        else if (runtime.selectedNodeIds.size === 1) runtime.selectedNodeId = [...runtime.selectedNodeIds][0];
-        else runtime.selectedNodeId = null;
-        clearAllEdgeSelection();
-        runtime.selectedGroupId = null;
-        runtime.selectedGroupIds.clear();
-        clearFlowGroupSelection();
-        renderSelection();
-        return;
-      }
+  selectionRuntime.toggleNode(n.id);
+
+  clearAllEdgeSelection();
+  runtime.selectedGroupId = null;
+  runtime.selectedGroupIds.clear();
+  clearFlowGroupSelection();
+
+  renderSelection();
+  return;
+}
       if (e.ctrlKey || e.metaKey) {
         if (runtime.selectedNodeIds.has(n.id)) runtime.selectedNodeIds.delete(n.id);
         else runtime.selectedNodeIds.add(n.id);

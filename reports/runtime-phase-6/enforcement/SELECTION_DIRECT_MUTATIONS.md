@@ -105,3 +105,27 @@ app\tool.html:14828:      (runtime.selectedNodeIds?.size || runtime.selectedNode
 
   - Line 12050
   runtime.selectedNodeIds = next
+
+
+
+
+
+  ## Recursion fix
+
+Resolved infinite recursion between:
+
+- renderSelection()
+- sanitizeSelectionState()
+- selectionRuntime.sanitizeSelection()
+
+Fix:
+- removed sanitizeSelectionState() call from renderSelection()
+
+Impact:
+- restored group selection
+- restored undo
+- restored marquee selection
+- restored extended editor interactions
+
+Root cause:
+render cycle re-entered selection sanitation repeatedly after runtime extraction.
