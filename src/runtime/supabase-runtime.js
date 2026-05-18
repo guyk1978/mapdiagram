@@ -151,16 +151,39 @@ export function initSupabase() {
 }
 
 export function refreshAuthUi() {
-  if (bind().ctx.runtime.authUser) {
-    bind().deps.dom.userChip.textContent = bind().ctx.runtime.authUser.email || "Signed in";
-    bind().deps.dom.authBtn.textContent = "Logout";
-    bind().deps.dom.softLock.classList.remove("open");
-    bind().ctx.runtime.softLockShown = true;
+  const { dom } = bind().deps;
+  const { runtime } = bind().ctx;
+  if (runtime.authUser) {
+    if (dom.userChip) dom.userChip.textContent = runtime.authUser.email || "Signed in";
+    if (dom.authBtn) dom.authBtn.textContent = "Logout";
+    if (dom.softLock) dom.softLock.classList.remove("open");
+    runtime.softLockShown = true;
   } else {
-    bind().deps.dom.userChip.textContent = "Guest mode";
-    bind().deps.dom.authBtn.textContent = "Login";
+    if (dom.userChip) dom.userChip.textContent = "Guest mode";
+    if (dom.authBtn) dom.authBtn.textContent = "Login";
   }
   void refreshUserCreditsDisplay();
+}
+
+/**
+ * Read session from Supabase client, update runtime.authUser, and refresh topbar + wallet UI.
+ * Call after sign-in/sign-up and from onAuthStateChange (login can finish before the listener runs).
+ */
+export async function syncAuthStateFromClient(options = {}) {
+  const { loadProjects = true } = options;
+  const { runtime } = bind().ctx;
+  if (!runtime.supabase) {
+    runtime.authUser = null;
+    refreshAuthUi();
+    applyAiCreditGatesToUi();
+    return;
+  }
+  const { data, error } = await runtime.supabase.auth.getSession();
+  if (error) console.warn("[App Auth] getSession failed:", error);
+  runtime.authUser = data?.session?.user ?? null;
+  refreshAuthUi();
+  applyAiCreditGatesToUi();
+  if (loadProjects && runtime.authUser) await loadCloudProjects();
 }
 
 export function useMockCreditPurchasesUi() {
@@ -484,20 +507,21 @@ export function scheduleCloudSync() {
 }
 
 export async function bootstrapAuth() {
-  if (!bind().ctx.runtime.supabase) {
+  const { runtime } = bind().ctx;
+  if (!runtime.supabase) {
     refreshAuthUi();
     return;
   }
-  const { data } = await bind().ctx.runtime.supabase.auth.getUser();
-  console.log("[App Auth] bootstrap getUser:", data);
-  bind().ctx.runtime.authUser = data?.user || null;
-  refreshAuthUi();
-  if (bind().ctx.runtime.authUser) await loadCloudProjects();
-  bind().ctx.runtime.supabase.auth.onAuthStateChange(async (event, session) => {
+  await syncAuthStateFromClient();
+  console.log("[App Auth] bootstrap session:", runtime.authUser?.email || null);
+  if (runtime._authStateListenerRegistered) return;
+  runtime._authStateListenerRegistered = true;
+  runtime.supabase.auth.onAuthStateChange(async (event, session) => {
     console.log("[App Auth] Auth state changed:", event, session?.user?.email || null);
-    bind().ctx.runtime.authUser = session?.user || null;
+    runtime.authUser = session?.user ?? null;
     refreshAuthUi();
-    if (bind().ctx.runtime.authUser) {
+    applyAiCreditGatesToUi();
+    if (runtime.authUser) {
       await loadCloudProjects();
     } else {
       loadDB();
@@ -540,6 +564,7 @@ export async function handleAuthButtonClick() {
   const { runtime } = ctx;
   if (runtime.authUser) {
     if (runtime.supabase) await runtime.supabase.auth.signOut();
+    await syncAuthStateFromClient({ loadProjects: false });
     return;
   }
   if (!runtime.supabase) {
@@ -577,13 +602,19 @@ export async function handleLoginSubmit() {
   if (!runtime.supabase) return;
   dom.authStatus.textContent = "Signing in...";
   console.log("[App Auth] Login click");
-  const { error } = await runtime.supabase.auth.signInWithPassword({
+  const { data, error } = await runtime.supabase.auth.signInWithPassword({
     email: dom.authEmail.value.trim(),
     password: dom.authPassword.value,
   });
-  console.log("[App Auth] signInWithPassword response:", { error });
-  dom.authStatus.textContent = error ? error.message : "Signed in";
-  if (!error) closeAuthModal();
+  console.log("[App Auth] signInWithPassword response:", { error, user: data?.user?.email || null });
+  if (error) {
+    dom.authStatus.textContent = error.message;
+    return;
+  }
+  runtime.authUser = data?.user ?? data?.session?.user ?? null;
+  await syncAuthStateFromClient();
+  dom.authStatus.textContent = "Signed in";
+  closeAuthModal();
 }
 
 export async function handleSignupSubmit() {
@@ -593,13 +624,24 @@ export async function handleSignupSubmit() {
   if (!runtime.supabase) return;
   dom.authStatus.textContent = "Creating account...";
   console.log("[App Auth] Sign up click");
-  const { error } = await runtime.supabase.auth.signUp({
+  const { data, error } = await runtime.supabase.auth.signUp({
     email: dom.authEmail.value.trim(),
     password: dom.authPassword.value,
     options: { emailRedirectTo: `${window.location.origin}/auth/callback/` },
   });
-  console.log("[App Auth] signUp response:", { error });
-  dom.authStatus.textContent = error ? error.message : "Check your email to confirm sign up.";
+  console.log("[App Auth] signUp response:", { error, user: data?.user?.email || null, hasSession: !!data?.session });
+  if (error) {
+    dom.authStatus.textContent = error.message;
+    return;
+  }
+  if (data?.session?.user || data?.user) {
+    runtime.authUser = data.session?.user ?? data.user ?? null;
+    await syncAuthStateFromClient();
+    dom.authStatus.textContent = "Signed in";
+    closeAuthModal();
+    return;
+  }
+  dom.authStatus.textContent = "Check your email to confirm sign up.";
 }
 
 /** Session + project URL for FlowchartCompiler billing gateway (Edge ai-complete). */
@@ -638,6 +680,7 @@ const supabaseApi = {
   cloudSyncProject,
   scheduleCloudSync,
   bootstrapAuth,
+  syncAuthStateFromClient,
   getProject,
   ensureBoot,
   scheduleSoftLockPrompt,
