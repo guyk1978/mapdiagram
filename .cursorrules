@@ -1,0 +1,6 @@
+Important project architecture constraint: 
+There are two duplicates of tool.html in this workspace:
+1. app/tool.html
+2. mapdiagram-main/app/tool.html
+
+Whenever the user asks you to modify, refactor, or fix anything inside tool.html, you must ALWAYS apply the exact same changes to BOTH files simultaneously. Never update just one of them. This is critical to ensure that Cloudflare deployments pull the correct code regardless of the root directory strategy.
