@@ -1549,6 +1549,8 @@
   }
   .node {
     position: absolute;
+    left: 0;
+    top: 0;
     pointer-events: auto;
     width: 190px;
     height: 110px;
@@ -1563,13 +1565,18 @@
     resize: both;
     overflow: auto;
     user-select: none;
+    --node-tx: 0px;
+    --node-ty: 0px;
     --node-rotation: 0deg;
     transition: box-shadow 0.26s ease, transform 0.26s ease, filter 0.24s ease, border-color 0.24s ease;
     touch-action: none;
-    transform: rotate(var(--node-rotation)) scale(1);
+    transform: translate3d(var(--node-tx), var(--node-ty), 0) rotate(var(--node-rotation)) scale(1);
     background-image:
       linear-gradient(160deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.08) 42%, rgba(0, 0, 0, 0.06) 100%);
     background-blend-mode: soft-light;
+  }
+  .node.is-dragging {
+    will-change: transform;
   }
   .node:hover {
     box-shadow:
@@ -1577,7 +1584,7 @@
       0 1px 0 rgba(255, 255, 255, 0.07) inset,
       0 -14px 20px rgba(0, 0, 0, 0.06) inset;
     filter: saturate(1.06);
-    transform: rotate(var(--node-rotation)) scale(1.022);
+    transform: translate3d(var(--node-tx), var(--node-ty), 0) rotate(var(--node-rotation)) scale(1.022);
   }
   .node.selected {
     box-shadow:
@@ -1590,7 +1597,7 @@
       0 0 0 2px rgba(79, 208, 135, 0.55),
       0 0 20px rgba(79, 208, 135, 0.32),
       0 14px 34px rgba(0,0,0,.24);
-    transform: rotate(var(--node-rotation)) translateY(-2px) scale(1.028);
+    transform: translate3d(var(--node-tx), var(--node-ty), 0) rotate(var(--node-rotation)) translateY(-2px) scale(1.028);
     transition:
       box-shadow var(--fc-dur-micro) var(--fc-ease),
       transform var(--fc-dur-micro) var(--fc-ease);
@@ -3206,8 +3213,8 @@
   }
   .flowchart-mode .node:not(.is-dragging):not(.fc-enter):not(.fc-settle) {
     transition:
-      left 0.38s var(--fc-ease),
-      top 0.38s var(--fc-ease),
+      --node-tx 0.38s var(--fc-ease),
+      --node-ty 0.38s var(--fc-ease),
       width var(--fc-dur-overlay) var(--fc-ease),
       height var(--fc-dur-overlay) var(--fc-ease),
       box-shadow var(--fc-dur-select) var(--fc-ease),
@@ -3217,8 +3224,8 @@
       opacity var(--fc-dur-overlay) var(--fc-ease);
   }
   @keyframes fcNodeSettle {
-    from { transform: rotate(var(--node-rotation)) translateY(-1px) scale(1.012); }
-    to { transform: rotate(var(--node-rotation)) translateY(0) scale(1); }
+    from { transform: translate3d(var(--node-tx), var(--node-ty), 0) rotate(var(--node-rotation)) translateY(-1px) scale(1.012); }
+    to { transform: translate3d(var(--node-tx), var(--node-ty), 0) rotate(var(--node-rotation)) translateY(0) scale(1); }
   }
   .flowchart-mode .node.fc-settle:not(.is-dragging) {
     animation: fcNodeSettle 140ms var(--fc-ease) both;
@@ -3238,16 +3245,16 @@
   }
   .flowchart-mode .node.fc-layout-moving:not(.is-dragging) {
     transition:
-      left 0.48s cubic-bezier(0.22, 1, 0.36, 1),
-      top 0.48s cubic-bezier(0.22, 1, 0.36, 1),
+      --node-tx 0.48s cubic-bezier(0.22, 1, 0.36, 1),
+      --node-ty 0.48s cubic-bezier(0.22, 1, 0.36, 1),
       box-shadow 0.32s ease,
       transform 0.32s ease;
   }
   .flowchart-mode .node:hover:not(.is-dragging):not(.selected) {
-    transform: rotate(var(--node-rotation)) translateY(-1px) scale(1.012);
+    transform: translate3d(var(--node-tx), var(--node-ty), 0) rotate(var(--node-rotation)) translateY(-1px) scale(1.012);
   }
   .flowchart-mode .node.selected:not(.is-dragging) {
-    transform: rotate(var(--node-rotation)) translateY(-2px) scale(1.018);
+    transform: translate3d(var(--node-tx), var(--node-ty), 0) rotate(var(--node-rotation)) translateY(-2px) scale(1.018);
     z-index: 6;
     transition:
       box-shadow var(--fc-dur-micro) var(--fc-ease),
@@ -3280,11 +3287,11 @@
   @keyframes fcNodeEnter {
     from {
       opacity: 0;
-      transform: rotate(var(--node-rotation)) scale(0.94);
+      transform: translate3d(var(--node-tx), var(--node-ty), 0) rotate(var(--node-rotation)) scale(0.94);
     }
     to {
       opacity: 1;
-      transform: rotate(var(--node-rotation)) scale(1);
+      transform: translate3d(var(--node-tx), var(--node-ty), 0) rotate(var(--node-rotation)) scale(1);
     }
   }
   .flowchart-mode .node.fc-enter {
@@ -5233,6 +5240,45 @@
     n.y = wy - oy;
   }
 
+  function nodeRotationForEl(el) {
+    if (!el) return "0deg";
+    return el.classList.contains("shape-diamond") ? "45deg" : "0deg";
+  }
+
+  /** Canonical placement: world coords via compositor-friendly translate3d custom properties. */
+  function applyNodeWorldTransform(el, wx, wy) {
+    if (!el) return;
+    el.style.left = "0px";
+    el.style.top = "0px";
+    el.style.removeProperty("transform");
+    el.style.setProperty("--node-tx", `${wx}px`);
+    el.style.setProperty("--node-ty", `${wy}px`);
+  }
+
+  /** Drag hot path: inline translate3d layer (cleared on commit). */
+  function applyNodeWorldTransformFast(el, wx, wy) {
+    if (!el) return;
+    el.style.left = "0px";
+    el.style.top = "0px";
+    const rot = nodeRotationForEl(el);
+    el.style.transform = `translate3d(${wx}px, ${wy}px, 0) rotate(${rot}) scale(1)`;
+  }
+
+  function commitNodeWorldTransform(el) {
+    if (!el) return;
+    const n = getNodeById(el.dataset.nodeId);
+    if (!n) return;
+    const w = getNodeWorldPosition(n);
+    applyNodeWorldTransform(el, w.x, w.y);
+  }
+
+  function commitNodeWorldTransforms(nodeIds) {
+    for (const id of nodeIds || []) {
+      const el = getNodeDomEl(id);
+      if (el) commitNodeWorldTransform(el);
+    }
+  }
+
   function userGroupIdForNode(nodeId) {
     const p = getProject();
     if (!Array.isArray(p.userGroups)) return null;
@@ -6400,6 +6446,7 @@ function clearFcInteractionState(opts = {}) {
   releaseStoredNodeBodyPointerCapture();
   if (runtime.dragging) {
     const ids = runtime.dragging.dragIds || [runtime.dragging.nodeId];
+    commitNodeWorldTransforms(ids);
     setFlowchartNodesDragging(ids, false);
   }
   runtime.dragging = null;
@@ -6475,8 +6522,7 @@ function updateFlowGroupDrag(e) {
     const el = getNodeDomEl(id);
     if (el) {
       const wpos = getNodeWorldPosition(dn);
-      el.style.left = `${wpos.x}px`;
-      el.style.top = `${wpos.y}px`;
+      applyNodeWorldTransformFast(el, wpos.x, wpos.y);
     }
   }
   syncFlowGroupOverlayFrame(gd.fgId);
@@ -6490,6 +6536,7 @@ function finalizeFlowGroupDragIfAny() {
   canvasUnderlays?.querySelector(`[data-flow-group-id="${gd.fgId}"]`)?.classList.remove("is-dragging");
   recomputeGroupBounds(gd.fgId);
   runtime.flowGroupDragging = null;
+  commitNodeWorldTransforms(nodeIds);
   renderFlowGroupOverlays();
   scheduleRenderConnections();
   markDirty();
@@ -8843,8 +8890,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       const el = getNodeDomEl(id);
       if (!dn || !el) continue;
       const wpos = getNodeWorldPosition(dn);
-      el.style.left = `${wpos.x}px`;
-      el.style.top = `${wpos.y}px`;
+      applyNodeWorldTransformFast(el, wpos.x, wpos.y);
     }
     scheduleRenderConnections();
     scheduleGroupDragOverlayFrame();
@@ -8868,8 +8914,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       const el = getNodeDomEl(id);
       if (!dn || !el) continue;
       const wpos = getNodeWorldPosition(dn);
-      el.style.left = `${wpos.x}px`;
-      el.style.top = `${wpos.y}px`;
+      applyNodeWorldTransform(el, wpos.x, wpos.y);
     }
     if (gd.dragSurfaceEl) gd.dragSurfaceEl.classList.remove("is-dragging");
     if (gd.dragBarEl) {
@@ -8928,14 +8973,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     }
     syncStoredGroupBoundsForGroupIds(p, groupIds || []);
     runtime.groupBoxCache = null;
-    for (const id of affectedNodeIds || []) {
-      const dn = getNodeById(id);
-      const el = getNodeDomEl(id);
-      if (!dn || !el) continue;
-      const wpos = getNodeWorldPosition(dn);
-      el.style.left = `${wpos.x}px`;
-      el.style.top = `${wpos.y}px`;
-    }
+    commitNodeWorldTransforms(affectedNodeIds || []);
     syncNodeSizes();
     renderSemanticOverlays();
     paintMinimap();
@@ -9563,6 +9601,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       runtime.semOverlayRaf = 0;
     }
     syncNodeSizes();
+    commitNodeWorldTransforms(dragIds);
     runtime.dragging = null;
     setFlowchartNodesDragging(dragIds, false);
     if (isFlowchartMode()) {
@@ -10110,8 +10149,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         const el = getNodeDomEl(nodeId);
         if (el) {
           const wpos = getNodeWorldPosition(n);
-          el.style.left = `${wpos.x}px`;
-          el.style.top = `${wpos.y}px`;
+          applyNodeWorldTransformFast(el, wpos.x, wpos.y);
         }
       }
       scheduleRenderConnections();
@@ -10119,6 +10157,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         requestAnimationFrame(tick);
       } else {
         runtime.layoutAnimating = false;
+        commitNodeWorldTransforms(Object.keys(targetsById));
         markDirty();
       }
     };
@@ -10278,8 +10317,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       const n = getNodeById(nodeId);
       if (el && n) {
         const w = getNodeWorldPosition(n);
-        el.style.left = `${w.x}px`;
-        el.style.top = `${w.y}px`;
+        applyNodeWorldTransform(el, w.x, w.y);
         el.classList.add("collision-flash");
         setTimeout(() => el.classList.remove("collision-flash"), 330);
       }
@@ -10743,8 +10781,7 @@ clearFlowGroupSelection();
     for (const n of p.nodes) {
       const el = createNodeElement(n);
       const w = getNodeWorldPosition(n);
-      el.style.left = `${w.x}px`;
-      el.style.top = `${w.y}px`;
+      applyNodeWorldTransform(el, w.x, w.y);
       el.style.width = `${n.width}px`;
       el.style.height = `${n.height}px`;
       if (isNodeInsideCollapsedGroup(n.id)) {
@@ -14846,8 +14883,7 @@ clearFlowGroupSelection();
         const el = getNodeDomEl(id);
         if (el) {
           const wpos = getNodeWorldPosition(dn);
-          el.style.left = `${wpos.x}px`;
-          el.style.top = `${wpos.y}px`;
+          applyNodeWorldTransformFast(el, wpos.x, wpos.y);
         }
       }
       scheduleRenderConnections();
