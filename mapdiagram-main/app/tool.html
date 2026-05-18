@@ -4339,6 +4339,10 @@
     connectionUi: {},
     cpDragging: null,
     renderConnectionsRaf: null,
+    dragConnRaf: null,
+    dragEphemeralWorld: null,
+    _connectHoverId: null,
+    connHandleDelegationReady: false,
     collisionDebounceTimer: null,
     graphCache: null,
     graphCacheKey: "",
@@ -5278,6 +5282,8 @@
     const p = getProject();
     const n = typeof nodeOrId === "object" ? nodeOrId : getNodeById(nodeOrId);
     if (!n) return { x: 0, y: 0 };
+    const ep = runtime.dragEphemeralWorld?.[n.id];
+    if (ep) return { x: ep.x, y: ep.y };
     if (p._groupLocalSpace !== 2) return { x: n.x, y: n.y };
     const gid = userGroupIdForNode(n.id);
     /* Ungrouped: canvas root — world position equals stored n.x / n.y. */
@@ -5345,6 +5351,87 @@
       const el = getNodeDomEl(id);
       if (el) commitNodeWorldTransform(el);
     }
+  }
+
+  function clearDragEphemeralWorld() {
+    runtime.dragEphemeralWorld = null;
+  }
+
+  function setDragEphemeralWorldFromStarts(starts, snapDx, snapDy) {
+    if (!starts) {
+      clearDragEphemeralWorld();
+      return;
+    }
+    const ep = {};
+    for (const [id, st] of Object.entries(starts)) {
+      if (!st || st.wx == null || st.wy == null) continue;
+      ep[id] = { x: st.wx + snapDx, y: st.wy + snapDy };
+    }
+    runtime.dragEphemeralWorld = Object.keys(ep).length ? ep : null;
+  }
+
+  function commitActiveNodeDragPositions() {
+    const drag = runtime.dragging;
+    if (!drag) return;
+    const snapDx = drag.lastSnapDx ?? 0;
+    const snapDy = drag.lastSnapDy ?? 0;
+    const ids = drag.dragIds || [drag.nodeId];
+    for (const id of ids) {
+      const start = drag.starts?.[id];
+      const dn = getNodeById(id);
+      if (!dn || !start || start.wx == null) continue;
+      setNodeWorldPosition(dn, start.wx + snapDx, start.wy + snapDy);
+    }
+  }
+
+  function commitFlowGroupDragPositions(gd) {
+    if (!gd) return;
+    const dx = gd.lastDx ?? 0;
+    const dy = gd.lastDy ?? 0;
+    for (const id of gd.nodeIds || []) {
+      const start = gd.starts?.[id];
+      const dn = getNodeById(id);
+      if (!dn || !start) continue;
+      setNodeWorldPosition(dn, start.wx + dx, start.wy + dy);
+    }
+  }
+
+  function commitGroupDragPositions(gd) {
+    if (!gd) return;
+    const p = getProject();
+    const { lastDx, lastDy, originalGroupPositions, groupIds } = gd;
+    for (const gid of groupIds || []) {
+      const gg = userGroupById(p, gid);
+      const st = originalGroupPositions[gid];
+      if (gg && st) {
+        gg.x = st.x + lastDx;
+        gg.y = st.y + lastDy;
+      }
+    }
+  }
+
+  /** Coalesce connection redraws to one per animation frame during drag. */
+  function scheduleRenderConnectionsDuringDrag() {
+    if (runtime.dragConnRaf) return;
+    runtime.dragConnRaf = requestAnimationFrame(() => {
+      runtime.dragConnRaf = 0;
+      if (runtime.dragging || runtime.groupDragging || runtime.flowGroupDragging) {
+        scheduleRenderConnections();
+      }
+    });
+  }
+
+  function syncConnectTargetHighlight(hoverNodeId) {
+    const next = hoverNodeId || null;
+    if (runtime._connectHoverId === next) return;
+    const prev = runtime._connectHoverId;
+    runtime._connectHoverId = next;
+    if (prev) getNodeDomEl(prev)?.classList.remove("connect-target");
+    if (next) getNodeDomEl(next)?.classList.add("connect-target");
+  }
+
+  function clearConnectTargetHighlight() {
+    syncConnectTargetHighlight(null);
   }
 
   function userGroupIdForNode(nodeId) {
@@ -6485,6 +6572,7 @@ function abortGroupConnectionDrag(reason) {
 function clearPendingConnectionState() {
   runtime.connecting = null;
   runtime.previewFrom = null;
+  clearConnectTargetHighlight();
   document.body.classList.remove("fc-connecting");
   if (runtime.previewPath) {
     const path = runtime.previewPath;
@@ -6508,16 +6596,28 @@ function clearFcInteractionState(opts = {}) {
   if (runtime.flowGroupDragging) {
     const gd = runtime.flowGroupDragging;
     canvasUnderlays?.querySelector(`[data-flow-group-id="${gd.fgId}"]`)?.classList.remove("is-dragging");
+    clearDragEphemeralWorld();
+    for (const id of gd.nodeIds || []) {
+      const st = gd.starts?.[id];
+      const el = getNodeDomEl(id);
+      if (st && el) applyNodeWorldTransform(el, st.wx, st.wy);
+    }
     runtime.flowGroupDragging = null;
   }
   if (runtime.groupDragging) abortGroupDrag();
   releaseStoredNodeBodyPointerCapture();
   if (runtime.dragging) {
     const ids = runtime.dragging.dragIds || [runtime.dragging.nodeId];
-    commitNodeWorldTransforms(ids);
+    clearDragEphemeralWorld();
+    for (const id of ids) {
+      const st = runtime.dragging.starts?.[id];
+      const el = getNodeDomEl(id);
+      if (st && el) applyNodeWorldTransform(el, st.wx, st.wy);
+    }
     setFlowchartNodesDragging(ids, false);
   }
   runtime.dragging = null;
+  clearDragEphemeralWorld();
   runtime.panning = null;
   clearPendingConnectionState();
   abortGroupConnectionDrag("clearFcInteractionState");
@@ -6582,19 +6682,19 @@ function updateFlowGroupDrag(e) {
   const p = getProject();
   const dx = (e.clientX - gd.startX) / p.view.zoom;
   const dy = (e.clientY - gd.startY) / p.view.zoom;
+  gd.lastDx = dx;
+  gd.lastDy = dy;
+  const ep = {};
   for (const id of gd.nodeIds || []) {
     const start = gd.starts?.[id];
-    const dn = getNodeById(id);
-    if (!dn || !start) continue;
-    setNodeWorldPosition(dn, start.wx + dx, start.wy + dy);
+    if (!start) continue;
+    ep[id] = { x: start.wx + dx, y: start.wy + dy };
     const el = getNodeDomEl(id);
-    if (el) {
-      const wpos = getNodeWorldPosition(dn);
-      applyNodeWorldTransformFast(el, wpos.x, wpos.y);
-    }
+    if (el) applyNodeWorldTransformFast(el, start.wx + dx, start.wy + dy);
   }
+  runtime.dragEphemeralWorld = Object.keys(ep).length ? ep : null;
   syncFlowGroupOverlayFrame(gd.fgId);
-  scheduleRenderConnections();
+  scheduleRenderConnectionsDuringDrag();
 }
 
 function finalizeFlowGroupDragIfAny() {
@@ -6602,6 +6702,8 @@ function finalizeFlowGroupDragIfAny() {
   if (!gd) return;
   const nodeIds = gd.nodeIds || [];
   canvasUnderlays?.querySelector(`[data-flow-group-id="${gd.fgId}"]`)?.classList.remove("is-dragging");
+  commitFlowGroupDragPositions(gd);
+  clearDragEphemeralWorld();
   recomputeGroupBounds(gd.fgId);
   runtime.flowGroupDragging = null;
   commitNodeWorldTransforms(nodeIds);
@@ -8843,7 +8945,6 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       chrome.style.width = `${box.w}px`;
       chrome.style.height = `${box.h}px`;
     }
-    paintMinimap();
   }
 
   function scheduleGroupDragOverlayFrame() {
@@ -8896,6 +8997,13 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     for (const gid of groupSet) {
       for (const nid of getAllNodeIdsInGroupSubtree(p, gid)) affectedNodeIds.add(nid);
     }
+    const nodeWorldStarts = {};
+    for (const id of affectedNodeIds) {
+      const n = getNodeById(id);
+      if (!n) continue;
+      const w = getNodeWorldPosition(n);
+      nodeWorldStarts[id] = { wx: w.x, wy: w.y };
+    }
     runtime.groupDragging = {
       groupIds: [...groupSet],
       groupId: anchorGroupId,
@@ -8903,6 +9011,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       startX: ev.clientX,
       startY: ev.clientY,
       originalGroupPositions,
+      nodeWorldStarts,
       affectedNodeIds: [...affectedNodeIds],
       lastDx: 0,
       lastDy: 0,
@@ -8946,21 +9055,20 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const dy = (e.clientY - gd.startY) / p.view.zoom;
     gd.lastDx = dx;
     gd.lastDy = dy;
-    for (const gid of gd.groupIds) {
-      const gg = userGroupById(p, gid);
-      const st = gd.originalGroupPositions[gid];
-      if (!gg || !st) continue;
-      gg.x = st.x + dx;
-      gg.y = st.y + dy;
-    }
+    const ep = {};
     for (const id of gd.affectedNodeIds || []) {
-      const dn = getNodeById(id);
-      const el = getNodeDomEl(id);
-      if (!dn || !el) continue;
-      const wpos = getNodeWorldPosition(dn);
-      applyNodeWorldTransformFast(el, wpos.x, wpos.y);
+      const st = gd.nodeWorldStarts?.[id];
+      if (!st) continue;
+      ep[id] = { x: st.wx + dx, y: st.wy + dy };
     }
-    scheduleRenderConnections();
+    runtime.dragEphemeralWorld = Object.keys(ep).length ? ep : null;
+    for (const id of gd.affectedNodeIds || []) {
+      const st = gd.nodeWorldStarts?.[id];
+      const el = getNodeDomEl(id);
+      if (!st || !el) continue;
+      applyNodeWorldTransformFast(el, st.wx + dx, st.wy + dy);
+    }
+    scheduleRenderConnectionsDuringDrag();
     scheduleGroupDragOverlayFrame();
   }
 
@@ -8977,12 +9085,12 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         gg.y = st.y;
       }
     }
+    clearDragEphemeralWorld();
     for (const id of gd.affectedNodeIds || []) {
-      const dn = getNodeById(id);
+      const st = gd.nodeWorldStarts?.[id];
       const el = getNodeDomEl(id);
-      if (!dn || !el) continue;
-      const wpos = getNodeWorldPosition(dn);
-      applyNodeWorldTransform(el, wpos.x, wpos.y);
+      if (!st || !el) continue;
+      applyNodeWorldTransform(el, st.wx, st.wy);
     }
     if (gd.dragSurfaceEl) gd.dragSurfaceEl.classList.remove("is-dragging");
     if (gd.dragBarEl) {
@@ -9021,24 +9129,10 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     }
     const p = getProject();
     if (moved) {
-      for (const gid of groupIds) {
-        const gg = userGroupById(p, gid);
-        const st = originalGroupPositions[gid];
-        if (gg && st) {
-          gg.x = st.x;
-          gg.y = st.y;
-        }
-      }
       pushHistory();
-      for (const gid of groupIds) {
-        const gg = userGroupById(p, gid);
-        const st = originalGroupPositions[gid];
-        if (gg && st) {
-          gg.x = st.x + lastDx;
-          gg.y = st.y + lastDy;
-        }
-      }
+      commitGroupDragPositions({ lastDx, lastDy, originalGroupPositions, groupIds });
     }
+    clearDragEphemeralWorld();
     syncStoredGroupBoundsForGroupIds(p, groupIds || []);
     runtime.groupBoxCache = null;
     commitNodeWorldTransforms(affectedNodeIds || []);
@@ -9050,6 +9144,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       syncFcAssistantFabDragState();
       syncFcAssistantFabCollision();
     }
+    scheduleRenderConnections();
   }
 
   function applyUserGroupSelection(ev, g, opts = {}) {
@@ -9619,8 +9714,16 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     renderSelection();
   }
 
-  function wireNodeConnectHandle(nodeEl, nodeObj, handleEl, side) {
-    handleEl.addEventListener("pointerdown", (e) => {
+  function initNodeConnectHandleDelegation() {
+    if (runtime.connHandleDelegationReady || !nodesLayer) return;
+    runtime.connHandleDelegationReady = true;
+    nodesLayer.addEventListener("pointerdown", (e) => {
+      const handle = e.target.closest?.(".node-conn-handle");
+      if (!handle) return;
+      const nodeEl = handle.closest(".node");
+      const nodeId = nodeEl?.dataset?.nodeId;
+      const nodeObj = nodeId ? getNodeById(nodeId) : null;
+      if (!nodeObj) return;
       if (runtime.readOnly) return;
       if (e.button !== 0) return;
       e.stopPropagation();
@@ -9637,6 +9740,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       releaseStoredNodeBodyPointerCapture();
       if (isFlowchartMode() && !fcEditorCanSelect()) return;
       if (isNodeHiddenCanvas(nodeObj)) return;
+      const side = handle.dataset.side;
       selectionRuntime.selectNode(nodeObj.id);
       clearFlowGroupSelection();
       clearAllEdgeSelection();
@@ -9658,7 +9762,6 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       handle.dataset.side = side;
       handle.tabIndex = -1;
       handle.setAttribute("aria-label", `Connect from ${side}`);
-      wireNodeConnectHandle(nodeEl, nodeObj, handle, side);
       host.appendChild(handle);
     }
     nodeEl.appendChild(host);
@@ -9715,6 +9818,12 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       cancelAnimationFrame(runtime.semOverlayRaf);
       runtime.semOverlayRaf = 0;
     }
+    if (runtime.dragConnRaf) {
+      cancelAnimationFrame(runtime.dragConnRaf);
+      runtime.dragConnRaf = 0;
+    }
+    commitActiveNodeDragPositions();
+    clearDragEphemeralWorld();
     syncNodeSizes();
     commitNodeWorldTransforms(dragIds);
     runtime.dragging = null;
@@ -9730,6 +9839,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     clearSnapGuides();
     resolveNodeCollisions({ immediate: true });
     renderSemanticOverlays();
+    scheduleRenderConnections();
     markDirty();
   }
 
@@ -15235,6 +15345,8 @@ clearFlowGroupSelection();
     };
   });
 
+  initNodeConnectHandleDelegation();
+
   document.addEventListener("pointermove", (e) => {
     if (runtime.focusNodeId) return;
     if (runtime.pointers.has(e.pointerId)) runtime.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -15353,21 +15465,17 @@ clearFlowGroupSelection();
       const snapped = applySnapForNode(n.id, rawX, rawY);
       const snapDx = snapped.x - runtime.dragging.x;
       const snapDy = snapped.y - runtime.dragging.y;
-      for (const id of runtime.dragging.dragIds || [n.id]) {
-        const dn = getNodeById(id);
+      runtime.dragging.lastSnapDx = snapDx;
+      runtime.dragging.lastSnapDy = snapDy;
+      const dragIds = runtime.dragging.dragIds || [n.id];
+      setDragEphemeralWorldFromStarts(runtime.dragging.starts, snapDx, snapDy);
+      for (const id of dragIds) {
         const start = runtime.dragging.starts?.[id];
-        if (!dn || start == null || start.wx == null) continue;
-        setNodeWorldPosition(dn, start.wx + snapDx, start.wy + snapDy);
         const el = getNodeDomEl(id);
-        if (el) {
-          const wpos = getNodeWorldPosition(dn);
-          applyNodeWorldTransformFast(el, wpos.x, wpos.y);
-        }
+        if (!start || start.wx == null || !el) continue;
+        applyNodeWorldTransformFast(el, start.wx + snapDx, start.wy + snapDy);
       }
-      scheduleRenderConnections();
-      if (isFlowchartMode()) refreshFlowGroupsForNodeIds(runtime.dragging.dragIds || [n.id]);
-      scheduleSemanticOverlaysDuringDrag();
-      scheduleCollisionResolve(240);
+      scheduleRenderConnectionsDuringDrag();
       return;
     }
     if (runtime.panning) {
@@ -15413,7 +15521,7 @@ clearFlowGroupSelection();
         runtime.previewPath.setAttribute("d", curvePath(from, auto.cp1, auto.cp2, point));
         runtime.previewPath.classList.remove("preview-valid", "preview-invalid", "preview-neutral");
         runtime.previewPath.classList.add(hoverNodeId || hoverFgId ? "preview-valid" : "preview-invalid");
-        renderSelection();
+        syncConnectTargetHighlight(hoverNodeId);
         return;
       }
       if (runtime.connecting.branchFromParentId) {
@@ -15438,7 +15546,7 @@ clearFlowGroupSelection();
         runtime.previewPath.setAttribute("d", curvePath(from, auto.cp1, auto.cp2, point));
         runtime.previewPath.classList.remove("preview-valid", "preview-invalid", "preview-neutral");
         runtime.previewPath.classList.add(hoveredNodeId || hoverGroupInId ? "preview-valid" : "preview-invalid");
-        renderSelection();
+        syncConnectTargetHighlight(hoveredNodeId);
         return;
       }
       const fromNode = getNodeById(runtime.connecting.fromNodeId);
@@ -15480,7 +15588,7 @@ clearFlowGroupSelection();
       runtime.previewPath.classList.add(
         hoveredNodeId || hoverGroupInId || hoverFlowGroupId ? "preview-valid" : "preview-invalid"
       );
-      renderSelection();
+      syncConnectTargetHighlight(hoveredNodeId);
       return;
     }
 
