@@ -6,6 +6,7 @@ import { createRenderRuntime } from "./render-runtime.js";
 import { createGroupRuntime } from "./group-runtime.js";
 import { createCommandRuntime } from "./command-runtime.js";
 import { createExportersRuntime } from "./exporters-runtime.js";
+import { createSupabaseRuntime } from "./supabase-runtime.js";
 
 const MapDiagramRuntime = {
   createRuntimeContext,
@@ -16,6 +17,7 @@ const MapDiagramRuntime = {
   createGroupRuntime,
   createCommandRuntime,
   createExportersRuntime,
+  createSupabaseRuntime,
 };
 
 if (typeof globalThis !== "undefined") {
@@ -31,4 +33,5 @@ export {
   createGroupRuntime,
   createCommandRuntime,
   createExportersRuntime,
+  createSupabaseRuntime,
 };
