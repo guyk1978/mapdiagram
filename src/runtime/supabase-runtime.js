@@ -52,6 +52,19 @@ function getAuthUserDisplay(user) {
   return "Signed in";
 }
 
+function setTopbarAuthVisible(el, visible, displayWhenShown = "") {
+  if (!el) return;
+  if (visible) {
+    el.hidden = false;
+    el.style.display = displayWhenShown;
+    el.removeAttribute("aria-hidden");
+  } else {
+    el.hidden = true;
+    el.style.display = "none";
+    el.setAttribute("aria-hidden", "true");
+  }
+}
+
 function normalizeDbShape() {
   const db = bind().ctx.runtime.db;
   if (!db || typeof db !== "object") {
@@ -183,15 +196,31 @@ export function refreshAuthUi() {
   try {
     const { dom } = bind().deps;
     const { runtime } = bind().ctx;
-    if (runtime.authUser) {
-      if (dom.userChip) dom.userChip.textContent = getAuthUserDisplay(runtime.authUser);
-      if (dom.authBtn) dom.authBtn.textContent = "Logout";
+    const signedIn = !!runtime.authUser;
+    const label = signedIn ? getAuthUserDisplay(runtime.authUser) : "";
+
+    if (dom.topbarAuthBar) dom.topbarAuthBar.classList.toggle("is-signed-in", signedIn);
+
+    if (dom.userChip) {
+      dom.userChip.textContent = signedIn ? label : "";
+      setTopbarAuthVisible(dom.userChip, signedIn, "block");
+    }
+
+    if (dom.authBtn) {
+      dom.authBtn.textContent = signedIn ? "Logout" : "Login";
+      dom.authBtn.setAttribute("aria-label", signedIn ? "Log out of your account" : "Log in or sign up");
+      setTopbarAuthVisible(dom.authBtn, true, "inline-flex");
+    }
+
+    if (dom.topbarAuthMenuItem) {
+      dom.topbarAuthMenuItem.textContent = signedIn ? `Account (${label})` : "Account / Login";
+    }
+
+    if (signedIn) {
       if (dom.softLock) dom.softLock.classList.remove("open");
       runtime.softLockShown = true;
-    } else {
-      if (dom.userChip) dom.userChip.textContent = "Guest mode";
-      if (dom.authBtn) dom.authBtn.textContent = "Login";
     }
+
     void refreshUserCreditsDisplay();
   } catch (err) {
     console.warn("[App Auth] refreshAuthUi failed:", err);
@@ -735,6 +764,7 @@ export async function bootstrapAuth() {
     return;
   }
   await syncAuthStateFromClient({ loadProjects: !isPasswordRecoveryUrl() });
+  refreshAuthUi();
   console.log("[App Auth] bootstrap session:", runtime.authUser?.email || null);
   if (isPasswordRecoveryUrl()) {
     openAuthModalForPasswordUpdate();
