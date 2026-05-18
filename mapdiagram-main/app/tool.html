@@ -4471,6 +4471,8 @@
     groupConnecting: null,
     groupPreviewPath: null,
     groupConnectPointerCapture: null,
+    /** Deferred workspace pan until pointer moves past threshold (px). */
+    workspacePanPending: null,
     semOverlayRaf: 0,
     activeRightTab: "diagram",
     activeDiagramSub: "node",
@@ -5468,7 +5470,29 @@
     const snapDx = drag.lastSnapDx ?? 0;
     const snapDy = drag.lastSnapDy ?? 0;
     const ids = drag.dragIds || [drag.nodeId];
+    const idSet = new Set(ids);
+    const p = getProject();
+    const skipNodes = new Set();
+    if (p._groupLocalSpace === 2 && (snapDx !== 0 || snapDy !== 0)) {
+      for (const g of p.userGroups || []) {
+        if (isGroupOrAncestorPinned(p, g.id)) continue;
+        const subtree = getAllNodeIdsInGroupSubtree(p, g.id);
+        if (!subtree.size) continue;
+        let allInSubtree = true;
+        for (const nid of subtree) {
+          if (!idSet.has(nid)) {
+            allInSubtree = false;
+            break;
+          }
+        }
+        if (!allInSubtree) continue;
+        g.x = (Number(g.x) || 0) + snapDx;
+        g.y = (Number(g.y) || 0) + snapDy;
+        for (const nid of subtree) skipNodes.add(nid);
+      }
+    }
     for (const id of ids) {
+      if (skipNodes.has(id)) continue;
       const start = drag.starts?.[id];
       const dn = getNodeById(id);
       if (!dn || !start || start.wx == null) continue;
@@ -5873,10 +5897,16 @@
       }
       return [primaryNodeId];
     }
-    if (!runtime.selectedNodeIds.has(primaryNodeId)) return [primaryNodeId];
     if (altKey) return [primaryNodeId];
     const gid = userGroupIdForNode(primaryNodeId);
     const G = gid ? userGroupById(p, gid) : null;
+    if (G) {
+      const subtree = getAllNodeIdsInGroupSubtree(p, G.id);
+      if (!runtime.selectedNodeIds.has(primaryNodeId) || selArr.length === 1) {
+        return [...subtree];
+      }
+    }
+    if (!runtime.selectedNodeIds.has(primaryNodeId)) return [primaryNodeId];
     if (!G) return selArr.length > 1 ? selArr : [primaryNodeId];
     const subtree = getAllNodeIdsInGroupSubtree(p, G.id);
     const fromOtherGroup = selArr.some((id) => !subtree.has(id));
@@ -8864,6 +8894,79 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     }
   }
 
+  /** Clears selection highlights only — never mutates `userGroups` or nodes. */
+  function clearCanvasSelectionVisual() {
+    initMapDiagramRuntimes();
+    if (selectionRuntime) {
+      selectionRuntime.clearSelection();
+    } else {
+      runtime.selectedNodeId = null;
+      runtime.selectedNodeIds.clear();
+      runtime.selectedGroupId = null;
+      runtime.selectedGroupIds.clear();
+      runtime.selectedConnectionId = null;
+      runtime.selectedConnectionIds.clear();
+      runtime.selectedGroupConnId = null;
+      runtime.selectedGroupConnIds.clear();
+      runtime.selectedFlowGroupId = null;
+    }
+    renderSelection();
+    syncGroupOverlaySelectionClasses();
+  }
+
+  /** Release stuck drag/pan/connect sessions (pointer loss, tab blur, etc.). */
+  function releaseAllPointerSessions() {
+    if (runtime.connectPressTimer) {
+      clearTimeout(runtime.connectPressTimer);
+      runtime.connectPressTimer = null;
+    }
+    if (runtime.bodyConnectPressTimer) {
+      clearTimeout(runtime.bodyConnectPressTimer);
+      runtime.bodyConnectPressTimer = null;
+    }
+    runtime.touchDragPending = null;
+    runtime.bodyPressPointerId = null;
+    runtime.bodyPressStart = null;
+    runtime.bodyPressNodeId = null;
+    releaseStoredNodeBodyPointerCapture();
+    releaseGroupConnectPointerCaptureIfAny();
+    if (runtime.groupConnecting) abortGroupConnectionDrag("releaseAll");
+    if (runtime.groupDragging) {
+      const gd = runtime.groupDragging;
+      if ((gd.lastDx || 0) !== 0 || (gd.lastDy || 0) !== 0) endGroupDrag();
+      else abortGroupDrag();
+    } else if (runtime.dragging) {
+      finalizeActiveNodeDragIfAny();
+    }
+    if (runtime.flowGroupDragging) finalizeFlowGroupDragIfAny();
+    clearPendingConnectionState();
+    runtime.panning = null;
+    runtime.workspacePanPending = null;
+    workspace?.classList.remove("panning");
+    if (runtime.marquee) {
+      runtime.marquee = null;
+      if (marquee) marquee.style.display = "none";
+    }
+    runtime.cpDragging = null;
+  }
+
+  function installCanvasPointerSafetyNet() {
+    const onHide = () => {
+      saveCanvasState({ immediate: true });
+      if (runtime.dragging || runtime.groupDragging || runtime.flowGroupDragging || runtime.panning || runtime.groupConnecting) {
+        releaseAllPointerSessions();
+      }
+    };
+    window.addEventListener("pagehide", onHide);
+    window.addEventListener("beforeunload", () => saveCanvasState({ immediate: true }));
+    window.addEventListener("blur", () => {
+      if (runtime.dragging || runtime.groupDragging || runtime.flowGroupDragging) releaseAllPointerSessions();
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") onHide();
+    });
+  }
+
   function renderSemanticOverlays() {
     const _gcDbgOverlay = mdGcShouldLog();
     if (_gcDbgOverlay) {
@@ -10426,7 +10529,6 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       if (subgroupIds.has(g.id)) continue;
       g.nodeIds = (g.nodeIds || []).filter((id) => !selSet.has(id));
     }
-    p.userGroups = p.userGroups.filter((g) => (g.nodeIds || []).length > 0 || (g.childGroupIds || []).length > 0);
     const nodesOnly = selected.filter((id) => !subgroups.some((H) => (H.nodeIds || []).includes(id)));
     let parentId = groupParentSelect?.value || null;
     if (!parentId && runtime.selectedGroupId) {
@@ -14157,11 +14259,7 @@ clearFlowGroupSelection();
       workspace.classList.add("panning");
       return;
     }
-    selectionRuntime.clearSelection("nodes");
-    clearFlowGroupSelection();
-    clearAllEdgeSelection();
-    renderSelection();
-    syncGroupOverlaySelectionClasses();
+    clearCanvasSelectionVisual();
     if (isAdditiveSelection(e) || runtime.selectionMode) {
       const r = workspace.getBoundingClientRect();
       runtime.marquee = {
@@ -14190,8 +14288,14 @@ clearFlowGroupSelection();
       }
       return;
     }
-    runtime.panning = { x: e.clientX, y: e.clientY, vx: getProject().view.x, vy: getProject().view.y };
-    workspace.classList.add("panning");
+    const pView = getProject().view;
+    runtime.workspacePanPending = {
+      pointerId: e.pointerId,
+      x: e.clientX,
+      y: e.clientY,
+      vx: pView.x,
+      vy: pView.y
+    };
   });
 
   connectionsLayer.addEventListener("pointerdown", (e) => {
@@ -14343,7 +14447,19 @@ clearFlowGroupSelection();
         applyNodeWorldTransformFast(el, start.wx + snapDx, start.wy + snapDy);
       }
       scheduleRenderConnectionsDuringDrag();
+      scheduleSemanticOverlaysDuringDrag();
       return;
+    }
+    if (runtime.workspacePanPending && !runtime.panning && !runtime.dragging && !runtime.groupDragging && !runtime.marquee) {
+      const pending = runtime.workspacePanPending;
+      if (pending.pointerId == null || pending.pointerId === e.pointerId) {
+        const moved = Math.hypot(e.clientX - pending.x, e.clientY - pending.y);
+        if (moved > 5) {
+          runtime.panning = { x: pending.x, y: pending.y, vx: pending.vx, vy: pending.vy };
+          runtime.workspacePanPending = null;
+          workspace.classList.add("panning");
+        }
+      }
     }
     if (runtime.panning) {
       if (runtime.pointers.size >= 2) return;
@@ -14536,15 +14652,25 @@ clearFlowGroupSelection();
       runtime.marquee = null;
       marquee.style.display = "none";
       renderSelection();
-      if (!isFlowchartMode() && runtime.selectionMode && runtime.selectedNodeIds.size >= 2) {
+      const marqueeW = Math.abs(m.x - m.startX);
+      const marqueeH = Math.abs(m.y - m.startY);
+      if (
+        !isFlowchartMode() &&
+        runtime.selectionMode &&
+        runtime.selectedNodeIds.size >= 2 &&
+        marqueeW >= 10 &&
+        marqueeH >= 10
+      ) {
         createUserGroupFromSelection({ showAlertWhenEmpty: false, autoPrompt: true });
       }
       return;
     }
     if (runtime.groupDragging) {
-      if (e.pointerId === runtime.groupDragging.pointerId) endGroupDrag();
+      const gd = runtime.groupDragging;
+      if (gd.pointerId == null || gd.pointerId === e.pointerId) endGroupDrag();
       return;
     }
+    runtime.workspacePanPending = null;
     if (runtime.flowGroupDragging) {
       const gd = runtime.flowGroupDragging;
       if (gd.pointerId == null || gd.pointerId === e.pointerId) finalizeFlowGroupDragIfAny();
@@ -14554,7 +14680,7 @@ clearFlowGroupSelection();
     if (runtime.panning) {
       runtime.panning = null;
       workspace.classList.remove("panning");
-      markDirty();
+      saveCanvasState();
     }
     if (runtime.connecting) {
       const branchParentId = runtime.connecting.branchFromParentId;
@@ -15296,29 +15422,6 @@ clearFlowGroupSelection();
     await supabaseRuntime.handleSignupSubmit();
   });
 
-  initFlowchartModeUi();
-  initFlowchartProductUi();
-  initMapDiagramRuntimes();
-  ensureBoot();
-  tryOpenSharedProject();
-  for (const project of runtime.db.projects) {
-    project.nodes = (project.nodes || []).map((n) => normalizeNode(n));
-  }
-  initConnectionListPanelUi();
-  initEdgeInspectorPanelUi();
-  initOutlineTreePanelUi();
-  initCommandPaletteAndHelpUi();
-  initSavedViewsUi();
-  initImportDiffApplyUi();
-  try {
-    const sub = sessionStorage.getItem(SESSION_DIAGRAM_SUB);
-    if (sub === "node" || sub === "groups" || sub === "suggestions") runtime.activeDiagramSub = sub;
-  } catch (_) {}
-  try {
-    const f = sessionStorage.getItem(SESSION_CONN_LIST_FILTER);
-    if (connectionListFilter && (f === "all" || f === "selection" || f === "warnings")) connectionListFilter.value = f;
-  } catch (_) {}
-
   function supa() {
     initMapDiagramRuntimes();
     return supabaseRuntime;
@@ -15337,7 +15440,34 @@ clearFlowGroupSelection();
   }
 
   function markDirty() {
-    supa().markDirty();
+    saveCanvasState();
+  }
+
+  function saveCanvasState(opts = {}) {
+    initMapDiagramRuntimes();
+    if (supabaseRuntime) {
+      supabaseRuntime.saveCanvasState(opts);
+      return;
+    }
+    const p = getProject();
+    if (!p) return;
+    p.updatedAt = Date.now();
+    if (opts.immediate) saveDB();
+    else {
+      if (runtime.autosaveTimer) clearTimeout(runtime.autosaveTimer);
+      runtime.autosaveTimer = setTimeout(() => {
+        runtime.autosaveTimer = null;
+        saveDB();
+      }, opts.debounceMs ?? 280);
+    }
+  }
+
+  function restoreCanvasStateFromStorage() {
+    loadDB();
+    ensureBoot();
+    const p = runtime.db?.projects?.find((x) => x.projectId === runtime.db.activeProjectId);
+    if (p) ensureProjectExtras(p);
+    return !!p;
   }
 
   function getProject() {
@@ -15548,24 +15678,56 @@ clearFlowGroupSelection();
     overlayRuntime.ensureFocusOverlayPortal();
   }
 
-  syncStickyMultiSelectUi();
-  renderAll();
-  setRightTab("diagram");
-  if (window.innerWidth <= 768) {
-    setTimeout(() => fitToScreen(), 120);
+  function initCanvasApplication() {
+    initFlowchartModeUi();
+    initFlowchartProductUi();
+    initMapDiagramRuntimes();
+    restoreCanvasStateFromStorage();
+    tryOpenSharedProject();
+    for (const project of runtime.db.projects) {
+      project.nodes = (project.nodes || []).map((n) => normalizeNode(n));
+      ensureProjectExtras(project);
+    }
+    initConnectionListPanelUi();
+    initEdgeInspectorPanelUi();
+    initOutlineTreePanelUi();
+    initCommandPaletteAndHelpUi();
+    initSavedViewsUi();
+    initImportDiffApplyUi();
+    try {
+      const sub = sessionStorage.getItem(SESSION_DIAGRAM_SUB);
+      if (sub === "node" || sub === "groups" || sub === "suggestions") runtime.activeDiagramSub = sub;
+    } catch (_) {}
+    try {
+      const f = sessionStorage.getItem(SESSION_CONN_LIST_FILTER);
+      if (connectionListFilter && (f === "all" || f === "selection" || f === "warnings")) connectionListFilter.value = f;
+    } catch (_) {}
+    syncStickyMultiSelectUi();
+    renderAll();
+    setRightTab("diagram");
+    if (window.innerWidth <= 768) {
+      setTimeout(() => fitToScreen(), 120);
+    }
+    analyzeDiagramSemantics();
+    supabaseRuntime.initSupabase();
+    supabaseRuntime.bootstrapAuth();
+    installCanvasPointerSafetyNet();
+    saveCanvasState({ immediate: true, cloud: false });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState !== "visible") return;
+      if (runtime.supabase && runtime.authUser) { initMapDiagramRuntimes(); void supabaseRuntime.syncAiWalletFromBackend(); }
+    });
+    window.addEventListener("focus", () => {
+      if (runtime.supabase && runtime.authUser) { initMapDiagramRuntimes(); void supabaseRuntime.syncAiWalletFromBackend(); }
+    });
+    supabaseRuntime.applyAiCreditGatesToUi();
   }
-  analyzeDiagramSemantics();
-  initMapDiagramRuntimes();
-  supabaseRuntime.initSupabase();
-  supabaseRuntime.bootstrapAuth();
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState !== "visible") return;
-    if (runtime.supabase && runtime.authUser) { initMapDiagramRuntimes(); void supabaseRuntime.syncAiWalletFromBackend(); }
-  });
-  window.addEventListener("focus", () => {
-    if (runtime.supabase && runtime.authUser) { initMapDiagramRuntimes(); void supabaseRuntime.syncAiWalletFromBackend(); }
-  });
-  supabaseRuntime.applyAiCreditGatesToUi();
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initCanvasApplication);
+  } else {
+    initCanvasApplication();
+  }
 
   function installMdTestHooks() {
     if (new URLSearchParams(location.search).get("mdTest") !== "1") return;

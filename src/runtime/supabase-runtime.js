@@ -125,27 +125,83 @@ export function saveDB() {
 }
 
 export function markDirty() {
-  if (!bind().ctx.runtime.readOnly) {
-    bind().ctx.runtime.fcEditCount = (bind().ctx.runtime.fcEditCount || 0) + 1;
-    try { localStorage.setItem(getMdEditCountKey(), String(bind().ctx.runtime.fcEditCount)); } catch (_) {}
-    if (bind().ctx.runtime.generatedAt && bind().ctx.runtime.fcEditCount === 1 && window.MapDiagramAnalytics) {
+  saveCanvasState({ debounceMs: 280 });
+}
+
+/** Persist active project to localStorage (and optional cloud). */
+export function saveCanvasState(opts = {}) {
+  const { immediate = false, cloud = true, debounceMs = immediate ? 0 : 280 } = opts;
+  const rt = bind().ctx.runtime;
+  if (!rt.readOnly) {
+    rt.fcEditCount = (rt.fcEditCount || 0) + 1;
+    try { localStorage.setItem(getMdEditCountKey(), String(rt.fcEditCount)); } catch (_) {}
+    if (rt.generatedAt && rt.fcEditCount === 1 && window.MapDiagramAnalytics) {
       MapDiagramAnalytics.editAfterGenerate({ source: "flowchart" });
     }
   }
-  bind().ctx.runtime.graphCache = null;
-  bind().ctx.runtime.graphCacheKey = "";
-  bind().ctx.runtime.groupBoxCache = null;
-  bind().ctx.runtime.groupBoxCacheProjectId = null;
-  bind().deps.dom.savedIndicator.textContent = "Saving...";
-  if (bind().ctx.runtime.autosaveTimer) clearTimeout(bind().ctx.runtime.autosaveTimer);
-  bind().ctx.runtime.autosaveTimer = setTimeout(() => {
-    const p = getProject();
-    if (!p) return;
-    p.updatedAt = Date.now();
+  rt.graphCache = null;
+  rt.graphCacheKey = "";
+  rt.groupBoxCache = null;
+  rt.groupBoxCacheProjectId = null;
+  const p = getProject();
+  if (!p) return false;
+  p.updatedAt = Date.now();
+  bind().deps.dom.savedIndicator.textContent = immediate ? "Saving..." : "Saving...";
+  if (rt.autosaveTimer) clearTimeout(rt.autosaveTimer);
+  const flush = () => {
+    rt.autosaveTimer = null;
+    const proj = getProject();
+    if (!proj) return;
+    proj.updatedAt = Date.now();
     saveDB();
-    scheduleCloudSync();
+    if (cloud) scheduleCloudSync();
     scheduleSoftLockPrompt();
-  }, 280);
+  };
+  if (debounceMs <= 0) {
+    flush();
+    return true;
+  }
+  rt.autosaveTimer = setTimeout(flush, debounceMs);
+  return true;
+}
+
+/** Load envelope from localStorage and ensure an active project exists. */
+export function restoreCanvasStateFromStorage() {
+  loadDB();
+  ensureBoot();
+  return !!getProject();
+}
+
+function projectContentScore(project) {
+  if (!project) return 0;
+  const nodes = Array.isArray(project.nodes) ? project.nodes.length : 0;
+  const groups = Array.isArray(project.userGroups) ? project.userGroups.length : 0;
+  const conns = Array.isArray(project.connections) ? project.connections.length : 0;
+  const gc = Array.isArray(project.groupConnections) ? project.groupConnections.length : 0;
+  return nodes * 10 + groups * 5 + conns + gc;
+}
+
+/** Prefer newer / richer local edits when cloud rows are stale or empty. */
+function mergeDbPreferLocalNewer(prevDb, nextDb) {
+  if (!prevDb?.projects?.length || !nextDb?.projects?.length) return nextDb;
+  const prevById = new Map(prevDb.projects.map((p) => [p.projectId, p]));
+  for (let i = 0; i < nextDb.projects.length; i += 1) {
+    const incoming = nextDb.projects[i];
+    const local = prevById.get(incoming.projectId);
+    if (!local) continue;
+    const localScore = projectContentScore(local);
+    const incomingScore = projectContentScore(incoming);
+    const localTs = Number(local.updatedAt) || 0;
+    const incomingTs = Number(incoming.updatedAt) || 0;
+    if (localScore > incomingScore + 2 || (localTs > incomingTs + 5000 && localScore >= incomingScore)) {
+      nextDb.projects[i] = local;
+    }
+  }
+  const active = nextDb.activeProjectId;
+  if (active && !nextDb.projects.some((p) => p.projectId === active)) {
+    nextDb.activeProjectId = nextDb.projects[0]?.projectId || null;
+  }
+  return nextDb;
 }
 
 export function initSupabase() {
@@ -687,6 +743,7 @@ export async function loadCloudProjects() {
     return;
   }
   try {
+  const prevDb = JSON.parse(JSON.stringify(bind().ctx.runtime.db));
   bind().ctx.runtime.db.projects = (data || []).map((row) => ({
     projectId: row.id,
     name: row.name || "Untitled",
@@ -699,6 +756,7 @@ export async function loadCloudProjects() {
     view: row.data?.view || { x: 0, y: 0, zoom: 1 },
     updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : Date.now()
   }));
+  bind().ctx.runtime.db = mergeDbPreferLocalNewer(prevDb, bind().ctx.runtime.db);
   if (!bind().ctx.runtime.db.projects.length) {
     const p = bind().deps.blankProject("My First Diagram");
     bind().ctx.runtime.db.projects = [p];
@@ -966,6 +1024,8 @@ const supabaseApi = {
   loadDB,
   saveDB,
   markDirty,
+  saveCanvasState,
+  restoreCanvasStateFromStorage,
   initSupabase,
   refreshAuthUi,
   useMockCreditPurchasesUi,
