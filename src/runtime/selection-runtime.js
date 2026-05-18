@@ -112,6 +112,19 @@ export function createSelectionRuntime(ctx, deps) {
     notify();
   }
 
+  /** Replace node selection with validated ids (marquee and drag paths stay on monolith for now). */
+  function selectNodes(nodeIds, opts = {}) {
+    const p = ctx.getProject();
+    const valid = new Set(p.nodes.map((n) => n.id));
+    const next = (Array.isArray(nodeIds) ? nodeIds : []).filter((id) => valid.has(id));
+    if (!opts.additive) runtime.selectedNodeIds.clear();
+    for (const id of next) runtime.selectedNodeIds.add(id);
+    if (runtime.selectedNodeIds.size === 0) runtime.selectedNodeId = null;
+    else if (runtime.selectedNodeIds.size === 1) runtime.selectedNodeId = [...runtime.selectedNodeIds][0];
+    else runtime.selectedNodeId = opts.keepPrimary && valid.has(opts.keepPrimary) ? opts.keepPrimary : null;
+    notify();
+  }
+
   function applyGroupSelection(g, ev, opts = {}) {
     if (isAdditive(ev)) {
       if (runtime.selectedGroupIds.has(g.id)) runtime.selectedGroupIds.delete(g.id);
@@ -188,6 +201,7 @@ export function createSelectionRuntime(ctx, deps) {
     clearAllForUndo,
     toggleNode,
     selectNode,
+    selectNodes,
     applyGroupSelection,
     setStickyMultiSelect,
     toggleStickyMultiSelect,

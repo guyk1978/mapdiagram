@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "title": "Multi Branch Process",
+  "direction": "TB",
+  "nodes": [
+    { "id": "start", "label": "Start", "kind": "start" },
+    { "id": "intake", "label": "Intake", "kind": "process" },
+    { "id": "route", "label": "Route?", "kind": "decision" },
+    { "id": "path_a", "label": "Path A", "kind": "process" },
+    { "id": "path_b", "label": "Path B", "kind": "process" },
+    { "id": "merge", "label": "Merge", "kind": "process" },
+    { "id": "end", "label": "Done", "kind": "end" }
+  ],
+  "edges": [
+    { "from": "start", "to": "intake" },
+    { "from": "intake", "to": "route" },
+    { "from": "route", "to": "path_a", "label": "A" },
+    { "from": "route", "to": "path_b", "label": "B" },
+    { "from": "path_a", "to": "merge" },
+    { "from": "path_b", "to": "merge" },
+    { "from": "merge", "to": "end" }
+  ]
+}

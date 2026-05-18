@@ -32,6 +32,25 @@ describe("selection-runtime", () => {
     expect(orphanGuard).toHaveBeenCalled();
   });
 
+  it("selectNodes replaces with valid ids only", () => {
+    const project = makeProject({
+      nodes: [
+        { id: "n1", x: 0, y: 0 },
+        { id: "n2", x: 10, y: 10 },
+      ],
+    });
+    const runtime = makeRuntime();
+    const onChange = vi.fn();
+    const { ctx } = makeCtx(runtime, project);
+    const sel = createSelectionRuntime(ctx, { onSelectionChanged: onChange });
+    sel.selectNodes(["n1", "gone", "n2"]);
+    expect(runtime.selectedNodeIds.has("n1")).toBe(true);
+    expect(runtime.selectedNodeIds.has("n2")).toBe(true);
+    expect(runtime.selectedNodeIds.has("gone")).toBe(false);
+    expect(runtime.selectedNodeId).toBeNull();
+    expect(onChange).toHaveBeenCalled();
+  });
+
   it("clearAllForUndo clears all selection fields", () => {
     const runtime = makeRuntime({
       selectedNodeId: "n1",

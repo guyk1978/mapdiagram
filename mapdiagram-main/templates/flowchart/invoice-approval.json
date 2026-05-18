@@ -1,0 +1,29 @@
+{
+  "slug": "invoice-approval",
+  "title": "Invoice Approval",
+  "description": "Submit, review, approve or revise invoices.",
+  "category": "Finance",
+  "tags": ["approval", "finance"],
+  "promptSeed": "invoice approval with manager review and revision loop",
+  "spec": {
+    "version": 1,
+    "title": "Invoice Approval",
+    "direction": "TB",
+    "nodes": [
+      { "id": "start", "label": "Start", "kind": "start" },
+      { "id": "submit", "label": "Submit invoice", "kind": "process" },
+      { "id": "review", "label": "Manager review", "kind": "process" },
+      { "id": "approved", "label": "Approved?", "kind": "decision" },
+      { "id": "revise", "label": "Revise", "kind": "process" },
+      { "id": "paid", "label": "Paid", "kind": "end" }
+    ],
+    "edges": [
+      { "from": "start", "to": "submit" },
+      { "from": "submit", "to": "review" },
+      { "from": "review", "to": "approved" },
+      { "from": "approved", "to": "revise", "label": "No" },
+      { "from": "approved", "to": "paid", "label": "Yes" },
+      { "from": "revise", "to": "review", "meta": { "isBackEdge": true } }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "slug": "content-approval",
+  "title": "Content Approval",
+  "description": "Draft, review, revise, and publish content.",
+  "category": "Marketing",
+  "tags": ["content", "approval"],
+  "promptSeed": "content approval workflow with editorial review",
+  "spec": {
+    "version": 1,
+    "title": "Content Approval",
+    "direction": "TB",
+    "nodes": [
+      { "id": "start", "label": "Start", "kind": "start" },
+      { "id": "draft", "label": "Draft content", "kind": "process" },
+      { "id": "review", "label": "Editor review", "kind": "process" },
+      { "id": "ok", "label": "Approved?", "kind": "decision" },
+      { "id": "revise", "label": "Revise", "kind": "process" },
+      { "id": "publish", "label": "Published", "kind": "end" }
+    ],
+    "edges": [
+      { "from": "start", "to": "draft" },
+      { "from": "draft", "to": "review" },
+      { "from": "review", "to": "ok" },
+      { "from": "ok", "to": "publish", "label": "Yes" },
+      { "from": "ok", "to": "revise", "label": "No" },
+      { "from": "revise", "to": "review", "meta": { "isBackEdge": true } }
+    ]
+  }
+}

@@ -129,3 +129,27 @@ Impact:
 
 Root cause:
 render cycle re-entered selection sanitation repeatedly after runtime extraction.
+
+
+
+
+
+
+
+## MIGRATED
+
+### Additive node toggle selection
+Migrated direct selectedNodeIds toggle mutations to:
+
+- selectionRuntime.toggleNode()
+
+Preserved:
+- edge deselection
+- group deselection
+- flow group clearing
+- renderSelection()
+
+Result:
+- Shift selection stable
+- sticky multi-select stable
+- no recursion introduced

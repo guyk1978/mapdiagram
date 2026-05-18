@@ -10,9 +10,12 @@
     "test:stabilization": "vitest run tests/stabilization",
     "test:runtime": "vitest run tests/runtime",
     "build:tool-runtime": "vite build --config vite.tool-runtime.config.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install chromium",
     "test": "npm run test:flowchart && npm run test:stabilization && npm run test:runtime"
   },
   "devDependencies": {
+    "@playwright/test": "^1.52.0",
     "@types/dagre": "^0.7.52",
     "happy-dom": "^20.9.0",
     "typescript": "^5.7.3",

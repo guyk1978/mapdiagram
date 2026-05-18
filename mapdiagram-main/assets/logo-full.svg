@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="128" viewBox="0 0 520 128" fill="none">
+  <rect width="520" height="128" rx="24" fill="#0F1118"/>
+  <g transform="translate(18,0)">
+    <circle cx="33" cy="34" r="10" fill="#7AA2FF"/>
+    <circle cx="96" cy="36" r="10" fill="#7FE3C6"/>
+    <circle cx="65" cy="95" r="10" fill="#9CB8FF"/>
+    <path d="M42 38L87 40M39 42L61 86M89 44L68 87" stroke="#D7E4FF" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <text x="150" y="76" fill="#E7ECF8" font-size="44" font-family="Inter, Segoe UI, Arial, sans-serif" font-weight="700">MapDiagram</text>
+</svg>

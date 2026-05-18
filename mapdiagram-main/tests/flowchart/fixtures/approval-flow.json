@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "title": "Approval Flow",
+  "direction": "TB",
+  "nodes": [
+    { "id": "start", "label": "Start", "kind": "start" },
+    { "id": "submit", "label": "Submit request", "kind": "process" },
+    { "id": "review", "label": "Manager review", "kind": "process" },
+    { "id": "approved", "label": "Approved?", "kind": "decision" },
+    { "id": "revise", "label": "Revise", "kind": "process" },
+    { "id": "complete", "label": "Complete", "kind": "end" }
+  ],
+  "edges": [
+    { "from": "start", "to": "submit" },
+    { "from": "submit", "to": "review" },
+    { "from": "review", "to": "approved" },
+    { "from": "approved", "to": "revise", "label": "No" },
+    { "from": "approved", "to": "complete", "label": "Yes" },
+    { "from": "revise", "to": "review", "meta": { "isBackEdge": true } }
+  ]
+}

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en" class="app-shell-page">
+<head>
+  <script src="/assets/site-analytics.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MapDiagram App | Interactive Diagram Editor</title>
+  <meta name="description" content="Open the MapDiagram editor and create diagrams interactively in your browser.">
+  <link rel="canonical" href="https://mapdiagram.com/app/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mapdiagram.com/app/">
+  <meta property="og:title" content="MapDiagram App | Interactive Diagram Editor">
+  <meta property="og:description" content="Open the MapDiagram editor and create diagrams interactively in your browser.">
+  <meta property="og:image" content="https://mapdiagram.com/assets/ui-preview.svg">
+  <meta property="og:site_name" content="MapDiagram">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://mapdiagram.com/app/">
+  <meta name="twitter:title" content="MapDiagram App | Interactive Diagram Editor">
+  <meta name="twitter:description" content="Open the MapDiagram editor and create diagrams interactively in your browser.">
+  <meta name="twitter:image" content="https://mapdiagram.com/assets/ui-preview.svg">
+  <link rel="stylesheet" href="/assets/site.css">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="manifest" href="/assets/site.webmanifest">
+  <script src="/assets/theme-engine.js"></script>
+</head>
+<body>
+  <main class="app-shell"><iframe id="editorFrame" src="/app/tool.html" title="MapDiagram editor" allow="clipboard-read; clipboard-write; fullscreen"></iframe></main>
+<script>
+(function () {
+  function pushThemeToIframe() {
+    var fr = document.getElementById("editorFrame");
+    if (!fr || !fr.contentWindow) return;
+    var m = window.MapDiagramTheme ? MapDiagramTheme.get() : "dark";
+    try {
+      fr.contentWindow.postMessage({ type: "mapdiagram-theme-sync", mode: m }, "*");
+    } catch (_) {}
+  }
+  window.addEventListener("message", function (e) {
+    if (!e.data || e.data.type !== "mapdiagram-theme" || e.data.source !== "mapdiagram-tool") return;
+    if (window.MapDiagramTheme) MapDiagramTheme.set(e.data.mode === "light" ? "light" : "dark");
+  });
+  window.addEventListener("load", function () {
+    var fr = document.getElementById("editorFrame");
+    if (fr) fr.addEventListener("load", pushThemeToIframe);
+    pushThemeToIframe();
+  });
+})();
+</script>
+</body>
+</html>

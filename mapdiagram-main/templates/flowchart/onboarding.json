@@ -1,0 +1,26 @@
+{
+  "slug": "onboarding",
+  "title": "Employee Onboarding",
+  "description": "Account setup through training completion.",
+  "category": "HR",
+  "tags": ["hr", "onboarding"],
+  "promptSeed": "employee onboarding from account creation to training and completion",
+  "spec": {
+    "version": 1,
+    "title": "Employee Onboarding",
+    "direction": "TB",
+    "nodes": [
+      { "id": "start", "label": "Start", "kind": "start" },
+      { "id": "account", "label": "Create account", "kind": "process" },
+      { "id": "docs", "label": "Submit documents", "kind": "process" },
+      { "id": "training", "label": "Complete training", "kind": "process" },
+      { "id": "end", "label": "Onboarded", "kind": "end" }
+    ],
+    "edges": [
+      { "from": "start", "to": "account" },
+      { "from": "account", "to": "docs" },
+      { "from": "docs", "to": "training" },
+      { "from": "training", "to": "end" }
+    ]
+  }
+}

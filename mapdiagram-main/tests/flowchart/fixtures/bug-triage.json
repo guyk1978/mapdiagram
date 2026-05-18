@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "title": "Bug Triage",
+  "direction": "TB",
+  "nodes": [
+    { "id": "start", "label": "Start", "kind": "start" },
+    { "id": "report", "label": "Bug reported", "kind": "process" },
+    { "id": "repro", "label": "Reproducible?", "kind": "decision" },
+    { "id": "investigate", "label": "Investigate", "kind": "process" },
+    { "id": "close", "label": "Close as invalid", "kind": "process" },
+    { "id": "end", "label": "Resolved", "kind": "end" }
+  ],
+  "edges": [
+    { "from": "start", "to": "report" },
+    { "from": "report", "to": "repro" },
+    { "from": "repro", "to": "investigate", "label": "Yes" },
+    { "from": "repro", "to": "close", "label": "No" },
+    { "from": "investigate", "to": "end" },
+    { "from": "close", "to": "end" }
+  ]
+}

@@ -823,10 +823,18 @@
     background:repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(255,255,255,.03) 10px, rgba(255,255,255,.03) 11px);
   }
   .group-chrome.is-dragging{opacity:.95;transition:opacity .1s ease}
+  .group-chrome-body{
+    position:absolute;
+    inset:0;
+    pointer-events:auto;
+    z-index:0;
+    cursor:default;
+    background:transparent;
+  }
   .group-chrome-hit-edge{
     position:absolute;
     pointer-events:auto;
-    z-index:1;
+    z-index:2;
     cursor:default;
     background:transparent;
   }
@@ -847,7 +855,7 @@
     border:2px solid rgba(223,235,255,.95);
     box-shadow:0 0 10px rgba(122,162,255,.55);
     cursor:crosshair;
-    z-index:2;
+    z-index:4;
     pointer-events:auto;
   }
   .group-handle.in{left:-10px}
@@ -1336,6 +1344,24 @@
   }
   .group-header-row{
     position:absolute;top:-34px;left:0;right:0;display:flex;align-items:center;gap:6px;pointer-events:none;
+    z-index:3;
+  }
+  .group-drag-surface{
+    pointer-events:auto;
+    cursor:grab;
+    touch-action:none;
+    flex:1;
+    min-width:40px;
+    display:flex;
+    align-items:center;
+  }
+  .group-drag-surface.is-dragging{cursor:grabbing!important}
+  .group-header-row .group-drag-surface .label.group-drag-bar{
+    position:relative;
+    top:auto;
+    left:auto;
+    display:inline-flex;
+    min-height:28px;
   }
   .group-toolbar{
     display:flex;align-items:center;gap:4px;pointer-events:auto;
@@ -1951,6 +1977,45 @@
       min-height: 40px;
       min-width: 40px;
     }
+    /* Responsive headings — prevent clip on tablet/narrow layouts */
+    .fc-empty-card h2,
+    .fc-assistant-card-head h2 {
+      font-size: 1.2rem !important;
+      line-height: 1.3 !important;
+      letter-spacing: -0.02em;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .fc-empty-card {
+      max-width: min(100%, 400px);
+      padding: 22px 18px;
+      box-sizing: border-box;
+    }
+    .fc-empty-card p {
+      font-size: 12.5px;
+      max-width: 100%;
+    }
+    .node-title,
+    .node-title-freeform {
+      font-size: 13px !important;
+      line-height: 1.28 !important;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .node.shape-diamond .node-title {
+      font-size: 12px !important;
+      max-width: 96px;
+    }
+    /* Topbar: rely on ⋯ overflow menu; hide duplicate quick-action strip */
+    .topbar-minimal-end .mobile-inspector-actions,
+    .topbar-minimal-end .topbar-group-actions {
+      display: none !important;
+    }
+    .topbar-minimal-end .topbar-desktop-quick {
+      display: none !important;
+    }
   }
   @media (max-width: 760px) {
     .app{
@@ -2022,12 +2087,128 @@
       position: sticky;
       top: 0;
       z-index: var(--z-sticky-topbar);
-      overflow-x: auto;
-      white-space: nowrap;
+      overflow-x: hidden;
+      overflow-y: visible;
+      white-space: normal;
       scrollbar-width: none;
     }
     .topbar::-webkit-scrollbar{ display:none; }
-    .mobile-inspector-actions{display:inline-flex}
+    .topbar.topbar--minimal {
+      padding: 0 6px;
+      gap: 0;
+    }
+    .topbar-minimal-row {
+      width: 100%;
+      max-width: 100%;
+      min-height: 48px;
+      gap: 4px;
+      overflow: hidden;
+      flex-wrap: nowrap;
+    }
+    .topbar-overflow-leading-wrap {
+      flex: 0 0 auto;
+      flex-shrink: 0;
+      position: relative;
+      z-index: calc(var(--z-sticky-topbar) + 4);
+    }
+    .topbar-minimal-start {
+      flex: 0 0 auto;
+      flex-shrink: 0;
+      gap: 4px;
+      min-width: 0;
+    }
+    .topbar-minimal-start .desktop-sidebar-toggles {
+      display: none !important;
+    }
+    .topbar-minimal-spacer {
+      flex: 1 1 auto;
+      min-width: 4px;
+    }
+    .topbar-minimal-end {
+      flex: 0 0 auto;
+      flex-shrink: 1;
+      min-width: 0;
+      max-width: 42%;
+      justify-content: flex-end;
+      overflow: hidden;
+    }
+    /* Duplicate CTAs live in #topbarMoreMenu (data-mirror-click) — hide inline copies on phone */
+    .topbar-minimal-end {
+      display: none !important;
+    }
+    .topbar-more-menu {
+      left: 0;
+      right: auto;
+      max-width: min(92vw, 300px);
+    }
+    .topbar-more-menu .topbar-menu-item {
+      min-height: 44px;
+      font-size: 14px;
+    }
+    .fc-empty-card {
+      max-width: min(calc(100vw - 32px), 360px);
+      padding: 18px 14px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+    .fc-empty-card h2,
+    .fc-assistant-card-head h2 {
+      font-size: 1.1rem !important;
+      line-height: 1.32 !important;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      hyphens: auto;
+    }
+    .fc-empty-card p {
+      font-size: 12px;
+      line-height: 1.45;
+      max-width: 100%;
+      margin-bottom: 12px;
+    }
+    .node-title,
+    .node-title-freeform {
+      font-size: 12px !important;
+      line-height: 1.25 !important;
+      max-width: 100%;
+      padding-inline: 2px;
+      box-sizing: border-box;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .node.shape-diamond .node-title {
+      font-size: 11px !important;
+      max-width: 88px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      line-height: 1.2 !important;
+    }
+    .node.shape-diamond .body {
+      padding: 10px 12px;
+    }
+    .flowchart-mode .fc-empty-card h2 {
+      font-size: 1.1rem !important;
+      line-height: 1.32 !important;
+    }
+    .flowchart-mode .fc-assistant-card-head h2 {
+      font-size: 1.05rem !important;
+    }
+    .topbar-minimal-start .icon-btn {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      min-height: 40px;
+      flex-shrink: 0;
+    }
+    .topbar-overflow .icon-btn#topbarMoreBtn {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      min-height: 40px;
+    }
     .focus-modal {
       width: 96vw;
       max-width: 96vw;
@@ -4210,6 +4391,64 @@
     console.warn(`[md:groups:${code}]`, detail || "");
   }
 
+  /** TEMP — remove after group-connect finalize diagnosis. Enable: localStorage md_debug_group_connect=1 or ?mdDebugGroupConnect=1 */
+  function isMdDebugGroupConnect() {
+    try {
+      if (new URLSearchParams(location.search).get("mdDebugGroupConnect") === "1") return true;
+      return localStorage.getItem("md_debug_group_connect") === "1" || isMdDebugGroups();
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function mdGcShouldLog() {
+    return (
+      isMdDebugGroupConnect() ||
+      !!runtime.groupConnecting ||
+      (typeof runtime._mdGcDebugUntil === "number" && Date.now() < runtime._mdGcDebugUntil)
+    );
+  }
+
+  function mdGcLog(tag, detail) {
+    if (!mdGcShouldLog()) return;
+    try {
+      if (detail === undefined) console.log(tag);
+      else console.log(tag, detail);
+    } catch (err) {
+      console.log(tag, "(log failed)", err);
+    }
+  }
+
+  function mdGcSnapshot(label, extra) {
+    if (!mdGcShouldLog()) return;
+    const p = getProject();
+    mdGcLog(label, {
+      ...(extra || {}),
+      gcCount: (p.groupConnections || []).length,
+      groupConnections: (p.groupConnections || []).map((c) => ({
+        id: c.id,
+        from: c.fromGroupId,
+        to: c.toGroupId
+      })),
+      userGroupCount: (p.userGroups || []).length,
+      focusGroupId: runtime.focusGroupId,
+      focusGroupStack: [...(runtime.focusGroupStack || [])],
+      selectedGroupIds: [...runtime.selectedGroupIds],
+      selectedGroupId: runtime.selectedGroupId,
+      groupConnecting: runtime.groupConnecting ? { ...runtime.groupConnecting } : null,
+      hasGroupPreviewPath: !!runtime.groupPreviewPath,
+      chromeCount: semanticOverlays?.querySelectorAll(".group-chrome")?.length ?? null
+    });
+  }
+
+  function mdGcShortStack() {
+    try {
+      return (new Error().stack || "").split("\n").slice(1, 5);
+    } catch (_) {
+      return [];
+    }
+  }
+
   function invalidateInteractionCaches(opts = {}) {
     initMapDiagramRuntimes();
     if (renderRuntime) renderRuntime.invalidateInteractionCaches(opts);
@@ -4221,8 +4460,28 @@
   }
 
   function sanitizeSelectionState() {
+    if (mdGcShouldLog()) {
+      mdGcLog("[GROUP CONNECT] sanitizeSelectionState", { stack: mdGcShortStack() });
+    }
     initMapDiagramRuntimes();
     if (selectionRuntime) selectionRuntime.sanitizeSelection();
+  }
+
+  function selectNodesViaRuntime(nodeIds, opts = {}) {
+    initMapDiagramRuntimes();
+    if (selectionRuntime?.selectNodes) {
+      selectionRuntime.selectNodes(nodeIds, opts);
+      return;
+    }
+    const p = getProject();
+    const valid = new Set(p.nodes.map((n) => n.id));
+    const next = (Array.isArray(nodeIds) ? nodeIds : []).filter((id) => valid.has(id));
+    if (!opts.additive) runtime.selectedNodeIds.clear();
+    for (const id of next) runtime.selectedNodeIds.add(id);
+    if (runtime.selectedNodeIds.size === 0) runtime.selectedNodeId = null;
+    else if (runtime.selectedNodeIds.size === 1) runtime.selectedNodeId = [...runtime.selectedNodeIds][0];
+    else runtime.selectedNodeId = opts.keepPrimary && valid.has(opts.keepPrimary) ? opts.keepPrimary : null;
+    renderSelection();
   }
 
   function assertProjectIntegrity(context) {
@@ -4385,11 +4644,21 @@
 
   /** Phase 2 — connection multi-select: clear `p.connections` selection only. */
   function clearConnectionSelectionState() {
+    initMapDiagramRuntimes();
+    if (selectionRuntime) {
+      selectionRuntime.clearSelection("connections");
+      return;
+    }
     runtime.selectedConnectionId = null;
     runtime.selectedConnectionIds.clear();
   }
   /** Phase 2 — clear `p.groupConnections` selection only. */
   function clearGroupConnSelectionState() {
+    initMapDiagramRuntimes();
+    if (selectionRuntime) {
+      selectionRuntime.clearSelection("groupConnections");
+      return;
+    }
     runtime.selectedGroupConnId = null;
     runtime.selectedGroupConnIds.clear();
   }
@@ -4484,8 +4753,7 @@
     if (isAdditiveSelection(e) || e.ctrlKey || e.metaKey) {
       clearGroupConnSelectionState();
       toggleShiftConnectionEdgeSelection(connId);
-      runtime.selectedNodeId = null;
-      runtime.selectedNodeIds.clear();
+      selectionRuntime.clearSelection();
       runtime.selectedGroupId = null;
       runtime.selectedGroupIds.clear();
       renderConnections();
@@ -5029,6 +5297,8 @@
 
   function isGroupOutsideFocus(groupId) {
     if (!runtime.focusGroupId) return false;
+    const p = getProject();
+    if (!userGroupById(p, runtime.focusGroupId)) return false;
     const chain = ancestorGroupChain(groupId);
     return !chain.includes(runtime.focusGroupId);
   }
@@ -5157,7 +5427,13 @@
   function enterGroupFocusMode(groupId) {
     const p = getProject();
     if (!userGroupById(p, groupId)) return;
-    if (runtime.focusGroupId) runtime.focusGroupStack.push(runtime.focusGroupId);
+    sanitizeFocusGroupState();
+    if (runtime.focusGroupStack?.length) {
+      runtime.focusGroupStack = runtime.focusGroupStack.filter((id) => userGroupById(p, id));
+    }
+    if (runtime.focusGroupId && userGroupById(p, runtime.focusGroupId)) {
+      runtime.focusGroupStack.push(runtime.focusGroupId);
+    }
     runtime.focusGroupId = groupId;
     updateFocusGroupUi();
     const box = getUserGroupBox(groupId);
@@ -5172,17 +5448,47 @@
     p.view.y = (r.height - (box.y + box.h / 2) * zoom) / 2;
     updateViewport();
     markDirty();
-    renderAll();
+    renderCanvasLayers();
   }
 
   function exitGroupFocusMode() {
-    runtime.focusGroupId = runtime.focusGroupStack.pop() || null;
+    const p = getProject();
+    sanitizeFocusGroupState();
+    let next = null;
+    while (runtime.focusGroupStack.length) {
+      const candidate = runtime.focusGroupStack.pop();
+      if (candidate && userGroupById(p, candidate)) {
+        next = candidate;
+        break;
+      }
+    }
+    runtime.focusGroupId = next;
+    if (!next) runtime.focusGroupStack = [];
     updateFocusGroupUi();
-    renderAll();
+    renderCanvasLayers();
+  }
+
+  function sanitizeFocusGroupState() {
+    if (mdGcShouldLog()) {
+      mdGcLog("[GROUP CONNECT] sanitizeFocusGroupState", {
+        focusGroupId: runtime.focusGroupId,
+        stack: mdGcShortStack()
+      });
+    }
+    const p = getProject();
+    if (runtime.focusGroupId && !userGroupById(p, runtime.focusGroupId)) {
+      runtime.focusGroupId = null;
+    }
+    if (!Array.isArray(runtime.focusGroupStack)) {
+      runtime.focusGroupStack = [];
+    } else {
+      runtime.focusGroupStack = runtime.focusGroupStack.filter((id) => id && userGroupById(p, id));
+    }
   }
 
   function updateFocusGroupUi() {
     if (!focusGroupChip || !focusGroupCrumbs) return;
+    sanitizeFocusGroupState();
     const p = getProject();
     if (!runtime.focusGroupId) {
       focusGroupChip.classList.remove("open");
@@ -5190,6 +5496,13 @@
       return;
     }
     const g = userGroupById(p, runtime.focusGroupId);
+    if (!g) {
+      runtime.focusGroupId = null;
+      runtime.focusGroupStack = [];
+      focusGroupChip.classList.remove("open");
+      focusGroupCrumbs.textContent = "";
+      return;
+    }
     focusGroupChip.classList.add("open");
     const trail = [];
     let cur = g;
@@ -5279,13 +5592,23 @@
       if (c.kind === "group-node" && c.fromGroupId === groupId) return false;
       return true;
     });
-    if (runtime.selectedGroupIds) {
-      runtime.selectedGroupIds.delete(groupId);
-      for (const cid of getDescendantGroupIds(p, groupId)) runtime.selectedGroupIds.delete(cid);
+    runtime.selectedGroupIds.delete(groupId);
+    if (
+      runtime.selectedGroupId === groupId ||
+      !runtime.selectedGroupIds.has(runtime.selectedGroupId) ||
+      !userGroupById(p, runtime.selectedGroupId)
+    ) {
+      runtime.selectedGroupId = runtime.selectedGroupIds.size ? [...runtime.selectedGroupIds][0] : null;
     }
-    if (!runtime.selectedGroupIds?.has(runtime.selectedGroupId)) {
-      runtime.selectedGroupId = runtime.selectedGroupIds && runtime.selectedGroupIds.size ? [...runtime.selectedGroupIds][0] : null;
+    if (runtime.focusGroupId === groupId) {
+      runtime.focusGroupId = null;
+      runtime.focusGroupStack = [];
+      updateFocusGroupUi();
+    } else if (runtime.focusGroupStack?.length) {
+      runtime.focusGroupStack = runtime.focusGroupStack.filter((id) => id !== groupId);
     }
+    if (runtime.groupDragging?.groupIds?.includes(groupId)) abortGroupDrag();
+    if (runtime.groupConnecting?.fromGroupId === groupId) runtime.groupConnecting = null;
     reindexUserGroupHierarchy(p);
     dedupeUserGroupMembership(p);
     renderSemanticOverlays();
@@ -5326,7 +5649,10 @@
     runtime.selectedNodeIds = new Set([...runtime.selectedNodeIds].filter((id) => !ids.has(id)));
     if (ids.has(runtime.selectedNodeId)) runtime.selectedNodeId = null;
     for (const gid of removeGroupIds) runtime.selectedGroupIds.delete(gid);
-    if (!runtime.selectedGroupIds.has(runtime.selectedGroupId)) {
+    if (
+      !runtime.selectedGroupIds.has(runtime.selectedGroupId) ||
+      !userGroupById(p, runtime.selectedGroupId)
+    ) {
       runtime.selectedGroupId = runtime.selectedGroupIds.size ? [...runtime.selectedGroupIds][0] : null;
     }
     invalidateInteractionCaches({ clearNodeEl: true });
@@ -5334,6 +5660,12 @@
       runtime.focusGroupId = null;
       runtime.focusGroupStack = [];
       updateFocusGroupUi();
+    } else if (runtime.focusGroupStack?.length) {
+      runtime.focusGroupStack = runtime.focusGroupStack.filter((id) => !removeGroupIds.has(id));
+    }
+    if (runtime.groupDragging?.groupIds?.some((id) => removeGroupIds.has(id))) abortGroupDrag();
+    if (runtime.groupConnecting?.fromGroupId && removeGroupIds.has(runtime.groupConnecting.fromGroupId)) {
+      runtime.groupConnecting = null;
     }
     renderAll();
     return true;
@@ -5896,14 +6228,14 @@
       p.groupConnections = [];
       p.view = { x: 0, y: 0, zoom: 1, grid: p.view && p.view.grid !== false };
       runtime.connectionUi = {};
-      runtime.selectedNodeId = null;
+      initMapDiagramRuntimes();
+      selectionRuntime.clearSelection("nodes");
       runtime.selectedConnectionId = null;
       runtime.selectedConnectionIds.clear();
       runtime.selectedGroupId = null;
       runtime.selectedGroupIds.clear();
       runtime.selectedGroupConnId = null;
       runtime.selectedGroupConnIds.clear();
-      runtime.selectedNodeIds.clear();
       renderAll();
       markDirty();
       scheduleSemanticAnalysis();
@@ -5939,14 +6271,14 @@
     p.groupConnections = [];
     runtime.connectionUi = {};
     p.view = { x: 0, y: 0, zoom: 1, grid: p.view && p.view.grid !== false };
-    runtime.selectedNodeId = null;
+    initMapDiagramRuntimes();
+    selectionRuntime.clearSelection("nodes");
     runtime.selectedConnectionId = null;
     runtime.selectedConnectionIds.clear();
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
     runtime.selectedGroupConnId = null;
     runtime.selectedGroupConnIds.clear();
-    runtime.selectedNodeIds.clear();
     const res = generateTemplate(kind, items, { worldX: 72, worldY: 72 });
     if (!res) {
       alert("Could not generate this template.");
@@ -6021,6 +6353,21 @@ function syncFlowGroupOverlayFrame(fgId) {
   frame.style.height = `${fg.height}px`;
 }
 
+function abortGroupConnectionDrag(reason) {
+  if (mdGcShouldLog()) {
+    mdGcLog("[GROUP CONNECT CLEARED] abortGroupConnectionDrag", {
+      reason: reason || "unspecified",
+      stack: mdGcShortStack()
+    });
+    mdGcSnapshot("[GROUP CONNECT CLEARED] project snapshot after abort");
+  }
+  if (runtime.groupPreviewPath) {
+    runtime.groupPreviewPath.remove();
+    runtime.groupPreviewPath = null;
+  }
+  runtime.groupConnecting = null;
+}
+
 function clearPendingConnectionState() {
   runtime.connecting = null;
   runtime.previewFrom = null;
@@ -6036,6 +6383,14 @@ function clearPendingConnectionState() {
 }
 
 function clearFcInteractionState(opts = {}) {
+  const hadGroupConnect = !!runtime.groupConnecting;
+  if (hadGroupConnect || mdGcShouldLog()) {
+    mdGcLog("[GROUP CONNECT CLEARED] clearFcInteractionState (enter)", {
+      hadGroupConnect,
+      opts,
+      stack: mdGcShortStack()
+    });
+  }
   if (runtime.flowGroupDragging) {
     const gd = runtime.flowGroupDragging;
     canvasUnderlays?.querySelector(`[data-flow-group-id="${gd.fgId}"]`)?.classList.remove("is-dragging");
@@ -6050,11 +6405,7 @@ function clearFcInteractionState(opts = {}) {
   runtime.dragging = null;
   runtime.panning = null;
   clearPendingConnectionState();
-  if (runtime.groupPreviewPath) {
-    runtime.groupPreviewPath.remove();
-    runtime.groupPreviewPath = null;
-  }
-  runtime.groupConnecting = null;
+  abortGroupConnectionDrag("clearFcInteractionState");
   runtime.cpDragging = null;
   runtime.pinch = null;
   runtime.bodyPressPointerId = null;
@@ -6071,9 +6422,19 @@ function clearFcInteractionState(opts = {}) {
     runtime.marquee = null;
     if (marquee) marquee.style.display = "none";
   }
+  if (hadGroupConnect || mdGcShouldLog()) {
+    mdGcLog("[GROUP CONNECT CLEARED] clearFcInteractionState (exit)", { hadGroupConnect });
+  }
 }
 
 function scheduleRenderConnections() {
+  if (mdGcShouldLog()) {
+    mdGcLog("[GROUP CONNECT] scheduleRenderConnections", {
+      hasPendingRaf: !!runtime.renderConnectionsRaf,
+      groupConnecting: !!runtime.groupConnecting,
+      stack: mdGcShortStack()
+    });
+  }
   initMapDiagramRuntimes();
   if (renderRuntime) renderRuntime.scheduleRenderConnections();
 }
@@ -6252,14 +6613,20 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function selectFlowGroup(fgId) {
-    runtime.selectedFlowGroupId = fgId || null;
-    runtime.selectedNodeId = null;
-    runtime.selectedNodeIds.clear();
-    runtime.selectedGroupId = null;
-    runtime.selectedGroupIds.clear();
-    clearAllEdgeSelection();
-    renderSelection();
-  }
+  console.log("SELECT FLOW GROUP ->", fgId);
+
+  runtime.selectedFlowGroupId = fgId || null;
+
+  console.log("STATE AFTER SELECT ->", runtime.selectedFlowGroupId);
+
+  runtime.selectedNodeId = null;
+  runtime.selectedNodeIds.clear();
+  runtime.selectedGroupId = null;
+  runtime.selectedGroupIds.clear();
+  clearAllEdgeSelection();
+
+  renderSelection();
+}
 
   function clearFlowGroupSelection() {
     runtime.selectedFlowGroupId = null;
@@ -6374,15 +6741,15 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function clearFlowchartNodeSelection() {
-    runtime.selectedNodeId = null;
-    runtime.selectedNodeIds.clear();
-    runtime.selectedGroupId = null;
-    runtime.selectedGroupIds.clear();
-    clearFlowGroupSelection();
-    clearAllEdgeSelection();
-    hideFcToolbarsImmediate();
-    renderSelection();
-  }
+  runtime.selectedNodeId = null;
+  runtime.selectedNodeIds.clear();
+  runtime.selectedGroupId = null;
+  runtime.selectedGroupIds.clear();
+  clearFlowGroupSelection();
+  clearAllEdgeSelection();
+  hideFcToolbarsImmediate();
+  renderSelection();
+}
 
   function selectAllFlowchartNodes() {
     if (!fcEditorCanSelect()) return;
@@ -6412,6 +6779,7 @@ function finalizeFlowGroupDragIfAny() {
       return false;
     }
     pushHistory();
+    console.log("UNGROUP EXECUTE", fgId);
     deleteFlowGroupOnly(fgId);
     clearFlowGroupSelection();
     renderFlowGroupOverlays();
@@ -6735,8 +7103,7 @@ function finalizeFlowGroupDragIfAny() {
     refreshFlowGroupBounds(ng);
     p.flowGroups.push(ng);
     runtime.selectedFlowGroupId = ng.id;
-    runtime.selectedNodeIds.clear();
-    runtime.selectedNodeId = null;
+    selectionRuntime.clearSelection();
     renderFlowGroupOverlays();
     renderNodes();
     scheduleRenderConnections();
@@ -6747,6 +7114,7 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function deleteFlowGroupOnly(fgId) {
+    console.log("DELETE FLOW GROUP", fgId);
     const p = getProject();
     p.flowGroups = (p.flowGroups || []).filter((g) => g.id !== fgId);
     p.connections = (p.connections || []).filter((c) => {
@@ -6823,17 +7191,26 @@ function finalizeFlowGroupDragIfAny() {
     };
     bar.addEventListener("pointerdown", shield, true);
     const run = (e, fn) => {
-      if (runtime.readOnly) return;
-      e.preventDefault();
-      e.stopPropagation();
-      runtime.fcToolbarInteracting = true;
-      const id = runtime.selectedFlowGroupId;
-      fn(id);
-      window.setTimeout(() => {
-        runtime.fcToolbarInteracting = false;
-        syncFcGroupQuickEditToolbar();
-      }, 0);
-    };
+  if (runtime.readOnly) return;
+
+  console.log("FC TOOLBAR RUN", {
+    selectedFlowGroupId: runtime.selectedFlowGroupId
+  });
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  runtime.fcToolbarInteracting = true;
+
+  const id = runtime.selectedFlowGroupId;
+
+  fn(id);
+
+  window.setTimeout(() => {
+    runtime.fcToolbarInteracting = false;
+    syncFcGroupQuickEditToolbar();
+  }, 0);
+};
     document.getElementById("fcGroupRenameBtn")?.addEventListener("click", (e) => run(e, (id) => fcStartFlowGroupTitleEdit(id)));
     document.getElementById("fcGroupColorBtn")?.addEventListener("click", (e) => run(e, (id) => cycleFlowGroupColor(id)));
     document.getElementById("fcGroupDupBtn")?.addEventListener("click", (e) => run(e, (id) => duplicateFlowGroupAction(id)));
@@ -7410,21 +7787,29 @@ function finalizeFlowGroupDragIfAny() {
     p.nodes.push(n);
     const connId = uid();
     const c = { id: connId, from: fromId, to: n.id };
-    normalizeConnectionEdge(c);
-    p.connections.push(c);
-    runtime.selectedNodeIds.clear();
-    runtime.selectedNodeIds.add(n.id);
-    runtime.selectedNodeId = n.id;
-    clearAllEdgeSelection();
-    renderNodes();
-    renderConnections();
-    renderSelection();
-    syncFlowchartEmptyState();
-    flashFcNodeEnter(n.id);
-    flashFcConnEnter(connId);
-    markDirty();
-    scheduleSemanticAnalysis();
-    requestAnimationFrame(() => fcStartInlineRename(n.id));
+
+normalizeConnectionEdge(c);
+
+p.connections.push(c);
+
+selectionRuntime.selectNode(n.id);
+
+clearAllEdgeSelection();
+
+renderNodes();
+renderConnections();
+renderSelection();
+
+syncFlowchartEmptyState();
+
+flashFcNodeEnter(n.id);
+flashFcConnEnter(connId);
+
+markDirty();
+
+scheduleSemanticAnalysis();
+
+requestAnimationFrame(() => fcStartInlineRename(n.id));
   }
 
   function initFlowchartModeUi() {
@@ -7529,8 +7914,7 @@ function finalizeFlowGroupDragIfAny() {
     p.connections = payload.connections;
     p.title = payload.title;
     p.name = payload.title;
-    runtime.selectedNodeId = null;
-    runtime.selectedNodeIds.clear();
+    selectionRuntime.clearSelection();
     clearAllEdgeSelection();
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
@@ -8367,6 +8751,7 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function beginGroupDrag(ev, anchorGroupId) {
+    if (!ev.currentTarget?.classList?.contains?.("group-drag-surface")) return;
     ev.preventDefault();
     ev.stopPropagation();
     const p = getProject();
@@ -8406,18 +8791,28 @@ function finalizeFlowGroupDragIfAny() {
       affectedNodeIds: [...affectedNodeIds],
       lastDx: 0,
       lastDy: 0,
-      dragBarEl: ev.currentTarget && ev.currentTarget.classList?.contains?.("group-drag-bar") ? ev.currentTarget : null,
+      dragBarEl: (() => {
+        const t = ev.currentTarget;
+        if (!t) return null;
+        if (t.classList?.contains?.("group-drag-surface")) return t.querySelector(".group-drag-bar") || t;
+        if (t.classList?.contains?.("group-drag-bar")) return t;
+        return null;
+      })(),
+      dragSurfaceEl: ev.currentTarget?.classList?.contains?.("group-drag-surface") ? ev.currentTarget : null,
       captureEl: null,
       capturePointerId: null
     };
     try {
       const capEl = ev.currentTarget;
-      if (capEl && typeof capEl.setPointerCapture === "function") {
+      if (capEl?.classList?.contains?.("group-drag-surface") && typeof capEl.setPointerCapture === "function") {
         capEl.setPointerCapture(ev.pointerId);
         runtime.groupDragging.captureEl = capEl;
         runtime.groupDragging.capturePointerId = ev.pointerId;
       }
     } catch (_) {}
+    if (runtime.groupDragging.dragSurfaceEl) {
+      runtime.groupDragging.dragSurfaceEl.classList.add("is-dragging");
+    }
     if (runtime.groupDragging.dragBarEl) {
       runtime.groupDragging.dragBarEl.classList.add("is-dragging");
       const ch = runtime.groupDragging.dragBarEl.closest(".group-chrome");
@@ -8476,6 +8871,7 @@ function finalizeFlowGroupDragIfAny() {
       el.style.left = `${wpos.x}px`;
       el.style.top = `${wpos.y}px`;
     }
+    if (gd.dragSurfaceEl) gd.dragSurfaceEl.classList.remove("is-dragging");
     if (gd.dragBarEl) {
       gd.dragBarEl.classList.remove("is-dragging");
       gd.dragBarEl.closest(".group-chrome")?.classList.remove("is-dragging");
@@ -8500,6 +8896,7 @@ function finalizeFlowGroupDragIfAny() {
     releaseGroupDragPointerCapture(gd);
     const { lastDx, lastDy, originalGroupPositions, groupIds, dragBarEl, affectedNodeIds } = gd;
     const moved = lastDx !== 0 || lastDy !== 0;
+    if (gd.dragSurfaceEl) gd.dragSurfaceEl.classList.remove("is-dragging");
     if (dragBarEl) {
       dragBarEl.classList.remove("is-dragging");
       dragBarEl.closest(".group-chrome")?.classList.remove("is-dragging");
@@ -8552,6 +8949,15 @@ function finalizeFlowGroupDragIfAny() {
   function applyUserGroupSelection(ev, g, opts = {}) {
     ev.stopPropagation();
     ev.preventDefault();
+    if (!g?.id || !userGroupById(getProject(), g.id)) return;
+    initMapDiagramRuntimes();
+    if (selectionRuntime) {
+      selectionRuntime.applyGroupSelection(g, ev, opts);
+      sanitizeSelectionState();
+      syncTopbarGroupActions();
+      syncGroupInspectorMeta();
+      return;
+    }
     if (isAdditiveSelection(ev)) {
       if (runtime.selectedGroupIds.has(g.id)) runtime.selectedGroupIds.delete(g.id);
       else runtime.selectedGroupIds.add(g.id);
@@ -8589,7 +8995,25 @@ function finalizeFlowGroupDragIfAny() {
     });
   }
 
+  function syncGroupOverlaySelectionClasses() {
+    if (!semanticOverlays) return;
+    for (const el of semanticOverlays.querySelectorAll(".group-chrome, .group-box-under")) {
+      const gid = el.dataset.groupId;
+      if (!gid) continue;
+      el.classList.toggle("selected", runtime.selectedGroupIds.has(gid));
+    }
+  }
+
   function renderSemanticOverlays() {
+    const _gcDbgOverlay = mdGcShouldLog();
+    if (_gcDbgOverlay) {
+      mdGcLog("[OVERLAY RENDER] renderSemanticOverlays (enter)", {
+        focusGroupId: runtime.focusGroupId,
+        selectedGroupIds: [...runtime.selectedGroupIds],
+        groupConnecting: runtime.groupConnecting ? { ...runtime.groupConnecting } : null,
+        stack: mdGcShortStack()
+      });
+    }
     semanticOverlays.innerHTML = "";
     canvasUnderlays.innerHTML = "";
     for (const g of runtime.virtualGroups) {
@@ -8643,6 +9067,18 @@ function finalizeFlowGroupDragIfAny() {
       chrome.style.setProperty("--group-label-border", vars.border);
       chrome.style.setProperty("--group-label-bg", vars.labelBg);
 
+      const onGroupBodyPointerDown = (ev) => {
+        if (ev.button !== 0) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        applyUserGroupSelection(ev, g, { refreshOverlay: true });
+      };
+      const bodyHit = document.createElement("div");
+      bodyHit.className = "group-chrome-body";
+      bodyHit.dataset.groupId = g.id;
+      bodyHit.addEventListener("pointerdown", onGroupBodyPointerDown);
+      chrome.appendChild(bodyHit);
+
       const onEdgePointerDown = (ev) => {
         if (ev.button !== 0) return;
         ev.preventDefault();
@@ -8660,12 +9096,18 @@ function finalizeFlowGroupDragIfAny() {
       const header = document.createElement("div");
       header.className = "group-header-row";
 
+      const dragSurface = document.createElement("div");
+      dragSurface.className = "group-drag-surface";
+      dragSurface.dataset.groupId = g.id;
+      dragSurface.style.cursor = g.pinned ? "not-allowed" : "grab";
+
       const dragBar = document.createElement("div");
       dragBar.className = "label group-drag-bar";
-      dragBar.style.cursor = g.pinned ? "not-allowed" : "grab";
+      dragBar.style.cursor = "inherit";
       dragBar.style.flex = "1";
       dragBar.style.minWidth = "40px";
       dragBar.textContent = g.name || "Group";
+      dragSurface.appendChild(dragBar);
 
       const tb = document.createElement("div");
       tb.className = "group-toolbar";
@@ -8731,7 +9173,7 @@ function finalizeFlowGroupDragIfAny() {
       });
       tb.insertBefore(collapseReserve, tb.lastElementChild);
 
-      header.append(dragBar, tb);
+      header.append(dragSurface, tb);
 
       const inHandle = document.createElement("div");
       inHandle.className = "group-handle in";
@@ -8754,14 +9196,14 @@ function finalizeFlowGroupDragIfAny() {
         ev.preventDefault();
         applyUserGroupSelection(ev, g, { refreshOverlay: true });
       });
-      dragBar.addEventListener("pointerdown", (ev) => {
-        if (ev.target.closest(".group-toolbar")) return;
+      dragSurface.addEventListener("pointerdown", (ev) => {
+        if (ev.button !== 0) return;
         ev.preventDefault();
         ev.stopPropagation();
         applyUserGroupSelection(ev, g, { refreshOverlay: false });
         if (!g.pinned) beginGroupDrag(ev, g.id);
       });
-      dragBar.addEventListener("dblclick", (ev) => {
+      dragSurface.addEventListener("dblclick", (ev) => {
         ev.stopPropagation();
         toggleGroupCollapsed(g.id);
       });
@@ -8788,27 +9230,137 @@ function finalizeFlowGroupDragIfAny() {
         renderSemanticOverlays();
         markDirty();
       };
-      dragBar.addEventListener("contextmenu", onCtx);
+      dragSurface.addEventListener("contextmenu", onCtx);
       inHandle.addEventListener("contextmenu", onCtx);
       outHandle.addEventListener("contextmenu", onCtx);
 
       semanticOverlays.appendChild(chrome);
     }
+    syncGroupOverlaySelectionClasses();
     refreshGroupParentSelectOptions();
+    if (_gcDbgOverlay) {
+      mdGcLog("[OVERLAY RENDER] renderSemanticOverlays (exit)", {
+        chromeBuilt: semanticOverlays?.querySelectorAll(".group-chrome")?.length ?? 0,
+        underlayBuilt: canvasUnderlays?.querySelectorAll(".group-box-under")?.length ?? 0
+      });
+    }
+  }
+
+  function finalizeGroupConnectionDrag(clientX, clientY) {
+    runtime._mdGcDebugUntil = Date.now() + 8000;
+    mdGcLog("[GROUP CONNECT FINALIZE] enter", {
+      clientX,
+      clientY,
+      snap: runtime.groupConnecting ? { ...runtime.groupConnecting } : null,
+      stack: mdGcShortStack()
+    });
+    try {
+      const snap = runtime.groupConnecting;
+      if (!snap) {
+        mdGcLog("[GROUP CONNECT FINALIZE] abort — no groupConnecting state", null);
+        return false;
+      }
+      const p = getProject();
+      const fromGroupId = snap.fromGroupId;
+      if (!userGroupById(p, fromGroupId)) {
+        mdGcLog("[GROUP CONNECT FINALIZE] abort — invalid fromGroupId", { fromGroupId });
+        abortGroupConnectionDrag("finalize-invalid-from");
+        return false;
+      }
+      const gcBefore = (p.groupConnections || []).length;
+      ensureProjectExtras(p);
+      mdGcSnapshot("[GROUP CONNECT FINALIZE] after ensureProjectExtras", { gcBefore });
+      const hit = document.elementFromPoint(clientX, clientY);
+      const targetEl = hit?.closest?.(
+        ".group-chrome-body, .group-handle, .group-chrome-hit-edge, .group-drag-surface"
+      );
+      const toGroupId = targetEl?.dataset?.groupId || snap.hoverGroupId || null;
+      mdGcLog("[GROUP CONNECT FINALIZE] target resolution", {
+        hitTag: hit?.tagName || null,
+        hitClass: hit?.className || null,
+        targetElTag: targetEl?.tagName || null,
+        targetElClass: targetEl?.className || null,
+        hoverGroupId: snap.hoverGroupId,
+        toGroupId,
+        fromGroupId,
+        toValid: !!(toGroupId && userGroupById(p, toGroupId))
+      });
+      let persisted = false;
+      let insertedId = null;
+      if (toGroupId && userGroupById(p, toGroupId) && toGroupId !== fromGroupId) {
+        const exists = p.groupConnections.some((c) => c.fromGroupId === fromGroupId && c.toGroupId === toGroupId);
+        mdGcLog("[GROUP CONNECT FINALIZE] duplicate check", { exists, fromGroupId, toGroupId });
+        if (!exists) {
+          pushHistory();
+          insertedId = uid();
+          p.groupConnections.push({ id: insertedId, fromGroupId, toGroupId, label: "" });
+          markDirty();
+          persisted = true;
+          mdGcLog("[GROUP CONNECT INSERTED]", {
+            id: insertedId,
+            fromGroupId,
+            toGroupId,
+            gcCount: p.groupConnections.length
+          });
+        }
+      } else {
+        mdGcLog("[GROUP CONNECT FINALIZE] skip insert", {
+          reason: !toGroupId ? "no-target" : toGroupId === fromGroupId ? "same-group" : "invalid-target",
+          toGroupId
+        });
+      }
+      abortGroupConnectionDrag("finalize-complete");
+      runtime.groupBoxCache = null;
+      if (runtime.renderConnectionsRaf) {
+        mdGcLog("[GROUP CONNECT FINALIZE] cancel pending renderConnections RAF", {
+          rafId: runtime.renderConnectionsRaf
+        });
+        cancelAnimationFrame(runtime.renderConnectionsRaf);
+        runtime.renderConnectionsRaf = null;
+      }
+      mdGcSnapshot("[GROUP CONNECT FINALIZE] before renderConnections", { persisted, insertedId });
+      renderConnections();
+      mdGcSnapshot("[GROUP CONNECT FINALIZE] after renderConnections", { persisted, insertedId });
+      mdGcLog("[GROUP CONNECT FINALIZE] exit", { persisted, toGroupId, insertedId });
+      return persisted || !!toGroupId;
+    } catch (err) {
+      console.error("[GROUP CONNECT FINALIZE] exception", err);
+      mdGcSnapshot("[GROUP CONNECT FINALIZE] exception snapshot", { message: String(err) });
+      throw err;
+    }
   }
 
   function startGroupConnectionDrag(groupId) {
+    runtime._mdGcDebugUntil = Date.now() + 8000;
+    mdGcLog("[GROUP CONNECT] startGroupConnectionDrag (enter)", { groupId, stack: mdGcShortStack() });
+    const p = getProject();
+    if (!userGroupById(p, groupId)) {
+      mdGcLog("[GROUP CONNECT] start aborted — unknown group", { groupId });
+      return;
+    }
     const box = getUserGroupBox(groupId);
-    if (!box) return;
+    if (!box) {
+      mdGcLog("[GROUP CONNECT] start aborted — no group box", { groupId });
+      return;
+    }
+    if (runtime.groupDragging) abortGroupDrag();
+    clearPendingConnectionState();
+    abortGroupConnectionDrag("start-replace");
     const preview = document.createElementNS("http://www.w3.org/2000/svg", "path");
     preview.setAttribute("class", "conn preview preview-neutral");
     preview.setAttribute("marker-end", "url(#arrow-head)");
-    runtime.groupConnecting = { fromGroupId: groupId, hoverGroupId: null };
+    runtime.groupConnecting = { fromGroupId: groupId, hoverGroupId: null, _dbgLastHover: null };
     runtime.groupPreviewPath = preview;
     const from = groupAnchor(box, "out");
     const auto = autoCurve(from, from);
     preview.setAttribute("d", curvePath(from, auto.cp1, auto.cp2, from));
-    scheduleRenderConnections();
+    connectionsLayer.appendChild(preview);
+    mdGcLog("[GROUP CONNECT] startGroupConnectionDrag (ready)", {
+      groupId,
+      previewInDom: !!runtime.groupPreviewPath?.isConnected,
+      gcCount: (p.groupConnections || []).length
+    });
+    mdGcSnapshot("[GROUP CONNECT] project at start");
   }
 
   function renderNodeSemanticClasses() {
@@ -8940,6 +9492,7 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function startConnectionDrag(nodeObj, pointerEvent) {
+    abortGroupConnectionDrag();
     runtime.connecting = { fromNodeId: nodeObj.id, hoverNodeId: null, hoverGroupInId: null };
     if (isFlowchartMode()) document.body.classList.add("fc-connecting");
     const wp =
@@ -8959,6 +9512,7 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function startBranchFromConnectionDrag(parentConnId) {
+    abortGroupConnectionDrag();
     const p = getProject();
     const parent = p.connections.find((x) => x.id === parentConnId);
     if (!parent || !isNodeNodeConnection(parent)) return;
@@ -9040,6 +9594,9 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function clearInteractionStates() {
+    if (mdGcShouldLog()) {
+      mdGcLog("[GROUP CONNECT CLEARED] clearInteractionStates", { stack: mdGcShortStack() });
+    }
     clearFcInteractionState();
   }
 
@@ -9839,9 +10396,9 @@ function finalizeFlowGroupDragIfAny() {
           return;
         }
         runtime.db.activeProjectId = p.projectId;
-        runtime.selectedNodeId = null;
+        initMapDiagramRuntimes();
+        selectionRuntime.clearSelection("nodes");
         clearAllEdgeSelection();
-        runtime.selectedNodeIds.clear();
         runtime.undo = [];
         runtime.redo = [];
         renderAll();
@@ -10031,16 +10588,21 @@ function finalizeFlowGroupDragIfAny() {
       style: { opacity: 0.88, glow: 14, shadow: 22, radius: preset.shape === "rounded" ? 16 : 12, borderColor: "#9cb8ff" }
     };
     p.nodes.push(n);
-    runtime.selectedNodeIds.clear();
-    runtime.selectedNodeIds.add(n.id);
-    runtime.selectedNodeId = n.id;
-    clearAllEdgeSelection();
-    runtime.selectedGroupId = null;
-    runtime.selectedGroupIds.clear();
-    renderAll();
-    if (isFlowchartMode()) flashFcNodeEnter(n.id);
-    markDirty();
-    scheduleSemanticAnalysis();
+
+selectionRuntime.selectNode(n.id);
+
+clearAllEdgeSelection();
+
+runtime.selectedGroupId = null;
+runtime.selectedGroupIds.clear();
+
+renderAll();
+
+if (isFlowchartMode()) flashFcNodeEnter(n.id);
+
+markDirty();
+
+scheduleSemanticAnalysis();
   }
 
   function revealDiagramNodeInspectorAndOpenExtended(nodeId) {
@@ -10084,28 +10646,28 @@ function finalizeFlowGroupDragIfAny() {
   selectionRuntime.toggleNode(n.id);
 
   clearAllEdgeSelection();
-  runtime.selectedGroupId = null;
-  runtime.selectedGroupIds.clear();
-  clearFlowGroupSelection();
 
   renderSelection();
   return;
 }
       if (e.ctrlKey || e.metaKey) {
-        if (runtime.selectedNodeIds.has(n.id)) runtime.selectedNodeIds.delete(n.id);
-        else runtime.selectedNodeIds.add(n.id);
-        runtime.selectedNodeId = runtime.selectedNodeIds.size === 1 ? [...runtime.selectedNodeIds][0] : n.id;
-      } else if (fcEditorCanSelect() && runtime.selectedNodeIds.has(n.id) && runtime.selectedNodeIds.size > 1) {
-        runtime.selectedNodeId = n.id;
-      } else {
-        if (!runtime.selectedNodeIds.has(n.id)) runtime.selectedNodeIds.clear();
-        runtime.selectedNodeIds.add(n.id);
-        runtime.selectedNodeId = n.id;
-      }
+  selectionRuntime.toggleNode(n.id);
+
+} else if (
+  fcEditorCanSelect() &&
+  runtime.selectedNodeIds.has(n.id) &&
+  runtime.selectedNodeIds.size > 1
+) {
+
+  runtime.selectedNodeId = n.id;
+
+} else {
+
+  selectionRuntime.selectNode(n.id);
+clearFlowGroupSelection();
+
+}
       clearAllEdgeSelection();
-      runtime.selectedGroupId = null;
-      runtime.selectedGroupIds.clear();
-      clearFlowGroupSelection();
       const dragIds = resolveDragIdsForNodePointer(n.id, e.altKey);
       const pDown = getProject();
       const blocked =
@@ -10202,6 +10764,17 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function renderConnections() {
+    const _gcDbgConn = mdGcShouldLog();
+    const p0 = getProject();
+    const gcCountIn = (p0.groupConnections || []).length;
+    if (_gcDbgConn) {
+      mdGcLog("[GROUP CONNECT] renderConnections (enter)", {
+        gcCountIn,
+        groupConnecting: runtime.groupConnecting ? { ...runtime.groupConnecting } : null,
+        hasPreview: !!runtime.groupPreviewPath,
+        stack: mdGcShortStack()
+      });
+    }
     connectionsLayer.innerHTML = "";
     const p = getProject();
     const validIds = new Set(p.connections.map((c) => c.id));
@@ -10706,10 +11279,25 @@ function finalizeFlowGroupDragIfAny() {
       pathB.dataset.connId = c.id;
       connectionsLayer.append(hitB, pathB);
     }
+    let _gcDbgRendered = 0;
+    let _gcDbgSkipped = 0;
     for (const gc of p.groupConnections || []) {
       const fromBox = getUserGroupBox(gc.fromGroupId);
       const toBox = getUserGroupBox(gc.toGroupId);
-      if (!fromBox || !toBox) continue;
+      if (!fromBox || !toBox) {
+        if (_gcDbgConn) {
+          _gcDbgSkipped++;
+          mdGcLog("[GROUP CONNECT] renderConnections skip gc (missing box)", {
+            gcId: gc.id,
+            from: gc.fromGroupId,
+            to: gc.toGroupId,
+            hasFromBox: !!fromBox,
+            hasToBox: !!toBox
+          });
+        }
+        continue;
+      }
+      if (_gcDbgConn) _gcDbgRendered++;
       const anchors = smartGroupAnchors(fromBox, toBox);
       const from = anchors.from;
       const to = anchors.to;
@@ -10790,6 +11378,16 @@ function finalizeFlowGroupDragIfAny() {
     }
     if (runtime.previewPath) connectionsLayer.appendChild(runtime.previewPath);
     if (runtime.groupPreviewPath) connectionsLayer.appendChild(runtime.groupPreviewPath);
+    if (_gcDbgConn) {
+      mdGcLog("[GROUP CONNECT] renderConnections (exit)", {
+        gcCountIn,
+        gcCountNow: (p.groupConnections || []).length,
+        gcRendered: _gcDbgRendered,
+        gcSkippedMissingBox: _gcDbgSkipped,
+        domGroupConnPaths: connectionsLayer?.querySelectorAll("path.group-conn")?.length ?? 0,
+        reappendedPreview: !!runtime.groupPreviewPath
+      });
+    }
   }
 
   function diagramInspectorSelectedNodeIds() {
@@ -11508,8 +12106,8 @@ function finalizeFlowGroupDragIfAny() {
     runtime.pendingImportParsed = null;
     runtime.connectionUi = {};
     clearAllEdgeSelection();
-    runtime.selectedNodeIds.clear();
-    runtime.selectedNodeId = null;
+    initMapDiagramRuntimes();
+    selectionRuntime.clearSelection("nodes");
     renderAll();
     markDirty();
     scheduleSemanticAnalysis();
@@ -12045,9 +12643,7 @@ function finalizeFlowGroupDragIfAny() {
       if (next.has(c.from)) next.add(c.to);
       if (next.has(c.to)) next.add(c.from);
     }
-    runtime.selectedNodeIds = next;
-    runtime.selectedNodeId = runtime.selectedNodeId && next.has(runtime.selectedNodeId) ? runtime.selectedNodeId : [...next][0];
-    renderSelection();
+    selectNodesViaRuntime([...next], { keepPrimary: runtime.selectedNodeId || undefined });
     scheduleRenderConnections();
   }
 
@@ -12062,9 +12658,7 @@ function finalizeFlowGroupDragIfAny() {
     for (const n of getProject().nodes) {
       if ((n.type || "process") === t) next.add(n.id);
     }
-    runtime.selectedNodeIds = next;
-    runtime.selectedNodeId = anchor.id;
-    renderSelection();
+    selectNodesViaRuntime([...next], { keepPrimary: anchor.id });
     scheduleRenderConnections();
   }
 
@@ -12213,6 +12807,7 @@ function finalizeFlowGroupDragIfAny() {
     syncTopbarConnectionActions();
     syncTopbarGroupActions();
     syncGroupInspectorMeta();
+    syncGroupOverlaySelectionClasses();
     syncFcQuickEditToolbar();
     syncFcGroupQuickEditToolbar();
     syncFcMultiSelectBar();
@@ -12232,25 +12827,29 @@ function finalizeFlowGroupDragIfAny() {
     }
   }
 
+  function renderCanvasLayers() {
+    pruneNodeElCache();
+    ensureProjectExtras(getProject());
+    updateViewport();
+    renderNodes();
+    renderConnections();
+    renderFlowGroupOverlays();
+    renderSelection();
+    renderNodeSemanticClasses();
+    renderSemanticOverlays();
+    paintMinimap();
+    syncFlowchartEmptyState();
+  }
+
   function renderAll() {
     const prof = window.MDRuntimeProfiler;
     if (prof && prof.perfEnabled()) prof.markStart("renderAll");
     try {
-      pruneNodeElCache();
-      ensureProjectExtras(getProject());
-      updateViewport();
+      renderCanvasLayers();
       if (nodePicker && !nodePicker.children.length) renderNodePicker();
       renderProjects();
-      renderNodes();
-      renderConnections();
-      renderFlowGroupOverlays();
-      renderSelection();
-      renderNodeSemanticClasses();
-      renderSemanticOverlays();
       renderSuggestions();
       mobileHint.textContent = "Touch: one finger drag/pan, two fingers pinch zoom.";
-      paintMinimap();
-      syncFlowchartEmptyState();
       if (runtime._fcCenterAfterOnboard && isFlowchartMode()) {
         runtime._fcCenterAfterOnboard = false;
         window.setTimeout(() => centerFlowchartInViewSoft(), 80);
@@ -12331,7 +12930,8 @@ function finalizeFlowGroupDragIfAny() {
       text: "New node", title: "New node", subtitle: "", description: "", icon: "🧠", type: "custom",
       style: { opacity: 0.9, glow: 12, shadow: 20, radius: 12, borderColor: "#9cb8ff" }
     });
-    runtime.selectedNodeId = p.nodes[p.nodes.length - 1].id;
+    initMapDiagramRuntimes();
+    selectionRuntime.selectNode(p.nodes[p.nodes.length - 1].id);
     clearAllEdgeSelection();
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
@@ -13216,8 +13816,7 @@ function finalizeFlowGroupDragIfAny() {
     });
     for (const rid of removedConnIds) delete runtime.connectionUi[rid];
     pruneInvalidBranchConnections(p);
-    runtime.selectedNodeId = null;
-    runtime.selectedNodeIds.clear();
+    selectionRuntime.clearSelection();
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
     clearAllEdgeSelection();
@@ -13535,7 +14134,8 @@ function finalizeFlowGroupDragIfAny() {
       alert("Select a node on the canvas first.");
       return;
     }
-    runtime.selectedNodeId = nodeId;
+    initMapDiagramRuntimes();
+    selectionRuntime.selectNode(nodeId);
     revealDiagramNodeInspectorAndOpenExtended(nodeId);
   });
   const nodeInspTabsEl = document.getElementById("nodeInspTabs");
@@ -13652,12 +14252,12 @@ function finalizeFlowGroupDragIfAny() {
     p.groupConnections = [];
     runtime.connectionUi = {};
     p.view = { x: 0, y: 0, zoom: 1, grid: p.view && p.view.grid !== false };
-    runtime.selectedNodeId = null;
+    initMapDiagramRuntimes();
+    selectionRuntime.clearSelection("nodes");
     runtime.selectedConnectionId = null;
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
     runtime.selectedGroupConnId = null;
-    runtime.selectedNodeIds.clear();
     const res = generateTemplate("flowchart", ["Start", "Process", "Decision", "End"], { worldX: 72, worldY: 72 });
     if (res) {
       runtime.selectedGroupId = res.groupId;
@@ -14044,7 +14644,7 @@ function finalizeFlowGroupDragIfAny() {
     if (e.target.closest("#fcQuickEdit, #fcGroupQuickEdit, .fc-quick-edit, .fc-group-quick-edit, #fcMultiSelectBar, .fc-multi-select-bar, #fcDeleteConfirm, .fc-delete-confirm, #fcAssistantRoot, .fc-assistant-root, .fc-flow-group-header, .fc-flow-group-body")) return;
     if (e.target.closest(".node") || e.target.closest(".conn") || e.target.closest(".conn-hit")) return;
     /* Group label/handles live above nodes; ignore canvas clear/pan when interacting with a group frame */
-    if (e.target.closest(".group-chrome")) return;
+    if (e.target.closest(".group-chrome, .group-chrome-body, .group-drag-surface")) return;
     const panChord = e.button === 1 || e.altKey || runtime.spaceKeyHeld;
     if (panChord) {
       if (runtime.pointers.size >= 2) {
@@ -14063,13 +14663,11 @@ function finalizeFlowGroupDragIfAny() {
       workspace.classList.add("panning");
       return;
     }
-    runtime.selectedNodeId = null;
-    runtime.selectedNodeIds.clear();
-    runtime.selectedGroupId = null;
-    runtime.selectedGroupIds.clear();
+    selectionRuntime.clearSelection("nodes");
     clearFlowGroupSelection();
     clearAllEdgeSelection();
     renderSelection();
+    syncGroupOverlaySelectionClasses();
     if (isAdditiveSelection(e) || runtime.selectionMode) {
       const r = workspace.getBoundingClientRect();
       runtime.marquee = {
@@ -14174,6 +14772,47 @@ function finalizeFlowGroupDragIfAny() {
       return;
     }
 
+    if (runtime.groupConnecting && runtime.groupPreviewPath) {
+      const p = getProject();
+      if (!userGroupById(p, runtime.groupConnecting.fromGroupId)) {
+        abortGroupConnectionDrag("pointermove-invalid-from");
+        return;
+      }
+      const fromBox = getUserGroupBox(runtime.groupConnecting.fromGroupId);
+      if (!fromBox) return;
+      const point = world(e.clientX, e.clientY);
+      const hit = document.elementFromPoint(e.clientX, e.clientY);
+      const targetEl = hit?.closest?.(
+        ".group-chrome-body, .group-handle, .group-chrome-hit-edge, .group-drag-surface"
+      );
+      const hoverGroupId = targetEl?.dataset?.groupId || null;
+      const prevHover = runtime.groupConnecting._dbgLastHover;
+      if (hoverGroupId !== prevHover) {
+        runtime.groupConnecting._dbgLastHover = hoverGroupId;
+        mdGcLog("[GROUP CONNECT] pointermove target", {
+          hoverGroupId,
+          prevHover,
+          hitTag: hit?.tagName || null,
+          hitClass: hit?.className || null,
+          targetClass: targetEl?.className || null,
+          clientX: e.clientX,
+          clientY: e.clientY
+        });
+      }
+      runtime.groupConnecting.hoverGroupId = hoverGroupId;
+      const toBox = hoverGroupId && hoverGroupId !== runtime.groupConnecting.fromGroupId ? getUserGroupBox(hoverGroupId) : null;
+      const anchors = toBox ? smartGroupAnchors(fromBox, toBox) : null;
+      const from = anchors ? anchors.from : groupAnchor(fromBox, "out", point);
+      const to = toBox ? anchors.to : point;
+      const auto = autoCurve(from, to);
+      const d = runtime.connectorStyle === "orthogonal"
+        ? orthogonalPath(from, to, [])
+        : curvePath(from, auto.cp1, auto.cp2, to);
+      runtime.groupPreviewPath.setAttribute("d", d);
+      runtime.groupPreviewPath.classList.remove("preview-valid", "preview-invalid", "preview-neutral");
+      runtime.groupPreviewPath.classList.add(toBox ? "preview-valid" : "preview-neutral");
+      return;
+    }
     if (runtime.groupDragging) {
       updateGroupDrag(e);
       return;
@@ -14330,26 +14969,6 @@ function finalizeFlowGroupDragIfAny() {
       renderSelection();
       return;
     }
-    if (runtime.groupConnecting && runtime.groupPreviewPath) {
-      const fromBox = getUserGroupBox(runtime.groupConnecting.fromGroupId);
-      if (!fromBox) return;
-      const point = world(e.clientX, e.clientY);
-      const targetEl = e.target.closest(".group-chrome");
-      const hoverGroupId = targetEl?.dataset?.groupId || null;
-      runtime.groupConnecting.hoverGroupId = hoverGroupId;
-      const toBox = hoverGroupId ? getUserGroupBox(hoverGroupId) : null;
-      const anchors = toBox ? smartGroupAnchors(fromBox, toBox) : null;
-      const from = anchors ? anchors.from : groupAnchor(fromBox, "out", point);
-      const to = toBox ? anchors.to : point;
-      const auto = autoCurve(from, to);
-      const d = runtime.connectorStyle === "orthogonal"
-        ? orthogonalPath(from, to, [])
-        : curvePath(from, auto.cp1, auto.cp2, to);
-      runtime.groupPreviewPath.setAttribute("d", d);
-      runtime.groupPreviewPath.classList.remove("preview-valid", "preview-invalid", "preview-neutral");
-      runtime.groupPreviewPath.classList.add(toBox ? "preview-valid" : "preview-neutral");
-      return;
-    }
 
     if (runtime.cpDragging) {
       const point = world(e.clientX, e.clientY);
@@ -14411,8 +15030,6 @@ function finalizeFlowGroupDragIfAny() {
         }
       }
       runtime.selectedNodeId = runtime.selectedNodeIds.size === 1 ? [...runtime.selectedNodeIds][0] : null;
-      runtime.selectedGroupId = null;
-      runtime.selectedGroupIds.clear();
       clearFlowGroupSelection();
       runtime.selectedGroupConnId = null;
       runtime.marquee = null;
@@ -14424,6 +15041,18 @@ function finalizeFlowGroupDragIfAny() {
       return;
     }
 
+    if (runtime.groupConnecting) {
+      mdGcLog("[GROUP CONNECT] pointerup → finalizeGroupConnectionDrag", {
+        pointerId: e.pointerId,
+        clientX: e.clientX,
+        clientY: e.clientY,
+        hoverGroupId: runtime.groupConnecting.hoverGroupId,
+        fromGroupId: runtime.groupConnecting.fromGroupId
+      });
+      const fin = finalizeGroupConnectionDrag(e.clientX, e.clientY);
+      mdGcLog("[GROUP CONNECT] pointerup ← finalize returned", { fin });
+      return;
+    }
     if (runtime.groupDragging) {
       if (e.pointerId === runtime.groupDragging.pointerId) endGroupDrag();
       return;
@@ -14600,26 +15229,6 @@ function finalizeFlowGroupDragIfAny() {
       scheduleSemanticAnalysis();
       return;
     }
-    if (runtime.groupConnecting) {
-      const p = getProject();
-      ensureProjectExtras(p);
-      const targetEl = e.target.closest(".group-chrome");
-      const toGroupId = targetEl?.dataset?.groupId || runtime.groupConnecting.hoverGroupId || null;
-      const fromGroupId = runtime.groupConnecting.fromGroupId;
-      if (toGroupId && fromGroupId && toGroupId !== fromGroupId) {
-        const exists = p.groupConnections.some((c) => c.fromGroupId === fromGroupId && c.toGroupId === toGroupId);
-        if (!exists) {
-          pushHistory();
-          p.groupConnections.push({ id: uid(), fromGroupId, toGroupId, label: "" });
-          markDirty();
-        }
-      }
-      if (runtime.groupPreviewPath) runtime.groupPreviewPath.remove();
-      runtime.groupPreviewPath = null;
-      runtime.groupConnecting = null;
-      renderConnections();
-      return;
-    }
     if (runtime.cpDragging) {
       const released = { ...runtime.cpDragging };
       runtime.cpDragging = null;
@@ -14656,6 +15265,16 @@ function finalizeFlowGroupDragIfAny() {
       finalizeActiveNodeDragIfAny();
     }
     if (runtime.focusNodeId) return;
+    if (runtime.groupConnecting) {
+      mdGcLog("[GROUP CONNECT CLEARED] pointercancel — abort WITHOUT finalize/persist", {
+        pointerId: e.pointerId,
+        hoverGroupId: runtime.groupConnecting.hoverGroupId,
+        stack: mdGcShortStack()
+      });
+      abortGroupConnectionDrag("pointercancel");
+      scheduleRenderConnections();
+      return;
+    }
     clearInteractionStates();
     scheduleRenderConnections();
   });
@@ -15317,6 +15936,119 @@ function finalizeFlowGroupDragIfAny() {
     if (runtime.supabase && runtime.authUser) void syncAiWalletFromBackend();
   });
   applyAiCreditGatesToUi();
+
+  function installMdTestHooks() {
+    if (new URLSearchParams(location.search).get("mdTest") !== "1") return;
+    console.info(
+      "[GROUP CONNECT] Debug: localStorage.setItem('md_debug_group_connect','1') or ?mdDebugGroupConnect=1 then reload"
+    );
+    window.__mdTest = {
+      seedGroupsFixture() {
+        document.body.classList.remove("flowchart-mode");
+        const p = getProject();
+        p.nodes = [
+          { id: "n1", x: 80, y: 80, width: 120, height: 60, text: "A", title: "A", shape: "rect", type: "process" },
+          { id: "n2", x: 320, y: 80, width: 120, height: 60, text: "B", title: "B", shape: "rect", type: "process" }
+        ].map((n) => normalizeNode(n));
+        p.userGroups = [
+          { id: "g1", name: "Group A", color: "#8baeff", x: 40, y: 40, nodeIds: ["n1"], childGroupIds: [], parentGroupId: null, collapsed: false, pinned: false, zIndex: 1, hierarchyDepth: 0 },
+          { id: "g2", name: "Group B", color: "#ff8b8b", x: 280, y: 40, nodeIds: ["n2"], childGroupIds: [], parentGroupId: null, collapsed: false, pinned: false, zIndex: 2, hierarchyDepth: 0 }
+        ];
+        p.connections = [];
+        p.groupConnections = [];
+        p._groupLocalSpace = 2;
+        runtime.focusGroupId = null;
+        runtime.focusGroupStack = [];
+        runtime.groupBoxCache = null;
+        initMapDiagramRuntimes();
+        if (selectionRuntime) selectionRuntime.clearAllForUndo();
+        renderAll();
+      },
+      seedGroupConnectionFixture() {
+        window.__mdTest.seedGroupsFixture();
+        const p = getProject();
+        p.groupConnections.push({ id: "gc1", fromGroupId: "g1", toGroupId: "g2", label: "" });
+        runtime.groupBoxCache = null;
+        renderConnections();
+      },
+      getSelection() {
+        initMapDiagramRuntimes();
+        if (selectionRuntime) {
+          const s = selectionRuntime.getSelection();
+          return {
+            selectedNodeId: s.selectedNodeId,
+            selectedNodeIds: [...s.selectedNodeIds],
+            selectedGroupId: s.selectedGroupId,
+            selectedGroupIds: [...s.selectedGroupIds],
+            selectedGroupConnId: s.selectedGroupConnId,
+            selectedGroupConnIds: [...s.selectedGroupConnIds],
+            selectedConnectionId: s.selectedConnectionId,
+            selectedConnectionIds: [...s.selectedConnectionIds],
+            focusGroupId: runtime.focusGroupId
+          };
+        }
+        return {
+          selectedNodeId: runtime.selectedNodeId,
+          selectedNodeIds: [...runtime.selectedNodeIds],
+          selectedGroupId: runtime.selectedGroupId,
+          selectedGroupIds: [...runtime.selectedGroupIds],
+          selectedGroupConnId: runtime.selectedGroupConnId,
+          selectedGroupConnIds: [...runtime.selectedGroupConnIds],
+          selectedConnectionId: runtime.selectedConnectionId,
+          selectedConnectionIds: [...runtime.selectedConnectionIds],
+          focusGroupId: runtime.focusGroupId
+        };
+      },
+      getGroupConnectionCount() {
+        return (getProject().groupConnections || []).length;
+      },
+      getGroupChromeSelectedCount() {
+        return document.querySelectorAll(".group-chrome.selected").length;
+      },
+      enterGroupFocusMode,
+      exitGroupFocusMode,
+      startGroupConnectionDrag,
+      finalizeGroupConnectionDrag,
+      pushHistory,
+      undo() {
+        document.getElementById("undoBtn")?.click();
+      },
+      removeUserGroupFrame,
+      ungroupUserGroup() {
+        if (!runtime.selectedGroupId) return false;
+        pushHistory();
+        removeUserGroupFrame(runtime.selectedGroupId);
+        markDirty();
+        return true;
+      },
+      selectGroupById(groupId) {
+        const p = getProject();
+        const g = userGroupById(p, groupId);
+        if (!g) return false;
+        const chrome = document.querySelector(`.group-chrome[data-group-id="${groupId}"]`);
+        const target =
+          chrome?.querySelector(".group-chrome-body") || chrome?.querySelector(".group-chrome-hit-edge");
+        if (!target) return false;
+        target.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, button: 0 }));
+        return true;
+      },
+      simulateGroupConnectToGroup(toGroupId) {
+        if (!runtime.groupConnecting) return false;
+        runtime.groupConnecting.hoverGroupId = toGroupId;
+        const chrome = document.querySelector(`.group-chrome[data-group-id="${toGroupId}"]`);
+        const r = chrome?.getBoundingClientRect();
+        if (!r) return false;
+        return finalizeGroupConnectionDrag(r.left + r.width / 2, r.top + r.height / 2);
+      },
+      selectGroupConnectionById(gcId) {
+        const hit = document.querySelector(`path.conn-hit[data-gc-id="${gcId}"]`);
+        if (!hit) return false;
+        hit.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, button: 0 }));
+        return true;
+      }
+    };
+  }
+  installMdTestHooks();
 </script>
 </body>
 </html>

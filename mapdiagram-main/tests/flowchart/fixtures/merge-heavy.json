@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "title": "Merge Heavy Process",
+  "direction": "TB",
+  "nodes": [
+    { "id": "start", "label": "Start", "kind": "start" },
+    { "id": "intake", "label": "Intake", "kind": "process" },
+    { "id": "route", "label": "Route type?", "kind": "decision" },
+    { "id": "fast", "label": "Fast track", "kind": "process" },
+    { "id": "std", "label": "Standard track", "kind": "process" },
+    { "id": "audit", "label": "Audit track", "kind": "process" },
+    { "id": "merge", "label": "Quality check", "kind": "process" },
+    { "id": "end", "label": "Complete", "kind": "end" }
+  ],
+  "edges": [
+    { "from": "start", "to": "intake" },
+    { "from": "intake", "to": "route" },
+    { "from": "route", "to": "fast", "label": "A" },
+    { "from": "route", "to": "std", "label": "B" },
+    { "from": "route", "to": "audit", "label": "C" },
+    { "from": "fast", "to": "merge" },
+    { "from": "std", "to": "merge" },
+    { "from": "audit", "to": "merge" },
+    { "from": "merge", "to": "end" }
+  ]
+}

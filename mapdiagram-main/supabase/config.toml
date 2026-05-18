@@ -1,0 +1,20 @@
+# Supabase CLI — link with `supabase link` then deploy functions: `supabase functions deploy ai-complete`
+# JWT verification is handled inside functions that need user context.
+
+[functions.ai-complete]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.admin-billing]
+verify_jwt = false
+
+[functions.billing-checkout]
+verify_jwt = false
+
+[functions.billing-mock-purchase]
+verify_jwt = false
+
+[functions.public-flowchart]
+verify_jwt = false
