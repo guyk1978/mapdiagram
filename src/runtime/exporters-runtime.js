@@ -999,7 +999,7 @@ export function exportAsPng() {
   ctx.restore();
   const a = document.createElement("a");
   a.href = canvas.toDataURL("image/png");
-  a.download = `${(p.name || "diagram").replace(/\s+/g, "-").toLowerCase()}.png`;
+  a.download = `${(p.name || "diagram").replace(/\s+/g, "-").toLowerCase() || "diagram"}.png`;
   a.click();
   bind().deps.showToast("PNG export complete (nodes, systems, and all link types).", "info");
   if (window.MapDiagramAnalytics) MapDiagramAnalytics.exportPng({ flowchart: bind().deps.isFlowchartMode() });

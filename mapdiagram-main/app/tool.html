@@ -4004,8 +4004,8 @@
         <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password">
         <button id="authPasswordToggle" type="button" class="auth-password-toggle" data-password-target="authPassword" aria-label="Show password" aria-pressed="false">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z" stroke="currentColor" stroke-width="1.75"/>
-            <circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.75"/>
+            <path d="M12 5C5.636 5 2 12 2 12s3.636 7 10 7 10-7 10-7-3.636-7-10-7Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.75"/>
           </svg>
         </button>
       </div>
@@ -4016,8 +4016,8 @@
         <input id="authNewPassword" type="password" placeholder="Enter new password" autocomplete="new-password">
         <button id="authNewPasswordToggle" type="button" class="auth-password-toggle" data-password-target="authNewPassword" aria-label="Show password" aria-pressed="false">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z" stroke="currentColor" stroke-width="1.75"/>
-            <circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.75"/>
+            <path d="M12 5C5.636 5 2 12 2 12s3.636 7 10 7 10-7 10-7-3.636-7-10-7Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.75"/>
           </svg>
         </button>
       </div>
@@ -4225,6 +4225,12 @@
     return s ? String(s).trim().toLowerCase() : null;
   })();
   const MD_EDIT_COUNT_KEY = "md-fc-edit-count";
+  function safeLower(v) {
+    return v == null ? "" : String(v).trim().toLowerCase();
+  }
+  function eventKeyLower(e) {
+    return e && typeof e.key === "string" ? eventKeyLower(e) : "";
+  }
 
 
   const workspace = document.getElementById("workspace");
@@ -8332,7 +8338,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     }
     for (const [title, nodes] of Object.entries(keywordBuckets)) {
       if (nodes.length < 3) continue;
-      groups.push(makeGroup(`kw-${title.toLowerCase()}`, title, nodes));
+      groups.push(makeGroup(`kw-${safeLower(title)}`, title, nodes));
     }
     return groups;
   }
@@ -12093,7 +12099,7 @@ clearFlowGroupSelection();
     const all = getWorkspaceCommands();
     if (!s) return all;
     return all.filter((c) => {
-      const hay = `${c.label} ${c.keywords || ""} ${c.keys || ""}`.toLowerCase();
+      const hay = `${c.label || ""} ${c.keywords || ""} ${c.keys || ""}`.toLowerCase();
       return hay.includes(s);
     });
   }
@@ -12216,7 +12222,7 @@ clearFlowGroupSelection();
       renderCommandPaletteList();
     });
     input.addEventListener("keydown", (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+      if ((e.ctrlKey || e.metaKey) && eventKeyLower(e) === "k") {
         e.preventDefault();
         closeCommandPalette();
         return;
@@ -13841,7 +13847,7 @@ clearFlowGroupSelection();
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${p.name.replace(/\s+/g, "-").toLowerCase() || "diagram"}.json`;
+    a.download = `${(p.name || "diagram").replace(/\s+/g, "-").toLowerCase() || "diagram"}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -14755,7 +14761,7 @@ clearFlowGroupSelection();
       !e.ctrlKey &&
       !e.metaKey &&
       !e.altKey &&
-      e.key.toLowerCase() === "m" &&
+      eventKeyLower(e) === "m" &&
       !runtime.focusNodeId
     ) {
       e.preventDefault();
@@ -14778,37 +14784,37 @@ clearFlowGroupSelection();
       clearFlowchartNodeSelection();
       return;
     }
-    if (!typing && (e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "k" && isFlowchartMode()) {
+    if (!typing && (e.ctrlKey || e.metaKey) && e.shiftKey && eventKeyLower(e) === "k" && isFlowchartMode()) {
       e.preventDefault();
       if (runtime.focusNodeId) return;
       if (cpOv && !cpOv.hidden) closeCommandPalette();
       else openCommandPalette(true);
       return;
     }
-    if (!typing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k" && isFlowchartMode()) {
+    if (!typing && (e.ctrlKey || e.metaKey) && eventKeyLower(e) === "k" && isFlowchartMode()) {
       e.preventDefault();
       if (runtime.focusNodeId) return;
       toggleFlowchartAssistant();
       return;
     }
-    if (!typing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+    if (!typing && (e.ctrlKey || e.metaKey) && eventKeyLower(e) === "k") {
       e.preventDefault();
       if (runtime.focusNodeId) return;
       if (cpOv && !cpOv.hidden) closeCommandPalette();
       else openCommandPalette(true);
       return;
     }
-    if (!typing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a" && isFlowchartMode()) {
+    if (!typing && (e.ctrlKey || e.metaKey) && eventKeyLower(e) === "a" && isFlowchartMode()) {
       e.preventDefault();
       selectAllFlowchartNodes();
       return;
     }
-    if (!typing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "d") {
+    if (!typing && (e.ctrlKey || e.metaKey) && eventKeyLower(e) === "d") {
       e.preventDefault();
       duplicateSelectedNodesAction();
       return;
     }
-    if (!typing && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l" && isFlowchartMode()) {
+    if (!typing && (e.ctrlKey || e.metaKey) && eventKeyLower(e) === "l" && isFlowchartMode()) {
       e.preventDefault();
       improveFlowchartLayoutAction();
       return;
@@ -14830,7 +14836,7 @@ clearFlowGroupSelection();
         return;
       }
     }
-    if (!typing && e.shiftKey && e.key.toLowerCase() === "r" && isFlowchartMode()) {
+    if (!typing && e.shiftKey && eventKeyLower(e) === "r" && isFlowchartMode()) {
       e.preventDefault();
       refreshCanvasView();
       return;
@@ -14874,12 +14880,12 @@ clearFlowGroupSelection();
       }
       return;
     }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z" && !e.shiftKey) {
+    if ((e.ctrlKey || e.metaKey) && eventKeyLower(e) === "z" && !e.shiftKey) {
       e.preventDefault();
       restoreSnapshot(runtime.undo, runtime.redo);
       return;
     }
-    if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === "y" || (e.shiftKey && e.key.toLowerCase() === "z"))) {
+    if ((e.ctrlKey || e.metaKey) && (eventKeyLower(e) === "y" || (e.shiftKey && eventKeyLower(e) === "z"))) {
       e.preventDefault();
       restoreSnapshot(runtime.redo, runtime.undo);
       return;
@@ -15198,6 +15204,7 @@ clearFlowGroupSelection();
   });
 
   initFlowchartModeUi();
+  initFlowchartProductUi();
   initMapDiagramRuntimes();
   ensureBoot();
   tryOpenSharedProject();

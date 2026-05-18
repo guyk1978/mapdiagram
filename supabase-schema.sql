@@ -35,5 +35,5 @@ using (auth.uid() = user_id);
 create index if not exists idx_projects_user_updated
 on public.projects(user_id, updated_at desc);
 
--- AI credit billing (wallets, ledger, usage logs, RPCs): apply full migration from
--- supabase/migrations/20260209120000_ai_credit_billing.sql
+-- user_wallets (minimal): supabase/setup-projects-and-wallets.sql
+-- Full AI billing (ledger, RPCs, Stripe): supabase/migrations/20260209120000_ai_credit_billing.sql

@@ -39,6 +39,29 @@ function getMdEditCountKey() {
   return c?.mdEditCountKey ?? "md-fc-edit-count";
 }
 
+/** Display label for signed-in user when email or metadata may be missing. */
+function getAuthUserDisplay(user) {
+  if (!user) return "Signed in";
+  const email = user.email;
+  if (typeof email === "string" && email.trim()) return email.trim();
+  const meta = user.user_metadata;
+  if (meta && typeof meta === "object") {
+    const name = meta.full_name || meta.name || meta.user_name;
+    if (typeof name === "string" && name.trim()) return name.trim();
+  }
+  return "Signed in";
+}
+
+function normalizeDbShape() {
+  const db = bind().ctx.runtime.db;
+  if (!db || typeof db !== "object") {
+    bind().ctx.runtime.db = { projects: [], activeProjectId: null, shares: {} };
+    return;
+  }
+  if (!Array.isArray(db.projects)) db.projects = [];
+  if (db.shares == null || typeof db.shares !== "object") db.shares = {};
+}
+
 export function normalizeSupabaseProjectUrl(raw) {
   const s = String(raw || "").trim();
   if (!s) return { ok: false, reason: "empty_url", host: "", baseUrl: "" };
@@ -55,12 +78,16 @@ export function normalizeSupabaseProjectUrl(raw) {
 
 export function loadDB() {
   const raw = localStorage.getItem(getDbKey());
-  if (!raw) return;
+  if (!raw) {
+    normalizeDbShape();
+    return;
+  }
   try {
     bind().ctx.runtime.db = JSON.parse(raw);
   } catch {
     bind().ctx.runtime.db = { projects: [], activeProjectId: null, shares: {} };
   }
+  normalizeDbShape();
 }
 
 export function saveDB() {
@@ -99,7 +126,9 @@ export function markDirty() {
   bind().deps.dom.savedIndicator.textContent = "Saving...";
   if (bind().ctx.runtime.autosaveTimer) clearTimeout(bind().ctx.runtime.autosaveTimer);
   bind().ctx.runtime.autosaveTimer = setTimeout(() => {
-    getProject().updatedAt = Date.now();
+    const p = getProject();
+    if (!p) return;
+    p.updatedAt = Date.now();
     saveDB();
     scheduleCloudSync();
     scheduleSoftLockPrompt();
@@ -151,18 +180,22 @@ export function initSupabase() {
 }
 
 export function refreshAuthUi() {
-  const { dom } = bind().deps;
-  const { runtime } = bind().ctx;
-  if (runtime.authUser) {
-    if (dom.userChip) dom.userChip.textContent = runtime.authUser.email || "Signed in";
-    if (dom.authBtn) dom.authBtn.textContent = "Logout";
-    if (dom.softLock) dom.softLock.classList.remove("open");
-    runtime.softLockShown = true;
-  } else {
-    if (dom.userChip) dom.userChip.textContent = "Guest mode";
-    if (dom.authBtn) dom.authBtn.textContent = "Login";
+  try {
+    const { dom } = bind().deps;
+    const { runtime } = bind().ctx;
+    if (runtime.authUser) {
+      if (dom.userChip) dom.userChip.textContent = getAuthUserDisplay(runtime.authUser);
+      if (dom.authBtn) dom.authBtn.textContent = "Logout";
+      if (dom.softLock) dom.softLock.classList.remove("open");
+      runtime.softLockShown = true;
+    } else {
+      if (dom.userChip) dom.userChip.textContent = "Guest mode";
+      if (dom.authBtn) dom.authBtn.textContent = "Login";
+    }
+    void refreshUserCreditsDisplay();
+  } catch (err) {
+    console.warn("[App Auth] refreshAuthUi failed:", err);
   }
-  void refreshUserCreditsDisplay();
 }
 
 /**
@@ -172,18 +205,24 @@ export function refreshAuthUi() {
 export async function syncAuthStateFromClient(options = {}) {
   const { loadProjects = true } = options;
   const { runtime } = bind().ctx;
-  if (!runtime.supabase) {
-    runtime.authUser = null;
+  try {
+    if (!runtime.supabase) {
+      runtime.authUser = null;
+      refreshAuthUi();
+      applyAiCreditGatesToUi();
+      return;
+    }
+    const { data, error } = await runtime.supabase.auth.getSession();
+    if (error) console.warn("[App Auth] getSession failed:", error);
+    runtime.authUser = data?.session?.user ?? null;
     refreshAuthUi();
     applyAiCreditGatesToUi();
-    return;
+    if (loadProjects && runtime.authUser) await loadCloudProjects();
+  } catch (err) {
+    console.warn("[App Auth] syncAuthStateFromClient failed:", err);
+    refreshAuthUi();
+    applyAiCreditGatesToUi();
   }
-  const { data, error } = await runtime.supabase.auth.getSession();
-  if (error) console.warn("[App Auth] getSession failed:", error);
-  runtime.authUser = data?.session?.user ?? null;
-  refreshAuthUi();
-  applyAiCreditGatesToUi();
-  if (loadProjects && runtime.authUser) await loadCloudProjects();
 }
 
 export function useMockCreditPurchasesUi() {
@@ -602,14 +641,23 @@ export async function handlePasswordResetSubmit() {
 
 export async function loadCloudProjects() {
   if (!bind().ctx.runtime.supabase || !bind().ctx.runtime.authUser) return;
-  const { data, error } = await bind().ctx.runtime.supabase
-    .from("projects")
-    .select("id,name,data,updated_at")
-    .order("updated_at", { ascending: false });
-  if (error) {
-    bind().deps.dom.authStatus.textContent = error.message;
+  let data;
+  let error;
+  try {
+    ({ data, error } = await bind().ctx.runtime.supabase
+      .from("projects")
+      .select("id,name,data,updated_at")
+      .order("updated_at", { ascending: false }));
+  } catch (err) {
+    console.warn("[App Auth] loadCloudProjects request failed:", err);
     return;
   }
+  if (error) {
+    console.warn("[App Auth] loadCloudProjects:", error.message);
+    if (bind().deps.dom.authStatus) bind().deps.dom.authStatus.textContent = error.message;
+    return;
+  }
+  try {
   bind().ctx.runtime.db.projects = (data || []).map((row) => ({
     projectId: row.id,
     name: row.name || "Untitled",
@@ -635,6 +683,9 @@ export async function loadCloudProjects() {
   bind().deps.renderAll();
   bind().deps.analyzeDiagramSemantics();
   void syncAiWalletFromBackend();
+  } catch (err) {
+    console.warn("[App Auth] loadCloudProjects parse failed:", err);
+  }
 }
 
 export async function cloudSyncProject(project) {
@@ -670,6 +721,7 @@ export function scheduleCloudSync() {
   if (bind().ctx.runtime.cloudSyncTimer) clearTimeout(bind().ctx.runtime.cloudSyncTimer);
   bind().ctx.runtime.cloudSyncTimer = setTimeout(async () => {
     const p = getProject();
+    if (!p) return;
     await cloudSyncProject(p);
     bind().deps.dom.savedIndicator.textContent = "Saved (cloud)";
   }, 600);
@@ -677,6 +729,7 @@ export function scheduleCloudSync() {
 
 export async function bootstrapAuth() {
   const { runtime } = bind().ctx;
+  try {
   if (!runtime.supabase) {
     refreshAuthUi();
     return;
@@ -710,6 +763,11 @@ export async function bootstrapAuth() {
       bind().deps.analyzeDiagramSemantics();
     }
   });
+  } catch (err) {
+    console.warn("[App Auth] bootstrapAuth failed:", err);
+    refreshAuthUi();
+    applyAiCreditGatesToUi();
+  }
 }
 
 export function getProject() {
