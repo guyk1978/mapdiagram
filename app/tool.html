@@ -4254,7 +4254,7 @@
     return v == null ? "" : String(v).trim().toLowerCase();
   }
   function eventKeyLower(e) {
-    return e && typeof e.key === "string" ? eventKeyLower(e) : "";
+    return e && typeof e.key === "string" ? safeLower(e.key) : "";
   }
 
 
@@ -6501,7 +6501,7 @@ function finalizeFlowGroupDragIfAny() {
       if (!fg.color) fg.color = "#7aa2ff";
       if (fg.collapsed == null) fg.collapsed = false;
     }
-    p.flowGroups = p.flowGroups.filter((fg) => (fg.nodeIds || []).length >= 2);
+    p.flowGroups = p.flowGroups.filter((fg) => (fg.nodeIds || []).length > 0);
     for (const fg of p.flowGroups) refreshFlowGroupBounds(fg);
   }
 
@@ -6579,12 +6579,7 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function selectFlowGroup(fgId) {
-  console.log("SELECT FLOW GROUP ->", fgId);
-
   runtime.selectedFlowGroupId = fgId || null;
-
-  console.log("STATE AFTER SELECT ->", runtime.selectedFlowGroupId);
-
   runtime.selectedNodeId = null;
   runtime.selectedNodeIds.clear();
   runtime.selectedGroupId = null;
@@ -7057,10 +7052,10 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function duplicateFlowGroupAction(fgId) {
-    const fg = flowGroupById(getProject(), fgId);
+    const p = getProject();
+    const fg = flowGroupById(p, fgId);
     if (!fg || !(fg.nodeIds || []).length) return;
     pushHistory();
-    const p = getProject();
     const ox = 36;
     const oy = 36;
     const idMap = new Map();
@@ -7074,31 +7069,46 @@ function finalizeFlowGroupDragIfAny() {
       p.nodes.push(clone);
       idMap.set(nid, clone.id);
     }
-    const newConns = [];
-    for (const c of p.connections) {
-      if (!isNodeNodeConnection(c)) continue;
-      if (idMap.has(c.from) && idMap.has(c.to)) {
+    if (idMap.size < 2) {
+      showToast("Need at least 2 steps to duplicate this flow group.", "warn");
+      return;
+    }
+    const newFgId = uid();
+    const snapConn = [...(p.connections || [])];
+    for (const c of snapConn) {
+      if (isNodeNodeConnection(c) && idMap.has(c.from) && idMap.has(c.to)) {
         const nc = deepCopy(c);
         nc.id = uid();
         nc.from = idMap.get(c.from);
         nc.to = idMap.get(c.to);
-        newConns.push(nc);
+        normalizeConnectionEdge(nc);
+        p.connections.push(nc);
+      } else if (c.kind === "node-flowgroup" && c.toFlowGroupId === fgId && idMap.has(c.from)) {
+        const nc = deepCopy(c);
+        nc.id = uid();
+        nc.from = idMap.get(c.from);
+        nc.toFlowGroupId = newFgId;
+        normalizeConnectionEdge(nc);
+        p.connections.push(nc);
+      } else if (c.kind === "flowgroup-node" && c.fromFlowGroupId === fgId && idMap.has(c.to)) {
+        const nc = deepCopy(c);
+        nc.id = uid();
+        nc.fromFlowGroupId = newFgId;
+        nc.to = idMap.get(c.to);
+        normalizeConnectionEdge(nc);
+        p.connections.push(nc);
       }
     }
-    for (const nc of newConns) p.connections.push(nc);
-    const newIds = [...idMap.values()];
-    const b = computeFlowGroupBounds(newIds);
     const ng = {
-      id: uid(),
+      id: newFgId,
       title: `${fg.title || "Group"} copy`,
-      nodeIds: newIds,
-      color: fg.color || FC_GROUP_COLORS[0],
-      collapsed: false,
+      nodeIds: [...idMap.values()],
+      color: fg.color || FC_GROUP_COLORS[p.flowGroups.length % FC_GROUP_COLORS.length],
+      collapsed: !!fg.collapsed,
     };
     refreshFlowGroupBounds(ng);
     p.flowGroups.push(ng);
-    runtime.selectedFlowGroupId = ng.id;
-    selectionRuntime.clearSelection();
+    selectFlowGroup(newFgId);
     renderFlowGroupOverlays();
     renderNodes();
     scheduleRenderConnections();
@@ -7109,7 +7119,6 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function deleteFlowGroupOnly(fgId) {
-    console.log("DELETE FLOW GROUP", fgId);
     const p = getProject();
     p.flowGroups = (p.flowGroups || []).filter((g) => g.id !== fgId);
     p.connections = (p.connections || []).filter((c) => {
@@ -7187,10 +7196,6 @@ function finalizeFlowGroupDragIfAny() {
     bar.addEventListener("pointerdown", shield, true);
     const run = (e, fn) => {
   if (runtime.readOnly) return;
-
-  console.log("FC TOOLBAR RUN", {
-    selectedFlowGroupId: runtime.selectedFlowGroupId
-  });
 
   e.preventDefault();
   e.stopPropagation();
@@ -8975,11 +8980,15 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     }
   }
 
-  /** Clears selection highlights only — never mutates `userGroups` or nodes. */
+  /** Clears selection highlights only — never mutates groups, flow groups, or nodes. */
   function clearCanvasSelectionVisual() {
     initMapDiagramRuntimes();
     if (selectionRuntime) {
-      selectionRuntime.clearSelection();
+      selectionRuntime.clearSelection("nodes");
+      selectionRuntime.clearSelection("groups");
+      selectionRuntime.clearSelection("connections");
+      selectionRuntime.clearSelection("groupConnections");
+      selectionRuntime.clearSelection("flowGroups");
     } else {
       runtime.selectedNodeId = null;
       runtime.selectedNodeIds.clear();
@@ -8993,6 +9002,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     }
     renderSelection();
     syncGroupOverlaySelectionClasses();
+    if (isFlowchartMode()) renderFlowGroupOverlays();
   }
 
   /** Release stuck drag/pan/connect sessions (pointer loss, tab blur, etc.). */

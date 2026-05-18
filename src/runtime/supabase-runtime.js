@@ -777,29 +777,57 @@ export async function loadCloudProjects() {
 
 export async function cloudSyncProject(project) {
   if (!bind().ctx.runtime.supabase || !bind().ctx.runtime.authUser || !project) return;
-  const payload = {
-    id: project.projectId,
-    user_id: bind().ctx.runtime.authUser.id,
-    name: project.name,
+  const userId = bind().ctx.runtime.authUser.id;
+  if (!userId) return;
+
+  let projectId = String(project.projectId || "").trim();
+  if (!projectId) {
+    projectId =
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `p_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    project.projectId = projectId;
+    if (bind().ctx.runtime.db.activeProjectId == null) {
+      bind().ctx.runtime.db.activeProjectId = projectId;
+    }
+  }
+
+  const row = {
+    id: projectId,
+    user_id: userId,
+    name: String(project.name || "Untitled").slice(0, 200),
     data: {
-      title: project.title,
-      nodes: project.nodes,
-      connections: project.connections,
-      userGroups: project.userGroups || [],
-      groupConnections: project.groupConnections || [],
-      flowGroups: project.flowGroups || [],
-      view: project.view
+      title: project.title || "Blank Canvas",
+      nodes: Array.isArray(project.nodes) ? project.nodes : [],
+      connections: Array.isArray(project.connections) ? project.connections : [],
+      userGroups: Array.isArray(project.userGroups) ? project.userGroups : [],
+      groupConnections: Array.isArray(project.groupConnections) ? project.groupConnections : [],
+      flowGroups: Array.isArray(project.flowGroups) ? project.flowGroups : [],
+      view: project.view || { x: 0, y: 0, zoom: 1, grid: true },
     },
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
   };
-  const { data, error } = await bind().ctx.runtime.supabase.from("projects").upsert(payload).select("id").single();
+
+  const { data, error } = await bind().ctx.runtime.supabase
+    .from("projects")
+    .upsert(row, { onConflict: "id" })
+    .select("id")
+    .maybeSingle();
+
   if (error) {
+    console.warn("[App Auth] cloudSyncProject:", error.message, error);
     bind().deps.dom.savedIndicator.textContent = "Cloud save failed";
     return;
   }
-  if (data?.id && data.id !== project.projectId) {
-    project.projectId = data.id;
-    bind().ctx.runtime.db.activeProjectId = project.projectId;
+
+  const savedId = data?.id;
+  if (savedId && savedId !== project.projectId) {
+    const prevId = project.projectId;
+    project.projectId = savedId;
+    if (bind().ctx.runtime.db.activeProjectId === prevId) {
+      bind().ctx.runtime.db.activeProjectId = savedId;
+    }
+    saveDB();
   }
 }
 
