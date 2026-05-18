@@ -1691,6 +1691,69 @@
     display: none !important;
     pointer-events: none !important;
   }
+  /* Ghost connection points — visible on node hover (drag to connect). */
+  .node-conn-handles {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+  }
+  .node-conn-handle {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--accent, #7aa2ff);
+    box-shadow:
+      0 0 0 2px rgba(255, 255, 255, 0.95),
+      0 0 0 3px rgba(122, 162, 255, 0.38),
+      0 2px 10px rgba(18, 32, 64, 0.28);
+    pointer-events: auto;
+    cursor: crosshair;
+    opacity: 0;
+    transform: scale(0.55);
+    transition:
+      opacity 0.14s ease,
+      transform 0.14s ease,
+      box-shadow 0.14s ease;
+    touch-action: none;
+  }
+  html[data-theme="light"] .node-conn-handle {
+    box-shadow:
+      0 0 0 2px rgba(255, 255, 255, 1),
+      0 0 0 3px rgba(90, 130, 220, 0.42),
+      0 2px 8px rgba(30, 50, 90, 0.16);
+  }
+  .node-conn-handle:hover,
+  .node-conn-handle:focus-visible {
+    transform: scale(1.12);
+    box-shadow:
+      0 0 0 2px rgba(255, 255, 255, 1),
+      0 0 0 4px rgba(122, 162, 255, 0.55),
+      0 0 14px rgba(122, 162, 255, 0.45);
+  }
+  .node:hover .node-conn-handle,
+  .node:focus-within .node-conn-handle,
+  .node.is-connect-from .node-conn-handle {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .node.is-dragging .node-conn-handles,
+  .node.node-hidden-canvas .node-conn-handles {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .node-conn-handle[data-side="top"] { left: 50%; top: 0; }
+  .node-conn-handle[data-side="right"] { left: 100%; top: 50%; }
+  .node-conn-handle[data-side="bottom"] { left: 50%; top: 100%; }
+  .node-conn-handle[data-side="left"] { left: 0; top: 50%; }
+  .node.shape-circle .node-conn-handle[data-side="top"] { top: 4%; }
+  .node.shape-circle .node-conn-handle[data-side="bottom"] { top: 96%; }
+  .node.shape-circle .node-conn-handle[data-side="left"] { left: 4%; }
+  .node.shape-circle .node-conn-handle[data-side="right"] { left: 96%; }
   .node-body-freeform {
     display: flex;
     align-items: center;
@@ -9529,15 +9592,16 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return { centerX, centerY, distance };
   }
 
-  function startConnectionDrag(nodeObj, pointerEvent) {
+  function startConnectionDrag(nodeObj, pointerEvent, opts = {}) {
     abortGroupConnectionDrag();
-    runtime.connecting = { fromNodeId: nodeObj.id, hoverNodeId: null, hoverGroupInId: null };
+    const fromSide = opts.fromSide && ["top", "right", "bottom", "left"].includes(opts.fromSide) ? opts.fromSide : null;
+    runtime.connecting = { fromNodeId: nodeObj.id, hoverNodeId: null, hoverGroupInId: null, fromSide };
     if (isFlowchartMode()) document.body.classList.add("fc-connecting");
     const wp =
       pointerEvent && Number.isFinite(pointerEvent.clientX)
         ? world(pointerEvent.clientX, pointerEvent.clientY)
         : nodeWorldCenter(nodeObj);
-    runtime.previewFrom = anchor(nodeObj, "out", wp);
+    runtime.previewFrom = fromSide ? anchorNodeSide(nodeObj, fromSide) : anchor(nodeObj, "out", wp);
     runtime.previewPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
     runtime.previewPath.setAttribute("class", "conn fc-conn-preview");
     runtime.previewPath.setAttribute("stroke-dasharray", "6 4");
@@ -9547,6 +9611,52 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       pointerEvent.target.setPointerCapture(pointerEvent.pointerId);
     }
     workspace.style.cursor = "crosshair";
+    renderSelection();
+  }
+
+  function wireNodeConnectHandle(nodeEl, nodeObj, handleEl, side) {
+    handleEl.addEventListener("pointerdown", (e) => {
+      if (runtime.readOnly) return;
+      if (e.button !== 0) return;
+      e.stopPropagation();
+      e.preventDefault();
+      if (runtime.bodyConnectPressTimer) {
+        clearTimeout(runtime.bodyConnectPressTimer);
+        runtime.bodyConnectPressTimer = null;
+      }
+      runtime.bodyPressPointerId = null;
+      runtime.bodyPressStart = null;
+      runtime.bodyPressNodeId = null;
+      runtime.dragging = null;
+      runtime.touchDragPending = null;
+      releaseStoredNodeBodyPointerCapture();
+      if (isFlowchartMode() && !fcEditorCanSelect()) return;
+      if (isNodeHiddenCanvas(nodeObj)) return;
+      selectionRuntime.selectNode(nodeObj.id);
+      clearFlowGroupSelection();
+      clearAllEdgeSelection();
+      renderSelection();
+      startConnectionDrag(nodeObj, e, { fromSide: side });
+    });
+  }
+
+  function appendNodeConnectHandles(nodeEl, nodeObj) {
+    if (runtime.readOnly || isNodeHiddenCanvas(nodeObj)) return;
+    if (nodeEl.querySelector(":scope > .node-conn-handles")) return;
+    const host = document.createElement("div");
+    host.className = "node-conn-handles";
+    host.setAttribute("aria-hidden", "true");
+    for (const side of ["top", "right", "bottom", "left"]) {
+      const handle = document.createElement("button");
+      handle.type = "button";
+      handle.className = "node-conn-handle";
+      handle.dataset.side = side;
+      handle.tabIndex = -1;
+      handle.setAttribute("aria-label", `Connect from ${side}`);
+      wireNodeConnectHandle(nodeEl, nodeObj, handle, side);
+      host.appendChild(handle);
+    }
+    nodeEl.appendChild(host);
   }
 
   function startBranchFromConnectionDrag(parentConnId) {
@@ -9885,6 +9995,25 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     if (!n) return { x: 0, y: 0 };
     const w = getNodeWorldPosition(n);
     return { x: w.x + n.width / 2, y: w.y + n.height / 2 };
+  }
+
+  /** World-space anchor on a cardinal side (for ghost handle drag-start). */
+  function anchorNodeSide(n, side) {
+    const w = getNodeWorldPosition(n);
+    const cx = w.x + n.width / 2;
+    const cy = w.y + n.height / 2;
+    switch (side) {
+      case "top":
+        return { x: cx, y: w.y };
+      case "bottom":
+        return { x: cx, y: w.y + n.height };
+      case "left":
+        return { x: w.x, y: cy };
+      case "right":
+        return { x: w.x + n.width, y: cy };
+      default:
+        return { x: cx, y: cy };
+    }
   }
 
   /** Intersection of ray (center → toward) with axis-aligned node bounds — edge attachment anywhere on the body. */
@@ -10765,6 +10894,7 @@ clearFlowGroupSelection();
     });
 
     el.append(body);
+    appendNodeConnectHandles(el, n);
     if (st0.freeform) el.classList.add("node-freeform");
     if (isNodeHiddenCanvas(n)) el.classList.add("node-hidden-canvas");
     applyNodeVisualStyles(el, n);
@@ -12778,6 +12908,10 @@ clearFlowGroupSelection();
       el.classList.toggle("selected", selected || multi);
       el.classList.toggle("fc-multi-picked", multiCount > 1 && multi);
       el.classList.toggle("connect-target", runtime.connecting && id === runtime.connecting.hoverNodeId);
+      el.classList.toggle(
+        "is-connect-from",
+        !!(runtime.connecting && runtime.connecting.fromNodeId === id)
+      );
     }
     for (const c of connectionsLayer.querySelectorAll(".conn")) {
       const cid = c.dataset.connId;
