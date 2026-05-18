@@ -14116,6 +14116,12 @@ clearFlowGroupSelection();
     }
   }
 
+  function svgExportResolveCanvasBg(theme, transparent) {
+    if (transparent) return null;
+    const raw = document.getElementById("canvasBgColor")?.value || theme.workspaceBg;
+    return svgExportNormalizeHex(raw) || String(raw || (theme.isLight ? "#e8edf7" : "#0b0f1a")).trim();
+  }
+
   function buildDiagramSvgExportString(p, wb, pad, transparent) {
     const theme = getSvgExportTheme();
     const { minX, minY, maxX, maxY } = wb;
@@ -14123,18 +14129,22 @@ clearFlowGroupSelection();
     const height = Math.ceil(maxY - minY + pad * 2);
     const tx = pad - minX;
     const ty = pad - minY;
+    const canvasBg = svgExportResolveCanvasBg(theme, transparent);
     const parts = [];
     parts.push('<?xml version="1.0" encoding="UTF-8"?>');
+    const svgStyle = canvasBg ? ` style="background-color: ${canvasBg};"` : "";
     parts.push(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"${svgStyle}>`
     );
+    if (canvasBg) {
+      parts.push(
+        `<rect id="md-export-canvas-bg" x="0" y="0" width="100%" height="100%" fill="${svgExportEscape(canvasBg)}"/>`
+      );
+    }
     parts.push(svgExportEmbeddedStyleBlock(theme));
     parts.push("<defs>");
     parts.push(svgExportDefsBlock(theme));
     parts.push("</defs>");
-    if (!transparent) {
-      parts.push(`<rect width="100%" height="100%" fill="${svgExportEscape(theme.workspaceBg)}"/>`);
-    }
     parts.push(`<g id="diagram" transform="translate(${tx},${ty})">`);
     paintDiagramToSvgParts(parts, p, theme);
     parts.push("</g>");
