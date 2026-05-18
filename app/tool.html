@@ -3506,6 +3506,7 @@
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="publishFlowchartBtn">Publish flowchart</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="exportBtn">Export JSON</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="exportPngBtn">Export PNG</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="exportSvgBtn">Export SVG</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="importBtn">Import JSON</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="gridToggleBtn">Toggle grid</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="zoomOutBtn">Zoom out</button>
@@ -3583,6 +3584,7 @@
         <button id="publishFlowchartBtn" class="icon-btn" type="button" title="Publish flowchart" aria-label="Publish flowchart"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 1 0-7l1-1a5 5 0 0 1 7 7l-1 1M14 11a5 5 0 0 1 0 7l-1 1a5 5 0 0 1-7-7l1-1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
         <button id="exportBtn" class="icon-btn" type="button" title="Export JSON" aria-label="Export JSON"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v12m0 0 4-4m-4 4-4-4M5 20h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         <button id="exportPngBtn" class="icon-btn" type="button" title="Export PNG" aria-label="Export PNG"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.75"/><path d="m8 12 2.5 2.5 3-4 3.5 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+        <button id="exportSvgBtn" class="icon-btn" type="button" title="Export SVG" aria-label="Export SVG"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.75"/><path d="M7 9h10M7 12h7M7 15h10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
         <button id="importBtn" class="icon-btn" type="button" title="Import JSON" aria-label="Import JSON"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20V8m0 0-4 4m4-4 4 4M5 4h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
       </div>
       <div class="group" role="toolbar" aria-label="View">
@@ -3892,9 +3894,10 @@
       </section>
       <section id="inspector-panel-export" class="section right-section" data-tab="export" role="tabpanel" aria-labelledby="tabExport exportHeading exportHint" data-inspector-tab-panel="export" aria-hidden="true">
         <h3 id="exportHeading">Export</h3>
-        <p id="exportHint" class="sr-only">Download diagram as JSON or PNG.</p>
+        <p id="exportHint" class="sr-only">Download diagram as JSON, PNG, or SVG.</p>
         <button id="exportJsonPanelBtn">Export JSON</button>
         <button id="exportPngPanelBtn">Export PNG</button>
+        <button id="exportSvgPanelBtn" type="button">Export SVG</button>
         <label class="muted">PNG padding (px) <input type="number" id="pngExportPad" value="80" min="8" max="400" step="4" style="width:72px"></label>
         <label class="muted">PNG scale <input type="number" id="pngExportScale" value="1" min="0.5" max="3" step="0.1" style="width:72px"></label>
         <label class="muted" style="display:flex;align-items:center;gap:8px;margin-top:4px">
@@ -4208,6 +4211,7 @@
   const fitViewBtn = document.getElementById("fitViewBtn");
   const gridToggleBtn = document.getElementById("gridToggleBtn");
   const exportPngBtn = document.getElementById("exportPngBtn");
+  const exportSvgBtn = document.getElementById("exportSvgBtn");
   const rightbar = document.getElementById("rightbar");
   const inspectorToggleBtn = document.getElementById("inspectorToggleBtn");
   const snapGuides = document.getElementById("snapGuides");
@@ -4245,6 +4249,7 @@
   const fitViewInPanelBtn = document.getElementById("fitViewInPanelBtn");
   const exportJsonPanelBtn = document.getElementById("exportJsonPanelBtn");
   const exportPngPanelBtn = document.getElementById("exportPngPanelBtn");
+  const exportSvgPanelBtn = document.getElementById("exportSvgPanelBtn");
   const groupControls = document.getElementById("groupControls");
   const groupNameInput = document.getElementById("groupNameInput");
   const groupColorInput = document.getElementById("groupColorInput");
@@ -12381,6 +12386,7 @@ clearFlowGroupSelection();
       { id: "dup", label: "Duplicate selected nodes", keys: "Ctrl+D", keywords: "copy", run: () => duplicateSelectedNodesAction() },
       { id: "exportJson", label: "Export JSON", keys: "", keywords: "download save", run: () => document.getElementById("exportBtn")?.click() },
       { id: "exportPng", label: "Export PNG", keys: "", keywords: "image picture", run: () => exportAsPng() },
+      { id: "exportSvg", label: "Export SVG", keys: "", keywords: "vector image svg", run: () => exportAsSvg() },
       { id: "import", label: "Import JSON…", keys: "", keywords: "upload open", run: () => openJsonImportPicker() },
       { id: "smart", label: "Smart Clean diagram", keys: "", keywords: "tidy", run: () => document.getElementById("smartCleanBtn")?.click() },
       { id: "refreshPaths", label: "Refresh connection paths", keys: "", keywords: "reroute edges", run: () => document.getElementById("refreshConnectionPathsBtn")?.click() },
@@ -13524,6 +13530,342 @@ clearFlowGroupSelection();
     ctx.restore();
   }
 
+  function svgExportEscape(v) {
+    return String(v ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  /** Clone visible connection paths from #connections (same geometry as on-canvas SVG layer). */
+  function collectConnectionsLayerSvgForExport() {
+    if (!connectionsLayer) return "";
+    const chunks = [];
+    const seen = new Set();
+    for (const path of connectionsLayer.querySelectorAll("path.conn")) {
+      if (path.classList.contains("fc-conn-preview")) continue;
+      const d = path.getAttribute("d");
+      if (!d || seen.has(d)) continue;
+      seen.add(d);
+      const attrs = ["stroke", "stroke-width", "stroke-dasharray", "stroke-linecap", "stroke-linejoin", "opacity"];
+      let tag = `<path class="conn" d="${svgExportEscape(d)}" fill="none"`;
+      for (const name of attrs) {
+        const val = path.getAttribute(name);
+        if (val != null && val !== "") tag += ` ${name}="${svgExportEscape(val)}"`;
+      }
+      const marker = path.getAttribute("marker-end");
+      if (marker) tag += ` marker-end="${svgExportEscape(marker.replace("arrow-head", "md-export-arrow"))}"`;
+      else tag += ` marker-end="url(#md-export-arrow)"`;
+      tag += "/>";
+      chunks.push(tag);
+    }
+    for (const text of connectionsLayer.querySelectorAll("text.conn-label, text")) {
+      if (!text.closest || text.closest("#connections") !== connectionsLayer) continue;
+      if (!text.textContent?.trim()) continue;
+      const x = text.getAttribute("x");
+      const y = text.getAttribute("y");
+      if (x == null || y == null) continue;
+      const fill = text.getAttribute("fill") || "rgba(228,236,255,0.98)";
+      chunks.push(
+        `<text x="${svgExportEscape(x)}" y="${svgExportEscape(y)}" text-anchor="middle" font-family="Inter, Segoe UI, Arial" font-size="11" fill="${svgExportEscape(fill)}">${svgExportEscape(text.textContent)}</text>`
+      );
+    }
+    return chunks.join("\n");
+  }
+
+  function svgExportPushEdge(parts, d, c, groupStyle, from, to) {
+    if (!d) return;
+    const col = connectionStrokeColorOrNull(c) || (groupStyle ? "rgba(174, 147, 255, 0.96)" : "rgba(155,187,255,.92)");
+    const lw = connectionStrokeWidthPx(c, groupStyle ? 2.15 : 2.25);
+    const dash = connectionDashArray(c.strokeDash);
+    const dashAttr = dash ? ` stroke-dasharray="${dash}"` : "";
+    parts.push(
+      `<path class="conn" d="${svgExportEscape(d)}" fill="none" stroke="${svgExportEscape(col)}" stroke-width="${lw}" stroke-linecap="round" stroke-linejoin="round"${dashAttr} marker-end="url(#md-export-arrow)"/>`
+    );
+    const lbl = String(c.label || "").trim();
+    if (lbl) {
+      const off = c.labelOffset || { dx: 0, dy: 0 };
+      const lx = (from.x + to.x) / 2 + (off.dx || 0);
+      const ly = (from.y + to.y) / 2 - (groupStyle ? 6 : 4) + (off.dy || 0);
+      const fill = groupStyle ? "rgba(216,210,255,0.98)" : "rgba(228,236,255,0.98)";
+      parts.push(
+        `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-family="Inter, Segoe UI, Arial" font-size="11" fill="${fill}" stroke="rgba(10,12,22,0.92)" stroke-width="3" paint-order="stroke">${svgExportEscape(lbl)}</text>`
+      );
+    }
+  }
+
+  function svgExportPushNode(parts, n, isLight) {
+    normalizeNode(n);
+    const st = ensureNodeStyle(n);
+    const wpos = getNodeWorldPosition(n);
+    const x = wpos.x;
+    const y = wpos.y;
+    const rad = Math.max(0, Number(st.radius) || 12);
+    const bw = Math.max(0, Math.min(6, Number(st.borderWidth) || 1.5));
+    const fill = n.color || "#ffd482";
+    const stroke = st.borderColor || "#9cb8ff";
+    const opacity = Math.max(0.2, Math.min(1, Number(st.opacity) || 0.9));
+    const shp = n.shape || "rect";
+    const titleFill = isLight ? "#0f172a" : "#e8edff";
+    const subFill = isLight ? "rgba(15,23,42,.85)" : "rgba(228,236,255,.85)";
+    const px = Math.max(10, Math.min(28, Number(st.titleFontSize) || 14));
+    const wgt = [400, 500, 600, 700].includes(Number(st.titleFontWeight)) ? Number(st.titleFontWeight) : 600;
+    const fam = "Inter, Segoe UI, Arial";
+    parts.push(
+      `<g class="node" data-node-id="${svgExportEscape(n.id)}" transform="translate(${x},${y})" opacity="${opacity}">`
+    );
+    if (shp === "circle") {
+      parts.push(
+        `<ellipse cx="${n.width / 2}" cy="${n.height / 2}" rx="${n.width / 2}" ry="${n.height / 2}" fill="${svgExportEscape(fill)}" stroke="${svgExportEscape(stroke)}" stroke-width="${bw}"/>`
+      );
+    } else if (shp === "diamond") {
+      const cx = n.width / 2;
+      const cy = n.height / 2;
+      parts.push(
+        `<polygon points="${cx},0 ${n.width},${cy} ${cx},${n.height} 0,${cy}" fill="${svgExportEscape(fill)}" stroke="${svgExportEscape(stroke)}" stroke-width="${bw}"/>`
+      );
+    } else {
+      const rr = shp === "rounded" ? Math.max(rad, 14) : rad;
+      parts.push(
+        `<rect width="${n.width}" height="${n.height}" rx="${rr}" fill="${svgExportEscape(fill)}" stroke="${svgExportEscape(stroke)}" stroke-width="${bw}"/>`
+      );
+    }
+    const title = n.title || n.text || "Node";
+    const cx = n.width / 2;
+    const cy = n.height / 2;
+    if (st.freeform) {
+      parts.push(
+        `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="${px}" font-weight="${wgt}" fill="${titleFill}">${svgExportEscape(title)}</text>`
+      );
+    } else {
+      const hasSub = !!String(n.subtitle || "").trim();
+      const hasDesc = !!String(n.description || "").trim();
+      let y0 = cy;
+      if (hasSub && hasDesc) y0 = cy - 18;
+      else if (hasSub || hasDesc) y0 = cy - 10;
+      parts.push(
+        `<text x="${cx}" y="${y0}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="${px}" font-weight="${wgt}" fill="${titleFill}">${svgExportEscape(title)}</text>`
+      );
+      if (hasSub) {
+        parts.push(
+          `<text x="${cx}" y="${y0 + 16}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="12" font-weight="500" fill="${subFill}">${svgExportEscape(n.subtitle)}</text>`
+        );
+      }
+      if (hasDesc) {
+        parts.push(
+          `<text x="${cx}" y="${y0 + (hasSub ? 32 : 16)}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="11" fill="${isLight ? "rgba(15,23,42,.72)" : "rgba(228,236,255,.72)"}">${svgExportEscape(String(n.description).slice(0, 68))}</text>`
+        );
+      }
+    }
+    parts.push("</g>");
+  }
+
+  /** Build diagram SVG fragments (systems, links, nodes) — mirrors paintDiagramToPngContext / #connections geometry. */
+  function paintDiagramToSvgParts(parts, p) {
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    const sortedGroups = [...(p.userGroups || [])].sort((a, b) => {
+      const z = (a.zIndex || 0) - (b.zIndex || 0);
+      if (z !== 0) return z;
+      return (a.hierarchyDepth || 0) - (b.hierarchyDepth || 0);
+    });
+    for (const g of sortedGroups) {
+      if (runtime.focusGroupId && isGroupOutsideFocus(g.id)) continue;
+      const box = getUserGroupBox(g.id);
+      if (!box) continue;
+      const vars = groupColorVars(g.color);
+      const depth = g.hierarchyDepth || 0;
+      const alpha = 0.52 + Math.min(0.38, depth * 0.055);
+      parts.push(
+        `<rect x="${box.x}" y="${box.y}" width="${box.w}" height="${box.h}" rx="14" fill="${svgExportEscape(vars.bg)}" stroke="${svgExportEscape(vars.border)}" stroke-width="1.2" opacity="${alpha}"/>`
+      );
+    }
+
+    const connLayerSvg = collectConnectionsLayerSvgForExport();
+    if (connLayerSvg) {
+      parts.push(`<g id="connections">${connLayerSvg}</g>`);
+    } else {
+      const pushAllEdgesFromData = () => {
+        for (const gc of p.groupConnections || []) {
+          normalizeConnectionEdge(gc);
+          const fromBox = getUserGroupBox(gc.fromGroupId);
+          const toBox = getUserGroupBox(gc.toGroupId);
+          if (!fromBox || !toBox) continue;
+          const anchors = smartGroupAnchors(fromBox, toBox);
+          const from = anchors.from;
+          const to = anchors.to;
+          const obs = [
+            ...nodesInsideGroupBoxObstacles(fromBox, new Set()),
+            ...nodesInsideGroupBoxObstacles(toBox, new Set())
+          ];
+          const auto = autoCurve(from, to);
+          const d =
+            runtime.connectorStyle === "orthogonal"
+              ? orthogonalPath(from, to, obs)
+              : curvePath(from, auto.cp1, auto.cp2, to);
+          svgExportPushEdge(parts, d, gc, true, from, to);
+        }
+        for (const c of p.connections) {
+          normalizeConnectionEdge(c);
+          if (c.kind === "node-group") {
+            const fromNode = getNodeById(c.from);
+            const toBox = getUserGroupBox(c.toGroupId);
+            if (!fromNode || !toBox) continue;
+            const toCenter = { x: toBox.x + toBox.w / 2, y: toBox.y + toBox.h / 2 };
+            const from = anchorNodeForConnection(c.from, "from", toCenter);
+            const to = groupAnchor(toBox, "in", from);
+            const auto = autoCurve(from, to);
+            const obsRects = p.nodes
+              .filter((n) => n.id !== c.from)
+              .filter((n) => !isNodeHiddenCanvas(n))
+              .map((n) => {
+                const w = getNodeWorldPosition(n);
+                return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+              })
+              .concat(nodesInsideGroupBoxObstacles(toBox, new Set([c.from])));
+            const d =
+              runtime.connectorStyle === "orthogonal"
+                ? orthogonalPath(from, to, obsRects)
+                : curvePath(from, auto.cp1, auto.cp2, to);
+            svgExportPushEdge(parts, d, c, false, from, to);
+            continue;
+          }
+          if (c.kind === "group-node") {
+            const toNode = getNodeById(c.to);
+            const fromBox = getUserGroupBox(c.fromGroupId);
+            if (!toNode || !fromBox) continue;
+            const from = groupAnchor(fromBox, "out", anchor(toNode, "in", { x: fromBox.x + fromBox.w / 2, y: fromBox.y + fromBox.h / 2 }));
+            const to = anchorNodeForConnection(c.to, "to", from);
+            const auto = autoCurve(from, to);
+            const obsRects = p.nodes
+              .filter((n) => n.id !== c.to)
+              .filter((n) => !isNodeHiddenCanvas(n))
+              .map((n) => {
+                const w = getNodeWorldPosition(n);
+                return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+              })
+              .concat(nodesInsideGroupBoxObstacles(fromBox, new Set([c.to])));
+            const d =
+              runtime.connectorStyle === "orthogonal"
+                ? orthogonalPath(from, to, obsRects)
+                : curvePath(from, auto.cp1, auto.cp2, to);
+            svgExportPushEdge(parts, d, c, false, from, to);
+            continue;
+          }
+          if (isBranchFromConnection(c)) continue;
+          if (!isNodeNodeConnection(c)) continue;
+          const fromNode = getNodeById(c.from);
+          const toNode = getNodeById(c.to);
+          if (!fromNode || !toNode) continue;
+          const toPre = anchorNodeForConnection(c.to, "to", anchor(fromNode, "out", nodeWorldCenter(toNode)));
+          const from = anchorNodeForConnection(c.from, "from", toPre);
+          const to = anchorNodeForConnection(c.to, "to", from);
+          const curve = getCurveData(c.id, from, to, c);
+          const obstacles = p.nodes
+            .filter((n) => n.id !== fromNode.id && n.id !== toNode.id)
+            .filter((n) => !isNodeHiddenCanvas(n))
+            .map((n) => {
+              const w = getNodeWorldPosition(n);
+              return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+            });
+          const d =
+            runtime.connectorStyle === "orthogonal"
+              ? orthogonalPath(from, to, obstacles)
+              : curvePath(from, curve.cp1, curve.cp2, to);
+          svgExportPushEdge(parts, d, c, false, from, to);
+        }
+        for (const c of p.connections) {
+          if (!isBranchFromConnection(c)) continue;
+          normalizeConnectionEdge(c);
+          const parent = p.connections.find((x) => x.id === c.parentConnectionId);
+          const toNode = getNodeById(c.to);
+          if (!parent || !isNodeNodeConnection(parent) || !toNode) continue;
+          const lay = getNodeNodeEdgeLayout(parent, p);
+          if (!lay || !lay.d) continue;
+          const junc = pathWorldPointAtParam(lay.d, c.t ?? 0.5);
+          if (!junc) continue;
+          const fromPt = junc;
+          const to = anchorNodeForConnection(c.to, "to", fromPt);
+          const curve = getCurveData(c.id, fromPt, to, c);
+          const obstacles = p.nodes
+            .filter((n) => n.id !== toNode.id && n.id !== lay.fromNode.id && n.id !== lay.toNode.id)
+            .filter((n) => !isNodeHiddenCanvas(n))
+            .map((n) => {
+              const w = getNodeWorldPosition(n);
+              return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+            });
+          const dBr =
+            runtime.connectorStyle === "orthogonal"
+              ? orthogonalPath(fromPt, to, obstacles)
+              : curvePath(fromPt, curve.cp1, curve.cp2, to);
+          svgExportPushEdge(parts, dBr, c, false, fromPt, to);
+        }
+      };
+      pushAllEdgesFromData();
+    }
+
+    for (const n of p.nodes) {
+      if (isNodeHiddenCanvas(n) && !pngExportIncludesHiddenNodes()) continue;
+      svgExportPushNode(parts, n, isLight);
+    }
+  }
+
+  function buildDiagramSvgExportString(p, wb, pad, transparent) {
+    const { minX, minY, maxX, maxY } = wb;
+    const width = Math.ceil(maxX - minX + pad * 2);
+    const height = Math.ceil(maxY - minY + pad * 2);
+    const tx = pad - minX;
+    const ty = pad - minY;
+    const bg = document.getElementById("canvasBgColor")?.value || "#0b0f1a";
+    const parts = [];
+    parts.push('<?xml version="1.0" encoding="UTF-8"?>');
+    parts.push(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`
+    );
+    parts.push("<defs>");
+    parts.push(
+      '<marker id="md-export-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 Z" fill="rgba(180,205,255,.95)"/></marker>'
+    );
+    parts.push("</defs>");
+    if (!transparent) {
+      parts.push(`<rect width="100%" height="100%" fill="${svgExportEscape(bg)}"/>`);
+    }
+    parts.push(`<g id="diagram" transform="translate(${tx},${ty})">`);
+    paintDiagramToSvgParts(parts, p);
+    parts.push("</g>");
+    if (isFlowchartMode()) {
+      parts.push(
+        `<text x="${width - 14}" y="${height - 10}" text-anchor="end" font-family="Inter, Segoe UI, Arial" font-size="11" fill="rgba(169, 188, 230, 0.42)">MapDiagram</text>`
+      );
+    }
+    parts.push("</svg>");
+    return parts.join("\n");
+  }
+
+  function exportAsSvg() {
+    const p = getProject();
+    if (!p.nodes.length) return;
+    renderConnections();
+    const padEl = document.getElementById("pngExportPad");
+    const basePad = Math.max(8, Math.min(400, Math.round(Number(padEl?.value) || 80)));
+    const pad = isFlowchartMode() ? Math.max(basePad, 96) : basePad;
+    const transparent = !!document.getElementById("pngExportTransparent")?.checked;
+    const wb = getDiagramWorldBoundsForPngExport(p);
+    if (!wb) {
+      showToast("Nothing to export in the current bounds. Try “Include hidden nodes in PNG” or add visible nodes.", "warn");
+      return;
+    }
+    const svg = buildDiagramSvgExportString(p, wb, pad, transparent);
+    const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(p.name || "diagram").replace(/\s+/g, "-").toLowerCase() || "diagram"}.svg`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast("SVG export complete (vector nodes, systems, and links).", "info");
+  }
+
   function exportAsPng() {
     const p = getProject();
     if (!p.nodes.length) return;
@@ -14329,6 +14671,7 @@ clearFlowGroupSelection();
   fitViewInPanelBtn.onclick = fitToScreen;
   exportJsonPanelBtn.onclick = () => document.getElementById("exportBtn").click();
   exportPngPanelBtn.onclick = exportAsPng;
+  if (exportSvgPanelBtn) exportSvgPanelBtn.onclick = exportAsSvg;
   const pngExportIncludeHiddenEl = document.getElementById("pngExportIncludeHidden");
   if (pngExportIncludeHiddenEl) {
     try {
@@ -14613,6 +14956,7 @@ clearFlowGroupSelection();
     URL.revokeObjectURL(url);
   };
   exportPngBtn.onclick = exportAsPng;
+  if (exportSvgBtn) exportSvgBtn.onclick = exportAsSvg;
   document.getElementById("importBtn").onclick = () => openJsonImportPicker();
   fileInput.addEventListener("change", () => {
     if (!fileInput.files.length) return;
