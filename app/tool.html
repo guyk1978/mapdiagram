@@ -13679,146 +13679,59 @@ clearFlowGroupSelection();
     return lum > 0.62;
   }
 
-  function svgExportParseRgbColor(str) {
-    const m = String(str || "")
-      .trim()
-      .match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)$/i);
-    if (!m) return null;
-    return { r: +m[1], g: +m[2], b: +m[3], a: m[4] != null ? +m[4] : 1 };
-  }
-
-  function svgExportCssColorToHex(color) {
+  function svgExportNormalizeHex(color) {
     const s = String(color || "").trim();
     if (!s) return null;
-    if (s.startsWith("#")) {
-      const p = svgExportParseHexColor(s);
-      if (!p) return null;
-      const h = (n) => Math.round(n).toString(16).padStart(2, "0");
-      return `#${h(p.r)}${h(p.g)}${h(p.b)}`;
-    }
-    const rgb = svgExportParseRgbColor(s);
+    const rgb = svgExportParseHexColor(s);
     if (!rgb) return null;
     const h = (n) => Math.round(n).toString(16).padStart(2, "0");
     return `#${h(rgb.r)}${h(rgb.g)}${h(rgb.b)}`;
   }
 
-  function svgExportIsLightCssColor(color) {
-    const hex = svgExportCssColorToHex(color);
-    if (hex) return svgExportIsLightFill(hex);
-    const rgb = svgExportParseRgbColor(color);
-    if (!rgb) return false;
-    const lum = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
-    return lum > 0.62;
+  const SVG_EXPORT_LIGHT_FILL = "#f5f5f5";
+  const SVG_EXPORT_DARK_FILL = "#1e1e1e";
+  const SVG_EXPORT_LIGHT_TEXT = "#111111";
+  const SVG_EXPORT_DARK_TEXT = "#ffffff";
+
+  function svgExportRawNodeColor(n) {
+    const raw = n.fill ?? n.color ?? n.style?.fill ?? null;
+    if (raw == null) return null;
+    const s = String(raw).trim();
+    return s ? s : null;
   }
 
-  function svgExportIsTransparentCssColor(color) {
-    const s = String(color || "").trim();
-    if (!s || s === "transparent") return true;
-    const rgb = svgExportParseRgbColor(s);
-    return rgb ? rgb.a < 0.04 : false;
-  }
-
-  function svgExportDominantFromBackgroundImage(bgImage) {
-    const src = String(bgImage || "").trim();
-    if (!src || src === "none") return null;
-    const stops = src.match(/rgba?\([^)]+\)|#[0-9a-f]{3,8}/gi) || [];
-    if (!stops.length) return null;
-    if (stops.length === 1) return stops[0];
-    const c0 = svgExportParseRgbColor(stops[0]) || (stops[0].startsWith("#") ? svgExportParseHexColor(stops[0]) : null);
-    const c1 = svgExportParseRgbColor(stops[1]) || (stops[1].startsWith("#") ? svgExportParseHexColor(stops[1]) : null);
-    if (!c0) return stops[0];
-    if (!c1) return stops[0];
-    const a0 = c0.a != null ? c0.a : 1;
-    const a1 = c1.a != null ? c1.a : 1;
-    const r = Math.round(c0.r * 0.55 + c1.r * 0.45);
-    const g = Math.round(c0.g * 0.55 + c1.g * 0.45);
-    const b = Math.round(c0.b * 0.55 + c1.b * 0.45);
-    const a = a0 * 0.55 + a1 * 0.45;
-    return a >= 0.999 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${a.toFixed(3)})`;
-  }
-
-  function svgExportReadComputedShellFill(nodeEl, theme) {
-    const cs = getComputedStyle(nodeEl);
-    let fill = cs.backgroundColor;
-    if (svgExportIsTransparentCssColor(fill)) {
-      const fromGrad = svgExportDominantFromBackgroundImage(cs.backgroundImage);
-      if (fromGrad) fill = fromGrad;
-    }
-    if (svgExportIsTransparentCssColor(fill)) fill = theme.nodeSurface;
-    const stroke = cs.borderColor;
+  /** Data-driven node paint — no DOM / getComputedStyle. */
+  function svgExportResolveNodePaint(n, theme) {
+    const st = ensureNodeStyle(n);
+    const hex = svgExportNormalizeHex(svgExportRawNodeColor(n));
+    const shapeFill = hex || (theme.isLight ? SVG_EXPORT_LIGHT_FILL : SVG_EXPORT_DARK_FILL);
+    const bgLight = svgExportIsLightFill(shapeFill);
+    const textFill = bgLight ? SVG_EXPORT_LIGHT_TEXT : SVG_EXPORT_DARK_TEXT;
+    const textStyle = bgLight ? "fill: #111111 !important;" : "fill: #ffffff !important;";
+    let stroke = bgLight ? "#c4c4c4" : "#4a4a4a";
+    const borderHex = svgExportNormalizeHex(st.borderColor);
+    if (borderHex) stroke = borderHex;
+    else if (hex) stroke = hex;
     return {
-      fill,
-      stroke: stroke && !svgExportIsTransparentCssColor(stroke) ? stroke : theme.nodeBorder,
-      borderWidth: parseFloat(cs.borderWidth) || 1.5,
-      opacity: cs.opacity
+      fill: shapeFill,
+      stroke,
+      textFill,
+      textStyle,
+      borderWidth: Math.max(0, Math.min(6, Number(st.borderWidth) || 1.5)),
+      opacity: Math.max(0.2, Math.min(1, Number(st.opacity) || 0.9))
     };
   }
 
-  function svgExportEnsureContrastText(preferred, bgFill, theme) {
-    const pref = String(preferred || "").trim();
-    if (pref && svgExportIsLightCssColor(bgFill) !== svgExportIsLightCssColor(pref)) return pref;
-    return svgExportIsLightCssColor(bgFill) ? theme.nodeTitle : "#eef3ff";
-  }
-
-  function svgExportGetNodeDomEl(nodeId) {
-    const cached = runtime.nodeElById.get(nodeId);
-    if (cached?.isConnected) return cached;
-    return getNodeDomElement(nodeId) || nodesLayer?.querySelector(`[data-node-id="${nodeId}"]`);
-  }
-
-  /** Read live DOM computed colors for faithful standalone SVG node paint. */
-  function svgExportReadNodeComputedPaint(nodeEl, theme) {
-    const fallback = {
-      fill: theme.nodeSurface,
-      stroke: theme.nodeBorder,
-      borderWidth: 1.5,
-      opacity: "1",
-      title: theme.nodeTitle,
-      subtitle: theme.nodeSubtitle,
-      desc: theme.nodeDesc
-    };
-    if (!nodeEl || typeof getComputedStyle !== "function") return fallback;
-    const shell = svgExportReadComputedShellFill(nodeEl, theme);
-    const titleEl = nodeEl.querySelector(".node-title, .node-title-freeform");
-    const subEl = nodeEl.querySelector(".node-subtitle");
-    const descEl = nodeEl.querySelector(".node-desc");
-    const bodyEl = nodeEl.querySelector(".body");
-    const titleCs = titleEl ? getComputedStyle(titleEl) : bodyEl ? getComputedStyle(bodyEl) : getComputedStyle(nodeEl);
-    const subCs = subEl ? getComputedStyle(subEl) : titleCs;
-    const descCs = descEl ? getComputedStyle(descEl) : subCs;
-    return {
-      fill: shell.fill,
-      stroke: shell.stroke,
-      borderWidth: shell.borderWidth,
-      opacity: shell.opacity,
-      title: svgExportEnsureContrastText(titleCs.color, shell.fill, theme),
-      subtitle: svgExportEnsureContrastText(subCs.color, shell.fill, theme),
-      desc: svgExportEnsureContrastText(descCs.color, shell.fill, theme)
-    };
-  }
-
-  /** Resolve active theme tokens for standalone SVG (no external stylesheet). */
+  /** Active app theme tokens for standalone SVG (hardcoded hex, no DOM reads). */
   function getSvgExportTheme() {
     const isLight = document.documentElement.getAttribute("data-theme") === "light";
-    const root = document.documentElement;
-    const cv = (name, fb) => {
-      const raw = getComputedStyle(root).getPropertyValue(name).trim();
-      return raw || fb;
-    };
     const workspaceBg =
-      document.getElementById("canvasBgColor")?.value ||
-      cv("--workspace-base", isLight ? "#e8edf7" : "#0b0f1a");
+      document.getElementById("canvasBgColor")?.value || (isLight ? "#e8edf7" : "#0b0f1a");
     return {
       isLight,
       workspaceBg,
-      nodeTitle: cv("--node-title", isLight ? "#141c2e" : "#eef3ff"),
-      nodeSubtitle: cv("--node-subtitle", isLight ? "rgba(30, 40, 62, 0.82)" : "rgba(214, 225, 248, 0.88)"),
-      nodeDesc: cv("--node-desc", isLight ? "rgba(45, 55, 78, 0.78)" : "rgba(198, 214, 242, 0.78)"),
-      nodeBorder: cv("--node-border", isLight ? "rgba(40, 55, 90, 0.22)" : "rgba(255, 255, 255, 0.22)"),
-      nodeSurface: isLight ? "#ffffff" : "#1a2238",
-      nodeSurfaceAlt: isLight ? "#f4f7fc" : "#161d30",
       defaultNodeAccent: isLight ? "#8fb2ff" : "#ffd482",
-      connStroke: cv("--conn-stroke", isLight ? "rgba(70, 95, 150, 0.72)" : "rgba(151, 180, 255, 0.85)"),
+      connStroke: isLight ? "rgba(70, 95, 150, 0.72)" : "rgba(151, 180, 255, 0.85)",
       connStrokeDash: isLight ? "rgba(90, 115, 170, 0.78)" : "rgba(169, 195, 255, 0.88)",
       connGrad0: isLight ? "#6e8fc4" : "#7e9ae6",
       connGrad1: isLight ? "#a8bce8" : "#b8ceff",
@@ -13909,21 +13822,28 @@ clearFlowGroupSelection();
     }
   }
 
+  function svgExportPushNodeText(parts, attrs, paint, content) {
+    parts.push(
+      `<text ${attrs} fill="${svgExportEscape(paint.textFill)}" style="${svgExportEscape(paint.textStyle)}">${svgExportEscape(content)}</text>`
+    );
+  }
+
   function svgExportPushNode(parts, n, theme) {
     normalizeNode(n);
     const st = ensureNodeStyle(n);
+    const paint = svgExportResolveNodePaint(n, theme);
     const wpos = getNodeWorldPosition(n);
     const x = wpos.x;
     const y = wpos.y;
     const rad = Math.max(0, Number(st.radius) || 12);
-    const nodeEl = svgExportGetNodeDomEl(n.id);
-    const paint = svgExportReadNodeComputedPaint(nodeEl, theme);
-    const bw = Math.max(0, Math.min(6, paint.borderWidth || Number(st.borderWidth) || 1.5));
-    const opacity = Math.max(0.2, Math.min(1, parseFloat(paint.opacity) || Number(st.opacity) || 0.9));
+    const bw = paint.borderWidth;
+    const opacity = paint.opacity;
     const shp = n.shape || "rect";
     const px = Math.max(10, Math.min(28, Number(st.titleFontSize) || 14));
     const wgt = [400, 500, 600, 700].includes(Number(st.titleFontWeight)) ? Number(st.titleFontWeight) : 600;
     const fam = "Inter, Segoe UI, Arial";
+    const textBase =
+      `text-anchor="middle" dominant-baseline="middle" font-family="${fam}"`;
     parts.push(
       `<g class="node" data-node-id="${svgExportEscape(n.id)}" transform="translate(${x},${y})" opacity="${opacity}">`
     );
@@ -13948,8 +13868,11 @@ clearFlowGroupSelection();
     const cx = n.width / 2;
     const cy = n.height / 2;
     if (st.freeform) {
-      parts.push(
-        `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="${px}" font-weight="${wgt}" fill="${svgExportEscape(paint.title)}">${svgExportEscape(title)}</text>`
+      svgExportPushNodeText(
+        parts,
+        `x="${cx}" y="${cy}" ${textBase} font-size="${px}" font-weight="${wgt}"`,
+        paint,
+        title
       );
     } else {
       const hasSub = !!String(n.subtitle || "").trim();
@@ -13957,17 +13880,26 @@ clearFlowGroupSelection();
       let y0 = cy;
       if (hasSub && hasDesc) y0 = cy - 18;
       else if (hasSub || hasDesc) y0 = cy - 10;
-      parts.push(
-        `<text x="${cx}" y="${y0}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="${px}" font-weight="${wgt}" fill="${svgExportEscape(paint.title)}">${svgExportEscape(title)}</text>`
+      svgExportPushNodeText(
+        parts,
+        `x="${cx}" y="${y0}" ${textBase} font-size="${px}" font-weight="${wgt}"`,
+        paint,
+        title
       );
       if (hasSub) {
-        parts.push(
-          `<text x="${cx}" y="${y0 + 16}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="12" font-weight="500" fill="${svgExportEscape(paint.subtitle)}">${svgExportEscape(n.subtitle)}</text>`
+        svgExportPushNodeText(
+          parts,
+          `x="${cx}" y="${y0 + 16}" ${textBase} font-size="12" font-weight="500"`,
+          paint,
+          n.subtitle
         );
       }
       if (hasDesc) {
-        parts.push(
-          `<text x="${cx}" y="${y0 + (hasSub ? 32 : 16)}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="11" fill="${svgExportEscape(paint.desc)}">${svgExportEscape(String(n.description).slice(0, 68))}</text>`
+        svgExportPushNodeText(
+          parts,
+          `x="${cx}" y="${y0 + (hasSub ? 32 : 16)}" ${textBase} font-size="11" font-weight="400"`,
+          paint,
+          String(n.description).slice(0, 68)
         );
       }
     }
@@ -14218,7 +14150,6 @@ clearFlowGroupSelection();
   function exportAsSvg() {
     const p = getProject();
     if (!p.nodes.length) return;
-    renderNodes();
     renderConnections();
     const padEl = document.getElementById("pngExportPad");
     const basePad = Math.max(8, Math.min(400, Math.round(Number(padEl?.value) || 80)));
