@@ -340,6 +340,13 @@
   .auth-link-btn{background:none;border:none;padding:0;min-height:auto;color:#8baeff;font-size:12px;text-decoration:underline;cursor:pointer;text-align:left}
   .auth-link-btn:hover{color:#a8c4ff}
   .auth-forgot-hint{margin:0;font-size:12px;color:var(--muted);line-height:1.45}
+  .auth-password-field-wrap{display:grid;gap:6px}
+  .auth-password-field{position:relative;display:flex;align-items:center}
+  .auth-password-field input{width:100%;padding-right:44px;min-height:44px;box-sizing:border-box}
+  .auth-password-toggle{position:absolute;right:4px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:36px;height:36px;min-height:36px;padding:0;background:transparent;border:none;border-radius:8px;color:var(--muted);cursor:pointer;opacity:.5;transition:opacity .15s ease,color .15s ease}
+  .auth-password-toggle:hover{opacity:.85;color:var(--text)}
+  .auth-password-toggle.is-visible{opacity:1;color:var(--text)}
+  .auth-password-toggle svg{width:18px;height:18px;pointer-events:none}
   .auth-actions{display:flex;gap:8px;flex-wrap:wrap}
   .softlock{position:fixed;right:14px;bottom:14px;z-index:var(--z-softlock);background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-md);padding:10px 12px;max-width:300px;display:none;color:var(--text)}
   .softlock.open{display:block}
@@ -3990,12 +3997,32 @@
       Continue with Google
     </button>
     <div id="authDivider" class="auth-divider" aria-hidden="true"><span>or</span></div>
-    <div class="auth-row"><label for="authEmail">Email</label><input id="authEmail" type="email" placeholder="you@email.com" autocomplete="email"></div>
-    <div id="authPasswordRow" class="auth-row">
+    <div id="authEmailRow" class="auth-row"><label for="authEmail">Email</label><input id="authEmail" type="email" placeholder="you@email.com" autocomplete="email"></div>
+    <div id="authPasswordRow" class="auth-row auth-password-field-wrap">
       <label for="authPassword">Password</label>
-      <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password">
+      <div class="auth-password-field">
+        <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password">
+        <button id="authPasswordToggle" type="button" class="auth-password-toggle" data-password-target="authPassword" aria-label="Show password" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z" stroke="currentColor" stroke-width="1.75"/>
+            <circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.75"/>
+          </svg>
+        </button>
+      </div>
     </div>
-    <div class="auth-forgot-row">
+    <div id="authUpdatePasswordRow" class="auth-row auth-password-field-wrap" hidden>
+      <label for="authNewPassword">New password</label>
+      <div class="auth-password-field">
+        <input id="authNewPassword" type="password" placeholder="Enter new password" autocomplete="new-password">
+        <button id="authNewPasswordToggle" type="button" class="auth-password-toggle" data-password-target="authNewPassword" aria-label="Show password" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z" stroke="currentColor" stroke-width="1.75"/>
+            <circle cx="12" cy="12" r="2.75" stroke="currentColor" stroke-width="1.75"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div id="authForgotPasswordRow" class="auth-forgot-row">
       <button id="authForgotPasswordBtn" type="button" class="auth-link-btn">Forgot Password?</button>
       <button id="authBackToLoginBtn" type="button" class="auth-link-btn" hidden>Back to login</button>
     </div>
@@ -4328,9 +4355,15 @@
   const authModalTitle = document.getElementById("authModalTitle");
   const authGoogleBtn = document.getElementById("authGoogleBtn");
   const authDivider = document.getElementById("authDivider");
+  const authEmailRow = document.getElementById("authEmailRow");
   const authEmail = document.getElementById("authEmail");
   const authPasswordRow = document.getElementById("authPasswordRow");
   const authPassword = document.getElementById("authPassword");
+  const authPasswordToggle = document.getElementById("authPasswordToggle");
+  const authUpdatePasswordRow = document.getElementById("authUpdatePasswordRow");
+  const authNewPassword = document.getElementById("authNewPassword");
+  const authNewPasswordToggle = document.getElementById("authNewPasswordToggle");
+  const authForgotPasswordRow = document.getElementById("authForgotPasswordRow");
   const authForgotPasswordBtn = document.getElementById("authForgotPasswordBtn");
   const authBackToLoginBtn = document.getElementById("authBackToLoginBtn");
   const authForgotHint = document.getElementById("authForgotHint");
@@ -15144,6 +15177,18 @@ clearFlowGroupSelection();
       supabaseRuntime.handleBackToLoginClick();
     });
   }
+  if (authPasswordToggle) {
+    authPasswordToggle.addEventListener("click", () => {
+      initMapDiagramRuntimes();
+      supabaseRuntime.togglePasswordVisibility("authPassword");
+    });
+  }
+  if (authNewPasswordToggle) {
+    authNewPasswordToggle.addEventListener("click", () => {
+      initMapDiagramRuntimes();
+      supabaseRuntime.togglePasswordVisibility("authNewPassword");
+    });
+  }
   loginSubmitBtn.addEventListener("click", async () => {
     initMapDiagramRuntimes();
     await supabaseRuntime.handleLoginSubmit();
@@ -15323,12 +15368,19 @@ clearFlowGroupSelection();
         authModalTitle,
         authGoogleBtn,
         authDivider,
+        authEmailRow,
         authEmail,
         authPasswordRow,
         authPassword,
+        authPasswordToggle,
+        authUpdatePasswordRow,
+        authNewPassword,
+        authNewPasswordToggle,
+        authForgotPasswordRow,
         authForgotPasswordBtn,
         authBackToLoginBtn,
         authForgotHint,
+        loginSubmitBtn,
         signupSubmitBtn,
         aiWalletModeLine,
         aiWalletBalanceBig,

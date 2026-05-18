@@ -427,19 +427,71 @@ function authRedirectUrl() {
   return `${base}/auth/callback/`;
 }
 
+function isPasswordRecoveryUrl() {
+  const hash = (window.location.hash || "").replace(/^#/, "");
+  if (!hash) return false;
+  try {
+    return new URLSearchParams(hash).get("type") === "recovery";
+  } catch (_) {
+    return false;
+  }
+}
+
+export function clearRecoveryHashFromUrl() {
+  if (!window.location.hash) return;
+  const clean = window.location.pathname + window.location.search;
+  history.replaceState(null, "", clean);
+}
+
 function applyAuthModalMode() {
   const { dom } = bind().deps;
-  const forgot = bind().ctx.runtime.authModalMode === "forgot";
-  if (dom.authPasswordRow) dom.authPasswordRow.hidden = forgot;
-  if (dom.authPassword) dom.authPassword.disabled = forgot;
-  if (dom.signupSubmitBtn) dom.signupSubmitBtn.hidden = forgot;
-  if (dom.authGoogleBtn) dom.authGoogleBtn.hidden = forgot;
-  if (dom.authDivider) dom.authDivider.hidden = forgot;
-  if (dom.authForgotPasswordBtn) dom.authForgotPasswordBtn.hidden = forgot;
+  const mode = bind().ctx.runtime.authModalMode || "login";
+  const forgot = mode === "forgot";
+  const updatePw = mode === "update-password";
+  const loginLike = !forgot && !updatePw;
+
+  if (dom.authEmailRow) dom.authEmailRow.hidden = updatePw;
+  if (dom.authPasswordRow) dom.authPasswordRow.hidden = forgot || updatePw;
+  if (dom.authUpdatePasswordRow) dom.authUpdatePasswordRow.hidden = !updatePw;
+  if (dom.authPassword) dom.authPassword.disabled = forgot || updatePw;
+  if (dom.authNewPassword) dom.authNewPassword.disabled = !updatePw;
+  if (dom.signupSubmitBtn) dom.signupSubmitBtn.hidden = !loginLike;
+  if (dom.authGoogleBtn) dom.authGoogleBtn.hidden = !loginLike;
+  if (dom.authDivider) dom.authDivider.hidden = !loginLike;
+  if (dom.authForgotPasswordRow) dom.authForgotPasswordRow.hidden = !loginLike;
+  if (dom.authForgotPasswordBtn) dom.authForgotPasswordBtn.hidden = !loginLike;
   if (dom.authBackToLoginBtn) dom.authBackToLoginBtn.hidden = !forgot;
-  if (dom.authForgotHint) dom.authForgotHint.hidden = !forgot;
-  if (dom.loginSubmitBtn) dom.loginSubmitBtn.textContent = forgot ? "Send reset link" : "Login";
-  if (dom.authModalTitle) dom.authModalTitle.textContent = forgot ? "Reset password" : "Account";
+
+  if (dom.authForgotHint) {
+    dom.authForgotHint.hidden = !(forgot || updatePw);
+    if (forgot) {
+      dom.authForgotHint.textContent =
+        "Enter the email for your account. We will send a link to reset your password.";
+    } else if (updatePw) {
+      dom.authForgotHint.textContent = "Enter a new password for your account, then save to continue.";
+    }
+  }
+
+  if (dom.loginSubmitBtn) {
+    dom.loginSubmitBtn.textContent = updatePw ? "Save New Password" : forgot ? "Send reset link" : "Login";
+    dom.loginSubmitBtn.setAttribute(
+      "aria-label",
+      updatePw ? "Save new password" : forgot ? "Send password reset email" : "Submit login",
+    );
+  }
+  if (dom.authModalTitle) {
+    dom.authModalTitle.textContent = updatePw ? "Set new password" : forgot ? "Reset password" : "Account";
+  }
+}
+
+export function openAuthModalForPasswordUpdate() {
+  const { dom } = bind().deps;
+  bind().ctx.runtime.authModalMode = "update-password";
+  applyAuthModalMode();
+  dom.authStatus.textContent = "";
+  if (dom.authNewPassword) dom.authNewPassword.value = "";
+  dom.authOverlay.classList.add("open");
+  dom.authNewPassword?.focus();
 }
 
 export function openAuthModal() {
@@ -456,6 +508,31 @@ export function closeAuthModal() {
   bind().ctx.runtime.authModalMode = "login";
   applyAuthModalMode();
   bind().deps.dom.authOverlay.classList.remove("open");
+}
+
+/** Toggle password field visibility (eye icon). */
+export function togglePasswordVisibility(inputId) {
+  const { dom } = bind().deps;
+  const input =
+    inputId === "authPassword"
+      ? dom.authPassword
+      : inputId === "authNewPassword"
+        ? dom.authNewPassword
+        : document.getElementById(inputId);
+  const toggleBtn =
+    inputId === "authPassword"
+      ? dom.authPasswordToggle
+      : inputId === "authNewPassword"
+        ? dom.authNewPasswordToggle
+        : document.querySelector(`.auth-password-toggle[data-password-target="${inputId}"]`);
+  if (!input) return;
+  const reveal = input.type === "password";
+  input.type = reveal ? "text" : "password";
+  if (toggleBtn) {
+    toggleBtn.classList.toggle("is-visible", reveal);
+    toggleBtn.setAttribute("aria-label", reveal ? "Hide password" : "Show password");
+    toggleBtn.setAttribute("aria-pressed", reveal ? "true" : "false");
+  }
 }
 
 export function handleForgotPasswordClick() {
@@ -508,8 +585,9 @@ export async function handlePasswordResetSubmit() {
     return;
   }
   dom.authStatus.textContent = "Sending reset email…";
+  const redirectTo = `${window.location.origin}${window.location.pathname}`;
   const { error } = await runtime.supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: authRedirectUrl(),
+    redirectTo,
   });
   if (error) {
     dom.authStatus.textContent = error.message;
@@ -603,12 +681,23 @@ export async function bootstrapAuth() {
     refreshAuthUi();
     return;
   }
-  await syncAuthStateFromClient();
+  await syncAuthStateFromClient({ loadProjects: !isPasswordRecoveryUrl() });
   console.log("[App Auth] bootstrap session:", runtime.authUser?.email || null);
+  if (isPasswordRecoveryUrl()) {
+    openAuthModalForPasswordUpdate();
+  }
   if (runtime._authStateListenerRegistered) return;
   runtime._authStateListenerRegistered = true;
   runtime.supabase.auth.onAuthStateChange(async (event, session) => {
     console.log("[App Auth] Auth state changed:", event, session?.user?.email || null);
+    if (event === "PASSWORD_RECOVERY") {
+      runtime.authUser = session?.user ?? null;
+      clearRecoveryHashFromUrl();
+      refreshAuthUi();
+      applyAiCreditGatesToUi();
+      openAuthModalForPasswordUpdate();
+      return;
+    }
     runtime.authUser = session?.user ?? null;
     refreshAuthUi();
     applyAiCreditGatesToUi();
@@ -686,11 +775,42 @@ export function handleSoftLockLaterClick() {
   dom.softLock.classList.remove("open");
 }
 
+export async function handleUpdatePasswordSubmit() {
+  const { ctx, deps } = bind();
+  const { runtime } = ctx;
+  const { dom } = deps;
+  if (!runtime.supabase) return;
+  const password = String(dom.authNewPassword?.value || "").trim();
+  if (password.length < 6) {
+    dom.authStatus.textContent = "Enter a password with at least 6 characters.";
+    return;
+  }
+  dom.authStatus.textContent = "Updating password…";
+  const { error } = await runtime.supabase.auth.updateUser({ password });
+  if (error) {
+    dom.authStatus.textContent = error.message;
+    deps.showToast?.(error.message, "warn");
+    return;
+  }
+  deps.showToast?.("Password updated successfully!", "info");
+  clearRecoveryHashFromUrl();
+  bind().ctx.runtime.authModalMode = "login";
+  applyAuthModalMode();
+  if (dom.authNewPassword) dom.authNewPassword.value = "";
+  await syncAuthStateFromClient();
+  dom.authStatus.textContent = "Signed in";
+  closeAuthModal();
+}
+
 export async function handleLoginSubmit() {
   const { ctx, deps } = bind();
   const { runtime } = ctx;
   const { dom } = deps;
   if (!runtime.supabase) return;
+  if (runtime.authModalMode === "update-password") {
+    await handleUpdatePasswordSubmit();
+    return;
+  }
   if (runtime.authModalMode === "forgot") {
     await handlePasswordResetSubmit();
     return;
@@ -770,11 +890,15 @@ const supabaseApi = {
   startCreditPackCheckout,
   startMockCreditPurchase,
   openAuthModal,
+  openAuthModalForPasswordUpdate,
   closeAuthModal,
+  clearRecoveryHashFromUrl,
+  togglePasswordVisibility,
   handleForgotPasswordClick,
   handleBackToLoginClick,
   handleGoogleSignIn,
   handlePasswordResetSubmit,
+  handleUpdatePasswordSubmit,
   loadCloudProjects,
   cloudSyncProject,
   scheduleCloudSync,
