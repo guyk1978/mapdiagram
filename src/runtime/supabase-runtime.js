@@ -3,7 +3,7 @@
  *
  * `createSupabaseRuntime(ctx, deps)` expects:
  * - `ctx.runtime` — shared app state (`db`, `supabase`, `authUser`, timers, caches)
- * - `deps.dom` — UI refs (`savedIndicator`, `authStatus`, `authBtn`, wallet/modal elements, …)
+ * - `deps.dom` — UI refs (`savedIndicator`, `authStatus`, `authBtn`, auth modal elements, wallet/modal, …)
  * - `deps.config` — optional `{ dbKey, supabaseUrl, supabaseAnonKey, mdEditCountKey }` (defaults match tool.html)
  * - `deps.blankProject`, `renderAll`, `analyzeDiagramSemantics`, `applyFlowchartOnboardingIfNeeded`
  * - `deps.showToast`, `deps.setRightTab`
@@ -422,13 +422,104 @@ export async function startMockCreditPurchase(amount) {
   setTimeout(() => (bind().deps.dom.savedIndicator.textContent = "Saved"), 1400);
 }
 
+function authRedirectUrl() {
+  const base = window.location.origin;
+  return `${base}/auth/callback/`;
+}
+
+function applyAuthModalMode() {
+  const { dom } = bind().deps;
+  const forgot = bind().ctx.runtime.authModalMode === "forgot";
+  if (dom.authPasswordRow) dom.authPasswordRow.hidden = forgot;
+  if (dom.authPassword) dom.authPassword.disabled = forgot;
+  if (dom.signupSubmitBtn) dom.signupSubmitBtn.hidden = forgot;
+  if (dom.authGoogleBtn) dom.authGoogleBtn.hidden = forgot;
+  if (dom.authDivider) dom.authDivider.hidden = forgot;
+  if (dom.authForgotPasswordBtn) dom.authForgotPasswordBtn.hidden = forgot;
+  if (dom.authBackToLoginBtn) dom.authBackToLoginBtn.hidden = !forgot;
+  if (dom.authForgotHint) dom.authForgotHint.hidden = !forgot;
+  if (dom.loginSubmitBtn) dom.loginSubmitBtn.textContent = forgot ? "Send reset link" : "Login";
+  if (dom.authModalTitle) dom.authModalTitle.textContent = forgot ? "Reset password" : "Account";
+}
+
 export function openAuthModal() {
-  bind().deps.dom.authStatus.textContent = bind().ctx.runtime.supabase ? "" : "Supabase is not configured. Set values in /assets/supabase-config.js";
-  bind().deps.dom.authOverlay.classList.add("open");
+  const { dom } = bind().deps;
+  bind().ctx.runtime.authModalMode = "login";
+  applyAuthModalMode();
+  dom.authStatus.textContent = bind().ctx.runtime.supabase
+    ? ""
+    : "Supabase is not configured. Set values in /assets/supabase-config.js";
+  dom.authOverlay.classList.add("open");
 }
 
 export function closeAuthModal() {
+  bind().ctx.runtime.authModalMode = "login";
+  applyAuthModalMode();
   bind().deps.dom.authOverlay.classList.remove("open");
+}
+
+export function handleForgotPasswordClick() {
+  const { dom } = bind().deps;
+  bind().ctx.runtime.authModalMode = "forgot";
+  applyAuthModalMode();
+  dom.authStatus.textContent = "";
+  if (dom.authForgotHint) {
+    dom.authForgotHint.textContent =
+      "Enter the email for your account. We will send a link to reset your password.";
+  }
+  dom.authEmail?.focus();
+}
+
+export function handleBackToLoginClick() {
+  const { dom } = bind().deps;
+  bind().ctx.runtime.authModalMode = "login";
+  applyAuthModalMode();
+  dom.authStatus.textContent = "";
+}
+
+export async function handleGoogleSignIn() {
+  const { ctx, deps } = bind();
+  const { runtime } = ctx;
+  const { dom } = deps;
+  if (!runtime.supabase) {
+    dom.authStatus.textContent = "Supabase is not configured.";
+    deps.showToast?.("Configure Supabase to sign in with Google.", "warn");
+    return;
+  }
+  dom.authStatus.textContent = "Redirecting to Google…";
+  const { error } = await runtime.supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: window.location.origin },
+  });
+  if (error) {
+    dom.authStatus.textContent = error.message;
+    deps.showToast?.(error.message, "warn");
+  }
+}
+
+export async function handlePasswordResetSubmit() {
+  const { ctx, deps } = bind();
+  const { runtime } = ctx;
+  const { dom } = deps;
+  if (!runtime.supabase) return;
+  const email = dom.authEmail?.value?.trim() || "";
+  if (!email) {
+    dom.authStatus.textContent = "Enter your email address.";
+    return;
+  }
+  dom.authStatus.textContent = "Sending reset email…";
+  const { error } = await runtime.supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: authRedirectUrl(),
+  });
+  if (error) {
+    dom.authStatus.textContent = error.message;
+    deps.showToast?.(error.message, "warn");
+    return;
+  }
+  deps.showToast?.("Password reset email sent. Check your inbox.", "info");
+  dom.authStatus.textContent = "Check your email for a password reset link.";
+  bind().ctx.runtime.authModalMode = "login";
+  applyAuthModalMode();
 }
 
 export async function loadCloudProjects() {
@@ -600,6 +691,10 @@ export async function handleLoginSubmit() {
   const { runtime } = ctx;
   const { dom } = deps;
   if (!runtime.supabase) return;
+  if (runtime.authModalMode === "forgot") {
+    await handlePasswordResetSubmit();
+    return;
+  }
   dom.authStatus.textContent = "Signing in...";
   console.log("[App Auth] Login click");
   const { data, error } = await runtime.supabase.auth.signInWithPassword({
@@ -676,6 +771,10 @@ const supabaseApi = {
   startMockCreditPurchase,
   openAuthModal,
   closeAuthModal,
+  handleForgotPasswordClick,
+  handleBackToLoginClick,
+  handleGoogleSignIn,
+  handlePasswordResetSubmit,
   loadCloudProjects,
   cloudSyncProject,
   scheduleCloudSync,
