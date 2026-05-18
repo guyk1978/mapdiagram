@@ -65,6 +65,25 @@ function setTopbarAuthVisible(el, visible, displayWhenShown = "") {
   }
 }
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/** True when `s` is a Postgres-compatible UUID string. */
+export function isValidUuid(s) {
+  return typeof s === "string" && UUID_RE.test(s.trim());
+}
+
+export function generateUuid() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  const hex = () =>
+    Math.floor(Math.random() * 0x10000)
+      .toString(16)
+      .padStart(4, "0");
+  return `${hex()}${hex()}-${hex()}-4${hex().slice(1)}-a${hex().slice(1)}-${hex()}${hex()}${hex()}`;
+}
+
 function normalizeDbShape() {
   const db = bind().ctx.runtime.db;
   if (!db || typeof db !== "object") {
@@ -73,6 +92,49 @@ function normalizeDbShape() {
   }
   if (!Array.isArray(db.projects)) db.projects = [];
   if (db.shares == null || typeof db.shares !== "object") db.shares = {};
+  for (const p of db.projects) normalizeProjectCloudFields(p);
+  if (db.activeProjectId && !db.projects.some((p) => p.projectId === db.activeProjectId)) {
+    db.activeProjectId = db.projects[0]?.projectId || null;
+  }
+}
+
+/** Keep local `projectId` (may be short); ensure `cloudProjectId` is UUID when known. */
+function normalizeProjectCloudFields(project) {
+  if (!project || typeof project !== "object") return project;
+  const local = String(project.projectId || "").trim();
+  const cloud = String(project.cloudProjectId || "").trim();
+  if (isValidUuid(local) && !isValidUuid(cloud)) project.cloudProjectId = local;
+  if (cloud && !isValidUuid(cloud)) delete project.cloudProjectId;
+  return project;
+}
+
+/**
+ * Resolve the Supabase primary key for a project. Never returns a short local id.
+ * Persists assignment on `project.cloudProjectId`.
+ */
+export function ensureCloudProjectId(project) {
+  if (!project) return generateUuid();
+  normalizeProjectCloudFields(project);
+  const cloud = String(project.cloudProjectId || "").trim();
+  if (isValidUuid(cloud)) return cloud;
+  const local = String(project.projectId || "").trim();
+  if (isValidUuid(local)) {
+    project.cloudProjectId = local;
+    return local;
+  }
+  const assigned = generateUuid();
+  project.cloudProjectId = assigned;
+  return assigned;
+}
+
+/** After cloud upsert, align local ids with the canonical UUID row id. */
+function promoteProjectToCloudId(project, cloudId) {
+  if (!project || !isValidUuid(cloudId)) return;
+  const db = bind().ctx.runtime.db;
+  const prevLocal = project.projectId;
+  project.cloudProjectId = cloudId;
+  if (project.projectId !== cloudId) project.projectId = cloudId;
+  if (db.activeProjectId === prevLocal) db.activeProjectId = cloudId;
 }
 
 export function normalizeSupabaseProjectUrl(raw) {
@@ -185,9 +247,14 @@ function projectContentScore(project) {
 function mergeDbPreferLocalNewer(prevDb, nextDb) {
   if (!prevDb?.projects?.length || !nextDb?.projects?.length) return nextDb;
   const prevById = new Map(prevDb.projects.map((p) => [p.projectId, p]));
+  const prevByCloud = new Map();
+  for (const p of prevDb.projects) {
+    const cid = p.cloudProjectId || (isValidUuid(p.projectId) ? p.projectId : null);
+    if (cid) prevByCloud.set(cid, p);
+  }
   for (let i = 0; i < nextDb.projects.length; i += 1) {
     const incoming = nextDb.projects[i];
-    const local = prevById.get(incoming.projectId);
+    const local = prevById.get(incoming.projectId) || prevByCloud.get(incoming.projectId);
     if (!local) continue;
     const localScore = projectContentScore(local);
     const incomingScore = projectContentScore(incoming);
@@ -746,6 +813,7 @@ export async function loadCloudProjects() {
   const prevDb = JSON.parse(JSON.stringify(bind().ctx.runtime.db));
   bind().ctx.runtime.db.projects = (data || []).map((row) => ({
     projectId: row.id,
+    cloudProjectId: row.id,
     name: row.name || "Untitled",
     title: row.data?.title || "Blank Canvas",
     nodes: Array.isArray(row.data?.nodes) ? row.data.nodes : [],
@@ -780,20 +848,15 @@ export async function cloudSyncProject(project) {
   const userId = bind().ctx.runtime.authUser.id;
   if (!userId) return;
 
-  let projectId = String(project.projectId || "").trim();
-  if (!projectId) {
-    projectId =
-      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-        ? crypto.randomUUID()
-        : `p_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-    project.projectId = projectId;
-    if (bind().ctx.runtime.db.activeProjectId == null) {
-      bind().ctx.runtime.db.activeProjectId = projectId;
-    }
+  const cloudId = ensureCloudProjectId(project);
+  if (!isValidUuid(cloudId)) {
+    console.warn("[App Auth] cloudSyncProject: refused non-UUID id", cloudId);
+    bind().deps.dom.savedIndicator.textContent = "Cloud save failed";
+    return;
   }
 
   const row = {
-    id: projectId,
+    id: cloudId,
     user_id: userId,
     name: String(project.name || "Untitled").slice(0, 200),
     data: {
@@ -821,12 +884,8 @@ export async function cloudSyncProject(project) {
   }
 
   const savedId = data?.id;
-  if (savedId && savedId !== project.projectId) {
-    const prevId = project.projectId;
-    project.projectId = savedId;
-    if (bind().ctx.runtime.db.activeProjectId === prevId) {
-      bind().ctx.runtime.db.activeProjectId = savedId;
-    }
+  if (savedId && isValidUuid(savedId)) {
+    promoteProjectToCloudId(project, savedId);
     saveDB();
   }
 }
@@ -1077,6 +1136,9 @@ const supabaseApi = {
   handleUpdatePasswordSubmit,
   loadCloudProjects,
   cloudSyncProject,
+  isValidUuid,
+  generateUuid,
+  ensureCloudProjectId,
   scheduleCloudSync,
   bootstrapAuth,
   syncAuthStateFromClient,
