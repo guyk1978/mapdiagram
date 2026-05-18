@@ -13679,6 +13679,124 @@ clearFlowGroupSelection();
     return lum > 0.62;
   }
 
+  function svgExportParseRgbColor(str) {
+    const m = String(str || "")
+      .trim()
+      .match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)$/i);
+    if (!m) return null;
+    return { r: +m[1], g: +m[2], b: +m[3], a: m[4] != null ? +m[4] : 1 };
+  }
+
+  function svgExportCssColorToHex(color) {
+    const s = String(color || "").trim();
+    if (!s) return null;
+    if (s.startsWith("#")) {
+      const p = svgExportParseHexColor(s);
+      if (!p) return null;
+      const h = (n) => Math.round(n).toString(16).padStart(2, "0");
+      return `#${h(p.r)}${h(p.g)}${h(p.b)}`;
+    }
+    const rgb = svgExportParseRgbColor(s);
+    if (!rgb) return null;
+    const h = (n) => Math.round(n).toString(16).padStart(2, "0");
+    return `#${h(rgb.r)}${h(rgb.g)}${h(rgb.b)}`;
+  }
+
+  function svgExportIsLightCssColor(color) {
+    const hex = svgExportCssColorToHex(color);
+    if (hex) return svgExportIsLightFill(hex);
+    const rgb = svgExportParseRgbColor(color);
+    if (!rgb) return false;
+    const lum = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+    return lum > 0.62;
+  }
+
+  function svgExportIsTransparentCssColor(color) {
+    const s = String(color || "").trim();
+    if (!s || s === "transparent") return true;
+    const rgb = svgExportParseRgbColor(s);
+    return rgb ? rgb.a < 0.04 : false;
+  }
+
+  function svgExportDominantFromBackgroundImage(bgImage) {
+    const src = String(bgImage || "").trim();
+    if (!src || src === "none") return null;
+    const stops = src.match(/rgba?\([^)]+\)|#[0-9a-f]{3,8}/gi) || [];
+    if (!stops.length) return null;
+    if (stops.length === 1) return stops[0];
+    const c0 = svgExportParseRgbColor(stops[0]) || (stops[0].startsWith("#") ? svgExportParseHexColor(stops[0]) : null);
+    const c1 = svgExportParseRgbColor(stops[1]) || (stops[1].startsWith("#") ? svgExportParseHexColor(stops[1]) : null);
+    if (!c0) return stops[0];
+    if (!c1) return stops[0];
+    const a0 = c0.a != null ? c0.a : 1;
+    const a1 = c1.a != null ? c1.a : 1;
+    const r = Math.round(c0.r * 0.55 + c1.r * 0.45);
+    const g = Math.round(c0.g * 0.55 + c1.g * 0.45);
+    const b = Math.round(c0.b * 0.55 + c1.b * 0.45);
+    const a = a0 * 0.55 + a1 * 0.45;
+    return a >= 0.999 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${a.toFixed(3)})`;
+  }
+
+  function svgExportReadComputedShellFill(nodeEl, theme) {
+    const cs = getComputedStyle(nodeEl);
+    let fill = cs.backgroundColor;
+    if (svgExportIsTransparentCssColor(fill)) {
+      const fromGrad = svgExportDominantFromBackgroundImage(cs.backgroundImage);
+      if (fromGrad) fill = fromGrad;
+    }
+    if (svgExportIsTransparentCssColor(fill)) fill = theme.nodeSurface;
+    const stroke = cs.borderColor;
+    return {
+      fill,
+      stroke: stroke && !svgExportIsTransparentCssColor(stroke) ? stroke : theme.nodeBorder,
+      borderWidth: parseFloat(cs.borderWidth) || 1.5,
+      opacity: cs.opacity
+    };
+  }
+
+  function svgExportEnsureContrastText(preferred, bgFill, theme) {
+    const pref = String(preferred || "").trim();
+    if (pref && svgExportIsLightCssColor(bgFill) !== svgExportIsLightCssColor(pref)) return pref;
+    return svgExportIsLightCssColor(bgFill) ? theme.nodeTitle : "#eef3ff";
+  }
+
+  function svgExportGetNodeDomEl(nodeId) {
+    const cached = runtime.nodeElById.get(nodeId);
+    if (cached?.isConnected) return cached;
+    return getNodeDomElement(nodeId) || nodesLayer?.querySelector(`[data-node-id="${nodeId}"]`);
+  }
+
+  /** Read live DOM computed colors for faithful standalone SVG node paint. */
+  function svgExportReadNodeComputedPaint(nodeEl, theme) {
+    const fallback = {
+      fill: theme.nodeSurface,
+      stroke: theme.nodeBorder,
+      borderWidth: 1.5,
+      opacity: "1",
+      title: theme.nodeTitle,
+      subtitle: theme.nodeSubtitle,
+      desc: theme.nodeDesc
+    };
+    if (!nodeEl || typeof getComputedStyle !== "function") return fallback;
+    const shell = svgExportReadComputedShellFill(nodeEl, theme);
+    const titleEl = nodeEl.querySelector(".node-title, .node-title-freeform");
+    const subEl = nodeEl.querySelector(".node-subtitle");
+    const descEl = nodeEl.querySelector(".node-desc");
+    const bodyEl = nodeEl.querySelector(".body");
+    const titleCs = titleEl ? getComputedStyle(titleEl) : bodyEl ? getComputedStyle(bodyEl) : getComputedStyle(nodeEl);
+    const subCs = subEl ? getComputedStyle(subEl) : titleCs;
+    const descCs = descEl ? getComputedStyle(descEl) : subCs;
+    return {
+      fill: shell.fill,
+      stroke: shell.stroke,
+      borderWidth: shell.borderWidth,
+      opacity: shell.opacity,
+      title: svgExportEnsureContrastText(titleCs.color, shell.fill, theme),
+      subtitle: svgExportEnsureContrastText(subCs.color, shell.fill, theme),
+      desc: svgExportEnsureContrastText(descCs.color, shell.fill, theme)
+    };
+  }
+
   /** Resolve active theme tokens for standalone SVG (no external stylesheet). */
   function getSvgExportTheme() {
     const isLight = document.documentElement.getAttribute("data-theme") === "light";
@@ -13798,18 +13916,11 @@ clearFlowGroupSelection();
     const x = wpos.x;
     const y = wpos.y;
     const rad = Math.max(0, Number(st.radius) || 12);
-    const bw = Math.max(0, Math.min(6, Number(st.borderWidth) || 1.5));
-    const bodyFill = n.color || theme.defaultNodeAccent;
-    const surfaceFill = svgExportIsLightFill(bodyFill) ? theme.nodeSurface : theme.nodeSurfaceAlt;
-    const stroke =
-      st.borderColor && /^#/.test(String(st.borderColor)) && !String(st.borderColor).includes("var(")
-        ? st.borderColor
-        : theme.nodeBorder;
-    const opacity = Math.max(0.2, Math.min(1, Number(st.opacity) || 0.9));
+    const nodeEl = svgExportGetNodeDomEl(n.id);
+    const paint = svgExportReadNodeComputedPaint(nodeEl, theme);
+    const bw = Math.max(0, Math.min(6, paint.borderWidth || Number(st.borderWidth) || 1.5));
+    const opacity = Math.max(0.2, Math.min(1, parseFloat(paint.opacity) || Number(st.opacity) || 0.9));
     const shp = n.shape || "rect";
-    const textTitle = svgExportIsLightFill(bodyFill) ? theme.nodeTitle : "#eef3ff";
-    const textSub = svgExportIsLightFill(bodyFill) ? "rgba(30, 40, 62, 0.88)" : theme.nodeSubtitle;
-    const textDesc = svgExportIsLightFill(bodyFill) ? "rgba(45, 55, 78, 0.78)" : theme.nodeDesc;
     const px = Math.max(10, Math.min(28, Number(st.titleFontSize) || 14));
     const wgt = [400, 500, 600, 700].includes(Number(st.titleFontWeight)) ? Number(st.titleFontWeight) : 600;
     const fam = "Inter, Segoe UI, Arial";
@@ -13818,22 +13929,19 @@ clearFlowGroupSelection();
     );
     if (shp === "circle") {
       parts.push(
-        `<ellipse cx="${n.width / 2}" cy="${n.height / 2}" rx="${n.width / 2}" ry="${n.height / 2}" fill="${svgExportEscape(surfaceFill)}" stroke="none"/>`,
-        `<ellipse cx="${n.width / 2}" cy="${n.height / 2}" rx="${n.width / 2}" ry="${n.height / 2}" fill="${svgExportEscape(bodyFill)}" stroke="${svgExportEscape(stroke)}" stroke-width="${bw}"/>`
+        `<ellipse cx="${n.width / 2}" cy="${n.height / 2}" rx="${n.width / 2}" ry="${n.height / 2}" fill="${svgExportEscape(paint.fill)}" stroke="${svgExportEscape(paint.stroke)}" stroke-width="${bw}"/>`
       );
     } else if (shp === "diamond") {
       const cx = n.width / 2;
       const cy = n.height / 2;
       const pts = `${cx},0 ${n.width},${cy} ${cx},${n.height} 0,${cy}`;
       parts.push(
-        `<polygon points="${pts}" fill="${svgExportEscape(surfaceFill)}" stroke="none"/>`,
-        `<polygon points="${pts}" fill="${svgExportEscape(bodyFill)}" stroke="${svgExportEscape(stroke)}" stroke-width="${bw}"/>`
+        `<polygon points="${pts}" fill="${svgExportEscape(paint.fill)}" stroke="${svgExportEscape(paint.stroke)}" stroke-width="${bw}"/>`
       );
     } else {
       const rr = shp === "rounded" ? Math.max(rad, 14) : rad;
       parts.push(
-        `<rect width="${n.width}" height="${n.height}" rx="${rr}" fill="${svgExportEscape(surfaceFill)}" stroke="none"/>`,
-        `<rect width="${n.width}" height="${n.height}" rx="${rr}" fill="${svgExportEscape(bodyFill)}" stroke="${svgExportEscape(stroke)}" stroke-width="${bw}"/>`
+        `<rect width="${n.width}" height="${n.height}" rx="${rr}" fill="${svgExportEscape(paint.fill)}" stroke="${svgExportEscape(paint.stroke)}" stroke-width="${bw}"/>`
       );
     }
     const title = n.title || n.text || "Node";
@@ -13841,7 +13949,7 @@ clearFlowGroupSelection();
     const cy = n.height / 2;
     if (st.freeform) {
       parts.push(
-        `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="${px}" font-weight="${wgt}" fill="${textTitle}">${svgExportEscape(title)}</text>`
+        `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="${px}" font-weight="${wgt}" fill="${svgExportEscape(paint.title)}">${svgExportEscape(title)}</text>`
       );
     } else {
       const hasSub = !!String(n.subtitle || "").trim();
@@ -13850,16 +13958,16 @@ clearFlowGroupSelection();
       if (hasSub && hasDesc) y0 = cy - 18;
       else if (hasSub || hasDesc) y0 = cy - 10;
       parts.push(
-        `<text x="${cx}" y="${y0}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="${px}" font-weight="${wgt}" fill="${textTitle}">${svgExportEscape(title)}</text>`
+        `<text x="${cx}" y="${y0}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="${px}" font-weight="${wgt}" fill="${svgExportEscape(paint.title)}">${svgExportEscape(title)}</text>`
       );
       if (hasSub) {
         parts.push(
-          `<text x="${cx}" y="${y0 + 16}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="12" font-weight="500" fill="${textSub}">${svgExportEscape(n.subtitle)}</text>`
+          `<text x="${cx}" y="${y0 + 16}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="12" font-weight="500" fill="${svgExportEscape(paint.subtitle)}">${svgExportEscape(n.subtitle)}</text>`
         );
       }
       if (hasDesc) {
         parts.push(
-          `<text x="${cx}" y="${y0 + (hasSub ? 32 : 16)}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="11" fill="${textDesc}">${svgExportEscape(String(n.description).slice(0, 68))}</text>`
+          `<text x="${cx}" y="${y0 + (hasSub ? 32 : 16)}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="11" fill="${svgExportEscape(paint.desc)}">${svgExportEscape(String(n.description).slice(0, 68))}</text>`
         );
       }
     }
@@ -14110,6 +14218,7 @@ clearFlowGroupSelection();
   function exportAsSvg() {
     const p = getProject();
     if (!p.nodes.length) return;
+    renderNodes();
     renderConnections();
     const padEl = document.getElementById("pngExportPad");
     const basePad = Math.max(8, Math.min(400, Math.round(Number(padEl?.value) || 80)));

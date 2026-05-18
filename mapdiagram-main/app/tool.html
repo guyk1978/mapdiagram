@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <link rel="stylesheet" href="/assets/design-tokens.css">
@@ -66,7 +66,7 @@
     --layout-sidebar-left: 290px;
     --layout-sidebar-right: 320px;
   }
-  /* Light theme: flat, airy surfaces — workspace reads as the hero; chrome stays quiet. */
+  /* Light theme: flat, airy surfaces ג€” workspace reads as the hero; chrome stays quiet. */
   html[data-theme="light"] {
     --bg: #eef1f8;
     --panel: #ffffff;
@@ -159,7 +159,7 @@
     height: 100%;
     display: block;
   }
-  /* Theme toggle shows sun in dark mode (→ light) and moon in light mode (→ dark); no JS text swap. */
+  /* Theme toggle shows sun in dark mode (ג†’ light) and moon in light mode (ג†’ dark); no JS text swap. */
   .theme-toggle-btn .icon-svg.icon-theme-sun,
   .theme-toggle-btn .icon-svg.icon-theme-moon {
     display: none;
@@ -259,7 +259,7 @@
     align-items: center;
     position: relative;
   }
-  /* Mobile: ⋯ leads the bar; desktop: flex order sends it to the trailing edge. */
+  /* Mobile: ג‹¯ leads the bar; desktop: flex order sends it to the trailing edge. */
   .topbar-overflow-leading-wrap {
     display: flex;
     align-items: center;
@@ -470,7 +470,7 @@
       padding 0.26s var(--ease-standard, ease),
       border-color 0.26s ease;
   }
-  /* Desktop-only: collapse Projects / Inspector columns so #workspace grows (drawer layout unchanged ≤1024px). */
+  /* Desktop-only: collapse Projects / Inspector columns so #workspace grows (drawer layout unchanged ג‰₪1024px). */
   .desktop-sidebar-toggles {
     display: none;
     align-items: center;
@@ -770,7 +770,7 @@
   html[data-theme="light"] .fc-delete-confirm{background:rgba(255,252,252,.98)}
   .fc-delete-confirm p{margin:0 0 8px;font-size:14px;font-weight:600}
   .fc-delete-confirm .fc-delete-hint{margin:0;font-size:12px;color:var(--muted);font-weight:500}
-  /* User group frame drawn UNDER nodes so new nodes are never visually “inside” or blocked. */
+  /* User group frame drawn UNDER nodes so new nodes are never visually ג€insideג€ or blocked. */
   #canvas-underlays{
     position:absolute;
     inset:0;
@@ -935,7 +935,7 @@
   .right-section[data-tab].active{display:grid}
   .right-section[data-tab="diagram"].active{display:none}
   .right-section[data-tab="diagram"].active.diagram-sub-on{display:grid}
-  /* Diagram inspector: sub-tabs + panels read as one vertical stack (Node → Groups → Suggestions). */
+  /* Diagram inspector: sub-tabs + panels read as one vertical stack (Node ג†’ Groups ג†’ Suggestions). */
   .inspector-diagram-stack{display:grid;gap:var(--space-3,12px)}
   .inspector-diagram-stack .diagram-sub-tabs{margin-bottom:0}
   .diagram-sub-tabs{display:flex;flex-wrap:wrap;gap:var(--space-2,8px);margin-bottom:var(--space-3,12px)}
@@ -1072,7 +1072,7 @@
     background: color-mix(in srgb, var(--accent) 22%, transparent);
   }
   .connection-list-row.is-warn::before {
-    content: "⚠ ";
+    content: "ג  ";
     color: #ffc17a;
   }
   .connection-list-empty {
@@ -1685,13 +1685,13 @@
     box-shadow:0 0 18px rgba(122,162,255,.22);
   }
   .preview-label{font-size:12px;color:var(--node-title);font-weight:600}
-  /* Legacy connection handles removed — edges attach on the node body perimeter. */
+  /* Legacy connection handles removed ג€” edges attach on the node body perimeter. */
   .handle,
   .out-zone {
     display: none !important;
     pointer-events: none !important;
   }
-  /* Ghost connection points — visible on node hover (drag to connect). */
+  /* Ghost connection points ג€” visible on node hover (drag to connect). */
   .node-conn-handles {
     position: absolute;
     inset: 0;
@@ -1888,7 +1888,7 @@
     border-color: #5e4b2f;
     background: #2e271b;
   }
-  /* Canvas-independent overlay portal — modals mount here, never inside #viewport / transformed layers. */
+  /* Canvas-independent overlay portal ג€” modals mount here, never inside #viewport / transformed layers. */
   .md-modal-root {
     position: fixed;
     inset: 0;
@@ -2047,7 +2047,7 @@
       min-height: 40px;
       min-width: 40px;
     }
-    /* Responsive headings — prevent clip on tablet/narrow layouts */
+    /* Responsive headings ג€” prevent clip on tablet/narrow layouts */
     .fc-empty-card h2,
     .fc-assistant-card-head h2 {
       font-size: 1.2rem !important;
@@ -2078,7 +2078,7 @@
       font-size: 12px !important;
       max-width: 96px;
     }
-    /* Topbar: rely on ⋯ overflow menu; hide duplicate quick-action strip */
+    /* Topbar: rely on ג‹¯ overflow menu; hide duplicate quick-action strip */
     .topbar-minimal-end .mobile-inspector-actions,
     .topbar-minimal-end .topbar-group-actions {
       display: none !important;
@@ -2202,7 +2202,7 @@
       justify-content: flex-end;
       overflow: hidden;
     }
-    /* Duplicate CTAs live in #topbarMoreMenu (data-mirror-click) — hide inline copies on phone */
+    /* Duplicate CTAs live in #topbarMoreMenu (data-mirror-click) ג€” hide inline copies on phone */
     .topbar-minimal-end {
       display: none !important;
     }
@@ -2289,7 +2289,7 @@
       max-height: min(52vh, 380px);
     }
   }
-  /* —— Light theme: airy chrome, workspace-forward, accent-only emphasis (see also :root html[data-theme="light"] tokens). —— */
+  /* ג€”ג€” Light theme: airy chrome, workspace-forward, accent-only emphasis (see also :root html[data-theme="light"] tokens). ג€”ג€” */
   html[data-theme="light"] .brand::before {
     filter: none;
   }
@@ -2299,7 +2299,7 @@
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.75), 0 10px 28px rgba(20, 40, 80, 0.04);
     padding-inline: var(--space-4, 16px);
   }
-  /* Remove heavy “pill” trays behind toolbar groups; separate clusters with hairlines only. */
+  /* Remove heavy ג€pillג€ trays behind toolbar groups; separate clusters with hairlines only. */
   html[data-theme="light"] .topbar-toolbar-cluster {
     gap: var(--space-3, 12px);
   }
@@ -2682,7 +2682,7 @@
     }
   }
 
-  /* —— Flowchart mode (Phase 0) —— */
+  /* ג€”ג€” Flowchart mode (Phase 0) ג€”ג€” */
   .flowchart-mode #railSystemBtn,
   .flowchart-mode #railDataBtn,
   .flowchart-mode #railInsightBtn,
@@ -3264,7 +3264,7 @@
     display: none;
   }
 
-  /* —— Flowchart mode polish (Phase 0.5) —— */
+  /* ג€”ג€” Flowchart mode polish (Phase 0.5) ג€”ג€” */
   .flowchart-mode #autoLayoutBtn {
     display: none !important;
   }
@@ -3649,7 +3649,7 @@
         <span id="focusGroupCrumbs" class="crumb"></span>
         <button type="button" id="exitGroupFocusBtn" aria-label="Exit group focus mode">Exit focus</button>
       </div>
-      <div id="minimapHost" class="minimap-host" title="Overview map — click to navigate" aria-label="Diagram overview map. Click to navigate.">
+      <div id="minimapHost" class="minimap-host" title="Overview map ג€” click to navigate" aria-label="Diagram overview map. Click to navigate.">
         <canvas id="minimapCanvas" width="200" height="140"></canvas>
       </div>
             <div id="fcAssistantRoot" class="fc-assistant-root" data-state="collapsed" hidden>
@@ -3663,7 +3663,7 @@
               <button type="button" id="fcAssistantCloseBtn" class="fc-assistant-close" aria-label="Close assistant">&times;</button>
             </div>
             <p class="fc-assistant-lead">Turn a process into a clean, editable flowchart.</p>
-            <textarea id="flowchartPromptInput" placeholder="Describe your workflow — steps, decisions, and handoffs…" rows="3" aria-label="Describe your workflow"></textarea>
+            <textarea id="flowchartPromptInput" placeholder="Describe your workflow ג€” steps, decisions, and handoffsג€¦" rows="3" aria-label="Describe your workflow"></textarea>
             <div id="fcStarterChips" class="fc-starter-chips" role="group" aria-label="Starter prompts"></div>
             <div class="fc-assistant-actions">
               <button type="button" id="fcTryExampleBtn" class="text-btn-sm">Try example</button>
@@ -3673,15 +3673,15 @@
           </div>
         </div>
         <button type="button" id="fcAssistantFab" class="fc-assistant-fab" hidden aria-label="Open flowchart assistant" title="Describe your workflow (Ctrl+K)">
-          <span class="fc-assistant-fab-icon" aria-hidden="true">✦</span>
+          <span class="fc-assistant-fab-icon" aria-hidden="true">ג¦</span>
           <span class="fc-assistant-fab-label">Assistant</span>
-          <span class="fc-assistant-fab-hint" aria-hidden="true">⌘K</span>
+          <span class="fc-assistant-fab-hint" aria-hidden="true">ג˜K</span>
         </button>
       </div>
 
       <div id="fcDeleteConfirm" class="fc-delete-confirm" hidden role="alertdialog" aria-labelledby="fcDeleteConfirmText" aria-modal="true">
         <p id="fcDeleteConfirmText">Delete selected steps?</p>
-        <p class="fc-delete-hint">Enter to confirm · Esc to cancel</p>
+        <p class="fc-delete-hint">Enter to confirm ֲ· Esc to cancel</p>
       </div>
       <div id="fcMultiSelectBar" class="fc-multi-select-bar" hidden role="toolbar" aria-label="Multi-selection actions">
         <span id="fcMultiSelectCount" class="fc-multi-count">2 selected</span>
@@ -3728,7 +3728,7 @@
       <section class="section right-section section-critical node-builder active diagram-sub-on" data-tab="diagram" data-diagram-sub="node" id="diagramSectionNode" aria-labelledby="diagramHeadingSelNode quickEditInspectorHint">
         <h3 id="diagramHeadingSelNode">Selected Node</h3>
         <p id="quickEditInspectorHint" class="sr-only">Quick inspector: changes apply to the selected node on the canvas.</p>
-        <p class="muted" id="quickEditSurfaceHint">Edit titles here or double-click a node for the full inspector (sidebar “Edit node” also opens it). Long-press (or middle-click) a node to start a link from its edge.</p>
+        <p class="muted" id="quickEditSurfaceHint">Edit titles here or double-click a node for the full inspector (sidebar ג€Edit nodeג€ also opens it). Long-press (or middle-click) a node to start a link from its edge.</p>
         <textarea id="nodeText" placeholder="Double-click node or edit here"></textarea>
         <input id="nodeSubtitle" type="text" placeholder="Subtitle (optional)">
         <input id="nodeDescription" type="text" placeholder="Description (optional)">
@@ -3746,13 +3746,13 @@
             <option value="custom">Custom</option>
           </select>
           <select id="nodeShape">
-            <option value="rect">◼ Rect</option>
-            <option value="circle">◯ Circle</option>
-            <option value="diamond">♦ Diamond</option>
-            <option value="rounded">⬡ Rounded</option>
+            <option value="rect">ג—¼ Rect</option>
+            <option value="circle">ג—¯ Circle</option>
+            <option value="diamond">ג™¦ Diamond</option>
+            <option value="rounded">ג¬¡ Rounded</option>
           </select>
         </div>
-        <label class="muted" style="display:flex;align-items:center;gap:8px;margin:2px 0 6px"><input type="checkbox" id="nodeQuickLockChk"> Lock / pin (hard lock — blocks canvas drag)</label>
+        <label class="muted" style="display:flex;align-items:center;gap:8px;margin:2px 0 6px"><input type="checkbox" id="nodeQuickLockChk"> Lock / pin (hard lock ג€” blocks canvas drag)</label>
         <label class="muted" style="display:flex;align-items:center;gap:8px;margin:2px 0 6px"><input type="checkbox" id="nodeQuickHiddenChk"> Hide node on canvas</label>
         <label class="muted" style="display:flex;align-items:center;gap:8px;margin:2px 0 6px"><input type="checkbox" id="nodeQuickFreeformChk"> Free-style node (centered label, connect anywhere)</label>
         <label class="muted">Background opacity <input id="nodeOpacity" type="range" min="0.2" max="1" step="0.05" value="0.9"></label>
@@ -3760,13 +3760,13 @@
         <label class="muted">Shadow intensity <input id="nodeShadow" type="range" min="0" max="40" step="1" value="20"></label>
         <label class="muted">Rounded corners <input id="nodeRadius" type="range" min="0" max="28" step="1" value="12"></label>
         <label class="muted">Border color <input type="color" id="nodeBorderColor" value="#9cb8ff"></label>
-        <button type="button" id="openExtendedEditorBtn" class="text-btn-sm">Open extended editor…</button>
+        <button type="button" id="openExtendedEditorBtn" class="text-btn-sm">Open extended editorג€¦</button>
         <button type="button" id="deleteNodeBtn" class="danger" aria-label="Delete selected node or nodes">Delete node(s)</button>
       </section>
       <section class="section right-section section-critical active" data-tab="diagram" data-diagram-sub="groups" id="diagramSectionGroups" aria-labelledby="diagramHeadingStatus diagramStatusHint">
         <h3 id="diagramHeadingStatus">Status</h3>
         <p id="diagramStatusHint" class="sr-only">Selection counts, group tools, and layout helpers.</p>
-        <div id="stats" class="muted">0 nodes • 0 connections</div>
+        <div id="stats" class="muted">0 nodes ג€¢ 0 connections</div>
         <div id="mobileHint" class="muted"></div>
         <div class="selection-tools-row" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;align-items:center">
           <button type="button" id="duplicateNodesPanelBtn" class="text-btn-sm" title="Duplicate selected nodes (Ctrl+D)">Duplicate</button>
@@ -3792,11 +3792,11 @@
           </select>
           <ul id="connectionListBody" class="connection-list-body" aria-label="Diagram connections"></ul>
         </div>
-        <!-- Phase 2+3: selected edge style + node–node labels (inspector). -->
+        <!-- Phase 2+3: selected edge style + nodeג€“node labels (inspector). -->
         <div id="edgeInspectorPanel" class="edge-inspector-panel" hidden>
           <h4 class="connection-list-head">Selected link(s)</h4>
           <p id="edgeInspectorCount" class="muted" style="margin:0 0 6px;font-size:11px"></p>
-          <label class="muted">Label (node–node) <input type="text" id="edgeLabelInput" placeholder="Edge caption" autocomplete="off"></label>
+          <label class="muted">Label (nodeג€“node) <input type="text" id="edgeLabelInput" placeholder="Edge caption" autocomplete="off"></label>
           <label class="muted">Line weight
             <select id="edgeStrokeWidthSel" aria-label="Edge line weight">
               <option value="">Default</option>
@@ -3831,7 +3831,7 @@
           <p id="groupChildCountLine" class="group-meta-line" aria-live="polite"></p>
           <label class="muted">Name <input id="groupNameInput" placeholder="Group name"></label>
           <label class="muted">Color <input id="groupColorInput" type="color" value="#8baeff"></label>
-          <label class="muted">Parent (nest under) <select id="groupParentSelect"><option value="">— Root —</option></select></label>
+          <label class="muted">Parent (nest under) <select id="groupParentSelect"><option value="">ג€” Root ג€”</option></select></label>
           <label class="muted" style="display:flex;align-items:center;gap:8px;margin:0">
             <input type="checkbox" id="groupPinChk"> Pin group (no drag)
           </label>
@@ -3878,7 +3878,7 @@
         <p id="layoutHint" class="sr-only">Systems layout and minimap visibility.</p>
         <div class="muted" data-flowchart-hide>Use Smart Clean / Auto Layout to apply spacing and structure.</div>
         <button type="button" id="improveFlowchartLayoutPanelBtn" class="text-btn-sm" style="width:100%;margin-bottom:8px">Improve layout</button>
-        <p class="muted" style="font-size:11px;margin:0 0 10px">Polish spacing locally — no AI. Shortcut: Ctrl+L</p>
+        <p class="muted" style="font-size:11px;margin:0 0 10px">Polish spacing locally ג€” no AI. Shortcut: Ctrl+L</p>
         <label class="muted" data-flowchart-hide>Systems layout
           <select id="hierarchicalLayoutSelect">
             <option value="classic">Classic (nodes only)</option>
@@ -3919,11 +3919,11 @@
         <h3 id="aiHeading">AI credits</h3>
         <p id="aiHint" class="sr-only">Wallet balance, generation, and credit packs.</p>
         <div class="ai-wallet-panel">
-          <div id="aiWalletModeLine" class="ai-wallet-sub">Loading…</div>
-          <div id="aiWalletBalanceBig" class="ai-wallet-balance muted-balance">—</div>
+          <div id="aiWalletModeLine" class="ai-wallet-sub">Loadingג€¦</div>
+          <div id="aiWalletBalanceBig" class="ai-wallet-balance muted-balance">ג€”</div>
           <div id="aiWalletCostLine" class="ai-wallet-sub"></div>
           <div id="aiWalletInsufficient" class="ai-wallet-alert" role="status"></div>
-          <button type="button" id="generateAiWalletBtn" class="btn-ai-primary" aria-label="Open AI diagram generation">Generate with AI…</button>
+          <button type="button" id="generateAiWalletBtn" class="btn-ai-primary" aria-label="Open AI diagram generation">Generate with AIג€¦</button>
           <p class="muted" style="margin:0;font-size:11px">Each compile step reserves credits on the server first; unused tokens are refunded. Balance updates after every run.</p>
         </div>
         <h3 style="margin-top:14px">Buy credits</h3>
@@ -3972,7 +3972,7 @@
   <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
     <h3 id="authModalTitle">Account</h3>
     <div class="auth-row"><label for="authEmail">Email</label><input id="authEmail" type="email" placeholder="you@email.com"></div>
-    <div class="auth-row"><label for="authPassword">Password</label><input id="authPassword" type="password" placeholder="••••••••"></div>
+    <div class="auth-row"><label for="authPassword">Password</label><input id="authPassword" type="password" placeholder="ג€¢ג€¢ג€¢ג€¢ג€¢ג€¢ג€¢ג€¢"></div>
     <div class="auth-actions">
       <button id="loginSubmitBtn" type="button" aria-label="Submit login">Login</button>
       <button id="signupSubmitBtn" type="button" aria-label="Sign up with email and password">Sign up</button>
@@ -3992,7 +3992,7 @@
   <div id="focusModal" class="focus-modal" role="dialog" aria-modal="true" aria-labelledby="focusModalTitle">
     <div class="focus-head">
       <div class="focus-head-title" id="focusModalTitle">Node inspector</div>
-      <button id="focusCloseBtn" type="button" class="focus-close" title="Close" aria-label="Close node inspector">×</button>
+      <button id="focusCloseBtn" type="button" class="focus-close" title="Close" aria-label="Close node inspector">ֳ—</button>
     </div>
     <div class="node-insp-tabs" id="nodeInspTabs" role="tablist" aria-label="Node inspector">
       <button type="button" class="node-insp-tab active" data-node-insp-tab="content" id="nodeInspTabContent" role="tab" aria-selected="true" aria-controls="nodeInspPanelContent" tabindex="0">Content</button>
@@ -4020,7 +4020,7 @@
             <option value="custom">custom</option>
           </select>
         </label>
-        <label>Tags (comma-separated) <input type="text" id="nodeInspTags" placeholder="api, auth, …"></label>
+        <label>Tags (comma-separated) <input type="text" id="nodeInspTags" placeholder="api, auth, ג€¦"></label>
       </div>
       <div id="nodeInspPanelStyle" class="node-insp-panel" data-node-insp-panel="style" role="tabpanel" aria-labelledby="nodeInspTabStyle">
         <p class="node-insp-muted" style="margin:0 0 4px">Typography</p>
@@ -4058,10 +4058,10 @@
           <label style="min-width:120px">Color <input type="color" id="focusColor" value="#ffd482"></label>
           <label style="flex:1;min-width:140px">Shape
             <select id="focusShape">
-              <option value="rect">◼ Rect</option>
-              <option value="circle">◯ Circle</option>
-              <option value="diamond">♦ Diamond</option>
-              <option value="rounded">⬡ Rounded</option>
+              <option value="rect">ג—¼ Rect</option>
+              <option value="circle">ג—¯ Circle</option>
+              <option value="diamond">ג™¦ Diamond</option>
+              <option value="rounded">ג¬¡ Rounded</option>
             </select>
           </label>
         </div>
@@ -4086,7 +4086,7 @@
       <div id="nodeInspPanelMedia" class="node-insp-panel" data-node-insp-panel="media" role="tabpanel" aria-labelledby="nodeInspTabMedia">
         <div class="node-insp-row">
           <input type="file" id="nodeInspImageFile" accept="image/*" style="display:none">
-          <button type="button" id="nodeInspImagePick">Upload image…</button>
+          <button type="button" id="nodeInspImagePick">Upload imageג€¦</button>
           <button type="button" id="nodeInspImageClear">Remove image</button>
         </div>
         <label class="node-insp-row" style="align-items:center;gap:8px">
@@ -4098,7 +4098,7 @@
       <div id="nodeInspPanelAttachments" class="node-insp-panel" data-node-insp-panel="attachments" role="tabpanel" aria-labelledby="nodeInspTabAttachments">
         <div class="node-insp-row">
           <input type="file" id="nodeInspAttachFile" style="display:none">
-          <button type="button" id="nodeInspAttachPick">Add file…</button>
+          <button type="button" id="nodeInspAttachPick">Add fileג€¦</button>
         </div>
         <ul id="nodeInspAttachList" class="node-insp-attach-list"></ul>
         <p class="node-insp-muted">Attachments are embedded as data URLs. Large files increase save size.</p>
@@ -4114,7 +4114,7 @@
             <option value="hard">Hard (no drag)</option>
           </select>
         </label>
-        <label>Password (not persisted yet — UI placeholder)
+        <label>Password (not persisted yet ג€” UI placeholder)
           <input type="password" id="nodeInspPassword" autocomplete="off" placeholder="Future: protect edits">
         </label>
         <p class="node-insp-muted">Password hashing and server-side enforcement are not wired yet; values here are session-only.</p>
@@ -4127,7 +4127,7 @@
     <div class="command-palette" role="dialog" aria-modal="true" aria-labelledby="commandPaletteTitle">
       <h2 id="commandPaletteTitle" class="sr-only">Command palette</h2>
       <div class="command-palette-head">
-        <input type="search" id="commandPaletteInput" class="command-palette-input" placeholder="Search actions…" autocomplete="off" spellcheck="false" aria-label="Search workspace commands">
+        <input type="search" id="commandPaletteInput" class="command-palette-input" placeholder="Search actionsג€¦" autocomplete="off" spellcheck="false" aria-label="Search workspace commands">
         <button type="button" id="keyboardHelpBtn" class="text-btn-sm" title="Keyboard shortcuts">Shortcuts</button>
       </div>
       <ul id="commandPaletteList" class="command-palette-list" role="listbox" aria-label="Matching commands"></ul>
@@ -4328,7 +4328,7 @@
     db: { projects: [], activeProjectId: null, shares: {} },
     selectedNodeId: null,
     selectedConnectionId: null,
-    /** Phase 2: shift-click multi-select for `p.connections` edges (node–node + system bridges). */
+    /** Phase 2: shift-click multi-select for `p.connections` edges (nodeג€“node + system bridges). */
     selectedConnectionIds: new Set(),
     editingNodeId: null,
     dragging: null,
@@ -4388,7 +4388,7 @@
     autosaveTimer: null,
     showGrid: true,
     inspectorCompact: false,
-    /** Desktop (≥1025px): user hid Projects / Inspector columns to widen canvas. */
+    /** Desktop (ג‰¥1025px): user hid Projects / Inspector columns to widen canvas. */
     deskLeftCollapsed: false,
     deskRightCollapsed: false,
     readOnly: !!PUBLIC_VIEW_SLUG,
@@ -4413,7 +4413,7 @@
     selectedGroupId: null,
     selectedGroupIds: new Set(),
     selectedGroupConnId: null,
-    /** Phase 2: multi-select for `p.groupConnections` (system–system links). */
+    /** Phase 2: multi-select for `p.groupConnections` (systemג€“system links). */
     selectedGroupConnIds: new Set(),
     focusGroupId: null,
     focusGroupStack: [],
@@ -4424,19 +4424,19 @@
     semanticOverlayScheduled: 0,
     groupBoxCache: null,
     groupBoxCacheProjectId: null,
-    /** @type {object|null} Phase 3 — JSON.parse result awaiting Apply in import diff overlay. */
+    /** @type {object|null} Phase 3 ג€” JSON.parse result awaiting Apply in import diff overlay. */
     pendingImportParsed: null,
     /** First edit in node inspector modal captures one undo snapshot (see primeFocusModalHistoryOnce). */
     focusModalHistoryPrimed: false,
     /** Watchdog: rolls back orphan backdrop if modal never paints. */
     focusModalWatchdog: null,
-    /** Last node .body that called setPointerCapture — released when the inspector closes or pointer ends. */
+    /** Last node .body that called setPointerCapture ג€” released when the inspector closes or pointer ends. */
     activeNodeBodyCapture: null,
-    /** Phase 5 — cache node root elements for drag/update hot paths (invalidated in renderNodes). */
+    /** Phase 5 ג€” cache node root elements for drag/update hot paths (invalidated in renderNodes). */
     nodeElById: new Map(),
   };
 
-  /** Phase 5 — resolve node DOM root; prefers cache from renderNodes, falls back to querySelector. */
+  /** Phase 5 ג€” resolve node DOM root; prefers cache from renderNodes, falls back to querySelector. */
   function getNodeDomEl(nodeId) {
     if (!nodeId) return null;
     const cached = runtime.nodeElById.get(nodeId);
@@ -4470,7 +4470,7 @@
     console.warn(`[md:groups:${code}]`, detail || "");
   }
 
-  /** TEMP — remove after group-connect finalize diagnosis. Enable: localStorage md_debug_group_connect=1 or ?mdDebugGroupConnect=1 */
+  /** TEMP ג€” remove after group-connect finalize diagnosis. Enable: localStorage md_debug_group_connect=1 or ?mdDebugGroupConnect=1 */
   function isMdDebugGroupConnect() {
     try {
       if (new URLSearchParams(location.search).get("mdDebugGroupConnect") === "1") return true;
@@ -4710,7 +4710,7 @@
       if (!g) line.textContent = "";
       else {
         const c = countGroupSubtreeMembers(p, g.id);
-        line.textContent = `${c.nodes} node${c.nodes === 1 ? "" : "s"} · ${c.groups} group${c.groups === 1 ? "" : "s"}`;
+        line.textContent = `${c.nodes} node${c.nodes === 1 ? "" : "s"} ֲ· ${c.groups} group${c.groups === 1 ? "" : "s"}`;
       }
     }
     if (pin) {
@@ -4721,7 +4721,7 @@
 
   /* overlay portal mounted in initMapDiagramRuntimes() at boot */
 
-  /** Phase 2 — connection multi-select: clear `p.connections` selection only. */
+  /** Phase 2 ג€” connection multi-select: clear `p.connections` selection only. */
   function clearConnectionSelectionState() {
     initMapDiagramRuntimes();
     if (selectionRuntime) {
@@ -4731,7 +4731,7 @@
     runtime.selectedConnectionId = null;
     runtime.selectedConnectionIds.clear();
   }
-  /** Phase 2 — clear `p.groupConnections` selection only. */
+  /** Phase 2 ג€” clear `p.groupConnections` selection only. */
   function clearGroupConnSelectionState() {
     initMapDiagramRuntimes();
     if (selectionRuntime) {
@@ -4747,7 +4747,7 @@
     clearGroupConnSelectionState();
   }
 
-  /** Phase 3 — transient toasts (destructive / palette feedback); complements #savedIndicator. */
+  /** Phase 3 ג€” transient toasts (destructive / palette feedback); complements #savedIndicator. */
   function showToast(message, kind = "info") {
     const host = document.getElementById("toastHost");
     if (!host || !message) return;
@@ -4758,7 +4758,7 @@
     window.setTimeout(() => t.remove(), 3800);
   }
 
-  /** Phase 3 — edge label + stroke defaults on connection records (undo-safe fields). */
+  /** Phase 3 ג€” edge label + stroke defaults on connection records (undo-safe fields). */
   function normalizeConnectionEdge(c) {
     if (!c || typeof c !== "object") return;
     if (c.label == null) c.label = "";
@@ -4981,7 +4981,7 @@
   }
 
   /**
-   * Single entry point for group hierarchy + node coordinate model (canvas → group transform → local nodes).
+   * Single entry point for group hierarchy + node coordinate model (canvas ג†’ group transform ג†’ local nodes).
    * Safe for legacy projects: migrates once to local node space inside user groups.
    * "Canvas root" (virtual): nodes not in any userGroup keep n.x/n.y as WORLD; grouped nodes use LOCAL + group.x/y.
    */
@@ -5052,7 +5052,7 @@
   }
 
   /**
-   * Each node appears in at most one group's nodeIds — prefer the deepest nested group.
+   * Each node appears in at most one group's nodeIds ג€” prefer the deepest nested group.
    */
   function dedupeUserGroupMembership(p) {
     const byId = new Map(p.userGroups.map((g) => [g.id, g]));
@@ -5286,7 +5286,7 @@
     if (ep) return { x: ep.x, y: ep.y };
     if (p._groupLocalSpace !== 2) return { x: n.x, y: n.y };
     const gid = userGroupIdForNode(n.id);
-    /* Ungrouped: canvas root — world position equals stored n.x / n.y. */
+    /* Ungrouped: canvas root ג€” world position equals stored n.x / n.y. */
     if (!gid) return { x: n.x, y: n.y };
     const g = userGroupById(p, gid);
     const ox = g && Number.isFinite(Number(g.x)) ? Number(g.x) : 0;
@@ -5579,7 +5579,7 @@
     const cur = runtime.selectedGroupId;
     const prev = groupParentSelect.value;
     const byId = new Map(p.userGroups.map((x) => [x.id, x]));
-    groupParentSelect.innerHTML = '<option value="">— Root —</option>';
+    groupParentSelect.innerHTML = '<option value="">ג€” Root ג€”</option>';
     for (const g of p.userGroups) {
       if (g.id === cur) continue;
       if (cur && isInvalidGroupParent(cur, g.id, byId)) continue;
@@ -5711,7 +5711,7 @@
       trail.unshift(cur.name || "Group");
       cur = cur.parentGroupId ? userGroupById(p, cur.parentGroupId) : null;
     }
-    focusGroupCrumbs.textContent = trail.join(" › ");
+    focusGroupCrumbs.textContent = trail.join(" ג€÷ ");
   }
 
   function groupColorVars(color) {
@@ -5927,7 +5927,7 @@
 
   function initSupabase() {
     if (runtime.supabaseClientReady && runtime.supabase) {
-      console.info("[App Auth] Supabase client already initialized — single instance kept");
+      console.info("[App Auth] Supabase client already initialized ג€” single instance kept");
       return;
     }
     const urlNorm = normalizeSupabaseProjectUrl(SUPABASE_URL);
@@ -6006,22 +6006,22 @@
     if (aiWalletModeLine) {
       if (!serverAi) {
         aiWalletModeLine.textContent =
-          "Add Supabase in assets/supabase-config.js — AI runs only through server credits (no browser API keys).";
+          "Add Supabase in assets/supabase-config.js ג€” AI runs only through server credits (no browser API keys).";
       } else if (!runtime.authUser) {
         aiWalletModeLine.textContent = "Log in to see your balance and run billed AI.";
       } else if (runtime.aiCredits === null) {
-        aiWalletModeLine.textContent = "Loading wallet…";
+        aiWalletModeLine.textContent = "Loading walletג€¦";
       } else {
-        aiWalletModeLine.textContent = "Signed in — balance is stored on the server.";
+        aiWalletModeLine.textContent = "Signed in ג€” balance is stored on the server.";
       }
     }
 
     if (aiWalletBalanceBig) {
       if (!serverAi || !runtime.authUser) {
-        aiWalletBalanceBig.textContent = "—";
+        aiWalletBalanceBig.textContent = "ג€”";
         aiWalletBalanceBig.classList.add("muted-balance");
       } else if (runtime.aiCredits === null) {
-        aiWalletBalanceBig.textContent = "…";
+        aiWalletBalanceBig.textContent = "ג€¦";
         aiWalletBalanceBig.classList.add("muted-balance");
       } else {
         aiWalletBalanceBig.textContent = String(runtime.aiCredits);
@@ -6033,7 +6033,7 @@
       if (!serverAi) {
         aiWalletCostLine.textContent = "";
       } else {
-        aiWalletCostLine.textContent = `One diagram compile uses up to ${maxSteps} server steps. Each step reserves up to ${reserve} credits first, then charges based on tokens (min 1) and refunds the rest. Worst case ≈ ${worstCase} credits if every attempt runs.`;
+        aiWalletCostLine.textContent = `One diagram compile uses up to ${maxSteps} server steps. Each step reserves up to ${reserve} credits first, then charges based on tokens (min 1) and refunds the rest. Worst case ג‰ˆ ${worstCase} credits if every attempt runs.`;
       }
     }
 
@@ -6070,7 +6070,7 @@
           : !runtime.authUser
             ? "Log in to use AI"
             : loadingWallet
-              ? "Loading balance…"
+              ? "Loading balanceג€¦"
               : `Need at least ${reserve} credits`
         : `Opens the AI prompt (costs up to ${reserve} credits per compile step)`;
     }
@@ -6086,7 +6086,7 @@
       if (!serverAi || !runtime.authUser || runtime.aiCredits === null) {
         userCreditBadge.style.display = "none";
       } else {
-        userCreditBadge.textContent = `· AI credits: ${runtime.aiCredits}`;
+        userCreditBadge.textContent = `ֲ· AI credits: ${runtime.aiCredits}`;
         userCreditBadge.style.display = "inline";
       }
     }
@@ -6117,7 +6117,7 @@
     if (aiModalCostInline) {
       if (serverAi && runtime.authUser && runtime.aiCredits !== null) {
         aiModalCostInline.style.display = "inline";
-        aiModalCostInline.textContent = `Balance: ${runtime.aiCredits} · need ≥${reserve}/step`;
+        aiModalCostInline.textContent = `Balance: ${runtime.aiCredits} ֲ· need ג‰¥${reserve}/step`;
       } else {
         aiModalCostInline.style.display = "none";
       }
@@ -6172,7 +6172,7 @@
       setRightTab("ai");
       applyAiCreditGatesToUi();
       aiStatus.textContent = `Insufficient credits (need at least ${reserve} per step).`;
-      savedIndicator.textContent = "Insufficient credits — open AI tab to buy";
+      savedIndicator.textContent = "Insufficient credits ג€” open AI tab to buy";
       setTimeout(() => (savedIndicator.textContent = "Saved"), 2600);
       return;
     }
@@ -6502,40 +6502,40 @@
   }
 
   const NODE_PRESETS = [
-    { category: "General", label: "Rectangle", type: "process", shape: "rect", icon: "▭", color: "#8fb2ff", subtitle: "Block", description: "Generic box node" },
-    { category: "General", label: "Circle", type: "process", shape: "circle", icon: "◯", color: "#a7b9ff", subtitle: "Round", description: "Rounded idea node" },
+    { category: "General", label: "Rectangle", type: "process", shape: "rect", icon: "ג–­", color: "#8fb2ff", subtitle: "Block", description: "Generic box node" },
+    { category: "General", label: "Circle", type: "process", shape: "circle", icon: "ג—¯", color: "#a7b9ff", subtitle: "Round", description: "Rounded idea node" },
     { category: "General", label: "Text", type: "note", shape: "rounded", icon: "T", color: "#f3c1ff", subtitle: "Annotation", description: "Context / comments" },
-    { category: "General", label: "Container", type: "group", shape: "rounded", icon: "◫", color: "#8ea0d6", subtitle: "Group", description: "Logical container" },
-    { category: "Flowchart", label: "Start", type: "input", shape: "circle", icon: "▶", color: "#7fd9a8", subtitle: "Begin", description: "Flow start" },
-    { category: "Flowchart", label: "Process", type: "process", shape: "rounded", icon: "⚙️", color: "#8fb2ff", subtitle: "Step", description: "Action node" },
-    { category: "Flowchart", label: "Decision", type: "decision", shape: "diamond", icon: "◆", color: "#ffd482", subtitle: "Branch", description: "Decision point" },
-    { category: "Flowchart", label: "End", type: "output", shape: "circle", icon: "■", color: "#a8b4d4", subtitle: "Finish", description: "Flow end" },
-    { category: "Flowchart", label: "Input / Output", type: "input", shape: "rounded", icon: "⇄", color: "#9be0cb", subtitle: "I/O", description: "External input/output" },
-    { category: "Flowchart", label: "Arrow marker", type: "process", shape: "rect", icon: "➜", color: "#9ba9ff", subtitle: "Direction", description: "Directional helper node" },
-    { category: "Advanced", label: "API Gateway", type: "system", shape: "rect", icon: "🔌", color: "#a8c0ff", subtitle: "Service", description: "API edge" },
-    { category: "Advanced", label: "Database", type: "data", shape: "rect", icon: "🗄️", color: "#8dd7c2", subtitle: "Storage", description: "Persistent store" },
-    { category: "Advanced", label: "Cloud", type: "system", shape: "rounded", icon: "☁️", color: "#9fc9ff", subtitle: "Infra", description: "Cloud service zone" },
-    { category: "Advanced", label: "Server", type: "system", shape: "rect", icon: "🖥️", color: "#92b8ff", subtitle: "Compute", description: "Runtime / node" },
-    { category: "Advanced", label: "Queue", type: "data", shape: "rect", icon: "📬", color: "#90d4bf", subtitle: "Async", description: "Message queue" },
-    { category: "Advanced", label: "Observability", type: "system", shape: "rounded", icon: "📈", color: "#bda8ff", subtitle: "Tracing", description: "Logs/metrics/traces" }
+    { category: "General", label: "Container", type: "group", shape: "rounded", icon: "ג—«", color: "#8ea0d6", subtitle: "Group", description: "Logical container" },
+    { category: "Flowchart", label: "Start", type: "input", shape: "circle", icon: "ג–¶", color: "#7fd9a8", subtitle: "Begin", description: "Flow start" },
+    { category: "Flowchart", label: "Process", type: "process", shape: "rounded", icon: "ג™ן¸", color: "#8fb2ff", subtitle: "Step", description: "Action node" },
+    { category: "Flowchart", label: "Decision", type: "decision", shape: "diamond", icon: "ג—†", color: "#ffd482", subtitle: "Branch", description: "Decision point" },
+    { category: "Flowchart", label: "End", type: "output", shape: "circle", icon: "ג– ", color: "#a8b4d4", subtitle: "Finish", description: "Flow end" },
+    { category: "Flowchart", label: "Input / Output", type: "input", shape: "rounded", icon: "ג‡„", color: "#9be0cb", subtitle: "I/O", description: "External input/output" },
+    { category: "Flowchart", label: "Arrow marker", type: "process", shape: "rect", icon: "ג", color: "#9ba9ff", subtitle: "Direction", description: "Directional helper node" },
+    { category: "Advanced", label: "API Gateway", type: "system", shape: "rect", icon: "נ”", color: "#a8c0ff", subtitle: "Service", description: "API edge" },
+    { category: "Advanced", label: "Database", type: "data", shape: "rect", icon: "נ—„ן¸", color: "#8dd7c2", subtitle: "Storage", description: "Persistent store" },
+    { category: "Advanced", label: "Cloud", type: "system", shape: "rounded", icon: "ג˜ן¸", color: "#9fc9ff", subtitle: "Infra", description: "Cloud service zone" },
+    { category: "Advanced", label: "Server", type: "system", shape: "rect", icon: "נ–¥ן¸", color: "#92b8ff", subtitle: "Compute", description: "Runtime / node" },
+    { category: "Advanced", label: "Queue", type: "data", shape: "rect", icon: "נ“¬", color: "#90d4bf", subtitle: "Async", description: "Message queue" },
+    { category: "Advanced", label: "Observability", type: "system", shape: "rounded", icon: "נ“ˆ", color: "#bda8ff", subtitle: "Tracing", description: "Logs/metrics/traces" }
   ];
 
   const FLOWCHART_ONBOARDED_KEY = "flowchart-onboarded";
   const FLOWCHART_MODE_PRESETS = [
-    { label: "Start", type: "input", shape: "circle", icon: "▶", color: "#7fd9a8", subtitle: "Begin", description: "Flow start", fcRole: "start", width: 128, height: 72 },
-    { label: "Process", type: "process", shape: "rounded", icon: "⚙", color: "#8fb2ff", subtitle: "Step", description: "Action step", fcRole: "process", width: 190, height: 88 },
-    { label: "Decision", type: "decision", shape: "diamond", icon: "◆", color: "#ffd482", subtitle: "Branch", description: "Yes / No branch", fcRole: "decision", width: 130, height: 130 },
-    { label: "End", type: "output", shape: "circle", icon: "■", color: "#a8b4d4", subtitle: "Finish", description: "Flow end", fcRole: "end", width: 128, height: 72 }
+    { label: "Start", type: "input", shape: "circle", icon: "ג–¶", color: "#7fd9a8", subtitle: "Begin", description: "Flow start", fcRole: "start", width: 128, height: 72 },
+    { label: "Process", type: "process", shape: "rounded", icon: "ג™", color: "#8fb2ff", subtitle: "Step", description: "Action step", fcRole: "process", width: 190, height: 88 },
+    { label: "Decision", type: "decision", shape: "diamond", icon: "ג—†", color: "#ffd482", subtitle: "Branch", description: "Yes / No branch", fcRole: "decision", width: 130, height: 130 },
+    { label: "End", type: "output", shape: "circle", icon: "ג– ", color: "#a8b4d4", subtitle: "Finish", description: "Flow end", fcRole: "end", width: 128, height: 72 }
   ];
   const FLOWCHART_STARTER_PROMPTS = {
-    invoice: "Invoice submitted → manager approval → finance review → payment issued",
-    hiring: "Role opened → screening → interviews → offer → onboarding kickoff",
-    triage: "Bug reported → reproduce and prioritize → assign owner → fix → verify → close",
-    onboarding: "Signup complete → welcome email → profile setup → first success milestone",
-    support: "Customer contacts support → triage → escalate if needed → resolve → follow-up"
+    invoice: "Invoice submitted ג†’ manager approval ג†’ finance review ג†’ payment issued",
+    hiring: "Role opened ג†’ screening ג†’ interviews ג†’ offer ג†’ onboarding kickoff",
+    triage: "Bug reported ג†’ reproduce and prioritize ג†’ assign owner ג†’ fix ג†’ verify ג†’ close",
+    onboarding: "Signup complete ג†’ welcome email ג†’ profile setup ג†’ first success milestone",
+    support: "Customer contacts support ג†’ triage ג†’ escalate if needed ג†’ resolve ג†’ follow-up"
   };
 
-// Lightweight flow-group helpers — no interaction mutex, nodes always win.
+// Lightweight flow-group helpers ג€” no interaction mutex, nodes always win.
 
 function recomputeGroupBounds(groupId) {
   const fg = flowGroupById(getProject(), groupId);
@@ -6910,7 +6910,7 @@ function finalizeFlowGroupDragIfAny() {
       const icon = document.createElement("span");
       icon.className = "fc-flow-group-icon";
       icon.setAttribute("aria-hidden", "true");
-      icon.textContent = "▦";
+      icon.textContent = "ג–¦";
       const label = document.createElement("span");
       label.className = "fc-flow-group-label";
       label.textContent = fg.title || "Group";
@@ -7360,7 +7360,7 @@ function finalizeFlowGroupDragIfAny() {
       renderConnections();
       renderSelection();
       markDirty();
-      showToast("Group removed — steps kept.", "info");
+      showToast("Group removed ג€” steps kept.", "info");
     }
   }
 
@@ -7527,7 +7527,7 @@ function finalizeFlowGroupDragIfAny() {
   }
 
 
-  // ─── Flowchart Assistant State ───
+  // ג”€ג”€ג”€ Flowchart Assistant State ג”€ג”€ג”€
   const FC_ASSISTANT_GENERATED_KEY = "flowchart-assistant-generated";
   const FC_ASSISTANT_DISMISSED_KEY = "flowchart-assistant-dismissed";
   const FC_ASSISTANT_DRAFT_KEY = "flowchart-assistant-draft";
@@ -7553,7 +7553,7 @@ function finalizeFlowGroupDragIfAny() {
     return runtime.fcAssistantPanelOpen ? "panel" : "collapsed";
   }
 
-  // ─── Flowchart Assistant Persistence ───
+  // ג”€ג”€ג”€ Flowchart Assistant Persistence ג”€ג”€ג”€
   function persistFlowchartAssistantDraft(save) {
     const input = document.getElementById("flowchartPromptInput");
     if (!input) return;
@@ -7589,7 +7589,7 @@ function finalizeFlowGroupDragIfAny() {
     try { localStorage.setItem(FC_ASSISTANT_RECENT_CHIP_KEY, chipKey); } catch (_) {}
   }
 
-  // ─── Flowchart Assistant Motion ───
+  // ג”€ג”€ג”€ Flowchart Assistant Motion ג”€ג”€ג”€
   function beginFlowchartAssistantPanelMotion() {
     const root = document.getElementById("fcAssistantRoot");
     if (!root) return;
@@ -7603,11 +7603,11 @@ function finalizeFlowGroupDragIfAny() {
     document.getElementById("fcAssistantRoot")?.classList.remove("fc-panel-visible");
   }
 
-  // ─── Flowchart Assistant UI Sync ───
+  // ג”€ג”€ג”€ Flowchart Assistant UI Sync ג”€ג”€ג”€
   function getFcCanvasEmptyHintText() {
     const hints = [
       "Generate a flowchart",
-      "Press ⌘K to describe a workflow",
+      "Press ג˜K to describe a workflow",
       "Start from a template",
     ];
     const day = Math.floor(Date.now() / 86400000);
@@ -7715,7 +7715,7 @@ function finalizeFlowGroupDragIfAny() {
     syncFlowchartAssistantUi();
   }
 
-  // ─── Flowchart Assistant Events ───
+  // ג”€ג”€ג”€ Flowchart Assistant Events ג”€ג”€ג”€
   function setFlowchartAssistantState(next) {
     if (next === "panel") runtime.fcAssistantPanelOpen = true;
     else runtime.fcAssistantPanelOpen = false;
@@ -8067,7 +8067,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         if (window.FlowchartCompiler) resolve(window.FlowchartCompiler);
         else reject(new Error("FlowchartCompiler not on window"));
       };
-      s.onerror = () => reject(new Error("Failed to load flowchart-compiler.js — run npm run build:flowchart"));
+      s.onerror = () => reject(new Error("Failed to load flowchart-compiler.js ג€” run npm run build:flowchart"));
       document.head.appendChild(s);
     });
     return runtime._fcCompilerLoadPromise;
@@ -8156,13 +8156,13 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const prevBtn = btn?.textContent;
     if (btn) {
       btn.disabled = true;
-      btn.textContent = "Generating…";
+      btn.textContent = "Generatingג€¦";
     }
     if (aiGenerateBtn) {
       aiGenerateBtn.disabled = true;
-      aiGenerateBtn.textContent = "Compiling…";
+      aiGenerateBtn.textContent = "Compilingג€¦";
     }
-    if (aiStatus) aiStatus.textContent = "Loading compiler → validate → layout…";
+    if (aiStatus) aiStatus.textContent = "Loading compiler ג†’ validate ג†’ layoutג€¦";
     try {
       const FC = await loadFlowchartCompilerScript();
       const completer = await getFlowchartCompleter(FC);
@@ -8172,7 +8172,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       applyFlowchartPayload(spec, payload);
       runtime.generatedAt = Date.now();
       runtime.fcEditCount = 0;
-      if (aiStatus) aiStatus.textContent = `Generated “${spec.title}” (${spec.nodes.length} steps).`;
+      if (aiStatus) aiStatus.textContent = `Generated ג€${spec.title}ג€ (${spec.nodes.length} steps).`;
       void refreshUserCreditsDisplay();
       if (aiModalOverlay?.classList.contains("open")) setTimeout(closeAiModal, 450);
     } catch (err) {
@@ -8573,7 +8573,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const bh = maxY - minY + pad * 2;
 
     const groupId = uid();
-    const gname = (options.groupName || `${items[0]} · ${layoutKey}`).slice(0, 120);
+    const gname = (options.groupName || `${items[0]} ֲ· ${layoutKey}`).slice(0, 120);
     const grp = normalizeGroup({
       id: groupId,
       name: gname,
@@ -8786,10 +8786,10 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     for (const n of p.nodes) {
       const type = runtime.semanticTypes[n.id] || "unknown";
       if (type === "input" && (outgoing.get(n.id) || 0) === 0) {
-        suggestions.push({ level: "warn", text: `Input "${n.text}" is not connected — connect it to a process?` });
+        suggestions.push({ level: "warn", text: `Input "${n.text}" is not connected ג€” connect it to a process?` });
       }
       if ((incoming.get(n.id) || 0) === 0 && (outgoing.get(n.id) || 0) === 0) {
-        suggestions.push({ level: "info", text: `Node "${n.text}" seems isolated — remove or connect?` });
+        suggestions.push({ level: "info", text: `Node "${n.text}" seems isolated ג€” remove or connect?` });
       }
     }
     const orphanIds = p.nodes.filter((n) => (incoming.get(n.id) || 0) === 0 && (outgoing.get(n.id) || 0) === 0).map((n) => n.id);
@@ -8801,12 +8801,12 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const pairCounts = new Map();
     for (const c of p.connections) {
       if (!isNodeNodeConnection(c)) continue;
-      const k = `${c.from}→${c.to}`;
+      const k = `${c.from}ג†’${c.to}`;
       pairCounts.set(k, (pairCounts.get(k) || 0) + 1);
     }
     const dupParallel = [...pairCounts.values()].filter((ct) => ct > 1).length;
     if (dupParallel) {
-      suggestions.push({ level: "warn", text: `${dupParallel} duplicate parallel node link(s) — remove extras or clarify.` });
+      suggestions.push({ level: "warn", text: `${dupParallel} duplicate parallel node link(s) ג€” remove extras or clarify.` });
     }
     const adj = new Map();
     for (const n of p.nodes) adj.set(n.id, []);
@@ -8839,9 +8839,9 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       if (fromType !== "input" || midType !== "process") return false;
       return p.connections.some((c2) => isNodeNodeConnection(c2) && c2.from === c1.to && runtime.semanticTypes[c2.to] === "output");
     });
-    if (hasFlow) suggestions.push({ level: "info", text: "Detected workflow pattern — auto-arrange as flowchart?" });
+    if (hasFlow) suggestions.push({ level: "info", text: "Detected workflow pattern ג€” auto-arrange as flowchart?" });
     if (runtime.virtualGroups.some((g) => g.title === "Authentication")) {
-      suggestions.push({ level: "info", text: "Detected auth-related nodes — keep them grouped together?" });
+      suggestions.push({ level: "info", text: "Detected auth-related nodes ג€” keep them grouped together?" });
     }
     ensureProjectExtras(p);
     const gIn = new Map();
@@ -8867,7 +8867,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       }
     }
     const deep = p.userGroups.filter((g) => (g.hierarchyDepth || 0) > 3).length;
-    if (deep) suggestions.push({ level: "info", text: "Deep group nesting may reduce readability — try focus mode." });
+    if (deep) suggestions.push({ level: "info", text: "Deep group nesting may reduce readability ג€” try focus mode." });
     return suggestions.slice(0, 14);
   }
 
@@ -9325,15 +9325,15 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         return b;
       };
       tb.append(
-        mkBtn(g.collapsed ? "＋" : "−", g.collapsed ? "Expand" : "Collapse", () => toggleGroupCollapsed(g.id)),
-        mkBtn(g.pinned ? "Unpin" : "Pin", g.pinned ? "Unpin — allow moving this frame and its nodes" : "Pin — freeze frame position (and nodes inside)", () => {
+        mkBtn(g.collapsed ? "ן¼‹" : "גˆ’", g.collapsed ? "Expand" : "Collapse", () => toggleGroupCollapsed(g.id)),
+        mkBtn(g.pinned ? "Unpin" : "Pin", g.pinned ? "Unpin ג€” allow moving this frame and its nodes" : "Pin ג€” freeze frame position (and nodes inside)", () => {
           pushHistory();
           g.pinned = !g.pinned;
           g.locked = !!g.pinned;
           renderSemanticOverlays();
           markDirty();
         }),
-        mkBtn("✎", "Rename", () => {
+        mkBtn("ג", "Rename", () => {
           const rename = prompt("Group name", g.name || "Group");
           if (rename != null && rename.trim()) {
             pushHistory();
@@ -9342,7 +9342,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
             markDirty();
           }
         }),
-        mkBtn("◐", "Recolor", () => {
+        mkBtn("ג—", "Recolor", () => {
           const col = prompt("Group color hex", g.color || "#8baeff");
           if (col && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(col.trim())) {
             pushHistory();
@@ -9351,10 +9351,10 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
             markDirty();
           }
         }),
-        mkBtn("⎘", "Duplicate system", () => duplicateUserGroup(g.id)),
-        mkBtn("↗", "Connect from group", () => startGroupConnectionDrag(g.id)),
-        mkBtn("◎", "Focus this system", () => enterGroupFocusMode(g.id)),
-        mkBtn("⌫", "Delete frame", () => {
+        mkBtn("ג˜", "Duplicate system", () => duplicateUserGroup(g.id)),
+        mkBtn("ג†—", "Connect from group", () => startGroupConnectionDrag(g.id)),
+        mkBtn("ג—", "Focus this system", () => enterGroupFocusMode(g.id)),
+        mkBtn("ג«", "Delete frame", () => {
           if (confirm("Remove this group frame? Child groups are re-parented.")) {
             pushHistory();
             removeUserGroupFrame(g.id);
@@ -9364,7 +9364,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       );
       const collapseReserve = document.createElement("button");
       collapseReserve.type = "button";
-      collapseReserve.textContent = "▣";
+      collapseReserve.textContent = "ג–£";
       collapseReserve.title = "Collapse layout (reserved)";
       collapseReserve.disabled = true;
       collapseReserve.style.opacity = "0.42";
@@ -9458,13 +9458,13 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     try {
       const snap = runtime.groupConnecting;
       if (!snap) {
-        mdGcLog("[GROUP CONNECT FINALIZE] abort — no groupConnecting state", null);
+        mdGcLog("[GROUP CONNECT FINALIZE] abort ג€” no groupConnecting state", null);
         return false;
       }
       const p = getProject();
       const fromGroupId = snap.fromGroupId;
       if (!userGroupById(p, fromGroupId)) {
-        mdGcLog("[GROUP CONNECT FINALIZE] abort — invalid fromGroupId", { fromGroupId });
+        mdGcLog("[GROUP CONNECT FINALIZE] abort ג€” invalid fromGroupId", { fromGroupId });
         abortGroupConnectionDrag("finalize-invalid-from");
         return false;
       }
@@ -9536,12 +9536,12 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     mdGcLog("[GROUP CONNECT] startGroupConnectionDrag (enter)", { groupId, stack: mdGcShortStack() });
     const p = getProject();
     if (!userGroupById(p, groupId)) {
-      mdGcLog("[GROUP CONNECT] start aborted — unknown group", { groupId });
+      mdGcLog("[GROUP CONNECT] start aborted ג€” unknown group", { groupId });
       return;
     }
     const box = getUserGroupBox(groupId);
     if (!box) {
-      mdGcLog("[GROUP CONNECT] start aborted — no group box", { groupId });
+      mdGcLog("[GROUP CONNECT] start aborted ג€” no group box", { groupId });
       return;
     }
     if (runtime.groupDragging) abortGroupDrag();
@@ -9932,7 +9932,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     if (ac > 0) {
       const b = document.createElement("span");
       b.className = "node-badge attach";
-      b.textContent = `📎 ${ac}`;
+      b.textContent = `נ“ ${ac}`;
       badges.appendChild(b);
     }
     el.classList.toggle("node-locked-hard", isNodeDragHardLocked(n));
@@ -9941,7 +9941,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       if (!lock) {
         lock = document.createElement("div");
         lock.className = "node-locked-icon";
-        lock.textContent = "🔒";
+        lock.textContent = "נ”’";
         el.appendChild(lock);
       }
       lock.style.opacity = n.security.lockMode === "soft" ? "0.52" : "0.95";
@@ -10071,7 +10071,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     (node.attachments || []).forEach((att) => {
       const li = document.createElement("li");
       const span = document.createElement("span");
-      span.textContent = `${att.name || "file"} · ${att.type || "?"}`;
+      span.textContent = `${att.name || "file"} ֲ· ${att.type || "?"}`;
       const del = document.createElement("button");
       del.type = "button";
       del.textContent = "Remove";
@@ -10131,7 +10131,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     }
   }
 
-  /** Intersection of ray (center → toward) with axis-aligned node bounds — edge attachment anywhere on the body. */
+  /** Intersection of ray (center ג†’ toward) with axis-aligned node bounds ג€” edge attachment anywhere on the body. */
   function anchorRectPerimeter(n, toward) {
     const w = getNodeWorldPosition(n);
     const cx = w.x + n.width / 2;
@@ -10299,7 +10299,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return { fromNode, toNode, from, to, curve, d };
   }
 
-  /** Sample a point along an SVG path `d` (0–1 of path length). Requires `connectionsLayer` in DOM. */
+  /** Sample a point along an SVG path `d` (0ג€“1 of path length). Requires `connectionsLayer` in DOM. */
   function pathWorldPointAtParam(d, t01) {
     if (!d || !connectionsLayer) return null;
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -10720,7 +10720,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       head.type = "button";
       head.className = "node-preview";
       head.style.padding = "8px 10px";
-      head.innerHTML = `<div class="preview-label" style="display:flex;justify-content:space-between;align-items:center"><span>${c}</span><span class="muted">▾</span></div>`;
+      head.innerHTML = `<div class="preview-label" style="display:flex;justify-content:space-between;align-items:center"><span>${c}</span><span class="muted">ג–¾</span></div>`;
       const body = document.createElement("div");
       body.style.display = "grid";
       body.style.gap = "8px";
@@ -10735,7 +10735,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       }
       head.addEventListener("click", () => {
         body.style.display = body.style.display === "none" ? "grid" : "none";
-        head.querySelector(".muted").textContent = body.style.display === "none" ? "▸" : "▾";
+        head.querySelector(".muted").textContent = body.style.display === "none" ? "ג–¸" : "ג–¾";
       });
       group.append(head, body);
       nodePicker.appendChild(group);
@@ -11687,7 +11687,7 @@ clearFlowGroupSelection();
   function truncateConnLabel(s, max = 54) {
     if (!s) return "";
     if (s.length <= max) return s;
-    return `${s.slice(0, max - 1)}…`;
+    return `${s.slice(0, max - 1)}ג€¦`;
   }
 
   function buildConnectionPanelRows() {
@@ -11702,7 +11702,7 @@ clearFlowGroupSelection();
           kind: "conn",
           id: c.id,
           c,
-          label: truncateConnLabel(`${fn.text || "Node"} → ${g.name || "System"}`),
+          label: truncateConnLabel(`${fn.text || "Node"} ג†’ ${g.name || "System"}`),
           warning: false,
           endNodeIds: [c.from]
         });
@@ -11714,7 +11714,7 @@ clearFlowGroupSelection();
           kind: "conn",
           id: c.id,
           c,
-          label: truncateConnLabel(`${g.name || "System"} → ${tn.text || "Node"}`),
+          label: truncateConnLabel(`${g.name || "System"} ג†’ ${tn.text || "Node"}`),
           warning: false,
           endNodeIds: [c.to]
         });
@@ -11727,7 +11727,7 @@ clearFlowGroupSelection();
           kind: "conn",
           id: c.id,
           c,
-          label: truncateConnLabel(`${fn.text || "?"} → ${tn.text || "?"}`),
+          label: truncateConnLabel(`${fn.text || "?"} ג†’ ${tn.text || "?"}`),
           warning: !sem.valid,
           endNodeIds: [c.from, c.to]
         });
@@ -11739,7 +11739,7 @@ clearFlowGroupSelection();
           kind: "conn",
           id: c.id,
           c,
-          label: truncateConnLabel(`↳ branch → ${tn.text || "?"}`),
+          label: truncateConnLabel(`ג†³ branch ג†’ ${tn.text || "?"}`),
           warning: false,
           endNodeIds: [c.to]
         });
@@ -11753,7 +11753,7 @@ clearFlowGroupSelection();
         kind: "gc",
         id: gc.id,
         gc,
-        label: truncateConnLabel(`${a.name || "?"} → ${b.name || "?"}`),
+        label: truncateConnLabel(`${a.name || "?"} ג†’ ${b.name || "?"}`),
         warning: false,
         endNodeIds: []
       });
@@ -11944,7 +11944,7 @@ clearFlowGroupSelection();
       empty.className = "connection-list-empty";
       empty.textContent =
         mode === "selection"
-          ? "Select a node to see its links, or switch filter to “All”."
+          ? "Select a node to see its links, or switch filter to ג€Allג€."
           : mode === "warnings"
             ? "No semantic warnings on node-to-node links."
             : "No connections yet.";
@@ -11971,7 +11971,7 @@ clearFlowGroupSelection();
     }
   }
 
-  /** Phase 2–3: inspector + keyboard bulk-delete targets for selected canvas / system links. */
+  /** Phase 2ג€“3: inspector + keyboard bulk-delete targets for selected canvas / system links. */
   function getSelectedConnectionRecords() {
     const p = getProject();
     const out = { nn: [], bridges: [], gcs: [] };
@@ -12033,7 +12033,7 @@ clearFlowGroupSelection();
     showToast(`Deleted ${removedConn + delGc.size} link(s).`, "danger");
   }
 
-  /** Phase 2–3: sync edge inspector fields (label + stroke) with current multi-selection. */
+  /** Phase 2ג€“3: sync edge inspector fields (label + stroke) with current multi-selection. */
   function syncEdgeInspectorPanel() {
     const panel = document.getElementById("edgeInspectorPanel");
     const countEl = document.getElementById("edgeInspectorCount");
@@ -12049,7 +12049,7 @@ clearFlowGroupSelection();
       return;
     }
     panel.hidden = false;
-    countEl.textContent = `${nEdge} link(s) · ${nn.length} node–node · ${bridges.length} bridge · ${gcs.length} system`;
+    countEl.textContent = `${nEdge} link(s) ֲ· ${nn.length} nodeג€“node ֲ· ${bridges.length} bridge ֲ· ${gcs.length} system`;
 
     const fh = document.activeElement;
     const strokeRecs = [...nn, ...bridges, ...gcs];
@@ -12062,7 +12062,7 @@ clearFlowGroupSelection();
         const lbls = nn.map((c) => String(c.label || "").trim());
         const uniq = new Set(lbls);
         labelInput.value = uniq.size === 1 ? lbls[0] : "";
-        if (uniq.size > 1) labelInput.placeholder = "Mixed labels — typing replaces all selected";
+        if (uniq.size > 1) labelInput.placeholder = "Mixed labels ג€” typing replaces all selected";
       }
     }
     if (fh !== wSel) {
@@ -12083,7 +12083,7 @@ clearFlowGroupSelection();
       const u = new Set(defined);
       colInp.title =
         u.size > 1 || (defined.length && defined.length < strokeRecs.length)
-          ? "Mixed — picking a color applies to all selected links"
+          ? "Mixed ג€” picking a color applies to all selected links"
           : "Custom stroke color (clears to theme gradient)";
       colInp.value = u.size === 1 ? [...u][0] : "#9cb8ff";
     }
@@ -12225,7 +12225,7 @@ clearFlowGroupSelection();
     showToast(targetGroupId ? "Node moved into system." : "Node moved to canvas root.", "info");
   }
 
-  /** Phase 3: systems → nodes tree for drag-reparent. */
+  /** Phase 3: systems ג†’ nodes tree for drag-reparent. */
   function renderOutlineTreePanel() {
     const host = document.getElementById("outlineTreeHost");
     if (!host) return;
@@ -12242,7 +12242,7 @@ clearFlowGroupSelection();
       row.setAttribute("aria-expanded", "true");
       row.tabIndex = 0;
       row.dataset.outlineDrop = dropKey;
-      row.innerHTML = `<span class="outline-chev" aria-hidden="true">▾</span><span class="outline-label">${label}</span>`;
+      row.innerHTML = `<span class="outline-chev" aria-hidden="true">ג–¾</span><span class="outline-label">${label}</span>`;
       host.appendChild(row);
       return row;
     };
@@ -12253,7 +12253,7 @@ clearFlowGroupSelection();
       row.draggable = true;
       row.dataset.outlineNode = node.id;
       row.tabIndex = 0;
-      row.innerHTML = `<span class="outline-handle" aria-hidden="true">⋮⋮</span><span class="outline-label">${(node.title || node.text || "Node").replace(/</g, "")}</span>`;
+      row.innerHTML = `<span class="outline-handle" aria-hidden="true">ג‹®ג‹®</span><span class="outline-label">${(node.title || node.text || "Node").replace(/</g, "")}</span>`;
       host.appendChild(row);
     };
 
@@ -12363,14 +12363,14 @@ clearFlowGroupSelection();
     lines.push(`Import file: ${nodesB.size} nodes, ${edgesB.size} links.`);
     lines.push("");
     lines.push(`Nodes added by import: ${addedNodes.length}`);
-    if (addedNodes.length) lines.push(`  ${addedNodes.slice(0, 40).join(", ")}${addedNodes.length > 40 ? " …" : ""}`);
+    if (addedNodes.length) lines.push(`  ${addedNodes.slice(0, 40).join(", ")}${addedNodes.length > 40 ? " ג€¦" : ""}`);
     lines.push(`Nodes removed (present now, missing in import): ${removedNodes.length}`);
-    if (removedNodes.length) lines.push(`  ${removedNodes.slice(0, 40).join(", ")}${removedNodes.length > 40 ? " …" : ""}`);
+    if (removedNodes.length) lines.push(`  ${removedNodes.slice(0, 40).join(", ")}${removedNodes.length > 40 ? " ג€¦" : ""}`);
     lines.push("");
     lines.push(`Links added: ${addedEdges.length}`);
-    if (addedEdges.length) lines.push(addedEdges.slice(0, 24).join("\n") + (addedEdges.length > 24 ? "\n…" : ""));
+    if (addedEdges.length) lines.push(addedEdges.slice(0, 24).join("\n") + (addedEdges.length > 24 ? "\nג€¦" : ""));
     lines.push(`Links removed: ${removedEdges.length}`);
-    if (removedEdges.length) lines.push(removedEdges.slice(0, 24).join("\n") + (removedEdges.length > 24 ? "\n…" : ""));
+    if (removedEdges.length) lines.push(removedEdges.slice(0, 24).join("\n") + (removedEdges.length > 24 ? "\nג€¦" : ""));
     return lines.join("\n");
   }
 
@@ -12436,18 +12436,18 @@ clearFlowGroupSelection();
       li.innerHTML = `<span class="saved-view-name">${String(ent.name || "View").replace(/</g, "")}</span>
         <span class="muted" style="font-size:10px">${nodeSig} nodes</span>
         <button type="button" class="text-btn-sm saved-view-restore">Restore</button>
-        <button type="button" class="text-btn-sm danger saved-view-del">×</button>`;
+        <button type="button" class="text-btn-sm danger saved-view-del">ֳ—</button>`;
       li.querySelector(".saved-view-restore")?.addEventListener("click", () => {
         const p = getProject();
         if (snap.view) {
           p.view = { ...p.view, ...snap.view };
           updateViewport();
           markDirty();
-          showToast(`Restored view “${ent.name}”.`, "info");
+          showToast(`Restored view ג€${ent.name}ג€.`, "info");
         }
         const curIds = new Set(p.nodes.map((n) => n.id));
         const miss = (snap.nodeIds || []).filter((id) => !curIds.has(id)).length;
-        if (miss) showToast("Saved snapshot references missing nodes — camera only restored.", "warn");
+        if (miss) showToast("Saved snapshot references missing nodes ג€” camera only restored.", "warn");
       });
       li.querySelector(".saved-view-del")?.addEventListener("click", () => {
         const next = loadSavedViewEntries().filter((_, i) => i !== idx);
@@ -12478,15 +12478,15 @@ clearFlowGroupSelection();
     persistSavedViewEntries(entries.slice(0, 24));
     document.getElementById("savedViewNameInput").value = "";
     renderSavedViewsList();
-    showToast(`Saved view “${name}”.`, "info");
+    showToast(`Saved view ג€${name}ג€.`, "info");
   }
 
   /** Phase 3: command palette + shortcut help (single registry). */
   function getWorkspaceCommands() {
     return [
-      { id: "fcAssistant", label: "Flowchart assistant", keys: "Ctrl+K / ⌘K", keywords: "generate ai prompt", run: () => toggleFlowchartAssistant() },
+      { id: "fcAssistant", label: "Flowchart assistant", keys: "Ctrl+K / ג˜K", keywords: "generate ai prompt", run: () => toggleFlowchartAssistant() },
       { id: "palette", label: "Command palette", keys: "Ctrl+Shift+K", keywords: "search actions", run: () => openCommandPalette(true) },
-      { id: "shortcuts", label: "Keyboard shortcuts help", keys: "Palette ▸ Shortcuts", keywords: "help keys", run: () => openKeyboardHelpOverlay() },
+      { id: "shortcuts", label: "Keyboard shortcuts help", keys: "Palette ג–¸ Shortcuts", keywords: "help keys", run: () => openKeyboardHelpOverlay() },
       { id: "fit", label: "Fit to screen", keys: "", keywords: "zoom view bounds", run: () => fitViewBtn?.click() },
       { id: "fitPanel", label: "Fit to screen (inspector button)", keys: "", keywords: "", run: () => document.getElementById("fitViewInPanelBtn")?.click() },
       { id: "grid", label: "Toggle grid", keys: "", keywords: "snap", run: () => gridToggleBtn?.click() },
@@ -12497,7 +12497,7 @@ clearFlowGroupSelection();
       { id: "exportJson", label: "Export JSON", keys: "", keywords: "download save", run: () => document.getElementById("exportBtn")?.click() },
       { id: "exportPng", label: "Export PNG", keys: "", keywords: "image picture", run: () => exportAsPng() },
       { id: "exportSvg", label: "Export SVG", keys: "", keywords: "vector image svg", run: () => exportAsSvg() },
-      { id: "import", label: "Import JSON…", keys: "", keywords: "upload open", run: () => openJsonImportPicker() },
+      { id: "import", label: "Import JSONג€¦", keys: "", keywords: "upload open", run: () => openJsonImportPicker() },
       { id: "smart", label: "Smart Clean diagram", keys: "", keywords: "tidy", run: () => document.getElementById("smartCleanBtn")?.click() },
       { id: "refreshPaths", label: "Refresh connection paths", keys: "", keywords: "reroute edges", run: () => document.getElementById("refreshConnectionPathsBtn")?.click() },
       { id: "autoLayout", label: "Auto layout", keys: "", keywords: "graph arrange", run: () => document.getElementById("autoLayoutBtn")?.click() },
@@ -12600,15 +12600,15 @@ clearFlowGroupSelection();
     const extra = [
       { k: "Delete", d: "Remove selected link(s); if none, delete selected node(s)." },
       { k: "Alt + click link", d: "Delete that connection on the canvas (undo with Ctrl+Z)." },
-      { k: "Ctrl / ⌘ + D", d: "Duplicate selected nodes." },
-      { k: "Ctrl / ⌘ + Z / Y", d: "Undo / redo diagram edits." },
+      { k: "Ctrl / ג˜ + D", d: "Duplicate selected nodes." },
+      { k: "Ctrl / ג˜ + Z / Y", d: "Undo / redo diagram edits." },
       { k: "Arrow keys (canvas)", d: "Nudge selected nodes (Shift = larger step)." }
     ];
     for (const c of getWorkspaceCommands()) {
       if (!c.keys && c.id !== "palette") continue;
       const dt = document.createElement("dt");
       dt.className = "kbd-dt";
-      dt.textContent = c.keys || (c.id === "palette" ? "Ctrl+K / ⌘K" : "");
+      dt.textContent = c.keys || (c.id === "palette" ? "Ctrl+K / ג˜K" : "");
       const dd = document.createElement("dd");
       dd.className = "kbd-dd";
       dd.textContent = c.label;
@@ -13087,7 +13087,7 @@ clearFlowGroupSelection();
     groupNameInput.value = selectedGroup ? (selectedGroup.name || "") : "";
     groupColorInput.value = selectedGroup ? (selectedGroup.color || "#8baeff") : "#8baeff";
     const bridges = (p.connections || []).filter((c) => !isNodeNodeConnection(c) && !isBranchFromConnection(c)).length;
-    stats.textContent = `${p.nodes.length} nodes • ${p.connections.length} links (${bridges} system) • ${(p.userGroups || []).length} groups • ${p.title}`;
+    stats.textContent = `${p.nodes.length} nodes ג€¢ ${p.connections.length} links (${bridges} system) ג€¢ ${(p.userGroups || []).length} groups ג€¢ ${p.title}`;
     renderConnectionListPanel();
     syncEdgeInspectorPanel();
     renderOutlineTreePanel();
@@ -13214,7 +13214,7 @@ clearFlowGroupSelection();
     const y = (r.height / 2 - p.view.y) / p.view.zoom - 55;
     p.nodes.push({
       id: uid(), x, y, width: 190, height: 110, color: "#ffd482", shape: "rect",
-      text: "New node", title: "New node", subtitle: "", description: "", icon: "🧠", type: "custom",
+      text: "New node", title: "New node", subtitle: "", description: "", icon: "נ§ ", type: "custom",
       style: { opacity: 0.9, glow: 12, shadow: 20, radius: 12, borderColor: "#9cb8ff" }
     });
     initMapDiagramRuntimes();
@@ -13237,7 +13237,7 @@ clearFlowGroupSelection();
     if (viewportRuntime) viewportRuntime.fitToScreen();
   }
 
-  /** Phase 3 — PNG export: world bounds include user system frames (matches on-canvas extent). */
+  /** Phase 3 ג€” PNG export: world bounds include user system frames (matches on-canvas extent). */
   function getDiagramWorldBoundsForPngExport(p) {
     let minX = Infinity;
     let minY = Infinity;
@@ -13312,7 +13312,7 @@ clearFlowGroupSelection();
   }
 
   /**
-   * Phase 3 — rasterize diagram like the canvas: system underlays, system links, bridges, node–node (+labels), nodes.
+   * Phase 3 ג€” rasterize diagram like the canvas: system underlays, system links, bridges, nodeג€“node (+labels), nodes.
    * Caller wraps with ctx.translate(tx, ty) so coordinates stay world-space (same as SVG layer).
    */
   function paintDiagramToPngContext(ctx, p) {
@@ -13648,77 +13648,278 @@ clearFlowGroupSelection();
       .replace(/"/g, "&quot;");
   }
 
-  /** Clone visible connection paths from #connections (same geometry as on-canvas SVG layer). */
-  function collectConnectionsLayerSvgForExport() {
-    if (!connectionsLayer) return "";
-    const chunks = [];
-    const seen = new Set();
-    for (const path of connectionsLayer.querySelectorAll("path.conn")) {
-      if (path.classList.contains("fc-conn-preview")) continue;
-      const d = path.getAttribute("d");
-      if (!d || seen.has(d)) continue;
-      seen.add(d);
-      const attrs = ["stroke", "stroke-width", "stroke-dasharray", "stroke-linecap", "stroke-linejoin", "opacity"];
-      let tag = `<path class="conn" d="${svgExportEscape(d)}" fill="none"`;
-      for (const name of attrs) {
-        const val = path.getAttribute(name);
-        if (val != null && val !== "") tag += ` ${name}="${svgExportEscape(val)}"`;
-      }
-      const marker = path.getAttribute("marker-end");
-      if (marker) tag += ` marker-end="${svgExportEscape(marker.replace("arrow-head", "md-export-arrow"))}"`;
-      else tag += ` marker-end="url(#md-export-arrow)"`;
-      tag += "/>";
-      chunks.push(tag);
+  function svgExportParseHexColor(hex) {
+    const s = String(hex || "").trim();
+    const m3 = /^#([0-9a-f]{3})$/i.exec(s);
+    if (m3) {
+      const h = m3[1];
+      return {
+        r: parseInt(h[0] + h[0], 16),
+        g: parseInt(h[1] + h[1], 16),
+        b: parseInt(h[2] + h[2], 16)
+      };
     }
-    for (const text of connectionsLayer.querySelectorAll("text.conn-label, text")) {
-      if (!text.closest || text.closest("#connections") !== connectionsLayer) continue;
-      if (!text.textContent?.trim()) continue;
-      const x = text.getAttribute("x");
-      const y = text.getAttribute("y");
-      if (x == null || y == null) continue;
-      const fill = text.getAttribute("fill") || "rgba(228,236,255,0.98)";
-      chunks.push(
-        `<text x="${svgExportEscape(x)}" y="${svgExportEscape(y)}" text-anchor="middle" font-family="Inter, Segoe UI, Arial" font-size="11" fill="${svgExportEscape(fill)}">${svgExportEscape(text.textContent)}</text>`
-      );
+    const m6 = /^#([0-9a-f]{6})$/i.exec(s);
+    if (m6) {
+      const h = m6[1];
+      return {
+        r: parseInt(h.slice(0, 2), 16),
+        g: parseInt(h.slice(2, 4), 16),
+        b: parseInt(h.slice(4, 6), 16)
+      };
     }
-    return chunks.join("\n");
+    return null;
   }
 
-  function svgExportPushEdge(parts, d, c, groupStyle, from, to) {
-    if (!d) return;
-    const col = connectionStrokeColorOrNull(c) || (groupStyle ? "rgba(174, 147, 255, 0.96)" : "rgba(155,187,255,.92)");
-    const lw = connectionStrokeWidthPx(c, groupStyle ? 2.15 : 2.25);
+  function svgExportIsLightFill(color) {
+    const rgb = svgExportParseHexColor(color);
+    if (!rgb) return false;
+    const lum = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+    return lum > 0.62;
+  }
+
+  function svgExportParseRgbColor(str) {
+    const m = String(str || "")
+      .trim()
+      .match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)$/i);
+    if (!m) return null;
+    return { r: +m[1], g: +m[2], b: +m[3], a: m[4] != null ? +m[4] : 1 };
+  }
+
+  function svgExportCssColorToHex(color) {
+    const s = String(color || "").trim();
+    if (!s) return null;
+    if (s.startsWith("#")) {
+      const p = svgExportParseHexColor(s);
+      if (!p) return null;
+      const h = (n) => Math.round(n).toString(16).padStart(2, "0");
+      return `#${h(p.r)}${h(p.g)}${h(p.b)}`;
+    }
+    const rgb = svgExportParseRgbColor(s);
+    if (!rgb) return null;
+    const h = (n) => Math.round(n).toString(16).padStart(2, "0");
+    return `#${h(rgb.r)}${h(rgb.g)}${h(rgb.b)}`;
+  }
+
+  function svgExportIsLightCssColor(color) {
+    const hex = svgExportCssColorToHex(color);
+    if (hex) return svgExportIsLightFill(hex);
+    const rgb = svgExportParseRgbColor(color);
+    if (!rgb) return false;
+    const lum = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+    return lum > 0.62;
+  }
+
+  function svgExportIsTransparentCssColor(color) {
+    const s = String(color || "").trim();
+    if (!s || s === "transparent") return true;
+    const rgb = svgExportParseRgbColor(s);
+    return rgb ? rgb.a < 0.04 : false;
+  }
+
+  function svgExportDominantFromBackgroundImage(bgImage) {
+    const src = String(bgImage || "").trim();
+    if (!src || src === "none") return null;
+    const stops = src.match(/rgba?\([^)]+\)|#[0-9a-f]{3,8}/gi) || [];
+    if (!stops.length) return null;
+    if (stops.length === 1) return stops[0];
+    const c0 = svgExportParseRgbColor(stops[0]) || (stops[0].startsWith("#") ? svgExportParseHexColor(stops[0]) : null);
+    const c1 = svgExportParseRgbColor(stops[1]) || (stops[1].startsWith("#") ? svgExportParseHexColor(stops[1]) : null);
+    if (!c0) return stops[0];
+    if (!c1) return stops[0];
+    const a0 = c0.a != null ? c0.a : 1;
+    const a1 = c1.a != null ? c1.a : 1;
+    const r = Math.round(c0.r * 0.55 + c1.r * 0.45);
+    const g = Math.round(c0.g * 0.55 + c1.g * 0.45);
+    const b = Math.round(c0.b * 0.55 + c1.b * 0.45);
+    const a = a0 * 0.55 + a1 * 0.45;
+    return a >= 0.999 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${a.toFixed(3)})`;
+  }
+
+  function svgExportReadComputedShellFill(nodeEl, theme) {
+    const cs = getComputedStyle(nodeEl);
+    let fill = cs.backgroundColor;
+    if (svgExportIsTransparentCssColor(fill)) {
+      const fromGrad = svgExportDominantFromBackgroundImage(cs.backgroundImage);
+      if (fromGrad) fill = fromGrad;
+    }
+    if (svgExportIsTransparentCssColor(fill)) fill = theme.nodeSurface;
+    const stroke = cs.borderColor;
+    return {
+      fill,
+      stroke: stroke && !svgExportIsTransparentCssColor(stroke) ? stroke : theme.nodeBorder,
+      borderWidth: parseFloat(cs.borderWidth) || 1.5,
+      opacity: cs.opacity
+    };
+  }
+
+  function svgExportEnsureContrastText(preferred, bgFill, theme) {
+    const pref = String(preferred || "").trim();
+    if (pref && svgExportIsLightCssColor(bgFill) !== svgExportIsLightCssColor(pref)) return pref;
+    return svgExportIsLightCssColor(bgFill) ? theme.nodeTitle : "#eef3ff";
+  }
+
+  function svgExportGetNodeDomEl(nodeId) {
+    const cached = runtime.nodeElById.get(nodeId);
+    if (cached?.isConnected) return cached;
+    return getNodeDomElement(nodeId) || nodesLayer?.querySelector(`[data-node-id="${nodeId}"]`);
+  }
+
+  /** Read live DOM computed colors for faithful standalone SVG node paint. */
+  function svgExportReadNodeComputedPaint(nodeEl, theme) {
+    const fallback = {
+      fill: theme.nodeSurface,
+      stroke: theme.nodeBorder,
+      borderWidth: 1.5,
+      opacity: "1",
+      title: theme.nodeTitle,
+      subtitle: theme.nodeSubtitle,
+      desc: theme.nodeDesc
+    };
+    if (!nodeEl || typeof getComputedStyle !== "function") return fallback;
+    const shell = svgExportReadComputedShellFill(nodeEl, theme);
+    const titleEl = nodeEl.querySelector(".node-title, .node-title-freeform");
+    const subEl = nodeEl.querySelector(".node-subtitle");
+    const descEl = nodeEl.querySelector(".node-desc");
+    const bodyEl = nodeEl.querySelector(".body");
+    const titleCs = titleEl ? getComputedStyle(titleEl) : bodyEl ? getComputedStyle(bodyEl) : getComputedStyle(nodeEl);
+    const subCs = subEl ? getComputedStyle(subEl) : titleCs;
+    const descCs = descEl ? getComputedStyle(descEl) : subCs;
+    return {
+      fill: shell.fill,
+      stroke: shell.stroke,
+      borderWidth: shell.borderWidth,
+      opacity: shell.opacity,
+      title: svgExportEnsureContrastText(titleCs.color, shell.fill, theme),
+      subtitle: svgExportEnsureContrastText(subCs.color, shell.fill, theme),
+      desc: svgExportEnsureContrastText(descCs.color, shell.fill, theme)
+    };
+  }
+
+  /** Resolve active theme tokens for standalone SVG (no external stylesheet). */
+  function getSvgExportTheme() {
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    const root = document.documentElement;
+    const cv = (name, fb) => {
+      const raw = getComputedStyle(root).getPropertyValue(name).trim();
+      return raw || fb;
+    };
+    const workspaceBg =
+      document.getElementById("canvasBgColor")?.value ||
+      cv("--workspace-base", isLight ? "#e8edf7" : "#0b0f1a");
+    return {
+      isLight,
+      workspaceBg,
+      nodeTitle: cv("--node-title", isLight ? "#141c2e" : "#eef3ff"),
+      nodeSubtitle: cv("--node-subtitle", isLight ? "rgba(30, 40, 62, 0.82)" : "rgba(214, 225, 248, 0.88)"),
+      nodeDesc: cv("--node-desc", isLight ? "rgba(45, 55, 78, 0.78)" : "rgba(198, 214, 242, 0.78)"),
+      nodeBorder: cv("--node-border", isLight ? "rgba(40, 55, 90, 0.22)" : "rgba(255, 255, 255, 0.22)"),
+      nodeSurface: isLight ? "#ffffff" : "#1a2238",
+      nodeSurfaceAlt: isLight ? "#f4f7fc" : "#161d30",
+      defaultNodeAccent: isLight ? "#8fb2ff" : "#ffd482",
+      connStroke: cv("--conn-stroke", isLight ? "rgba(70, 95, 150, 0.72)" : "rgba(151, 180, 255, 0.85)"),
+      connStrokeDash: isLight ? "rgba(90, 115, 170, 0.78)" : "rgba(169, 195, 255, 0.88)",
+      connGrad0: isLight ? "#6e8fc4" : "#7e9ae6",
+      connGrad1: isLight ? "#a8bce8" : "#b8ceff",
+      connGroup: isLight ? "#8f7de8" : "#ae93ff",
+      connBridge: isLight ? "#5a9fd4" : "#78d2ff",
+      connBranch: isLight ? "#6a9fd8" : "#8cc8ff",
+      connLabel: isLight ? "#1e2840" : "#e4ecff",
+      connLabelHalo: isLight ? "rgba(255, 255, 255, 0.92)" : "rgba(10, 12, 22, 0.9)",
+      arrowFill: isLight ? "#5a7098" : "#b4c8ff",
+      watermark: isLight ? "rgba(90, 110, 150, 0.38)" : "rgba(169, 188, 230, 0.42)"
+    };
+  }
+
+  function svgExportEmbeddedStyleBlock(theme) {
+    return `<style type="text/css"><![CDATA[
+      path.conn { fill: none; stroke: ${theme.connStroke}; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; opacity: 0.96; }
+      path.conn.conn-dashed { stroke: ${theme.connStrokeDash}; stroke-width: 2.1; stroke-dasharray: 7 6; opacity: 0.94; }
+      path.conn.conn-group { stroke: ${theme.connGroup}; stroke-width: 2.15; }
+      path.conn.conn-branch { stroke: ${theme.connBranch}; stroke-width: 2.05; opacity: 0.93; }
+      .conn-edge-label, text.conn-label { font-family: Inter, "Segoe UI", Arial, sans-serif; font-size: 11px; fill: ${theme.connLabel}; }
+    ]]></style>`;
+  }
+
+  function svgExportDefsBlock(theme) {
+    return [
+      `<linearGradient id="md-export-conn-grad" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%">`,
+      `<stop offset="0%" stop-color="${svgExportEscape(theme.connGrad0)}"/>`,
+      `<stop offset="55%" stop-color="${svgExportEscape(theme.connGrad1)}"/>`,
+      `<stop offset="100%" stop-color="${svgExportEscape(theme.connGrad0)}"/>`,
+      `</linearGradient>`,
+      `<marker id="md-export-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse" markerUnits="strokeWidth">`,
+      `<path d="M0,0 L9,4.5 L0,9 Z" fill="${svgExportEscape(theme.arrowFill)}"/>`,
+      `</marker>`
+    ].join("\n");
+  }
+
+  function svgExportResolveConnStroke(c, theme, groupStyle, branch) {
+    const custom = connectionStrokeColorOrNull(c);
+    if (custom) return { stroke: custom, marker: "url(#md-export-arrow)", classExtra: "" };
     const dash = connectionDashArray(c.strokeDash);
-    const dashAttr = dash ? ` stroke-dasharray="${dash}"` : "";
+    if (dash) {
+      return {
+        stroke: theme.connStrokeDash,
+        marker: "url(#md-export-arrow)",
+        classExtra: " conn-dashed",
+        dashAttr: ` stroke-dasharray="${dash}"`
+      };
+    }
+    if (branch) {
+      return { stroke: theme.connBranch, marker: "url(#md-export-arrow)", classExtra: " conn-branch" };
+    }
+    if (groupStyle) {
+      return { stroke: theme.connGroup, marker: "url(#md-export-arrow)", classExtra: " conn-group" };
+    }
+    if (
+      c.kind === "node-group" ||
+      c.kind === "group-node" ||
+      c.kind === "node-flowgroup" ||
+      c.kind === "flowgroup-node" ||
+      c.kind === "flowgroup-flowgroup"
+    ) {
+      return { stroke: theme.connBridge, marker: "url(#md-export-arrow)", classExtra: "" };
+    }
+    return {
+      stroke: "url(#md-export-conn-grad)",
+      marker: "url(#md-export-arrow)",
+      classExtra: ""
+    };
+  }
+
+  function svgExportPushEdge(parts, d, c, groupStyle, from, to, theme) {
+    if (!d || !theme) return;
+    const lw = connectionStrokeWidthPx(c, groupStyle ? 2.15 : isBranchFromConnection(c) ? 2.05 : 2.25);
+    const strokeSpec = svgExportResolveConnStroke(c, theme, groupStyle, isBranchFromConnection(c));
+    const dashAttr = strokeSpec.dashAttr || "";
     parts.push(
-      `<path class="conn" d="${svgExportEscape(d)}" fill="none" stroke="${svgExportEscape(col)}" stroke-width="${lw}" stroke-linecap="round" stroke-linejoin="round"${dashAttr} marker-end="url(#md-export-arrow)"/>`
+      `<path class="conn${strokeSpec.classExtra || ""}" d="${svgExportEscape(d)}" fill="none" stroke="${svgExportEscape(strokeSpec.stroke)}" stroke-width="${lw}" stroke-linecap="round" stroke-linejoin="round"${dashAttr} marker-end="${strokeSpec.marker}"/>`
     );
     const lbl = String(c.label || "").trim();
     if (lbl) {
       const off = c.labelOffset || { dx: 0, dy: 0 };
       const lx = (from.x + to.x) / 2 + (off.dx || 0);
       const ly = (from.y + to.y) / 2 - (groupStyle ? 6 : 4) + (off.dy || 0);
-      const fill = groupStyle ? "rgba(216,210,255,0.98)" : "rgba(228,236,255,0.98)";
+      const labelFill = groupStyle ? theme.connGroup : theme.connLabel;
       parts.push(
-        `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-family="Inter, Segoe UI, Arial" font-size="11" fill="${fill}" stroke="rgba(10,12,22,0.92)" stroke-width="3" paint-order="stroke">${svgExportEscape(lbl)}</text>`
+        `<text class="conn-edge-label" x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-family="Inter, Segoe UI, Arial" font-size="11" fill="${svgExportEscape(labelFill)}" stroke="${svgExportEscape(theme.connLabelHalo)}" stroke-width="3" paint-order="stroke">${svgExportEscape(lbl)}</text>`
       );
     }
   }
 
-  function svgExportPushNode(parts, n, isLight) {
+  function svgExportPushNode(parts, n, theme) {
     normalizeNode(n);
     const st = ensureNodeStyle(n);
     const wpos = getNodeWorldPosition(n);
     const x = wpos.x;
     const y = wpos.y;
     const rad = Math.max(0, Number(st.radius) || 12);
-    const bw = Math.max(0, Math.min(6, Number(st.borderWidth) || 1.5));
-    const fill = n.color || "#ffd482";
-    const stroke = st.borderColor || "#9cb8ff";
-    const opacity = Math.max(0.2, Math.min(1, Number(st.opacity) || 0.9));
+    const nodeEl = svgExportGetNodeDomEl(n.id);
+    const paint = svgExportReadNodeComputedPaint(nodeEl, theme);
+    const bw = Math.max(0, Math.min(6, paint.borderWidth || Number(st.borderWidth) || 1.5));
+    const opacity = Math.max(0.2, Math.min(1, parseFloat(paint.opacity) || Number(st.opacity) || 0.9));
     const shp = n.shape || "rect";
-    const titleFill = isLight ? "#0f172a" : "#e8edff";
-    const subFill = isLight ? "rgba(15,23,42,.85)" : "rgba(228,236,255,.85)";
     const px = Math.max(10, Math.min(28, Number(st.titleFontSize) || 14));
     const wgt = [400, 500, 600, 700].includes(Number(st.titleFontWeight)) ? Number(st.titleFontWeight) : 600;
     const fam = "Inter, Segoe UI, Arial";
@@ -13727,18 +13928,19 @@ clearFlowGroupSelection();
     );
     if (shp === "circle") {
       parts.push(
-        `<ellipse cx="${n.width / 2}" cy="${n.height / 2}" rx="${n.width / 2}" ry="${n.height / 2}" fill="${svgExportEscape(fill)}" stroke="${svgExportEscape(stroke)}" stroke-width="${bw}"/>`
+        `<ellipse cx="${n.width / 2}" cy="${n.height / 2}" rx="${n.width / 2}" ry="${n.height / 2}" fill="${svgExportEscape(paint.fill)}" stroke="${svgExportEscape(paint.stroke)}" stroke-width="${bw}"/>`
       );
     } else if (shp === "diamond") {
       const cx = n.width / 2;
       const cy = n.height / 2;
+      const pts = `${cx},0 ${n.width},${cy} ${cx},${n.height} 0,${cy}`;
       parts.push(
-        `<polygon points="${cx},0 ${n.width},${cy} ${cx},${n.height} 0,${cy}" fill="${svgExportEscape(fill)}" stroke="${svgExportEscape(stroke)}" stroke-width="${bw}"/>`
+        `<polygon points="${pts}" fill="${svgExportEscape(paint.fill)}" stroke="${svgExportEscape(paint.stroke)}" stroke-width="${bw}"/>`
       );
     } else {
       const rr = shp === "rounded" ? Math.max(rad, 14) : rad;
       parts.push(
-        `<rect width="${n.width}" height="${n.height}" rx="${rr}" fill="${svgExportEscape(fill)}" stroke="${svgExportEscape(stroke)}" stroke-width="${bw}"/>`
+        `<rect width="${n.width}" height="${n.height}" rx="${rr}" fill="${svgExportEscape(paint.fill)}" stroke="${svgExportEscape(paint.stroke)}" stroke-width="${bw}"/>`
       );
     }
     const title = n.title || n.text || "Node";
@@ -13746,7 +13948,7 @@ clearFlowGroupSelection();
     const cy = n.height / 2;
     if (st.freeform) {
       parts.push(
-        `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="${px}" font-weight="${wgt}" fill="${titleFill}">${svgExportEscape(title)}</text>`
+        `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="${px}" font-weight="${wgt}" fill="${svgExportEscape(paint.title)}">${svgExportEscape(title)}</text>`
       );
     } else {
       const hasSub = !!String(n.subtitle || "").trim();
@@ -13755,25 +13957,205 @@ clearFlowGroupSelection();
       if (hasSub && hasDesc) y0 = cy - 18;
       else if (hasSub || hasDesc) y0 = cy - 10;
       parts.push(
-        `<text x="${cx}" y="${y0}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="${px}" font-weight="${wgt}" fill="${titleFill}">${svgExportEscape(title)}</text>`
+        `<text x="${cx}" y="${y0}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="${px}" font-weight="${wgt}" fill="${svgExportEscape(paint.title)}">${svgExportEscape(title)}</text>`
       );
       if (hasSub) {
         parts.push(
-          `<text x="${cx}" y="${y0 + 16}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="12" font-weight="500" fill="${subFill}">${svgExportEscape(n.subtitle)}</text>`
+          `<text x="${cx}" y="${y0 + 16}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="12" font-weight="500" fill="${svgExportEscape(paint.subtitle)}">${svgExportEscape(n.subtitle)}</text>`
         );
       }
       if (hasDesc) {
         parts.push(
-          `<text x="${cx}" y="${y0 + (hasSub ? 32 : 16)}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="11" fill="${isLight ? "rgba(15,23,42,.72)" : "rgba(228,236,255,.72)"}">${svgExportEscape(String(n.description).slice(0, 68))}</text>`
+          `<text x="${cx}" y="${y0 + (hasSub ? 32 : 16)}" text-anchor="middle" dominant-baseline="middle" font-family="${fam}" font-size="11" fill="${svgExportEscape(paint.desc)}">${svgExportEscape(String(n.description).slice(0, 68))}</text>`
         );
       }
     }
     parts.push("</g>");
   }
 
-  /** Build diagram SVG fragments (systems, links, nodes) — mirrors paintDiagramToPngContext / #connections geometry. */
-  function paintDiagramToSvgParts(parts, p) {
-    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+  function svgExportPushAllEdgesFromData(parts, p, theme) {
+    for (const gc of p.groupConnections || []) {
+      normalizeConnectionEdge(gc);
+      const fromBox = getUserGroupBox(gc.fromGroupId);
+      const toBox = getUserGroupBox(gc.toGroupId);
+      if (!fromBox || !toBox) continue;
+      const anchors = smartGroupAnchors(fromBox, toBox);
+      const from = anchors.from;
+      const to = anchors.to;
+      const obs = [
+        ...nodesInsideGroupBoxObstacles(fromBox, new Set()),
+        ...nodesInsideGroupBoxObstacles(toBox, new Set())
+      ];
+      const auto = autoCurve(from, to);
+      const d =
+        runtime.connectorStyle === "orthogonal"
+          ? orthogonalPath(from, to, obs)
+          : curvePath(from, auto.cp1, auto.cp2, to);
+      svgExportPushEdge(parts, d, gc, true, from, to, theme);
+    }
+    for (const c of p.connections) {
+      normalizeConnectionEdge(c);
+      if (c.kind === "node-group") {
+        const fromNode = getNodeById(c.from);
+        const toBox = getUserGroupBox(c.toGroupId);
+        if (!fromNode || !toBox) continue;
+        const toCenter = { x: toBox.x + toBox.w / 2, y: toBox.y + toBox.h / 2 };
+        const from = anchorNodeForConnection(c.from, "from", toCenter);
+        const to = groupAnchor(toBox, "in", from);
+        const auto = autoCurve(from, to);
+        const obsRects = p.nodes
+          .filter((n) => n.id !== c.from)
+          .filter((n) => !isNodeHiddenCanvas(n))
+          .map((n) => {
+            const w = getNodeWorldPosition(n);
+            return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+          })
+          .concat(nodesInsideGroupBoxObstacles(toBox, new Set([c.from])));
+        const d =
+          runtime.connectorStyle === "orthogonal"
+            ? orthogonalPath(from, to, obsRects)
+            : curvePath(from, auto.cp1, auto.cp2, to);
+        svgExportPushEdge(parts, d, c, false, from, to, theme);
+        continue;
+      }
+      if (c.kind === "group-node") {
+        const toNode = getNodeById(c.to);
+        const fromBox = getUserGroupBox(c.fromGroupId);
+        if (!toNode || !fromBox) continue;
+        const from = groupAnchor(fromBox, "out", anchor(toNode, "in", { x: fromBox.x + fromBox.w / 2, y: fromBox.y + fromBox.h / 2 }));
+        const to = anchorNodeForConnection(c.to, "to", from);
+        const auto = autoCurve(from, to);
+        const obsRects = p.nodes
+          .filter((n) => n.id !== c.to)
+          .filter((n) => !isNodeHiddenCanvas(n))
+          .map((n) => {
+            const w = getNodeWorldPosition(n);
+            return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+          })
+          .concat(nodesInsideGroupBoxObstacles(fromBox, new Set([c.to])));
+        const d =
+          runtime.connectorStyle === "orthogonal"
+            ? orthogonalPath(from, to, obsRects)
+            : curvePath(from, auto.cp1, auto.cp2, to);
+        svgExportPushEdge(parts, d, c, false, from, to, theme);
+        continue;
+      }
+      if (c.kind === "node-flowgroup") {
+        const fromNode = getNodeById(c.from);
+        const toBox = getFlowGroupBox(c.toFlowGroupId);
+        if (!fromNode || !toBox) continue;
+        const toCenter = { x: toBox.x + toBox.w / 2, y: toBox.y + toBox.h / 2 };
+        const from = anchorNodeForConnection(c.from, "from", toCenter);
+        const to = groupAnchor(toBox, "in", from);
+        const auto = autoCurve(from, to);
+        const obsRects = p.nodes
+          .filter((n) => n.id !== c.from)
+          .filter((n) => !isNodeHiddenCanvas(n))
+          .map((n) => {
+            const w = getNodeWorldPosition(n);
+            return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+          })
+          .concat(nodesInsideGroupBoxObstacles(toBox, new Set([c.from])));
+        const d =
+          runtime.connectorStyle === "orthogonal"
+            ? orthogonalPath(from, to, obsRects)
+            : curvePath(from, auto.cp1, auto.cp2, to);
+        svgExportPushEdge(parts, d, c, false, from, to, theme);
+        continue;
+      }
+      if (c.kind === "flowgroup-node") {
+        const toNode = getNodeById(c.to);
+        const fromBox = getFlowGroupBox(c.fromFlowGroupId);
+        if (!toNode || !fromBox) continue;
+        const from = groupAnchor(fromBox, "out", anchor(toNode, "in", { x: fromBox.x + fromBox.w / 2, y: fromBox.y + fromBox.h / 2 }));
+        const to = anchorNodeForConnection(c.to, "to", from);
+        const auto = autoCurve(from, to);
+        const obsRects = p.nodes
+          .filter((n) => n.id !== c.to)
+          .filter((n) => !isNodeHiddenCanvas(n))
+          .map((n) => {
+            const w = getNodeWorldPosition(n);
+            return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+          })
+          .concat(nodesInsideGroupBoxObstacles(fromBox, new Set([c.to])));
+        const d =
+          runtime.connectorStyle === "orthogonal"
+            ? orthogonalPath(from, to, obsRects)
+            : curvePath(from, auto.cp1, auto.cp2, to);
+        svgExportPushEdge(parts, d, c, false, from, to, theme);
+        continue;
+      }
+      if (c.kind === "flowgroup-flowgroup") {
+        const fromBox = getFlowGroupBox(c.fromFlowGroupId);
+        const toBox = getFlowGroupBox(c.toFlowGroupId);
+        if (!fromBox || !toBox) continue;
+        const anchors = smartGroupAnchors(fromBox, toBox);
+        const from = anchors.from;
+        const to = anchors.to;
+        const obs = [
+          ...nodesInsideGroupBoxObstacles(fromBox, new Set()),
+          ...nodesInsideGroupBoxObstacles(toBox, new Set())
+        ];
+        const auto = autoCurve(from, to);
+        const d =
+          runtime.connectorStyle === "orthogonal"
+            ? orthogonalPath(from, to, obs)
+            : curvePath(from, auto.cp1, auto.cp2, to);
+        svgExportPushEdge(parts, d, c, false, from, to, theme);
+        continue;
+      }
+      if (isBranchFromConnection(c)) continue;
+      if (!isNodeNodeConnection(c)) continue;
+      const fromNode = getNodeById(c.from);
+      const toNode = getNodeById(c.to);
+      if (!fromNode || !toNode) continue;
+      const toPre = anchorNodeForConnection(c.to, "to", anchor(fromNode, "out", nodeWorldCenter(toNode)));
+      const from = anchorNodeForConnection(c.from, "from", toPre);
+      const to = anchorNodeForConnection(c.to, "to", from);
+      const curve = getCurveData(c.id, from, to, c);
+      const obstacles = p.nodes
+        .filter((n) => n.id !== fromNode.id && n.id !== toNode.id)
+        .filter((n) => !isNodeHiddenCanvas(n))
+        .map((n) => {
+          const w = getNodeWorldPosition(n);
+          return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+        });
+      const d =
+        runtime.connectorStyle === "orthogonal"
+          ? orthogonalPath(from, to, obstacles)
+          : curvePath(from, curve.cp1, curve.cp2, to);
+      svgExportPushEdge(parts, d, c, false, from, to, theme);
+    }
+    for (const c of p.connections) {
+      if (!isBranchFromConnection(c)) continue;
+      normalizeConnectionEdge(c);
+      const parent = p.connections.find((x) => x.id === c.parentConnectionId);
+      const toNode = getNodeById(c.to);
+      if (!parent || !isNodeNodeConnection(parent) || !toNode) continue;
+      const lay = getNodeNodeEdgeLayout(parent, p);
+      if (!lay || !lay.d) continue;
+      const junc = pathWorldPointAtParam(lay.d, c.t ?? 0.5);
+      if (!junc) continue;
+      const fromPt = junc;
+      const to = anchorNodeForConnection(c.to, "to", fromPt);
+      const curve = getCurveData(c.id, fromPt, to, c);
+      const obstacles = p.nodes
+        .filter((n) => n.id !== toNode.id && n.id !== lay.fromNode.id && n.id !== lay.toNode.id)
+        .filter((n) => !isNodeHiddenCanvas(n))
+        .map((n) => {
+          const w = getNodeWorldPosition(n);
+          return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
+        });
+      const dBr =
+        runtime.connectorStyle === "orthogonal"
+          ? orthogonalPath(fromPt, to, obstacles)
+          : curvePath(fromPt, curve.cp1, curve.cp2, to);
+      svgExportPushEdge(parts, dBr, c, false, fromPt, to, theme);
+    }
+  }
+
+  /** Build diagram SVG fragments (systems, links, nodes) ג€” mirrors paintDiagramToPngContext with baked styles. */
+  function paintDiagramToSvgParts(parts, p, theme) {
     const sortedGroups = [...(p.userGroups || [])].sort((a, b) => {
       const z = (a.zIndex || 0) - (b.zIndex || 0);
       if (z !== 0) return z;
@@ -13791,161 +14173,41 @@ clearFlowGroupSelection();
       );
     }
 
-    const connLayerSvg = collectConnectionsLayerSvgForExport();
-    if (connLayerSvg) {
-      parts.push(`<g id="connections">${connLayerSvg}</g>`);
-    } else {
-      const pushAllEdgesFromData = () => {
-        for (const gc of p.groupConnections || []) {
-          normalizeConnectionEdge(gc);
-          const fromBox = getUserGroupBox(gc.fromGroupId);
-          const toBox = getUserGroupBox(gc.toGroupId);
-          if (!fromBox || !toBox) continue;
-          const anchors = smartGroupAnchors(fromBox, toBox);
-          const from = anchors.from;
-          const to = anchors.to;
-          const obs = [
-            ...nodesInsideGroupBoxObstacles(fromBox, new Set()),
-            ...nodesInsideGroupBoxObstacles(toBox, new Set())
-          ];
-          const auto = autoCurve(from, to);
-          const d =
-            runtime.connectorStyle === "orthogonal"
-              ? orthogonalPath(from, to, obs)
-              : curvePath(from, auto.cp1, auto.cp2, to);
-          svgExportPushEdge(parts, d, gc, true, from, to);
-        }
-        for (const c of p.connections) {
-          normalizeConnectionEdge(c);
-          if (c.kind === "node-group") {
-            const fromNode = getNodeById(c.from);
-            const toBox = getUserGroupBox(c.toGroupId);
-            if (!fromNode || !toBox) continue;
-            const toCenter = { x: toBox.x + toBox.w / 2, y: toBox.y + toBox.h / 2 };
-            const from = anchorNodeForConnection(c.from, "from", toCenter);
-            const to = groupAnchor(toBox, "in", from);
-            const auto = autoCurve(from, to);
-            const obsRects = p.nodes
-              .filter((n) => n.id !== c.from)
-              .filter((n) => !isNodeHiddenCanvas(n))
-              .map((n) => {
-                const w = getNodeWorldPosition(n);
-                return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
-              })
-              .concat(nodesInsideGroupBoxObstacles(toBox, new Set([c.from])));
-            const d =
-              runtime.connectorStyle === "orthogonal"
-                ? orthogonalPath(from, to, obsRects)
-                : curvePath(from, auto.cp1, auto.cp2, to);
-            svgExportPushEdge(parts, d, c, false, from, to);
-            continue;
-          }
-          if (c.kind === "group-node") {
-            const toNode = getNodeById(c.to);
-            const fromBox = getUserGroupBox(c.fromGroupId);
-            if (!toNode || !fromBox) continue;
-            const from = groupAnchor(fromBox, "out", anchor(toNode, "in", { x: fromBox.x + fromBox.w / 2, y: fromBox.y + fromBox.h / 2 }));
-            const to = anchorNodeForConnection(c.to, "to", from);
-            const auto = autoCurve(from, to);
-            const obsRects = p.nodes
-              .filter((n) => n.id !== c.to)
-              .filter((n) => !isNodeHiddenCanvas(n))
-              .map((n) => {
-                const w = getNodeWorldPosition(n);
-                return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
-              })
-              .concat(nodesInsideGroupBoxObstacles(fromBox, new Set([c.to])));
-            const d =
-              runtime.connectorStyle === "orthogonal"
-                ? orthogonalPath(from, to, obsRects)
-                : curvePath(from, auto.cp1, auto.cp2, to);
-            svgExportPushEdge(parts, d, c, false, from, to);
-            continue;
-          }
-          if (isBranchFromConnection(c)) continue;
-          if (!isNodeNodeConnection(c)) continue;
-          const fromNode = getNodeById(c.from);
-          const toNode = getNodeById(c.to);
-          if (!fromNode || !toNode) continue;
-          const toPre = anchorNodeForConnection(c.to, "to", anchor(fromNode, "out", nodeWorldCenter(toNode)));
-          const from = anchorNodeForConnection(c.from, "from", toPre);
-          const to = anchorNodeForConnection(c.to, "to", from);
-          const curve = getCurveData(c.id, from, to, c);
-          const obstacles = p.nodes
-            .filter((n) => n.id !== fromNode.id && n.id !== toNode.id)
-            .filter((n) => !isNodeHiddenCanvas(n))
-            .map((n) => {
-              const w = getNodeWorldPosition(n);
-              return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
-            });
-          const d =
-            runtime.connectorStyle === "orthogonal"
-              ? orthogonalPath(from, to, obstacles)
-              : curvePath(from, curve.cp1, curve.cp2, to);
-          svgExportPushEdge(parts, d, c, false, from, to);
-        }
-        for (const c of p.connections) {
-          if (!isBranchFromConnection(c)) continue;
-          normalizeConnectionEdge(c);
-          const parent = p.connections.find((x) => x.id === c.parentConnectionId);
-          const toNode = getNodeById(c.to);
-          if (!parent || !isNodeNodeConnection(parent) || !toNode) continue;
-          const lay = getNodeNodeEdgeLayout(parent, p);
-          if (!lay || !lay.d) continue;
-          const junc = pathWorldPointAtParam(lay.d, c.t ?? 0.5);
-          if (!junc) continue;
-          const fromPt = junc;
-          const to = anchorNodeForConnection(c.to, "to", fromPt);
-          const curve = getCurveData(c.id, fromPt, to, c);
-          const obstacles = p.nodes
-            .filter((n) => n.id !== toNode.id && n.id !== lay.fromNode.id && n.id !== lay.toNode.id)
-            .filter((n) => !isNodeHiddenCanvas(n))
-            .map((n) => {
-              const w = getNodeWorldPosition(n);
-              return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
-            });
-          const dBr =
-            runtime.connectorStyle === "orthogonal"
-              ? orthogonalPath(fromPt, to, obstacles)
-              : curvePath(fromPt, curve.cp1, curve.cp2, to);
-          svgExportPushEdge(parts, dBr, c, false, fromPt, to);
-        }
-      };
-      pushAllEdgesFromData();
-    }
+    parts.push('<g id="connections">');
+    svgExportPushAllEdgesFromData(parts, p, theme);
+    parts.push("</g>");
 
     for (const n of p.nodes) {
       if (isNodeHiddenCanvas(n) && !pngExportIncludesHiddenNodes()) continue;
-      svgExportPushNode(parts, n, isLight);
+      svgExportPushNode(parts, n, theme);
     }
   }
 
   function buildDiagramSvgExportString(p, wb, pad, transparent) {
+    const theme = getSvgExportTheme();
     const { minX, minY, maxX, maxY } = wb;
     const width = Math.ceil(maxX - minX + pad * 2);
     const height = Math.ceil(maxY - minY + pad * 2);
     const tx = pad - minX;
     const ty = pad - minY;
-    const bg = document.getElementById("canvasBgColor")?.value || "#0b0f1a";
     const parts = [];
     parts.push('<?xml version="1.0" encoding="UTF-8"?>');
     parts.push(
       `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`
     );
+    parts.push(svgExportEmbeddedStyleBlock(theme));
     parts.push("<defs>");
-    parts.push(
-      '<marker id="md-export-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto-start-reverse" markerUnits="strokeWidth"><path d="M0,0 L9,4.5 L0,9 Z" fill="rgba(180,205,255,.95)"/></marker>'
-    );
+    parts.push(svgExportDefsBlock(theme));
     parts.push("</defs>");
     if (!transparent) {
-      parts.push(`<rect width="100%" height="100%" fill="${svgExportEscape(bg)}"/>`);
+      parts.push(`<rect width="100%" height="100%" fill="${svgExportEscape(theme.workspaceBg)}"/>`);
     }
     parts.push(`<g id="diagram" transform="translate(${tx},${ty})">`);
-    paintDiagramToSvgParts(parts, p);
+    paintDiagramToSvgParts(parts, p, theme);
     parts.push("</g>");
     if (isFlowchartMode()) {
       parts.push(
-        `<text x="${width - 14}" y="${height - 10}" text-anchor="end" font-family="Inter, Segoe UI, Arial" font-size="11" fill="rgba(169, 188, 230, 0.42)">MapDiagram</text>`
+        `<text x="${width - 14}" y="${height - 10}" text-anchor="end" font-family="Inter, Segoe UI, Arial" font-size="11" fill="${svgExportEscape(theme.watermark)}">MapDiagram</text>`
       );
     }
     parts.push("</svg>");
@@ -13955,6 +14217,7 @@ clearFlowGroupSelection();
   function exportAsSvg() {
     const p = getProject();
     if (!p.nodes.length) return;
+    renderNodes();
     renderConnections();
     const padEl = document.getElementById("pngExportPad");
     const basePad = Math.max(8, Math.min(400, Math.round(Number(padEl?.value) || 80)));
@@ -13962,7 +14225,7 @@ clearFlowGroupSelection();
     const transparent = !!document.getElementById("pngExportTransparent")?.checked;
     const wb = getDiagramWorldBoundsForPngExport(p);
     if (!wb) {
-      showToast("Nothing to export in the current bounds. Try “Include hidden nodes in PNG” or add visible nodes.", "warn");
+      showToast("Nothing to export in the current bounds. Try ג€Include hidden nodes in PNGג€ or add visible nodes.", "warn");
       return;
     }
     const svg = buildDiagramSvgExportString(p, wb, pad, transparent);
@@ -13987,7 +14250,7 @@ clearFlowGroupSelection();
     const transparent = !!document.getElementById("pngExportTransparent")?.checked;
     const wb = getDiagramWorldBoundsForPngExport(p);
     if (!wb) {
-      showToast("Nothing to export in the current bounds. Try “Include hidden nodes in PNG” or add visible nodes.", "warn");
+      showToast("Nothing to export in the current bounds. Try ג€Include hidden nodes in PNGג€ or add visible nodes.", "warn");
       return;
     }
     const { minX, minY, maxX, maxY } = wb;
@@ -14104,7 +14367,7 @@ clearFlowGroupSelection();
       const url = result.url || (location.origin + "/app/view.html?slug=" + result.slug);
       await navigator.clipboard.writeText(url);
       savedIndicator.textContent = "Public link ready";
-      showToast("Public link ready — copied to clipboard", "info");
+      showToast("Public link ready ג€” copied to clipboard", "info");
       if (window.MapDiagramAnalytics) MapDiagramAnalytics.publishFlowchart({ slug: result.slug });
       setTimeout(() => (savedIndicator.textContent = "Saved"), 2000);
     } catch (err) {
@@ -14366,7 +14629,7 @@ clearFlowGroupSelection();
   document.getElementById("undoBtn").onclick = () => restoreSnapshot(runtime.undo, runtime.redo);
   document.getElementById("redoBtn").onclick = () => restoreSnapshot(runtime.redo, runtime.undo);
   /**
-   * Phase 3 — delete one or many selected nodes in a single undo step; strips links and group membership.
+   * Phase 3 ג€” delete one or many selected nodes in a single undo step; strips links and group membership.
    */
   function deleteSelectedNodesAction() {
     const ids = new Set(primaryNodeSelectionIdList());
@@ -15664,7 +15927,7 @@ clearFlowGroupSelection();
     }
 
     if (runtime.groupConnecting) {
-      mdGcLog("[GROUP CONNECT] pointerup → finalizeGroupConnectionDrag", {
+      mdGcLog("[GROUP CONNECT] pointerup ג†’ finalizeGroupConnectionDrag", {
         pointerId: e.pointerId,
         clientX: e.clientX,
         clientY: e.clientY,
@@ -15672,7 +15935,7 @@ clearFlowGroupSelection();
         fromGroupId: runtime.groupConnecting.fromGroupId
       });
       const fin = finalizeGroupConnectionDrag(e.clientX, e.clientY);
-      mdGcLog("[GROUP CONNECT] pointerup ← finalize returned", { fin });
+      mdGcLog("[GROUP CONNECT] pointerup ג† finalize returned", { fin });
       return;
     }
     if (runtime.groupDragging) {
@@ -15817,7 +16080,7 @@ clearFlowGroupSelection();
               scheduleRenderConnections();
             }, 620);
           } else {
-            showConnectionHint("Unusual connection direction — are you sure?", true);
+            showConnectionHint("Unusual connection direction ג€” are you sure?", true);
           }
           markDirty();
           smartRebalance([fromNodeId]);
@@ -15888,7 +16151,7 @@ clearFlowGroupSelection();
     }
     if (runtime.focusNodeId) return;
     if (runtime.groupConnecting) {
-      mdGcLog("[GROUP CONNECT CLEARED] pointercancel — abort WITHOUT finalize/persist", {
+      mdGcLog("[GROUP CONNECT CLEARED] pointercancel ג€” abort WITHOUT finalize/persist", {
         pointerId: e.pointerId,
         hoverGroupId: runtime.groupConnecting.hoverGroupId,
         stack: mdGcShortStack()
