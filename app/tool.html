@@ -4470,6 +4470,7 @@
     touchDragPending: null,
     groupConnecting: null,
     groupPreviewPath: null,
+    groupConnectPointerCapture: null,
     semOverlayRaf: 0,
     activeRightTab: "diagram",
     activeDiagramSub: "node",
@@ -5021,6 +5022,7 @@
 
   function normalizeGroup(g) {
     if (!g || typeof g !== "object") return g;
+    if (!g.id || typeof g.id !== "string" || !String(g.id).trim()) g.id = uid();
     if (!g.color) g.color = "#8baeff";
     if (!Array.isArray(g.nodeIds)) g.nodeIds = [];
     if (!Array.isArray(g.childGroupIds)) g.childGroupIds = [];
@@ -5053,10 +5055,19 @@
    * Safe for legacy projects: migrates once to local node space inside user groups.
    * "Canvas root" (virtual): nodes not in any userGroup keep n.x/n.y as WORLD; grouped nodes use LOCAL + group.x/y.
    */
+  function ensureUserGroupUniqueIds(p) {
+    const seen = new Set();
+    for (const g of p.userGroups) {
+      if (!g.id || seen.has(g.id)) g.id = uid();
+      seen.add(g.id);
+    }
+  }
+
   function normalizeGroupsAndNodes(p) {
     if (!Array.isArray(p.userGroups)) p.userGroups = [];
     if (!Array.isArray(p.groupConnections)) p.groupConnections = [];
     for (const g of p.userGroups) normalizeGroup(g);
+    ensureUserGroupUniqueIds(p);
     reindexUserGroupHierarchy(p);
     dedupeUserGroupMembership(p);
     migrateProjectToGroupLocalSpace(p);
@@ -5255,7 +5266,20 @@
       if (sub) bump(sub.x, sub.y, sub.w, sub.h);
     }
     stack.delete(groupId);
-    if (!Number.isFinite(minX)) return null;
+    if (!Number.isFinite(minX)) {
+      if (
+        p._groupLocalSpace === 2 &&
+        Number.isFinite(Number(g.x)) &&
+        Number.isFinite(Number(g.y)) &&
+        Number.isFinite(Number(g.width)) &&
+        Number.isFinite(Number(g.height)) &&
+        Number(g.width) > 0 &&
+        Number(g.height) > 0
+      ) {
+        return { x: Number(g.x), y: Number(g.y), w: Number(g.width), h: Number(g.height) };
+      }
+      return null;
+    }
     const margin = 28 + Math.min(18, (g.hierarchyDepth || 0) * 4);
     return { x: minX - margin, y: minY - margin, w: maxX - minX + margin * 2, h: maxY - minY + margin * 2 };
   }
@@ -5604,6 +5628,50 @@
     const f = { x: fromBox.x + fromBox.w / 2, y: fromBox.y + fromBox.h / 2 };
     const t = { x: toBox.x + toBox.w / 2, y: toBox.y + toBox.h / 2 };
     return { from: groupAnchor(fromBox, "out", t), to: groupAnchor(toBox, "in", f) };
+  }
+
+  const GROUP_CONNECT_TARGET_SELECTOR =
+    ".group-chrome, .group-chrome-body, .group-handle, .group-chrome-hit-edge, .group-drag-surface, .group-box-under";
+
+  function findUserGroupIdAtWorldPoint(point, excludeGroupId) {
+    const p = getProject();
+    let best = null;
+    let bestDepth = -1;
+    for (const g of p.userGroups || []) {
+      if (!g?.id || g.id === excludeGroupId) continue;
+      const box = getUserGroupBox(g.id);
+      if (!box) continue;
+      if (
+        point.x >= box.x &&
+        point.x <= box.x + box.w &&
+        point.y >= box.y &&
+        point.y <= box.y + box.h
+      ) {
+        const d = g.hierarchyDepth ?? 0;
+        if (d >= bestDepth) {
+          best = g.id;
+          bestDepth = d;
+        }
+      }
+    }
+    return best;
+  }
+
+  function resolveGroupConnectionTargetId(clientX, clientY, fromGroupId, hoverGroupId) {
+    const hit = document.elementFromPoint(clientX, clientY);
+    const targetEl = hit?.closest?.(GROUP_CONNECT_TARGET_SELECTOR);
+    const domId = targetEl?.dataset?.groupId || hoverGroupId || null;
+    if (domId && domId !== fromGroupId && userGroupById(getProject(), domId)) return domId;
+    return findUserGroupIdAtWorldPoint(world(clientX, clientY), fromGroupId);
+  }
+
+  function releaseGroupConnectPointerCaptureIfAny() {
+    const cap = runtime.groupConnectPointerCapture;
+    if (!cap) return;
+    try {
+      if (cap.el?.hasPointerCapture?.(cap.pointerId)) cap.el.releasePointerCapture(cap.pointerId);
+    } catch (_) {}
+    runtime.groupConnectPointerCapture = null;
   }
 
   function toggleGroupCollapsed(groupId) {
@@ -6164,6 +6232,7 @@ function abortGroupConnectionDrag(reason) {
     runtime.groupPreviewPath.remove();
     runtime.groupPreviewPath = null;
   }
+  releaseGroupConnectPointerCaptureIfAny();
   runtime.groupConnecting = null;
 }
 
@@ -8862,6 +8931,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         if (ev.button !== 0) return;
         ev.preventDefault();
         ev.stopPropagation();
+        if (runtime.groupConnecting) return;
         applyUserGroupSelection(ev, g, { refreshOverlay: true });
       };
       const bodyHit = document.createElement("div");
@@ -8874,6 +8944,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         if (ev.button !== 0) return;
         ev.preventDefault();
         ev.stopPropagation();
+        if (runtime.groupConnecting) return;
         applyUserGroupSelection(ev, g, { refreshOverlay: true });
       };
       for (const cls of ["hit-n", "hit-s", "hit-w", "hit-e"]) {
@@ -8978,19 +9049,21 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       outHandle.addEventListener("pointerdown", (ev) => {
         ev.stopPropagation();
         ev.preventDefault();
-        startGroupConnectionDrag(g.id);
+        startGroupConnectionDrag(g.id, ev);
       });
 
       chrome.append(header, inHandle, outHandle);
 
       inHandle.addEventListener("pointerdown", (ev) => {
         ev.preventDefault();
+        if (runtime.groupConnecting) return;
         applyUserGroupSelection(ev, g, { refreshOverlay: true });
       });
       dragSurface.addEventListener("pointerdown", (ev) => {
         if (ev.button !== 0) return;
         ev.preventDefault();
         ev.stopPropagation();
+        if (runtime.groupConnecting) return;
         applyUserGroupSelection(ev, g, { refreshOverlay: false });
         if (!g.pinned) beginGroupDrag(ev, g.id);
       });
@@ -9061,16 +9134,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       const gcBefore = (p.groupConnections || []).length;
       ensureProjectExtras(p);
       mdGcSnapshot("[GROUP CONNECT FINALIZE] after ensureProjectExtras", { gcBefore });
-      const hit = document.elementFromPoint(clientX, clientY);
-      const targetEl = hit?.closest?.(
-        ".group-chrome-body, .group-handle, .group-chrome-hit-edge, .group-drag-surface"
-      );
-      const toGroupId = targetEl?.dataset?.groupId || snap.hoverGroupId || null;
+      const toGroupId = resolveGroupConnectionTargetId(clientX, clientY, fromGroupId, snap.hoverGroupId);
       mdGcLog("[GROUP CONNECT FINALIZE] target resolution", {
-        hitTag: hit?.tagName || null,
-        hitClass: hit?.className || null,
-        targetElTag: targetEl?.tagName || null,
-        targetElClass: targetEl?.className || null,
         hoverGroupId: snap.hoverGroupId,
         toGroupId,
         fromGroupId,
@@ -9121,7 +9186,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     }
   }
 
-  function startGroupConnectionDrag(groupId) {
+  function startGroupConnectionDrag(groupId, pointerEvent) {
     runtime._mdGcDebugUntil = Date.now() + 8000;
     mdGcLog("[GROUP CONNECT] startGroupConnectionDrag (enter)", { groupId, stack: mdGcShortStack() });
     const p = getProject();
@@ -9146,6 +9211,16 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const auto = autoCurve(from, from);
     preview.setAttribute("d", curvePath(from, auto.cp1, auto.cp2, from));
     connectionsLayer.appendChild(preview);
+    releaseGroupConnectPointerCaptureIfAny();
+    if (pointerEvent && pointerEvent.pointerId != null) {
+      const capEl = pointerEvent.currentTarget || pointerEvent.target;
+      try {
+        if (capEl?.setPointerCapture) {
+          capEl.setPointerCapture(pointerEvent.pointerId);
+          runtime.groupConnectPointerCapture = { el: capEl, pointerId: pointerEvent.pointerId };
+        }
+      } catch (_) {}
+    }
     mdGcLog("[GROUP CONNECT] startGroupConnectionDrag (ready)", {
       groupId,
       previewInDom: !!runtime.groupPreviewPath?.isConnected,
@@ -14056,6 +14131,7 @@ clearFlowGroupSelection();
 
   workspace.addEventListener("pointerdown", (e) => {
     if (runtime.focusNodeId) return;
+    if (runtime.groupConnecting) return;
     runtime.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (runtime.readOnly) return;
     if (runtime.fcToolbarInteracting || runtime.fcMultiBarInteracting) return;
@@ -14201,20 +14277,18 @@ clearFlowGroupSelection();
       const fromBox = getUserGroupBox(runtime.groupConnecting.fromGroupId);
       if (!fromBox) return;
       const point = world(e.clientX, e.clientY);
-      const hit = document.elementFromPoint(e.clientX, e.clientY);
-      const targetEl = hit?.closest?.(
-        ".group-chrome-body, .group-handle, .group-chrome-hit-edge, .group-drag-surface"
+      const hoverGroupId = resolveGroupConnectionTargetId(
+        e.clientX,
+        e.clientY,
+        runtime.groupConnecting.fromGroupId,
+        null
       );
-      const hoverGroupId = targetEl?.dataset?.groupId || null;
       const prevHover = runtime.groupConnecting._dbgLastHover;
       if (hoverGroupId !== prevHover) {
         runtime.groupConnecting._dbgLastHover = hoverGroupId;
         mdGcLog("[GROUP CONNECT] pointermove target", {
           hoverGroupId,
           prevHover,
-          hitTag: hit?.tagName || null,
-          hitClass: hit?.className || null,
-          targetClass: targetEl?.className || null,
           clientX: e.clientX,
           clientY: e.clientY
         });
@@ -14421,6 +14495,18 @@ clearFlowGroupSelection();
       runtime.bodyPressStart = null;
       runtime.bodyPressNodeId = null;
     }
+    if (runtime.groupConnecting) {
+      mdGcLog("[GROUP CONNECT] pointerup → finalizeGroupConnectionDrag", {
+        pointerId: e.pointerId,
+        clientX: e.clientX,
+        clientY: e.clientY,
+        hoverGroupId: runtime.groupConnecting.hoverGroupId,
+        fromGroupId: runtime.groupConnecting.fromGroupId
+      });
+      const fin = finalizeGroupConnectionDrag(e.clientX, e.clientY);
+      mdGcLog("[GROUP CONNECT] pointerup ← finalize returned", { fin });
+      return;
+    }
     const dragSnap = runtime.dragging;
     if (dragSnap && (dragSnap.pointerId == null || dragSnap.pointerId === e.pointerId)) {
       finalizeActiveNodeDragIfAny();
@@ -14453,19 +14539,6 @@ clearFlowGroupSelection();
       if (!isFlowchartMode() && runtime.selectionMode && runtime.selectedNodeIds.size >= 2) {
         createUserGroupFromSelection({ showAlertWhenEmpty: false, autoPrompt: true });
       }
-      return;
-    }
-
-    if (runtime.groupConnecting) {
-      mdGcLog("[GROUP CONNECT] pointerup → finalizeGroupConnectionDrag", {
-        pointerId: e.pointerId,
-        clientX: e.clientX,
-        clientY: e.clientY,
-        hoverGroupId: runtime.groupConnecting.hoverGroupId,
-        fromGroupId: runtime.groupConnecting.fromGroupId
-      });
-      const fin = finalizeGroupConnectionDrag(e.clientX, e.clientY);
-      mdGcLog("[GROUP CONNECT] pointerup ← finalize returned", { fin });
       return;
     }
     if (runtime.groupDragging) {
@@ -14679,17 +14752,30 @@ clearFlowGroupSelection();
     if (dCan && (dCan.pointerId == null || dCan.pointerId === e.pointerId)) {
       finalizeActiveNodeDragIfAny();
     }
-    if (runtime.focusNodeId) return;
     if (runtime.groupConnecting) {
-      mdGcLog("[GROUP CONNECT CLEARED] pointercancel — abort WITHOUT finalize/persist", {
-        pointerId: e.pointerId,
-        hoverGroupId: runtime.groupConnecting.hoverGroupId,
-        stack: mdGcShortStack()
-      });
-      abortGroupConnectionDrag("pointercancel");
+      const snap = runtime.groupConnecting;
+      const canFinalize =
+        snap.hoverGroupId &&
+        snap.hoverGroupId !== snap.fromGroupId &&
+        userGroupById(getProject(), snap.hoverGroupId);
+      if (canFinalize) {
+        mdGcLog("[GROUP CONNECT] pointercancel → finalize (valid hover)", {
+          pointerId: e.pointerId,
+          hoverGroupId: snap.hoverGroupId
+        });
+        finalizeGroupConnectionDrag(e.clientX, e.clientY);
+      } else {
+        mdGcLog("[GROUP CONNECT CLEARED] pointercancel — abort WITHOUT finalize/persist", {
+          pointerId: e.pointerId,
+          hoverGroupId: snap.hoverGroupId,
+          stack: mdGcShortStack()
+        });
+        abortGroupConnectionDrag("pointercancel");
+      }
       scheduleRenderConnections();
       return;
     }
+    if (runtime.focusNodeId) return;
     clearInteractionStates();
     scheduleRenderConnections();
   });
