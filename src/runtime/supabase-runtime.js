@@ -238,37 +238,141 @@ function projectContentScore(project) {
   if (!project) return 0;
   const nodes = Array.isArray(project.nodes) ? project.nodes.length : 0;
   const groups = Array.isArray(project.userGroups) ? project.userGroups.length : 0;
+  const fg = Array.isArray(project.flowGroups) ? project.flowGroups.length : 0;
   const conns = Array.isArray(project.connections) ? project.connections.length : 0;
   const gc = Array.isArray(project.groupConnections) ? project.groupConnections.length : 0;
-  return nodes * 10 + groups * 5 + conns + gc;
+  return nodes * 10 + groups * 5 + fg * 4 + conns + gc;
 }
 
-/** Prefer newer / richer local edits when cloud rows are stale or empty. */
-function mergeDbPreferLocalNewer(prevDb, nextDb) {
-  if (!prevDb?.projects?.length || !nextDb?.projects?.length) return nextDb;
-  const prevById = new Map(prevDb.projects.map((p) => [p.projectId, p]));
-  const prevByCloud = new Map();
-  for (const p of prevDb.projects) {
-    const cid = p.cloudProjectId || (isValidUuid(p.projectId) ? p.projectId : null);
-    if (cid) prevByCloud.set(cid, p);
+function mapCloudRowToProject(row) {
+  return normalizeProjectCloudFields({
+    projectId: row.id,
+    cloudProjectId: row.id,
+    name: row.name || "Untitled",
+    title: row.data?.title || "Blank Canvas",
+    nodes: Array.isArray(row.data?.nodes) ? row.data.nodes : [],
+    connections: Array.isArray(row.data?.connections) ? row.data.connections : [],
+    userGroups: Array.isArray(row.data?.userGroups) ? row.data.userGroups : [],
+    groupConnections: Array.isArray(row.data?.groupConnections) ? row.data.groupConnections : [],
+    flowGroups: Array.isArray(row.data?.flowGroups) ? row.data.flowGroups : [],
+    view: row.data?.view || { x: 0, y: 0, zoom: 1, grid: true },
+    updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : Date.now(),
+  });
+}
+
+function findLocalProjectForCloud(localProjects, cloudProject) {
+  const cloudId = String(cloudProject.projectId || cloudProject.cloudProjectId || "").trim();
+  if (!cloudId) return null;
+  return (
+    localProjects.find((lp) => {
+      const localId = String(lp.projectId || "").trim();
+      const localCloud = String(lp.cloudProjectId || "").trim();
+      return localId === cloudId || localCloud === cloudId;
+    }) || null
+  );
+}
+
+/**
+ * Choose winner when both exist. Local with content always beats an empty cloud snapshot.
+ * @returns {{ project: object, localWon: boolean }}
+ */
+function pickRicherProjectPair(local, cloud) {
+  const ls = projectContentScore(local);
+  const cs = projectContentScore(cloud);
+  if (ls > 0 && cs === 0) return { project: local, localWon: true };
+  if (cs > 0 && ls === 0) return { project: cloud, localWon: false };
+  if (ls > cs + 1) return { project: local, localWon: true };
+  if (cs > ls + 1) return { project: cloud, localWon: false };
+  const localTs = Number(local.updatedAt) || 0;
+  const cloudTs = Number(cloud.updatedAt) || 0;
+  if (localTs > cloudTs + 3000 && ls >= cs) return { project: local, localWon: true };
+  if (cloudTs > localTs + 3000 && cs >= ls) return { project: cloud, localWon: false };
+  return { project: local, localWon: ls >= cs };
+}
+
+/**
+ * Merge cloud rows into the local db without dropping richer local-only projects.
+ * @returns {{ db: object, pushProjectIds: string[] }}
+ */
+function mergeCloudProjectsWithLocalPrecedence(localDb, cloudRows) {
+  const localProjects = (localDb?.projects || []).map((p) => JSON.parse(JSON.stringify(p)));
+  const cloudProjects = (cloudRows || []).map(mapCloudRowToProject);
+  const pushProjectIds = [];
+
+  const localHasContent = localProjects.some((p) => projectContentScore(p) > 0);
+  const cloudAllEmpty = cloudProjects.length > 0 && cloudProjects.every((p) => projectContentScore(p) === 0);
+
+  if (localHasContent && cloudAllEmpty) {
+    for (const p of localProjects) {
+      if (projectContentScore(p) > 0) pushProjectIds.push(p.projectId);
+    }
+    return {
+      db: {
+        ...localDb,
+        projects: localProjects,
+        activeProjectId: resolveActiveProjectId(localDb, localProjects),
+      },
+      pushProjectIds,
+    };
   }
-  for (let i = 0; i < nextDb.projects.length; i += 1) {
-    const incoming = nextDb.projects[i];
-    const local = prevById.get(incoming.projectId) || prevByCloud.get(incoming.projectId);
-    if (!local) continue;
-    const localScore = projectContentScore(local);
-    const incomingScore = projectContentScore(incoming);
-    const localTs = Number(local.updatedAt) || 0;
-    const incomingTs = Number(incoming.updatedAt) || 0;
-    if (localScore > incomingScore + 2 || (localTs > incomingTs + 5000 && localScore >= incomingScore)) {
-      nextDb.projects[i] = local;
+
+  const consumedLocal = new Set();
+  const merged = [];
+
+  for (const cloud of cloudProjects) {
+    const local = findLocalProjectForCloud(localProjects, cloud);
+    if (!local) {
+      if (projectContentScore(cloud) === 0 && localHasContent) continue;
+      merged.push(cloud);
+      continue;
+    }
+    consumedLocal.add(local.projectId);
+    const { project: winner, localWon } = pickRicherProjectPair(local, cloud);
+    const out = JSON.parse(JSON.stringify(winner));
+    out.cloudProjectId = cloud.cloudProjectId || cloud.projectId;
+    normalizeProjectCloudFields(out);
+    if (!isValidUuid(out.projectId) && isValidUuid(out.cloudProjectId)) {
+      out.projectId = out.cloudProjectId;
+    }
+    if (localWon && projectContentScore(out) > 0 && projectContentScore(cloud) < projectContentScore(out)) {
+      pushProjectIds.push(out.projectId);
+    }
+    merged.push(out);
+  }
+
+  for (const local of localProjects) {
+    if (!consumedLocal.has(local.projectId)) merged.push(local);
+  }
+
+  if (!merged.length && localProjects.length) {
+    return {
+      db: { ...localDb, projects: localProjects, activeProjectId: resolveActiveProjectId(localDb, localProjects) },
+      pushProjectIds: localProjects.filter((p) => projectContentScore(p) > 0).map((p) => p.projectId),
+    };
+  }
+
+  return {
+    db: {
+      ...localDb,
+      projects: merged,
+      activeProjectId: resolveActiveProjectId(localDb, merged, localProjects),
+    },
+    pushProjectIds,
+  };
+}
+
+function resolveActiveProjectId(localDb, mergedProjects, localProjects = mergedProjects) {
+  const prevActive = localDb?.activeProjectId;
+  if (prevActive) {
+    const direct = mergedProjects.find((p) => p.projectId === prevActive);
+    if (direct) return direct.projectId;
+    const prevLocal = localProjects.find((p) => p.projectId === prevActive);
+    if (prevLocal?.cloudProjectId) {
+      const byCloud = mergedProjects.find((p) => p.cloudProjectId === prevLocal.cloudProjectId);
+      if (byCloud) return byCloud.projectId;
     }
   }
-  const active = nextDb.activeProjectId;
-  if (active && !nextDb.projects.some((p) => p.projectId === active)) {
-    nextDb.activeProjectId = nextDb.projects[0]?.projectId || null;
-  }
-  return nextDb;
+  return mergedProjects[0]?.projectId || null;
 }
 
 export function initSupabase() {
@@ -791,8 +895,9 @@ export async function handlePasswordResetSubmit() {
   applyAuthModalMode();
 }
 
-export async function loadCloudProjects() {
-  if (!bind().ctx.runtime.supabase || !bind().ctx.runtime.authUser) return;
+export async function loadCloudProjects(options = {}) {
+  const { render = true, pushLocalWins = true } = options;
+  if (!bind().ctx.runtime.supabase || !bind().ctx.runtime.authUser) return { merged: false, pushed: 0 };
   let data;
   let error;
   try {
@@ -802,45 +907,63 @@ export async function loadCloudProjects() {
       .order("updated_at", { ascending: false }));
   } catch (err) {
     console.warn("[App Auth] loadCloudProjects request failed:", err);
-    return;
+    return { merged: false, pushed: 0 };
   }
   if (error) {
     console.warn("[App Auth] loadCloudProjects:", error.message);
     if (bind().deps.dom.authStatus) bind().deps.dom.authStatus.textContent = error.message;
-    return;
+    return { merged: false, pushed: 0 };
   }
   try {
-  const prevDb = JSON.parse(JSON.stringify(bind().ctx.runtime.db));
-  bind().ctx.runtime.db.projects = (data || []).map((row) => ({
-    projectId: row.id,
-    cloudProjectId: row.id,
-    name: row.name || "Untitled",
-    title: row.data?.title || "Blank Canvas",
-    nodes: Array.isArray(row.data?.nodes) ? row.data.nodes : [],
-    connections: Array.isArray(row.data?.connections) ? row.data.connections : [],
-    userGroups: Array.isArray(row.data?.userGroups) ? row.data.userGroups : [],
-    groupConnections: Array.isArray(row.data?.groupConnections) ? row.data.groupConnections : [],
-    flowGroups: Array.isArray(row.data?.flowGroups) ? row.data.flowGroups : [],
-    view: row.data?.view || { x: 0, y: 0, zoom: 1 },
-    updatedAt: row.updated_at ? new Date(row.updated_at).getTime() : Date.now()
-  }));
-  bind().ctx.runtime.db = mergeDbPreferLocalNewer(prevDb, bind().ctx.runtime.db);
-  if (!bind().ctx.runtime.db.projects.length) {
-    const p = bind().deps.blankProject("My First Diagram");
-    bind().ctx.runtime.db.projects = [p];
-    bind().ctx.runtime.db.activeProjectId = p.projectId;
-    saveDB();
-    await cloudSyncProject(p);
-  } else if (!bind().ctx.runtime.db.projects.some((p) => p.projectId === bind().ctx.runtime.db.activeProjectId)) {
-    bind().ctx.runtime.db.activeProjectId = bind().ctx.runtime.db.projects[0].projectId;
-  }
-  saveDB();
-  bind().deps.renderAll();
-  bind().deps.analyzeDiagramSemantics();
-  void syncAiWalletFromBackend();
+    const prevDb = JSON.parse(JSON.stringify(bind().ctx.runtime.db));
+    const { db: mergedDb, pushProjectIds } = mergeCloudProjectsWithLocalPrecedence(prevDb, data || []);
+    bind().ctx.runtime.db = mergedDb;
+    bind().ctx.runtime.groupBoxCache = null;
+    bind().ctx.runtime.groupBoxCacheProjectId = null;
+
+    if (!bind().ctx.runtime.db.projects.length) {
+      const p = bind().deps.blankProject("My First Diagram");
+      bind().ctx.runtime.db.projects = [p];
+      bind().ctx.runtime.db.activeProjectId = p.projectId;
+      saveDB();
+      if (pushLocalWins) await cloudSyncProject(p);
+    } else {
+      saveDB();
+    }
+
+    let pushed = 0;
+    if (pushLocalWins && pushProjectIds.length) {
+      const ids = [...new Set(pushProjectIds)];
+      for (const pid of ids) {
+        const p = bind().ctx.runtime.db.projects.find((x) => x.projectId === pid);
+        if (p && projectContentScore(p) > 0) {
+          await cloudSyncProject(p);
+          pushed += 1;
+        }
+      }
+    }
+
+    if (render) {
+      bind().deps.renderAll?.();
+      bind().deps.analyzeDiagramSemantics?.();
+    }
+    void syncAiWalletFromBackend();
+    return { merged: true, pushed };
   } catch (err) {
     console.warn("[App Auth] loadCloudProjects parse failed:", err);
+    return { merged: false, pushed: 0 };
   }
+}
+
+/**
+ * Boot-time cloud hydration: merge cloud into local without wiping richer local state,
+ * then push winning local projects up to Supabase.
+ */
+export async function hydrateCanvasFromCloud(options = {}) {
+  if (!bind().ctx.runtime.supabase || !bind().ctx.runtime.authUser) {
+    return { merged: false, pushed: 0 };
+  }
+  return loadCloudProjects({ render: false, pushLocalWins: true, ...options });
 }
 
 export async function cloudSyncProject(project) {
@@ -901,14 +1024,15 @@ export function scheduleCloudSync() {
   }, 600);
 }
 
-export async function bootstrapAuth() {
+export async function bootstrapAuth(options = {}) {
+  const { loadProjects = false } = options;
   const { runtime } = bind().ctx;
   try {
   if (!runtime.supabase) {
     refreshAuthUi();
     return;
   }
-  await syncAuthStateFromClient({ loadProjects: !isPasswordRecoveryUrl() });
+  await syncAuthStateFromClient({ loadProjects: loadProjects && !isPasswordRecoveryUrl() });
   refreshAuthUi();
   console.log("[App Auth] bootstrap session:", runtime.authUser?.email || null);
   if (isPasswordRecoveryUrl()) {
@@ -1135,6 +1259,7 @@ const supabaseApi = {
   handlePasswordResetSubmit,
   handleUpdatePasswordSubmit,
   loadCloudProjects,
+  hydrateCanvasFromCloud,
   cloudSyncProject,
   isValidUuid,
   generateUuid,

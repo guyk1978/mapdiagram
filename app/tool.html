@@ -15790,55 +15790,70 @@ clearFlowGroupSelection();
     overlayRuntime.ensureFocusOverlayPortal();
   }
 
-  function initCanvasApplication() {
-    initFlowchartModeUi();
-    initFlowchartProductUi();
-    initMapDiagramRuntimes();
-    restoreCanvasStateFromStorage();
-    tryOpenSharedProject();
-    for (const project of runtime.db.projects) {
-      project.nodes = (project.nodes || []).map((n) => normalizeNode(n));
-      ensureProjectExtras(project);
-    }
-    initConnectionListPanelUi();
-    initEdgeInspectorPanelUi();
-    initOutlineTreePanelUi();
-    initCommandPaletteAndHelpUi();
-    initSavedViewsUi();
-    initImportDiffApplyUi();
+  async function initCanvasApplication() {
+    runtime.bootHydrating = true;
     try {
-      const sub = sessionStorage.getItem(SESSION_DIAGRAM_SUB);
-      if (sub === "node" || sub === "groups" || sub === "suggestions") runtime.activeDiagramSub = sub;
-    } catch (_) {}
-    try {
-      const f = sessionStorage.getItem(SESSION_CONN_LIST_FILTER);
-      if (connectionListFilter && (f === "all" || f === "selection" || f === "warnings")) connectionListFilter.value = f;
-    } catch (_) {}
-    syncStickyMultiSelectUi();
-    renderAll();
-    setRightTab("diagram");
-    if (window.innerWidth <= 768) {
-      setTimeout(() => fitToScreen(), 120);
+      initFlowchartModeUi();
+      initFlowchartProductUi();
+      initMapDiagramRuntimes();
+      restoreCanvasStateFromStorage();
+      tryOpenSharedProject();
+      for (const project of runtime.db.projects) {
+        project.nodes = (project.nodes || []).map((n) => normalizeNode(n));
+        ensureProjectExtras(project);
+      }
+      initConnectionListPanelUi();
+      initEdgeInspectorPanelUi();
+      initOutlineTreePanelUi();
+      initCommandPaletteAndHelpUi();
+      initSavedViewsUi();
+      initImportDiffApplyUi();
+      try {
+        const sub = sessionStorage.getItem(SESSION_DIAGRAM_SUB);
+        if (sub === "node" || sub === "groups" || sub === "suggestions") runtime.activeDiagramSub = sub;
+      } catch (_) {}
+      try {
+        const f = sessionStorage.getItem(SESSION_CONN_LIST_FILTER);
+        if (connectionListFilter && (f === "all" || f === "selection" || f === "warnings")) connectionListFilter.value = f;
+      } catch (_) {}
+      syncStickyMultiSelectUi();
+      supabaseRuntime.initSupabase();
+      await supabaseRuntime.bootstrapAuth({ loadProjects: false });
+      if (runtime.authUser) {
+        await supabaseRuntime.hydrateCanvasFromCloud({ render: false, pushLocalWins: true });
+        for (const project of runtime.db.projects) {
+          ensureProjectExtras(project);
+        }
+      }
+      setRightTab("diagram");
+      renderAll();
+      if (window.innerWidth <= 768) {
+        setTimeout(() => fitToScreen(), 120);
+      }
+      analyzeDiagramSemantics();
+      installCanvasPointerSafetyNet();
+      saveCanvasState({ immediate: true, cloud: false });
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState !== "visible") return;
+        if (runtime.supabase && runtime.authUser) { initMapDiagramRuntimes(); void supabaseRuntime.syncAiWalletFromBackend(); }
+      });
+      window.addEventListener("focus", () => {
+        if (runtime.supabase && runtime.authUser) { initMapDiagramRuntimes(); void supabaseRuntime.syncAiWalletFromBackend(); }
+      });
+      supabaseRuntime.applyAiCreditGatesToUi();
+    } catch (err) {
+      console.warn("[MapDiagram] initCanvasApplication failed:", err);
+      renderAll();
+      analyzeDiagramSemantics();
+    } finally {
+      runtime.bootHydrating = false;
     }
-    analyzeDiagramSemantics();
-    supabaseRuntime.initSupabase();
-    supabaseRuntime.bootstrapAuth();
-    installCanvasPointerSafetyNet();
-    saveCanvasState({ immediate: true, cloud: false });
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState !== "visible") return;
-      if (runtime.supabase && runtime.authUser) { initMapDiagramRuntimes(); void supabaseRuntime.syncAiWalletFromBackend(); }
-    });
-    window.addEventListener("focus", () => {
-      if (runtime.supabase && runtime.authUser) { initMapDiagramRuntimes(); void supabaseRuntime.syncAiWalletFromBackend(); }
-    });
-    supabaseRuntime.applyAiCreditGatesToUi();
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initCanvasApplication);
+    document.addEventListener("DOMContentLoaded", () => { void initCanvasApplication(); });
   } else {
-    initCanvasApplication();
+    void initCanvasApplication();
   }
 
   function installMdTestHooks() {
