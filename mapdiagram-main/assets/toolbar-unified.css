@@ -1,21 +1,28 @@
-/* Unified top toolbar — theme-agnostic light-blue tools strip (Proposal 3) */
+/* Unified top toolbar — responsive flex layout, theme-agnostic light-blue strip */
 .topbar.topbar-unified {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   background: transparent;
   border-bottom: none;
   box-shadow: none;
-  padding: 8px 12px 6px;
-  flex-wrap: nowrap;
-  overflow: visible;
+  padding: 6px 8px;
+  overflow: hidden;
 }
 
 .topbar-unified-panel {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 10px;
-  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+  flex: 1 1 auto;
   min-width: 0;
-  min-height: 48px;
-  padding: 6px 10px;
+  min-height: 44px;
+  padding: 6px 8px;
+  gap: 6px;
+  flex-wrap: wrap;
   border-radius: 12px;
   background: color-mix(in srgb, var(--accent) 22%, #dce8ff);
   border: 1px solid color-mix(in srgb, var(--accent) 38%, #b8ccef);
@@ -29,53 +36,71 @@ html[data-theme="light"] .topbar-unified-panel {
 
 .topbar-unified .topbar-minimal-row {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+  flex: 1 1 100%;
   min-width: 0;
-  gap: 8px;
-  flex-wrap: nowrap;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
-.topbar-unified .topbar-overflow-leading-wrap.tb-group.tb-user {
-  order: 50;
-  margin-left: auto;
+/* Groups */
+.topbar-unified .tb-group,
+.topbar-unified .topbar-overflow-leading-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
-.topbar-unified .tb-group.tb-nav.topbar-minimal-start {
-  order: 1;
+.topbar-unified .tb-group.tb-nav {
+  flex: 0 1 auto;
 }
 
 .topbar-unified .tb-insert-wrap {
-  order: 2;
+  flex: 0 0 auto;
   position: relative;
-  flex-shrink: 0;
+}
+
+.topbar-unified .topbar-minimal-start,
+.topbar-unified .topbar-minimal-end {
+  flex-shrink: 1 !important;
 }
 
 .topbar-unified .topbar-minimal-end {
-  order: 3;
   display: flex;
   align-items: center;
+  gap: 4px;
   flex: 1 1 auto;
   min-width: 0;
-  gap: 6px;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
 
+.topbar-unified .topbar-overflow-leading-wrap.tb-group.tb-user {
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* Keep secondary tools in DOM for JS / overflow menu — not in the visible row */
 .topbar-unified #topbarOffscreenTools {
-  order: 4;
-  position: static !important;
-  width: auto !important;
-  height: auto !important;
-  margin: 0 !important;
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
   padding: 0 !important;
-  overflow: visible !important;
-  clip: auto !important;
-  white-space: normal !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
   border: 0 !important;
-  display: flex !important;
-  align-items: center;
-  gap: 6px;
-  flex: 1 1 auto;
-  min-width: 0;
+  display: block !important;
 }
 
 .topbar-unified .topbar-minimal-spacer {
@@ -86,36 +111,36 @@ html[data-theme="light"] .topbar-unified-panel {
   display: none !important;
 }
 
-.tb-sep {
-  width: 1px;
-  align-self: stretch;
-  min-height: 28px;
-  margin: 0 2px;
-  background: color-mix(in srgb, var(--accent) 35%, transparent);
-  opacity: 0.65;
-  flex-shrink: 0;
-  order: 2;
+.topbar-unified .topbar-group-actions,
+.topbar-unified .mobile-inspector-actions {
+  display: none !important;
 }
 
+/* Insert button */
 .tb-insert-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 0 16px;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.01em;
   background: var(--accent);
   border: 1px solid color-mix(in srgb, var(--accent) 75%, #0f1730);
   color: #f8faff;
-  box-shadow: 0 2px 10px color-mix(in srgb, var(--accent) 35%, transparent);
+  flex-shrink: 0;
 }
 
-.tb-insert-btn .ph {
-  font-size: 18px;
+.tb-insert-btn .icon-svg {
+  width: 18px;
+  height: 18px;
+  display: flex !important;
+}
+
+.tb-insert-btn .icon-svg svg {
+  stroke: #f8faff;
 }
 
 .tb-insert-menu {
@@ -123,7 +148,7 @@ html[data-theme="light"] .topbar-unified-panel {
   top: calc(100% + 6px);
   left: 0;
   z-index: calc(var(--z-sticky-topbar) + 80);
-  min-width: 220px;
+  min-width: 200px;
   padding: 6px;
   display: none;
   flex-direction: column;
@@ -141,10 +166,10 @@ html[data-theme="light"] .topbar-unified-panel {
 .tb-insert-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
-  min-height: 40px;
-  padding: 8px 12px;
+  min-height: 36px;
+  padding: 6px 10px;
   border: none;
   border-radius: 8px;
   background: transparent;
@@ -155,104 +180,133 @@ html[data-theme="light"] .topbar-unified-panel {
   cursor: pointer;
 }
 
-.tb-insert-item .ph {
-  font-size: 18px;
-  color: var(--accent);
+.tb-insert-item .icon-svg {
+  display: flex !important;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
+  color: var(--accent);
 }
 
-.tb-insert-item:hover {
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
+/* Icon buttons — compact, always show inline SVG */
+.topbar-unified-panel .icon-btn {
+  flex-shrink: 0;
+  min-width: 32px;
+  min-height: 32px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 8px;
+  background: color-mix(in srgb, #fff 50%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 22%, var(--line));
+  color: var(--text);
 }
 
-.topbar-unified-panel .icon-btn,
-.topbar-unified-panel .text-btn-sm,
-.topbar-unified-panel .tb-insert-btn,
-.topbar-unified-panel #authBtn,
-.topbar-unified-panel .topbar-google-btn {
-  transition: transform 0.2s ease-in-out, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+html[data-theme="dark"] .topbar-unified-panel .icon-btn {
+  background: color-mix(in srgb, var(--panel) 65%, transparent);
+}
+
+.topbar-unified-panel .icon-btn .icon-svg {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+.topbar-unified-panel .icon-svg svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+  fill: none;
+}
+
+.topbar-unified-panel .icon-btn .icon-svg svg [fill="currentColor"] {
+  fill: currentColor;
+  stroke: none;
+}
+
+.topbar-unified-panel .text-btn-sm {
+  flex-shrink: 1;
+  min-height: 32px;
+  padding: 0 8px;
+  font-size: 11px;
 }
 
 .topbar-unified-panel .icon-btn:hover,
 .topbar-unified-panel .text-btn-sm:hover,
 .topbar-unified-panel .tb-insert-btn:hover,
-.topbar-unified-panel #authBtn:hover,
-.topbar-unified-panel .topbar-google-btn:hover {
+.topbar-unified-panel #authBtn:hover {
   transform: scale(1.05);
+  transition: transform 0.2s ease-in-out;
 }
 
 .topbar-unified-panel .icon-btn:focus-visible,
 .topbar-unified-panel .text-btn-sm:focus-visible,
 .topbar-unified-panel .tb-insert-btn:focus-visible,
 .topbar-unified-panel #authBtn:focus-visible,
-.topbar-unified-panel .topbar-google-btn:focus-visible,
 .topbar-unified-panel .tb-insert-item:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-.topbar-unified-panel .icon-btn {
-  min-width: 36px;
-  min-height: 36px;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  border-radius: 10px;
-  background: color-mix(in srgb, #fff 55%, transparent);
-  border-color: color-mix(in srgb, var(--accent) 25%, var(--line));
-  color: var(--text);
-}
-
-html[data-theme="dark"] .topbar-unified-panel .icon-btn {
-  background: color-mix(in srgb, var(--panel) 70%, transparent);
-}
-
-.topbar-unified-panel .icon-btn .ph {
-  font-size: 20px;
-  line-height: 1;
-}
-
-.topbar-unified .topbar-toolbar-cluster {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex: 1 1 auto;
-  min-width: 0;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-}
-
-.topbar-unified .topbar-toolbar-cluster .group {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  padding: 0;
-  flex-shrink: 0;
-}
-
 .topbar-unified .saved {
   font-size: 11px;
   white-space: nowrap;
-  margin-left: 4px;
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 64px;
 }
 
-@media (max-width: 1024px) {
-  .topbar-unified-panel {
-    flex-wrap: wrap;
-    row-gap: 8px;
+.topbar-unified .topbar-auth {
+  flex-shrink: 0;
+}
+
+.topbar-unified .topbar-google-btn,
+.topbar-unified #authBtn {
+  flex-shrink: 0;
+}
+
+/* Theme toggle visibility */
+.topbar-unified .theme-toggle-btn .icon-svg.icon-theme-sun,
+.topbar-unified .theme-toggle-btn .icon-svg.icon-theme-moon {
+  display: none;
+}
+
+html:not([data-theme="light"]) .topbar-unified .theme-toggle-btn .icon-svg.icon-theme-sun {
+  display: flex !important;
+}
+
+html[data-theme="light"] .topbar-unified .theme-toggle-btn .icon-svg.icon-theme-moon {
+  display: flex !important;
+}
+
+@media (max-width: 1200px) {
+  .topbar-unified .topbar-minimal-end .icon-btn:not(#undoBtn):not(#redoBtn):not(#fitViewBtn):not(#themeToggleBtn) {
+    display: none;
   }
-  .topbar-unified .topbar-toolbar-cluster .topbar-collapse-1024 {
+}
+
+@media (max-width: 900px) {
+  .topbar-unified .desktop-sidebar-toggles {
+    display: none;
+  }
+  .tb-insert-btn .tb-insert-label {
     display: none;
   }
 }
 
 @media (max-width: 760px) {
-  .tb-insert-btn .tb-insert-label {
-    display: none;
+  .topbar-unified-panel {
+    padding: 4px 6px;
   }
-  .tb-insert-btn {
-    padding: 0 12px;
+  .topbar-unified-panel .icon-btn {
+    min-width: 36px;
+    min-height: 36px;
+    width: 36px;
+    height: 36px;
   }
 }
