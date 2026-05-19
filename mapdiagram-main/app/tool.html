@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <link rel="stylesheet" href="/assets/design-tokens.css">
@@ -827,8 +827,11 @@
   #nodes{
     position:absolute;
     inset:0;
-    z-index:5;
+    z-index:var(--z-canvas-node, 10);
     pointer-events:none;
+  }
+  #nodes > .node {
+    z-index: var(--z-canvas-node, 2);
   }
   .group-box{
     position:absolute;
@@ -1491,6 +1494,7 @@
     inset: 0;
     transform-origin: 0 0;
     will-change: transform;
+    isolation: isolate;
   }
   #connections {
     position: absolute;
@@ -1499,6 +1503,7 @@
     height: 100%;
     pointer-events: none;
     overflow: visible;
+    z-index: var(--z-canvas-base, 1);
   }
   .conn-hit {
     fill: none;
@@ -1598,6 +1603,7 @@
     position: absolute;
     left: 0;
     top: 0;
+    z-index: var(--z-canvas-node, 2);
     pointer-events: auto;
     width: 190px;
     height: 110px;
@@ -1905,7 +1911,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    z-index: 6;
+    z-index: var(--z-canvas-hud, 12);
   }
   .semantic-group {
     position: absolute;
@@ -8727,7 +8733,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     for (const g of p.userGroups) {
       const box = computeUserGroupBox(g.id, new Set());
       const under = canvasUnderlays.querySelector(`[data-group-id="${g.id}"]`);
-      const chrome = semanticOverlays.querySelector(`.group-chrome[data-group-id="${g.id}"]`);
+      const chrome = canvasUnderlays.querySelector(`.group-chrome[data-group-id="${g.id}"]`);
       if (!box || !under || !chrome) continue;
       under.style.left = `${box.x}px`;
       under.style.top = `${box.y}px`;
@@ -8991,8 +8997,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
   }
 
   function syncGroupOverlaySelectionClasses() {
-    if (!semanticOverlays) return;
-    for (const el of semanticOverlays.querySelectorAll(".group-chrome, .group-box-under")) {
+    if (!canvasUnderlays) return;
+    for (const el of canvasUnderlays.querySelectorAll(".group-chrome, .group-box-under")) {
       const gid = el.dataset.groupId;
       if (!gid) continue;
       el.classList.toggle("selected", runtime.selectedGroupIds.has(gid));
@@ -9311,13 +9317,13 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       inHandle.addEventListener("contextmenu", onCtx);
       outHandle.addEventListener("contextmenu", onCtx);
 
-      semanticOverlays.appendChild(chrome);
+      canvasUnderlays.appendChild(chrome);
     }
     syncGroupOverlaySelectionClasses();
     refreshGroupParentSelectOptions();
     if (_gcDbgOverlay) {
       mdGcLog("[OVERLAY RENDER] renderSemanticOverlays (exit)", {
-        chromeBuilt: semanticOverlays?.querySelectorAll(".group-chrome")?.length ?? 0,
+        chromeBuilt: canvasUnderlays?.querySelectorAll(".group-chrome")?.length ?? 0,
         underlayBuilt: canvasUnderlays?.querySelectorAll(".group-box-under")?.length ?? 0
       });
     }
@@ -12988,10 +12994,10 @@ clearFlowGroupSelection();
     updateViewport();
     renderNodes();
     renderConnections();
+    renderSemanticOverlays();
     renderFlowGroupOverlays();
     renderSelection();
     renderNodeSemanticClasses();
-    renderSemanticOverlays();
     paintMinimap();
     syncFlowchartEmptyState();
   }

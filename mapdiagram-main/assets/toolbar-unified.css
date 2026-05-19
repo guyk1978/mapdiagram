@@ -1,4 +1,4 @@
-/* Unified top toolbar — responsive flex layout, theme-agnostic light-blue strip */
+/* Unified top toolbar — responsive flex; surfaces follow --panel / --line / --text */
 .topbar.topbar-unified {
   display: flex;
   width: 100%;
@@ -24,14 +24,25 @@
   gap: 6px;
   flex-wrap: wrap;
   border-radius: 12px;
-  background: color-mix(in srgb, var(--accent) 22%, #dce8ff);
-  border: 1px solid color-mix(in srgb, var(--accent) 38%, #b8ccef);
-  box-shadow: 0 4px 18px color-mix(in srgb, var(--accent) 12%, transparent);
+  background: var(--toolbar-surface, var(--panel, #161b27));
+  border: 1px solid var(--toolbar-border, var(--line, #283246));
+  box-shadow: var(--toolbar-shadow, var(--shadow-sm, 0 4px 14px rgba(0, 0, 0, 0.22)));
+  color: var(--text);
 }
 
 html[data-theme="light"] .topbar-unified-panel {
-  background: color-mix(in srgb, var(--accent) 14%, #eef3fc);
-  border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
+  --toolbar-surface: color-mix(in srgb, var(--accent) 14%, #eef3fc);
+  --toolbar-border: color-mix(in srgb, var(--accent) 28%, var(--line));
+  --toolbar-shadow: 0 4px 18px color-mix(in srgb, var(--accent) 10%, transparent);
+  background: var(--toolbar-surface);
+  border-color: var(--toolbar-border);
+  box-shadow: var(--toolbar-shadow);
+}
+
+html:not([data-theme="light"]) .topbar-unified-panel {
+  --toolbar-surface: var(--panel, #161b27);
+  --toolbar-border: var(--line, #283246);
+  --toolbar-shadow: 0 4px 18px rgba(0, 0, 0, 0.38);
 }
 
 .topbar-unified .topbar-minimal-row {
@@ -197,13 +208,24 @@ html[data-theme="light"] .topbar-unified-panel {
   height: 32px;
   padding: 0;
   border-radius: 8px;
-  background: color-mix(in srgb, #fff 50%, transparent);
-  border-color: color-mix(in srgb, var(--accent) 22%, var(--line));
+  background: color-mix(in srgb, var(--panel) 72%, #fff 28%);
+  border-color: color-mix(in srgb, var(--accent) 18%, var(--line));
   color: var(--text);
 }
 
-html[data-theme="dark"] .topbar-unified-panel .icon-btn {
-  background: color-mix(in srgb, var(--panel) 65%, transparent);
+html:not([data-theme="light"]) .topbar-unified-panel .icon-btn {
+  background: color-mix(in srgb, var(--panel) 88%, #2a3348);
+  border-color: var(--line);
+  color: #e7edf6;
+}
+
+html:not([data-theme="light"]) .topbar-unified-panel .icon-btn .icon-svg {
+  color: #e7edf6;
+}
+
+html:not([data-theme="light"]) .topbar-unified-panel .text-btn-sm,
+html:not([data-theme="light"]) .topbar-unified-panel #authBtn {
+  color: var(--text);
 }
 
 .topbar-unified-panel .icon-btn .icon-svg {
@@ -221,6 +243,14 @@ html[data-theme="dark"] .topbar-unified-panel .icon-btn {
   height: 100%;
   stroke: currentColor;
   fill: none;
+}
+
+html:not([data-theme="light"]) .topbar-unified-panel .icon-svg svg {
+  stroke: #e7edf6;
+}
+
+html:not([data-theme="light"]) .topbar-unified-panel a.topbar-home-btn {
+  color: #e7edf6;
 }
 
 .topbar-unified-panel .icon-btn .icon-svg svg [fill="currentColor"] {
