@@ -183,12 +183,28 @@
     display: flex;
   }
   .app {
+    display: flex;
+    flex-direction: column;
     height: 100vh;
     height: 100dvh;
-    display: grid;
-    grid-template-rows: auto 1fr;
     max-width: 100vw;
-    overflow-x: hidden;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  .app > .topbar,
+  .app > header.topbar {
+    flex: 0 0 auto;
+    flex-shrink: 0;
+    position: relative;
+    z-index: var(--z-sticky-topbar);
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .app > .layout {
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
   }
   .topbar {
     display: flex;
@@ -444,8 +460,9 @@
     display: grid;
     grid-template-columns: var(--layout-rail) var(--layout-sidebar-left) 1fr var(--layout-sidebar-right);
     min-height: 0;
+    min-width: 0;
     max-width: 100%;
-    overflow-x: hidden;
+    overflow: hidden;
     transition: grid-template-columns 0.3s var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
   }
   .tool-rail{
@@ -1475,6 +1492,13 @@
     border: none;
     padding: 0;
   }
+  .layout > .workspace,
+  #workspace.workspace {
+    min-height: 0;
+    min-width: 0;
+    height: 100%;
+    align-self: stretch;
+  }
   .workspace {
     position: relative;
     overflow: hidden;
@@ -2142,7 +2166,6 @@
   }
   @media (max-width: 760px) {
     .app{
-      grid-template-rows: 56px 1fr;
       height: 100dvh;
     }
     .layout{
