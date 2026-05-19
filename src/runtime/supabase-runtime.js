@@ -730,17 +730,9 @@ function authRedirectUrl() {
 /** Production OAuth redirect — must match Supabase Auth → Redirect URLs exactly. */
 const PRODUCTION_OAUTH_REDIRECT_URL = "https://mapdiagram.com/app/";
 
-/**
- * OAuth return URL for Google sign-in (must match Supabase redirect allow list).
- * Production always uses the canonical /app/ entry (editor shell), not /app/tool.html.
- */
+/** OAuth return URL for Google sign-in (must match Supabase redirect allow list). */
 export function getToolOAuthRedirectUrl() {
-  const host = (window.location.hostname || "").toLowerCase();
-  if (host === "mapdiagram.com" || host === "www.mapdiagram.com") {
-    return PRODUCTION_OAUTH_REDIRECT_URL;
-  }
-  const origin = String(window.location.origin || "").replace(/\/$/, "");
-  return `${origin}/app/`;
+  return PRODUCTION_OAUTH_REDIRECT_URL;
 }
 
 /** Parent /app/ shell when the editor runs in an iframe; otherwise this window. */
@@ -980,10 +972,11 @@ export async function signInWithGoogle() {
     deps.showToast?.("Configure Supabase to sign in with Google.", "warn");
     return { data: null, error: new Error("Supabase is not configured") };
   }
-  const redirectTo = getToolOAuthRedirectUrl();
   const { data, error } = await runtime.supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo },
+    options: {
+      redirectTo: PRODUCTION_OAUTH_REDIRECT_URL,
+    },
   });
   if (error) {
     console.error("Google Auth Error:", error.message);
