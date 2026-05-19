@@ -727,18 +727,41 @@ function authRedirectUrl() {
   return `${base}/auth/callback/`;
 }
 
-/** OAuth return URL for Google sign-in (must match Supabase redirect allow list). */
+/** Production OAuth redirect — must match Supabase Auth → Redirect URLs exactly. */
+const PRODUCTION_OAUTH_REDIRECT_URL = "https://mapdiagram.com/app/";
+
+/**
+ * OAuth return URL for Google sign-in (must match Supabase redirect allow list).
+ * Production always uses the canonical /app/ entry (editor shell), not /app/tool.html.
+ */
 export function getToolOAuthRedirectUrl() {
-  const path = window.location.pathname || "";
-  if (/\/tool\.html$/i.test(path)) {
-    return `${window.location.origin}${path}`;
+  const host = (window.location.hostname || "").toLowerCase();
+  if (host === "mapdiagram.com" || host === "www.mapdiagram.com") {
+    return PRODUCTION_OAUTH_REDIRECT_URL;
   }
-  return `${window.location.origin}/app/tool.html`;
+  const origin = String(window.location.origin || "").replace(/\/$/, "");
+  return `${origin}/app/`;
+}
+
+/** Parent /app/ shell when the editor runs in an iframe; otherwise this window. */
+function getOAuthReturnWindow() {
+  try {
+    if (window.parent && window.parent !== window && window.parent.location.origin === window.location.origin) {
+      return window.parent;
+    }
+  } catch (_) {
+    /* blocked cross-origin access */
+  }
+  return window;
+}
+
+function getOAuthReturnHref() {
+  return getOAuthReturnWindow().location.href;
 }
 
 function stripOAuthParamsFromUrl() {
   try {
-    const u = new URL(window.location.href);
+    const u = new URL(getOAuthReturnHref());
     let changed = false;
     for (const key of ["code", "state", "error", "error_description", "error_code"]) {
       if (u.searchParams.has(key)) {
@@ -760,7 +783,8 @@ function stripOAuthParamsFromUrl() {
     }
     if (changed) {
       const qs = u.searchParams.toString();
-      history.replaceState(null, "", u.pathname + (qs ? `?${qs}` : "") + u.hash);
+      const clean = u.pathname + (qs ? `?${qs}` : "") + u.hash;
+      getOAuthReturnWindow().history.replaceState(null, "", clean);
     }
   } catch (err) {
     console.warn("[App Auth] stripOAuthParamsFromUrl:", err);
@@ -777,9 +801,10 @@ export async function completeOAuthRedirectIfPresent() {
   if (!runtime.supabase) return { handled: false, signedIn: false };
   if (isPasswordRecoveryUrl()) return { handled: false, signedIn: false };
 
-  const url = new URL(window.location.href);
+  const returnHref = getOAuthReturnHref();
+  const url = new URL(returnHref);
   const code = url.searchParams.get("code");
-  const hashBody = (window.location.hash || "").replace(/^#/, "");
+  const hashBody = (url.hash || "").replace(/^#/, "");
   const hashParams = hashBody ? new URLSearchParams(hashBody) : null;
   const hasImplicitHash =
     hashParams &&

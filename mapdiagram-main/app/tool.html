@@ -15517,7 +15517,7 @@ clearFlowGroupSelection();
   if (authGoogleBtn) {
     authGoogleBtn.addEventListener("click", async () => {
       initMapDiagramRuntimes();
-      await supabaseRuntime.handleGoogleSignIn();
+      await supabaseRuntime.signInWithGoogle();
     });
   }
   if (authForgotPasswordBtn) {
