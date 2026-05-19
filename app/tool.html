@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <link rel="stylesheet" href="/assets/design-tokens.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css">
+<link rel="stylesheet" href="/assets/toolbar-unified.css">
 
 <script src="./supabase-config.js"></script>
 
@@ -185,7 +187,7 @@
     height: 100vh;
     height: 100dvh;
     display: grid;
-    grid-template-rows: 56px 1fr;
+    grid-template-rows: auto 1fr;
     max-width: 100vw;
     overflow-x: hidden;
   }
@@ -3533,9 +3535,10 @@
 <body class="flowchart-mode">
 <div id="modal-root" class="md-modal-root" data-md-portal-root aria-hidden="true"></div>
 <div class="app" id="app">
-  <header class="topbar topbar--minimal">
+  <header class="topbar topbar-unified" aria-label="Main toolbar">
+    <div class="topbar-unified-panel">
     <div class="topbar-minimal-row">
-      <div class="topbar-overflow-leading-wrap">
+      <div class="topbar-overflow-leading-wrap tb-group tb-user">
         <div id="topbarAuthBar" class="topbar-auth group" role="group" aria-label="Account">
           <div id="userChip" class="user-chip" hidden aria-live="polite">Guest mode</div>
           <button id="topbarGoogleBtn" type="button" class="topbar-google-btn" hidden aria-label="Sign in with Google" title="Sign in with Google">
@@ -3577,7 +3580,7 @@
           </div>
         </div>
       </div>
-      <div class="topbar-minimal-start">
+      <div class="tb-group tb-nav topbar-minimal-start">
         <a href="/" class="icon-btn topbar-home-btn" title="HOME" aria-label="HOME"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 11 12 5l8 6v9a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span></a>
         <button id="toggleLeftPanelBtn" class="icon-btn mobile-panel-toggle" type="button" title="Open left panel" aria-label="Open left panel"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 7h14M5 12h14M5 17h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
               <div class="desktop-sidebar-toggles" aria-label="Sidebar visibility (desktop)">
@@ -3652,6 +3655,7 @@
         <button id="zoomInBtn" class="icon-btn" type="button" title="Zoom in" aria-label="Zoom in"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
       </div>
       </div>
+    </div>
     </div>
   </header>
   <div class="layout">
@@ -4255,6 +4259,7 @@
 <script src="/assets/flowchart-product.js"></script>
 <script src="/assets/md-runtime-diagnostics.js"></script>
 <script src="/app/runtime/mapdiagram-runtime.js"></script>
+<script src="/assets/toolbar-unified.js" defer></script>
 <script>
   const DB_KEY = "mapdiagram-db-v1";
   const SUPABASE_URL = window.MAPDIAGRAM_SUPABASE?.url || window.MAPDIAGRAM_SUPABASE_URL || "";
