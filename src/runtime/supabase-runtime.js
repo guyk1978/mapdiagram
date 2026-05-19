@@ -443,6 +443,11 @@ export function refreshAuthUi() {
       dom.topbarAuthMenuItem.textContent = signedIn ? `Account (${label})` : "Account / Login";
     }
 
+    if (dom.topbarGoogleBtn) {
+      const showGoogle = !signedIn && !!runtime.supabase;
+      setTopbarAuthVisible(dom.topbarGoogleBtn, showGoogle, "inline-flex");
+    }
+
     if (signedIn) {
       if (dom.softLock) dom.softLock.classList.remove("open");
       runtime.softLockShown = true;
@@ -722,6 +727,98 @@ function authRedirectUrl() {
   return `${base}/auth/callback/`;
 }
 
+/** OAuth return URL for Google sign-in (must match Supabase redirect allow list). */
+export function getToolOAuthRedirectUrl() {
+  const path = window.location.pathname || "";
+  if (/\/tool\.html$/i.test(path)) {
+    return `${window.location.origin}${path}`;
+  }
+  return `${window.location.origin}/app/tool.html`;
+}
+
+function stripOAuthParamsFromUrl() {
+  try {
+    const u = new URL(window.location.href);
+    let changed = false;
+    for (const key of ["code", "state", "error", "error_description", "error_code"]) {
+      if (u.searchParams.has(key)) {
+        u.searchParams.delete(key);
+        changed = true;
+      }
+    }
+    const hashBody = (u.hash || "").replace(/^#/, "");
+    if (hashBody) {
+      const hp = new URLSearchParams(hashBody);
+      const isRecovery = hp.get("type") === "recovery";
+      const oauthHash =
+        !isRecovery &&
+        (hp.has("access_token") || hp.has("refresh_token") || hp.has("error") || hp.has("error_description"));
+      if (oauthHash) {
+        u.hash = "";
+        changed = true;
+      }
+    }
+    if (changed) {
+      const qs = u.searchParams.toString();
+      history.replaceState(null, "", u.pathname + (qs ? `?${qs}` : "") + u.hash);
+    }
+  } catch (err) {
+    console.warn("[App Auth] stripOAuthParamsFromUrl:", err);
+  }
+}
+
+/**
+ * After Google OAuth redirect back to the editor, exchange ?code= (or hash tokens) for a session
+ * without disturbing local canvas state (caller should hydrate cloud separately).
+ */
+export async function completeOAuthRedirectIfPresent() {
+  const { runtime } = bind().ctx;
+  const { deps } = bind();
+  if (!runtime.supabase) return { handled: false, signedIn: false };
+  if (isPasswordRecoveryUrl()) return { handled: false, signedIn: false };
+
+  const url = new URL(window.location.href);
+  const code = url.searchParams.get("code");
+  const hashBody = (window.location.hash || "").replace(/^#/, "");
+  const hashParams = hashBody ? new URLSearchParams(hashBody) : null;
+  const hasImplicitHash =
+    hashParams &&
+    (hashParams.has("access_token") ||
+      hashParams.has("refresh_token") ||
+      hashParams.has("error") ||
+      hashParams.has("error_description"));
+
+  if (!code && !hasImplicitHash) return { handled: false, signedIn: false };
+
+  let oauthError = null;
+  try {
+    if (code) {
+      const { error } = await runtime.supabase.auth.exchangeCodeForSession(code);
+      if (error) oauthError = error;
+    } else {
+      const { error } = await runtime.supabase.auth.getSession();
+      if (error) oauthError = error;
+    }
+    if (oauthError) {
+      console.error("Google Auth Error:", oauthError.message);
+      deps.showToast?.(oauthError.message, "warn");
+      if (deps.dom.authStatus) deps.dom.authStatus.textContent = oauthError.message;
+    } else {
+      stripOAuthParamsFromUrl();
+    }
+    await syncAuthStateFromClient({ loadProjects: false });
+    const signedIn = !!runtime.authUser;
+    if (signedIn && !oauthError) {
+      deps.showToast?.("Signed in with Google", "info");
+      closeAuthModal();
+    }
+    return { handled: true, signedIn, error: oauthError };
+  } catch (err) {
+    console.warn("[App Auth] completeOAuthRedirectIfPresent:", err);
+    return { handled: true, signedIn: false, error: err };
+  }
+}
+
 function isPasswordRecoveryUrl() {
   const hash = (window.location.hash || "").replace(/^#/, "");
   if (!hash) return false;
@@ -849,24 +946,32 @@ export function handleBackToLoginClick() {
   dom.authStatus.textContent = "";
 }
 
-export async function handleGoogleSignIn() {
+export async function signInWithGoogle() {
   const { ctx, deps } = bind();
   const { runtime } = ctx;
   const { dom } = deps;
   if (!runtime.supabase) {
-    dom.authStatus.textContent = "Supabase is not configured.";
+    if (dom.authStatus) dom.authStatus.textContent = "Supabase is not configured.";
     deps.showToast?.("Configure Supabase to sign in with Google.", "warn");
-    return;
+    return { data: null, error: new Error("Supabase is not configured") };
   }
-  dom.authStatus.textContent = "Redirecting to Google…";
-  const { error } = await runtime.supabase.auth.signInWithOAuth({
+  const redirectTo = getToolOAuthRedirectUrl();
+  const { data, error } = await runtime.supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: window.location.origin },
+    options: { redirectTo },
   });
   if (error) {
-    dom.authStatus.textContent = error.message;
+    console.error("Google Auth Error:", error.message);
+    if (dom.authStatus) dom.authStatus.textContent = error.message;
     deps.showToast?.(error.message, "warn");
   }
+  return { data, error };
+}
+
+export async function handleGoogleSignIn() {
+  const { dom } = bind().deps;
+  if (dom.authStatus) dom.authStatus.textContent = "Redirecting to Google…";
+  return signInWithGoogle();
 }
 
 export async function handlePasswordResetSubmit() {
@@ -1255,6 +1360,9 @@ const supabaseApi = {
   togglePasswordVisibility,
   handleForgotPasswordClick,
   handleBackToLoginClick,
+  signInWithGoogle,
+  getToolOAuthRedirectUrl,
+  completeOAuthRedirectIfPresent,
   handleGoogleSignIn,
   handlePasswordResetSubmit,
   handleUpdatePasswordSubmit,
