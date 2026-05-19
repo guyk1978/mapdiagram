@@ -148,7 +148,16 @@ export function normalizeSupabaseProjectUrl(raw) {
   }
   if (u.protocol !== "https:") return { ok: false, reason: "https_required", host: u.hostname || "", baseUrl: "" };
   if (!u.hostname) return { ok: false, reason: "no_host", host: "", baseUrl: "" };
-  return { ok: true, reason: "", host: u.hostname, baseUrl: u.origin };
+  const host = u.hostname.toLowerCase();
+  // OAuth must hit Supabase Auth API directly — never the site CDN (e.g. mapdiagram.com).
+  if (host === "mapdiagram.com" || host.endsWith(".mapdiagram.com")) {
+    return { ok: false, reason: "site_domain_not_supabase_api", host, baseUrl: "" };
+  }
+  const isSupabaseApiHost = host.endsWith(".supabase.co") || host.endsWith(".supabase.in");
+  if (!isSupabaseApiHost) {
+    return { ok: false, reason: "supabase_api_host_required", host, baseUrl: "" };
+  }
+  return { ok: true, reason: "", host, baseUrl: u.origin };
 }
 
 export function loadDB() {
@@ -396,14 +405,19 @@ export function initSupabase() {
     return;
   }
   if (!urlNorm.ok || !keyTrim) {
-    bind().deps.dom.authStatus.textContent = "Supabase not configured (need valid https URL + anon key in supabase-config.js)";
+    const hint =
+      urlNorm.reason === "site_domain_not_supabase_api" || urlNorm.reason === "supabase_api_host_required"
+        ? "Set MAPDIAGRAM_SUPABASE_URL to https://YOUR-PROJECT.supabase.co (not mapdiagram.com)."
+        : "Supabase not configured (need valid https URL + anon key in supabase-config.js)";
+    bind().deps.dom.authStatus.textContent = hint;
     return;
   }
   bind().ctx.runtime.supabase = window.supabase.createClient(urlNorm.baseUrl, keyTrim, {
     auth: {
+      flowType: "pkce",
+      detectSessionInUrl: true,
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true,
     },
   });
   bind().ctx.runtime.supabaseMeta = {
@@ -975,7 +989,7 @@ export async function signInWithGoogle() {
   const { data, error } = await runtime.supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: PRODUCTION_OAUTH_REDIRECT_URL,
+      redirectTo: "https://mapdiagram.com/app/",
     },
   });
   if (error) {
