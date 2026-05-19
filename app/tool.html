@@ -10719,6 +10719,24 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return true;
   }
 
+  function getDefaultInsertPreset() {
+    if (isFlowchartMode() && FLOWCHART_MODE_PRESETS.length) {
+      return FLOWCHART_MODE_PRESETS.find((p) => p.fcRole === "process") || FLOWCHART_MODE_PRESETS[1];
+    }
+    return NODE_PRESETS.find((p) => p.label === "Rectangle") || NODE_PRESETS[0];
+  }
+
+  /** Keep spawned nodes above grid/underlays — same layer as library inserts (#nodes). */
+  function elevateSpawnedNode(nodeId) {
+    if (!nodeId) return;
+    requestAnimationFrame(() => {
+      const el = getNodeDomEl(nodeId);
+      if (!el || !nodesLayer) return;
+      el.style.zIndex = String(12);
+      if (el.parentElement === nodesLayer) nodesLayer.appendChild(el);
+    });
+  }
+
   function insertPresetNode(preset) {
     pushHistory();
     const p = getProject();
@@ -10745,20 +10763,22 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     };
     p.nodes.push(n);
 
-selectionRuntime.selectNode(n.id);
+    selectionRuntime.selectNode(n.id);
 
-clearAllEdgeSelection();
+    clearAllEdgeSelection();
 
-runtime.selectedGroupId = null;
-runtime.selectedGroupIds.clear();
+    runtime.selectedGroupId = null;
+    runtime.selectedGroupIds.clear();
 
-renderAll();
+    renderAll();
 
-if (isFlowchartMode()) flashFcNodeEnter(n.id);
+    elevateSpawnedNode(n.id);
+    if (isFlowchartMode()) flashFcNodeEnter(n.id);
 
-markDirty();
+    markDirty();
 
-scheduleSemanticAnalysis();
+    scheduleSemanticAnalysis();
+    return n.id;
   }
 
   function revealDiagramNodeInspectorAndOpenExtended(nodeId) {
@@ -13081,25 +13101,10 @@ clearFlowGroupSelection();
   }
 
   function newNodeAtCenter() {
-    pushHistory();
-    const p = getProject();
-    const r = workspace.getBoundingClientRect();
-    const x = (r.width / 2 - p.view.x) / p.view.zoom - 95;
-    const y = (r.height / 2 - p.view.y) / p.view.zoom - 55;
-    p.nodes.push({
-      id: uid(), x, y, width: 190, height: 110, color: "#ffd482", shape: "rect",
-      text: "New node", title: "New node", subtitle: "", description: "", icon: "🧠", type: "custom",
-      style: { opacity: 0.9, glow: 12, shadow: 20, radius: 12, borderColor: "#9cb8ff" }
-    });
-    initMapDiagramRuntimes();
-    selectionRuntime.selectNode(p.nodes[p.nodes.length - 1].id);
-    clearAllEdgeSelection();
-    runtime.selectedGroupId = null;
-    runtime.selectedGroupIds.clear();
-    renderAll();
-    markDirty();
-    scheduleSemanticAnalysis();
+    insertPresetNode(getDefaultInsertPreset());
   }
+
+  window.MapDiagramSpawnNode = newNodeAtCenter;
 
   function zoomAt(clientX, clientY, nextZoom) {
     initMapDiagramRuntimes();

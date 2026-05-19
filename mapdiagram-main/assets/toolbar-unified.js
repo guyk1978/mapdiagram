@@ -159,7 +159,11 @@
     });
     document.getElementById("insertNewNodeBtn")?.addEventListener("click", () => {
       close();
-      document.getElementById("addNodeBtn")?.click();
+      if (typeof window.MapDiagramSpawnNode === "function") {
+        window.MapDiagramSpawnNode();
+      } else {
+        document.getElementById("addNodeBtn")?.click();
+      }
     });
 
     document.addEventListener("pointerdown", (e) => {
