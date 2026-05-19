@@ -3,6 +3,9 @@
 <head>
 <link rel="stylesheet" href="/assets/design-tokens.css">
 <link rel="stylesheet" href="/assets/toolbar-unified.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="./supabase-config.js"></script>
 
@@ -3559,6 +3562,7 @@
     transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
   }
 </style>
+<link rel="stylesheet" href="/assets/ui-polish.css">
 </head>
 <body class="flowchart-mode">
 <div id="modal-root" class="md-modal-root" data-md-portal-root aria-hidden="true"></div>
@@ -3721,7 +3725,7 @@
         <h3>Visual Node Library</h3>
         <div id="nodePicker" class="node-picker"></div>
       </div>
-      <button id="createAiBtn" class="ai-create-btn"><span class="icon-svg" style="width:18px;height:18px" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span> Generate with AI</button>
+      <button id="createAiBtn" class="ai-create-btn" type="button"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M7.05 7.05 5.64 5.64M18.36 18.36l-1.41-1.41M7.05 16.95l-1.41 1.41M18.36 5.64l-1.41 1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="m12 8 1.1 2.6 2.6 1.1-2.6 1.1L12 15.8l-1.1-2.6-2.6-1.1 2.6-1.1L12 8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span> Generate with AI</button>
     </aside>
     <main id="workspace" class="workspace">
       <div id="viewport">
