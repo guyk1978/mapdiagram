@@ -6,11 +6,11 @@
 :root {
   --font-sans: Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --radius-panel: 14px;
-  --radius-control: 12px;
+  --radius-control: 8px;
   --radius-node: 10px;
-  --control-height: 40px;
-  --glass-blur: 12px;
-  --glass-bg: rgba(30, 34, 48, 0.78);
+  --control-height: 36px;
+  --glass-blur: 15px;
+  --glass-bg: rgba(30, 34, 48, 0.75);
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-shadow:
     0 10px 25px -5px rgba(0, 0, 0, 0.32),
@@ -26,7 +26,7 @@
 }
 
 html[data-theme="light"] {
-  --glass-bg: rgba(255, 255, 255, 0.78);
+  --glass-bg: rgba(255, 255, 255, 0.82);
   --glass-border: rgba(255, 255, 255, 0.95);
   --glass-shadow:
     0 10px 25px -5px rgba(15, 35, 75, 0.1),
@@ -61,17 +61,40 @@ textarea {
 
 .sidebar {
   border-right: 1px solid var(--glass-border) !important;
-  padding: var(--space-5, 20px);
+  padding: 14px 16px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--muted) 45%, transparent) transparent;
 }
 
 .rightbar {
   border-left: 1px solid var(--glass-border) !important;
-  padding: var(--space-5, 20px);
+  padding: 14px 16px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--muted) 45%, transparent) transparent;
+}
+
+.sidebar::-webkit-scrollbar,
+.rightbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.rightbar::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted) 50%, transparent);
+}
+
+.sidebar::-webkit-scrollbar-track,
+.rightbar::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* —— Section cards (Projects, Node Library) —— */
 .sidebar > .section {
-  padding: 18px 20px;
+  padding: 12px 14px;
   border-radius: var(--radius-panel);
   background: color-mix(in srgb, var(--panel) 42%, transparent);
   border: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
@@ -121,11 +144,17 @@ html[data-theme="light"] .sidebar > .section {
 .rightbar textarea,
 .sidebar textarea,
 .node-insp-panel textarea {
-  min-height: 72px;
-  padding: 10px 12px;
+  min-height: var(--control-height);
+  padding: 8px 12px;
   border-radius: var(--radius-control);
   box-sizing: border-box;
-  line-height: 1.45;
+  line-height: 1.35;
+}
+
+#diagramSectionNode textarea#nodeText {
+  min-height: var(--control-height);
+  resize: vertical;
+  max-height: 120px;
 }
 
 /* —— Project cards & library previews —— */
@@ -301,4 +330,296 @@ html[data-theme="light"] .ai-create-btn {
     transition: none;
     transform: none;
   }
+}
+
+/* —— Proposal 4: compact panel chrome —— */
+.section-heading--compact {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--label-color);
+  line-height: 1.25;
+}
+
+.section-heading__icon {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  opacity: 0.72;
+  color: var(--label-color);
+}
+
+.section-heading__icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.project-toolbar {
+  display: flex;
+  gap: 8px;
+}
+
+.project-toolbar button {
+  flex: 1;
+  min-height: 34px;
+  font-size: 12px;
+}
+
+.project-list {
+  gap: 5px !important;
+  max-height: 128px !important;
+}
+
+.project-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px !important;
+  min-height: 0;
+}
+
+.project-item__main {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.project-item__title {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project-item__meta {
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.project-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.16s ease;
+}
+
+.project-item:hover .project-actions,
+.project-item:focus-within .project-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.project-actions button {
+  min-height: 26px !important;
+  padding: 2px 7px !important;
+  font-size: 11px !important;
+}
+
+.node-picker {
+  padding: 2px 0 4px !important;
+  gap: 10px !important;
+  max-height: none !important;
+}
+
+.node-picker-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.node-picker-grid.is-collapsed {
+  display: none;
+}
+
+.picker-category {
+  gap: 6px !important;
+}
+
+.picker-category__toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
+  background: color-mix(in srgb, var(--panel) 55%, transparent);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.picker-category__toggle:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+}
+
+.picker-category__name {
+  text-align: left;
+}
+
+.node-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 72px;
+  padding: 10px 8px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  background: color-mix(in srgb, var(--panel) 72%, transparent);
+  cursor: pointer;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    transform 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.node-tile:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.node-tile__icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.node-tile__label {
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+  color: var(--label-color);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flowchart-mode .node-picker {
+  max-height: none !important;
+}
+
+.inspector-hint {
+  font-size: 11px;
+  line-height: 1.4;
+  margin: 0 0 8px;
+}
+
+.inspector-group {
+  display: grid;
+  gap: 8px;
+  padding: 10px 10px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--panel) 38%, transparent);
+  border: 1px solid color-mix(in srgb, var(--line) 45%, transparent);
+}
+
+html[data-theme="light"] .inspector-group {
+  background: color-mix(in srgb, #fff 55%, transparent);
+}
+
+.inspector-group__title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--label-color);
+  margin: 0 0 2px;
+}
+
+.insp-divider {
+  border: none;
+  border-top: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
+  margin: 4px 0;
+}
+
+.insp-field {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.insp-field__label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--label-color);
+  line-height: 1.2;
+}
+
+#diagramSectionNode .insp-field input:not([type="color"]),
+#diagramSectionNode .insp-field select,
+#diagramSectionNode .insp-field textarea {
+  width: 100%;
+  min-height: var(--control-height);
+  height: var(--control-height);
+  padding: 0 10px;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+#diagramSectionNode .insp-field textarea {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  height: auto;
+  min-height: var(--control-height);
+}
+
+.insp-field--color input[type="color"] {
+  width: 100%;
+  height: var(--control-height);
+  min-height: var(--control-height);
+  padding: 4px;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.insp-row {
+  gap: 8px;
+}
+
+.insp-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.insp-range {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.insp-range input[type="range"] {
+  width: 100%;
+  margin: 0;
+}
+
+.inspector-group--actions {
+  background: transparent;
+  border: none;
+  padding: 0;
+  gap: 6px;
 }
