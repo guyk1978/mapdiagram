@@ -990,14 +990,22 @@ export async function signInWithGoogle() {
     provider: "google",
     options: {
       redirectTo: "https://mapdiagram.com/app/",
+      skipBrowserRedirect: false,
     },
   });
   if (error) {
-    console.error("Google Auth Error:", error.message);
+    console.error("[App Auth] Sign in error:", error);
+    alert("Login failed: " + error.message);
     if (dom.authStatus) dom.authStatus.textContent = error.message;
-    deps.showToast?.(error.message, "warn");
+    return { data, error };
   }
-  return { data, error };
+  if (data?.url) {
+    // Editor runs inside /app/ iframe — navigate top window so Google OAuth is not blocked.
+    const navTarget = getOAuthReturnWindow();
+    console.log("[App Auth] Manually redirecting to Google OAuth URL:", data.url);
+    navTarget.location.href = data.url;
+  }
+  return { data, error: null };
 }
 
 export async function handleGoogleSignIn() {
