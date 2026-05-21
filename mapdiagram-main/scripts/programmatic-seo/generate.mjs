@@ -273,19 +273,10 @@ function esc(s) {
     .replace(/"/g, "&quot;");
 }
 
-function footerWorkflowIntegrationsHtml() {
-  return `    <div class="footer-workflow-integrations" aria-label="Workflow integrations">
-      <aside class="partner-banner partner-banner--joinmypdf" aria-label="JoinMyPDF PDF workflow">
-        <p class="partner-banner__kicker">Export workflow</p>
-        <p class="partner-banner__text">Need a polished, uncompressed PDF packet of your diagram? Merge and optimize it instantly with <strong>JoinMyPDF</strong> (100% local &amp; private).</p>
-        <a class="partner-banner__cta" href="https://joinmypdf.com/" target="_blank" rel="noopener noreferrer">Export workflow as PDF → JoinMyPDF</a>
-      </aside>
-      <aside class="partner-banner partner-banner--calnex" aria-label="CalnexApp financial modeling">
-        <p class="partner-banner__kicker">Business &amp; financial mapping</p>
-        <p class="partner-banner__text">Planning a loan or business structure? Use <strong>CalnexApp</strong> to model your repayments, then map the workflow here.</p>
-        <a class="partner-banner__cta" href="https://calnexapp.com/" target="_blank" rel="noopener noreferrer">Model repayments in CalnexApp →</a>
-      </aside>
-    </div>`;
+function footerPartnerMetaLinksHtml() {
+  return `      <a href="https://joinmypdf.com/" rel="noopener noreferrer" target="_blank">Export workflow as PDF → JoinMyPDF</a>
+      <span class="footer-partner-sep" aria-hidden="true">·</span>
+      <a href="https://calnexapp.com/" rel="noopener noreferrer" target="_blank">Model Loan Repayments → CalnexApp</a>`;
 }
 
 function siteHeader() {
@@ -431,7 +422,6 @@ ${items}
     <div class="footer-grid">
 ${blocks}
     </div>
-${footerWorkflowIntegrationsHtml()}
     <div class="footer-meta">
       <span class="muted">© MapDiagram</span>
       <a href="/faq/">FAQ</a>
@@ -442,6 +432,7 @@ ${footerWorkflowIntegrationsHtml()}
       <a href="/privacy-policy/">Privacy Policy</a>
       <a href="/terms/">Terms</a>
       <a href="/contact/">Contact</a>
+${footerPartnerMetaLinksHtml()}
       <a href="/">Home</a>
     </div>
   </div>
@@ -476,7 +467,6 @@ function buildCompactFooterHtml() {
         </ul>
       </div>
     </div>
-${footerWorkflowIntegrationsHtml()}
     <div class="footer-meta">
       <span class="muted">Fast browser-based mapping for technical and business teams.</span>
       <a href="/faq/">FAQ</a>
@@ -484,6 +474,7 @@ ${footerWorkflowIntegrationsHtml()}
       <a href="/workflow-hub/">Workflow hub</a>
       <a href="/business-financial-mapping/">Business &amp; financial mapping</a>
       <a href="/auth/">Log in</a>
+${footerPartnerMetaLinksHtml()}
     </div>
   </div>
 </footer>`;

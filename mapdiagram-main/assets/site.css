@@ -90,6 +90,11 @@ html.app-shell-page,html.app-shell-page body{height:100%;margin:0;overflow:hidde
 .footer-list a{color:var(--muted)}
 .footer-list a:hover{color:var(--text)}
 .footer-meta{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center;font-size:13px}
+.footer-meta .footer-partner-sep{color:var(--muted);opacity:.65;user-select:none}
+.footer-meta a[href*="joinmypdf.com"],
+.footer-meta a[href*="calnexapp.com"]{font-weight:600;color:var(--link)}
+.footer-meta a[href*="joinmypdf.com"]:hover,
+.footer-meta a[href*="calnexapp.com"]:hover{color:var(--link-hover)}
 .muted{color:var(--muted)}
 .section .lead{color:var(--muted);max-width:820px;margin:0 0 8px}
 .hero .links .btn{min-height:42px;display:inline-flex;align-items:center;justify-content:center}
