@@ -1,4 +1,5 @@
 @import url("/assets/design-tokens.css");
+@import url("/assets/partner-integrations.css");
 :root{
   --bg:#0b1020;
   --panel:#111a2e;

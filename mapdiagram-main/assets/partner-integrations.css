@@ -1,0 +1,118 @@
+/**
+ * MapDiagram — cross-links to JoinMyPDF & CalnexApp (marketing + editor).
+ */
+
+.partner-banner {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--line, #26324d) 75%, transparent);
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--panel, #111a2e) 88%, transparent),
+    color-mix(in srgb, var(--secondary, #19243d) 92%, transparent)
+  );
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+}
+
+.partner-banner--compact {
+  padding: 10px 12px;
+  gap: 6px;
+}
+
+.partner-banner__kicker {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--accent, #7fe3c6) 88%, var(--text, #e7ecf8));
+}
+
+.partner-banner--joinmypdf .partner-banner__kicker {
+  color: color-mix(in srgb, var(--brand, #7aa2ff) 90%, var(--text, #e7ecf8));
+}
+
+.partner-banner__text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted, #9fb0cc);
+}
+
+.partner-banner__text strong {
+  color: var(--text, #e7ecf8);
+  font-weight: 600;
+}
+
+.partner-banner__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 2px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--brand, #7aa2ff) 45%, var(--line, #26324d));
+  background: color-mix(in srgb, var(--brand, #7aa2ff) 18%, var(--panel, #111a2e));
+  color: var(--text, #e7ecf8);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    transform 0.16s ease;
+}
+
+.partner-banner__cta:hover {
+  text-decoration: none;
+  border-color: color-mix(in srgb, var(--brand, #7aa2ff) 70%, transparent);
+  background: color-mix(in srgb, var(--brand, #7aa2ff) 28%, var(--panel, #111a2e));
+  transform: translateY(-1px);
+  color: var(--text, #e7ecf8);
+}
+
+.partner-banner--calnex .partner-banner__cta {
+  border-color: color-mix(in srgb, var(--accent, #7fe3c6) 40%, var(--line, #26324d));
+  background: color-mix(in srgb, var(--accent, #7fe3c6) 14%, var(--panel, #111a2e));
+}
+
+.partner-banner--calnex .partner-banner__cta:hover {
+  border-color: color-mix(in srgb, var(--accent, #7fe3c6) 65%, transparent);
+  background: color-mix(in srgb, var(--accent, #7fe3c6) 22%, var(--panel, #111a2e));
+}
+
+.footer-workflow-integrations {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.footer-workflow-integrations .partner-banner {
+  margin: 0;
+}
+
+.nav-partner-link {
+  font-size: 14px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.nav-partner-link:hover {
+  color: var(--text);
+}
+
+.workflow-pair--triple {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+@media (max-width: 640px) {
+  .footer-workflow-integrations {
+    grid-template-columns: 1fr;
+  }
+}

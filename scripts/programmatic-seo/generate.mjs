@@ -273,6 +273,21 @@ function esc(s) {
     .replace(/"/g, "&quot;");
 }
 
+function footerWorkflowIntegrationsHtml() {
+  return `    <div class="footer-workflow-integrations" aria-label="Workflow integrations">
+      <aside class="partner-banner partner-banner--joinmypdf" aria-label="JoinMyPDF PDF workflow">
+        <p class="partner-banner__kicker">Export workflow</p>
+        <p class="partner-banner__text">Need a polished, uncompressed PDF packet of your diagram? Merge and optimize it instantly with <strong>JoinMyPDF</strong> (100% local &amp; private).</p>
+        <a class="partner-banner__cta" href="https://joinmypdf.com/" target="_blank" rel="noopener noreferrer">Export workflow as PDF → JoinMyPDF</a>
+      </aside>
+      <aside class="partner-banner partner-banner--calnex" aria-label="CalnexApp financial modeling">
+        <p class="partner-banner__kicker">Business &amp; financial mapping</p>
+        <p class="partner-banner__text">Planning a loan or business structure? Use <strong>CalnexApp</strong> to model your repayments, then map the workflow here.</p>
+        <a class="partner-banner__cta" href="https://calnexapp.com/" target="_blank" rel="noopener noreferrer">Model repayments in CalnexApp →</a>
+      </aside>
+    </div>`;
+}
+
 function siteHeader() {
   return `<header class="nav nav--minimal">
   <div class="wrap">
@@ -280,6 +295,8 @@ function siteHeader() {
   <nav class="links nav-links-main" aria-label="Primary">
   <a href="/diagram-builder/">Product</a>
   <a href="/#templates">Templates</a>
+  <a href="/workflow-hub/">Workflow</a>
+  <a href="/business-financial-mapping/">Finance mapping</a>
   <a href="/blog/">Blog</a>
   <a class="btn nav-cta" href="/app/">Open editor</a>
   </nav>
@@ -389,6 +406,7 @@ ${items}
     { href: "/faq/", label: "FAQ" },
     { href: "/about/", label: "About" },
     { href: "/workflow-hub/", label: "Workflow hub" },
+    { href: "/business-financial-mapping/", label: "Business & financial mapping" },
     { href: "/auth/", label: "Log in" },
     { href: "/diagram-builder/", label: "All diagram tools" },
   ];
@@ -413,16 +431,17 @@ ${items}
     <div class="footer-grid">
 ${blocks}
     </div>
+${footerWorkflowIntegrationsHtml()}
     <div class="footer-meta">
       <span class="muted">© MapDiagram</span>
       <a href="/faq/">FAQ</a>
       <a href="/about/">About</a>
       <a href="/workflow-hub/">Workflow hub</a>
+      <a href="/business-financial-mapping/">Business &amp; financial mapping</a>
       <a href="/auth/">Log in</a>
       <a href="/privacy-policy/">Privacy Policy</a>
       <a href="/terms/">Terms</a>
       <a href="/contact/">Contact</a>
-      <a href="https://joinmypdf.com/" rel="noopener noreferrer" target="_blank">Export workflow as PDF → JoinMyPDF</a>
       <a href="/">Home</a>
     </div>
   </div>
@@ -457,13 +476,14 @@ function buildCompactFooterHtml() {
         </ul>
       </div>
     </div>
+${footerWorkflowIntegrationsHtml()}
     <div class="footer-meta">
       <span class="muted">Fast browser-based mapping for technical and business teams.</span>
       <a href="/faq/">FAQ</a>
       <a href="/about/">About</a>
       <a href="/workflow-hub/">Workflow hub</a>
+      <a href="/business-financial-mapping/">Business &amp; financial mapping</a>
       <a href="/auth/">Log in</a>
-      <a href="https://joinmypdf.com/" rel="noopener noreferrer" target="_blank">Export workflow as PDF → JoinMyPDF</a>
     </div>
   </div>
 </footer>`;
@@ -834,6 +854,7 @@ function main() {
     `${BASE}/faq/`,
     `${BASE}/diagram-builder/`,
     `${BASE}/workflow-hub/`,
+    `${BASE}/business-financial-mapping/`,
     `${BASE}/flowchart-maker/`,
     `${BASE}/mind-map-tool/`,
     `${BASE}/family-tree-maker/`,

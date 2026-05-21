@@ -623,3 +623,27 @@ html[data-theme="light"] .inspector-group {
   padding: 0;
   gap: 6px;
 }
+
+/* —— Partner integrations (editor panels) —— */
+.sidebar .partner-banner,
+#inspector-panel-export .partner-banner {
+  border-color: color-mix(in srgb, var(--line) 65%, transparent);
+  background: color-mix(in srgb, var(--panel) 55%, transparent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme="light"] .sidebar .partner-banner,
+html[data-theme="light"] #inspector-panel-export .partner-banner {
+  background: color-mix(in srgb, #fff 70%, transparent);
+  box-shadow: 0 4px 12px rgba(20, 40, 80, 0.06);
+}
+
+.sidebar .partner-banner__text,
+#inspector-panel-export .partner-banner__text {
+  color: var(--label-color);
+}
+
+.sidebar .partner-banner__cta,
+#inspector-panel-export .partner-banner__cta {
+  color: var(--text);
+}
