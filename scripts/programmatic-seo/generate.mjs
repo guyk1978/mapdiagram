@@ -21,6 +21,22 @@ const LANDINGS = [
   ...LANDINGS_WORKFLOW,
 ];
 
+const FOOTER_BLOG_SLUGS = [
+  "best-diagram-tools-2026",
+  "how-developers-design-systems",
+  "product-managers-workflow-guide",
+  "how-to-create-flowcharts-fast",
+  "api-architecture-diagrams-guide",
+];
+
+const FOOTER_ROLE_LINK_LIMIT = 5;
+
+const EXPLORE_ALL_ROLES_LINK =
+  '      <li><a href="/diagram-builder/" style="font-weight: bold; opacity: 0.85;">Explore all roles →</a></li>';
+
+const VIEW_ALL_ARTICLES_LINK =
+  '      <li><a href="/blog/" style="font-weight: bold; color: var(--accent-color, #38bdf8);">View all articles →</a></li>';
+
 const CORE_MONEY_PAGES = [
   "developers",
   "software-engineers",
@@ -279,10 +295,24 @@ function footerPartnerMetaLinksHtml() {
       <a href="https://calnexapp.com/" rel="noopener noreferrer" target="_blank">Model Loan Repayments → CalnexApp</a>`;
 }
 
+function headerNodesMini() {
+  return `<!-- Mini Animated Nodes for MapDiagram Header -->
+<span class="header-nodes-mini" title="MapDiagram Core" aria-hidden="true">
+  <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <line x1="4" y1="10" x2="9" y2="4" />
+    <line x1="9" y1="4" x2="14" y2="10" />
+    <line x1="4" y1="10" x2="14" y2="10" />
+    <circle class="header-nodes-mini__node header-nodes-mini__node--a" cx="9" cy="4" r="2" />
+    <circle class="header-nodes-mini__node header-nodes-mini__node--b" cx="4" cy="10" r="2" />
+    <circle class="header-nodes-mini__node header-nodes-mini__node--c" cx="14" cy="10" r="2" />
+  </svg>
+</span>`;
+}
+
 function siteHeader() {
   return `<header class="nav nav--minimal">
   <div class="wrap">
-  <a href="/" class="nav-brand"><strong>MapDiagram</strong></a>
+  <a href="/" class="nav-brand"><strong>MapDiagram</strong>${headerNodesMini()}</a>
   <nav class="links nav-links-main" aria-label="Primary">
   <a href="/diagram-builder/">Product</a>
   <a href="/#templates">Templates</a>
@@ -338,7 +368,7 @@ function moneyPageCompareTable(L, C) {
 }
 
 function buildFooterHtml() {
-  const col = (title, links) => {
+  const col = (title, links, extraItems = "") => {
     const items = links
       .map(
         (l) =>
@@ -348,10 +378,13 @@ function buildFooterHtml() {
     return `    <div class="footer-col">
       <h3 class="footer-heading">${esc(title)}</h3>
       <ul class="footer-list">
-${items}
+${items}${extraItems ? `\n${extraItems}` : ""}
       </ul>
     </div>`;
   };
+
+  const colRoles = (title, links) =>
+    col(title, links.slice(0, FOOTER_ROLE_LINK_LIMIT), EXPLORE_ALL_ROLES_LINK);
 
   const ordered = (slugs) => {
     const priority = slugs.filter((s) => CORE_MONEY_PAGES.includes(s));
@@ -388,10 +421,14 @@ ${items}
     href: `/diagram-tool-for-${slug}/`,
     label: LANDINGS.find((x) => x.slug === slug).label,
   }));
-  const blogLinks = BLOGS.map((b) => ({
-    href: `/blog/${b.slug}/`,
-    label: b.title.replace(/\s*\|\s*MapDiagram\s*$/, ""),
-  }));
+  const blogLinks = FOOTER_BLOG_SLUGS.map((slug) => {
+    const b = BLOGS.find((x) => x.slug === slug);
+    if (!b) throw new Error(`Footer blog slug not found: ${slug}`);
+    return {
+      href: `/blog/${b.slug}/`,
+      label: b.title.replace(/\s*\|\s*MapDiagram\s*$/, ""),
+    };
+  });
 
   const siteLinks = [
     { href: "/faq/", label: "FAQ" },
@@ -404,16 +441,13 @@ ${items}
 
   const blocks = [
     col("Site", siteLinks),
-    col("Developers", dev),
-    col("Business", biz),
+    colRoles("Developers", dev),
+    colRoles("Business", biz),
     col("Startups", startups),
-    col("Education", edu),
-    col("Marketing", mkt),
+    colRoles("Education", edu),
+    colRoles("Marketing", mkt),
     col("Workflow tools", wf),
-    col(
-      "Blog",
-      blogLinks.map((b) => ({ href: b.href, label: b.label })),
-    ),
+    col("Blog", blogLinks, VIEW_ALL_ARTICLES_LINK),
     col("App", [{ href: "/app/", label: "Open MapDiagram" }]),
   ].join("\n");
 

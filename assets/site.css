@@ -25,6 +25,15 @@ a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline;color
 .btn-secondary{background:var(--panel);color:var(--text);border:1px solid var(--line)}
 .nav-brand{color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:10px}
 .nav-brand:hover{text-decoration:none;color:inherit}
+.header-nodes-mini{display:inline-flex;align-items:center;justify-content:center;width:18px;height:14px;margin-left:8px;position:relative;vertical-align:middle;flex-shrink:0}
+.header-nodes-mini svg{overflow:visible;display:block}
+.header-nodes-mini line{stroke:#64748b;stroke-width:1.2}
+.header-nodes-mini__node{fill:#38bdf8;animation:node-pulse 1.8s infinite ease-in-out}
+.header-nodes-mini__node--a{transform-origin:9px 4px}
+.header-nodes-mini__node--b{animation-delay:.6s;transform-origin:4px 10px}
+.header-nodes-mini__node--c{animation-delay:1.2s;transform-origin:14px 10px}
+@keyframes node-pulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(56,189,248,0));opacity:.6}50%{transform:scale(1.35);filter:drop-shadow(0 0 4px rgba(56,189,248,.8));opacity:1}}
+@media (prefers-reduced-motion:reduce){.header-nodes-mini__node{animation:none;opacity:.85}}
 .hero-actions{margin-top:var(--space-3);display:flex;flex-wrap:wrap;gap:var(--space-2);align-items:center}
 .hero-trust{margin-top:var(--space-3);max-width:860px}
 .related-footer-note{margin-top:var(--space-3)}
@@ -87,8 +96,9 @@ html.app-shell-page,html.app-shell-page body{height:100%;margin:0;overflow:hidde
 .footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:22px 18px}
 .footer-heading{margin:0 0 10px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--text)}
 .footer-list{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}
-.footer-list a{color:var(--muted)}
-.footer-list a:hover{color:var(--text)}
+.footer-list a{color:#94a3b8;transition:color .15s ease}
+.footer-list a:hover{color:#e7ecf8;text-decoration:none}
+.footer-list a[href="/blog/"]:hover{color:var(--accent-color,#38bdf8)}
 .footer-meta{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center;font-size:13px}
 .footer-meta .footer-partner-sep{color:var(--muted);opacity:.65;user-select:none}
 .footer-meta a[href*="joinmypdf.com"],

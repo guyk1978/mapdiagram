@@ -4,14 +4,23 @@
   "type": "module",
   "scripts": {
     "build:flowchart": "vite build --config vite.flowchart.config.ts",
+
     "build:arch": "vite build --config vite.architecture.config.ts",
+
     "build:compilers": "npm run build:flowchart && npm run build:arch",
+
     "test:flowchart": "vitest run tests/flowchart",
+
     "test:stabilization": "vitest run tests/stabilization",
+
     "test:runtime": "vitest run tests/runtime",
+
     "build:tool-runtime": "vite build --config vite.tool-runtime.config.ts",
+
     "test:e2e": "playwright test",
+
     "test:e2e:install": "playwright install chromium",
+
     "test": "npm run test:flowchart && npm run test:stabilization && npm run test:runtime"
   },
   "devDependencies": {
