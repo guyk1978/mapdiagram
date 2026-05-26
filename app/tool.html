@@ -17640,11 +17640,6 @@ clearFlowGroupSelection();
     primeFocusModalHistoryOnce();
     syncNodeInspectorToModel();
   });
-  focusShape?.addEventListener("change", () => {
-    if (!runtime.focusNodeId) return;
-    primeFocusModalHistoryOnce();
-    syncNodeInspectorToModel();
-  });
 
   document.getElementById("nodeInspHidden")?.addEventListener("change", () => {
     if (!runtime.focusNodeId) return;
