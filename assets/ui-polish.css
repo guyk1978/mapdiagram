@@ -2056,6 +2056,13 @@ html[data-theme="light"] #inspector-panel-export .partner-banner {
   border: 1.5px solid color-mix(in srgb, var(--line) 80%, #fff);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
   background: #00a2e8;
+  pointer-events: none;
+}
+
+.global-color-picker__trigger.is-disabled,
+.global-color-picker__trigger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .global-color-picker__preview.is-transparent {
@@ -2164,4 +2171,36 @@ html[data-theme="light"] #inspector-panel-export .partner-banner {
   min-height: 22px !important;
   max-height: 22px !important;
   border-radius: 50% !important;
+}
+
+/* —— Canvas micro-toolbar (icon-only) —— */
+.canvas-micro-toolbar.fc-quick-edit {
+  gap: 2px;
+  padding: 3px 5px;
+  border-radius: 999px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.canvas-micro-toolbar .canvas-micro-toolbar__btn {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  padding: 0;
+  border-radius: 8px;
+  font-size: 0;
+  line-height: 0;
+}
+
+.canvas-micro-toolbar .canvas-micro-toolbar__btn svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+.topbar-minimal-end .global-color-picker {
+  overflow: visible;
+}
+
+.topbar-desktop-quick {
+  overflow: visible;
 }

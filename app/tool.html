@@ -3964,6 +3964,42 @@
     opacity: 0.4;
     cursor: not-allowed;
   }
+  .canvas-micro-toolbar {
+    gap: 2px;
+    padding: 3px 4px;
+    border-radius: 999px;
+    min-height: 0;
+    transition: opacity 0.12s ease, transform 0.12s ease;
+  }
+  .canvas-micro-toolbar.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .canvas-micro-toolbar__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    flex: 0 0 auto;
+  }
+  .canvas-micro-toolbar__btn:hover:not(:disabled) {
+    background: rgba(122, 162, 255, 0.2);
+  }
+  .canvas-micro-toolbar__btn--danger:hover:not(:disabled) {
+    background: rgba(239, 91, 91, 0.22);
+    color: #ffb4b4;
+  }
+  .canvas-micro-toolbar__btn:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+  }
   .canvas-corner-pill {
     position: absolute;
     z-index: 14;
@@ -4245,11 +4281,19 @@
         <button type="button" id="fcMultiLayoutBtn" title="Improve layout">Layout</button>
         <button type="button" id="fcMultiDeleteBtn" class="fc-quick-danger" title="Delete">Delete</button>
       </div>
-      <div id="fcQuickEdit" class="fc-quick-edit canvas-element-toolbar" hidden role="toolbar" aria-label="Selection actions">
-        <button type="button" id="fcDuplicateBtn" title="Duplicate (Ctrl+D)" aria-label="Duplicate">Duplicate</button>
-        <button type="button" id="canvasBringForwardBtn" title="Bring to front" aria-label="Bring to front">Front</button>
-        <button type="button" id="canvasSendBackwardBtn" title="Send to back" aria-label="Send to back">Back</button>
-        <button type="button" id="fcDeleteBtn" class="fc-quick-danger" title="Delete" aria-label="Delete">Delete</button>
+      <div id="fcQuickEdit" class="fc-quick-edit canvas-micro-toolbar" hidden role="toolbar" aria-label="Selection actions">
+        <button type="button" id="fcDuplicateBtn" class="canvas-micro-toolbar__btn" title="Duplicate (Ctrl+D)" aria-label="Duplicate">
+          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+        </button>
+        <button type="button" id="canvasBringForwardBtn" class="canvas-micro-toolbar__btn" title="Bring to front" aria-label="Bring to front">
+          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 4v11M8 8l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="5" y="14" width="14" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/></svg>
+        </button>
+        <button type="button" id="canvasSendBackwardBtn" class="canvas-micro-toolbar__btn" title="Send to back" aria-label="Send to back">
+          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 20V9M8 16l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="5" y="4" width="14" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/></svg>
+        </button>
+        <button type="button" id="fcDeleteBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--danger" title="Delete" aria-label="Delete">
+          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1v2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7l1 14a1 1 0 0 0 1 .9h6a1 1 0 0 0 1-.9l1-14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+        </button>
       </div>
       <div id="canvasCornerPill" class="canvas-corner-pill" hidden>
         <button type="button" id="canvasCornerCycleBtn" class="canvas-corner-pill__btn" title="Cycle corner radius" aria-label="Cycle corner radius">Corners</button>
@@ -5050,6 +5094,10 @@
     nodeRotating: null,
     globalColorTarget: "fill",
     globalColorPickerOpen: false,
+    globalColorOutsideListener: null,
+    canvasOverlaySyncRaf: 0,
+    styleApplyRaf: 0,
+    globalColorInputDebounce: 0,
     collisionDebounceTimer: null,
     graphCache: null,
     graphCacheKey: "",
@@ -8518,10 +8566,10 @@ function finalizeFlowGroupDragIfAny() {
     if (!el) return;
     const nodeR = el.getBoundingClientRect();
     const wsR = workspace.getBoundingClientRect();
-    const barW = bar.offsetWidth || 300;
+    const barW = bar.offsetWidth || 120;
     const left = nodeR.left - wsR.left + nodeR.width / 2 - barW / 2;
-    const gap = Math.max(52, Math.min(72, 40 + nodeR.height * 0.12));
-    const top = nodeR.top - wsR.top - gap;
+    const gap = 12;
+    const top = nodeR.top - wsR.top - gap - bar.offsetHeight;
     bar.style.left = `${Math.max(8, Math.min(wsR.width - barW - 8, left))}px`;
     bar.style.top = `${Math.max(8, top)}px`;
     bar.classList.add("is-visible");
@@ -9135,8 +9183,9 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return runtime.selectedNodeId ? [runtime.selectedNodeId] : [];
   }
 
-  function applyNodeColorToSelection(kind, value) {
-    if (runtime.isSyncingInspector || runtime.readOnly) return;
+  function applyNodeColorToSelection(kind, value, opts) {
+    if (runtime.readOnly) return;
+    if (!opts?.skipInspectorGuard && runtime.isSyncingInspector) return;
     let ids = getInspectorTargetNodeIds();
     if (!ids.length && runtime.selectedNodeId) ids = [runtime.selectedNodeId];
     if (!ids.length) return;
@@ -9150,16 +9199,35 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         applyNodeVisualStyles(el, n);
         if (el.classList.contains("node--svg-shape")) applyNodeSvgCornerRadius(el, n);
       }
-      updateNodeDom(id);
     }
     markDirty();
-    runtime.isSyncingInspector = true;
-    try {
-      syncNodeColorInspectorFields(getNodeById(runtime.selectedNodeId));
-      syncGlobalColorPickerFromSelection();
-    } finally {
-      runtime.isSyncingInspector = false;
+    if (!opts?.skipPickerSync) syncGlobalColorPickerFromSelection();
+    if (!opts?.skipInspectorSync) {
+      runtime.isSyncingInspector = true;
+      try {
+        syncNodeColorInspectorFields(getNodeById(runtime.selectedNodeId));
+      } finally {
+        runtime.isSyncingInspector = false;
+      }
     }
+  }
+
+  function scheduleNodeStyleApply(fn) {
+    if (runtime.styleApplyRaf) cancelAnimationFrame(runtime.styleApplyRaf);
+    runtime.styleApplyRaf = requestAnimationFrame(() => {
+      runtime.styleApplyRaf = 0;
+      fn();
+    });
+  }
+
+  function scheduleCanvasOverlaySync() {
+    if (runtime.canvasOverlaySyncRaf) return;
+    runtime.canvasOverlaySyncRaf = requestAnimationFrame(() => {
+      runtime.canvasOverlaySyncRaf = 0;
+      syncFcQuickEditToolbar();
+      syncCanvasCornerPill();
+      if (!runtime.globalColorPickerOpen) syncGlobalColorPickerFromSelection();
+    });
   }
 
   const GLOBAL_COLOR_PRESETS = [
@@ -9173,22 +9241,70 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     { value: 16, label: "L" }
   ];
 
+  function disarmGlobalColorOutsideClose() {
+    if (runtime.globalColorOutsideListener) {
+      document.removeEventListener("pointerdown", runtime.globalColorOutsideListener, true);
+      runtime.globalColorOutsideListener = null;
+    }
+  }
+
+  function armGlobalColorOutsideClose() {
+    disarmGlobalColorOutsideClose();
+    runtime.globalColorOutsideListener = (e) => {
+      if (!runtime.globalColorPickerOpen) return;
+      if (e.target.closest("#globalColorPickerPanel, #globalColorPickerBtn, #globalColorPicker")) return;
+      closeGlobalColorPicker();
+    };
+    document.addEventListener("pointerdown", runtime.globalColorOutsideListener, true);
+  }
+
+  function positionGlobalColorPickerPanel() {
+    const panel = document.getElementById("globalColorPickerPanel");
+    const btn = document.getElementById("globalColorPickerBtn");
+    if (!panel || !btn) return;
+    if (panel.parentElement !== document.body) document.body.appendChild(panel);
+    panel.style.position = "fixed";
+    panel.style.zIndex = "10050";
+    const r = btn.getBoundingClientRect();
+    const pw = panel.offsetWidth || 180;
+    const left = Math.max(8, Math.min(window.innerWidth - pw - 8, r.left + r.width / 2 - pw / 2));
+    panel.style.left = `${left}px`;
+    panel.style.top = `${r.bottom + 6}px`;
+    panel.style.right = "auto";
+  }
+
   function closeGlobalColorPicker() {
     const panel = document.getElementById("globalColorPickerPanel");
     const btn = document.getElementById("globalColorPickerBtn");
-    if (panel) panel.hidden = true;
+    const root = document.getElementById("globalColorPicker");
+    if (panel) {
+      panel.hidden = true;
+      if (root && panel.parentElement === document.body) root.appendChild(panel);
+    }
     if (btn) btn.setAttribute("aria-expanded", "false");
     runtime.globalColorPickerOpen = false;
+    disarmGlobalColorOutsideClose();
   }
 
   function openGlobalColorPicker() {
     const panel = document.getElementById("globalColorPickerPanel");
     const btn = document.getElementById("globalColorPickerBtn");
-    if (!panel || !btn) return;
+    if (!panel || !btn || btn.disabled) return;
+    syncGlobalColorPickerFromSelection();
+    positionGlobalColorPickerPanel();
     panel.hidden = false;
     btn.setAttribute("aria-expanded", "true");
     runtime.globalColorPickerOpen = true;
-    syncGlobalColorPickerFromSelection();
+    requestAnimationFrame(() => armGlobalColorOutsideClose());
+  }
+
+  function openGlobalColorNativePicker() {
+    const input = document.getElementById("globalColorCustomInput");
+    if (!input || runtime.readOnly) return;
+    try {
+      input.showPicker?.();
+    } catch (_) {}
+    input.click();
   }
 
   function setGlobalColorTarget(kind) {
@@ -9203,20 +9319,22 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
 
   function applyGlobalColor(value) {
     if (runtime.readOnly) return;
-    const edgeSelected = hasSelectedConnections() && !getNodeById(runtime.selectedNodeId);
-    if (edgeSelected) {
-      const norm = normalizeNodeHexColor(value);
-      if (norm === null) return;
-      applyEdgeStyleToSelection((c) => {
-        c.strokeColor = norm || null;
-      });
-      const colInp = document.getElementById("edgeStrokeColorInput");
-      if (colInp && norm) colInp.value = norm;
-      syncGlobalColorPickerFromSelection();
-      return;
-    }
-    const kind = runtime.globalColorTarget === "stroke" ? "stroke" : "fill";
-    applyNodeColorToSelection(kind, value);
+    scheduleNodeStyleApply(() => {
+      const edgeSelected = hasSelectedConnections() && !getNodeById(runtime.selectedNodeId);
+      if (edgeSelected) {
+        const norm = normalizeNodeHexColor(value);
+        if (norm === null) return;
+        applyEdgeStyleToSelection((c) => {
+          c.strokeColor = norm || null;
+        });
+        const colInp = document.getElementById("edgeStrokeColorInput");
+        if (colInp && norm) colInp.value = norm;
+        syncGlobalColorPickerFromSelection();
+        return;
+      }
+      const kind = runtime.globalColorTarget === "stroke" ? "stroke" : "fill";
+      applyNodeColorToSelection(kind, value, { skipInspectorSync: true });
+    });
   }
 
   function syncGlobalColorPickerFromSelection() {
@@ -9245,12 +9363,22 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
           btn.classList.toggle("is-active", !!hex && sw === hex.toLowerCase());
         });
       }
+      const pickerBtnEdge = document.getElementById("globalColorPickerBtn");
+      if (pickerBtnEdge) {
+        pickerBtnEdge.disabled = false;
+        pickerBtnEdge.classList.remove("is-disabled");
+      }
       return;
     }
     const node = getNodeById(runtime.selectedNodeId) || getNodeById([...runtime.selectedNodeIds][0]);
-    const disabled = !node;
-    document.getElementById("globalColorPickerBtn")?.toggleAttribute("disabled", disabled);
-    if (!node) {
+    const edgeOnly = false;
+    const disabled = !node && !edgeOnly;
+    const pickerBtn = document.getElementById("globalColorPickerBtn");
+    if (pickerBtn) {
+      pickerBtn.disabled = disabled;
+      pickerBtn.classList.toggle("is-disabled", disabled);
+    }
+    if (!node && !edgeOnly) {
       preview.style.background = "transparent";
       preview.classList.add("is-transparent");
       return;
@@ -9274,7 +9402,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const root = document.getElementById("globalColorPicker");
     const swatches = document.getElementById("globalColorSwatches");
     const btn = document.getElementById("globalColorPickerBtn");
-    if (!root || !swatches || root.dataset.bound) return;
+    const preview = document.getElementById("globalColorPreview");
+    if (!root || !swatches || !btn || root.dataset.bound) return;
     root.dataset.bound = "1";
     swatches.innerHTML = "";
     for (const hex of GLOBAL_COLOR_PRESETS) {
@@ -9288,10 +9417,30 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       el.setAttribute("aria-label", hex);
       swatches.appendChild(el);
     }
-    btn?.addEventListener("click", (e) => {
+    btn?.addEventListener("pointerdown", (e) => {
       e.stopPropagation();
-      if (runtime.globalColorPickerOpen) closeGlobalColorPicker();
-      else openGlobalColorPicker();
+    });
+    let colorClickTimer = 0;
+    btn?.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (btn.disabled) return;
+      if (e.detail > 1) return;
+      clearTimeout(colorClickTimer);
+      colorClickTimer = window.setTimeout(() => {
+        colorClickTimer = 0;
+        if (runtime.globalColorPickerOpen) closeGlobalColorPicker();
+        else openGlobalColorPicker();
+      }, 200);
+    });
+    btn?.addEventListener("dblclick", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (btn.disabled) return;
+      clearTimeout(colorClickTimer);
+      colorClickTimer = 0;
+      closeGlobalColorPicker();
+      openGlobalColorNativePicker();
     });
     swatches.addEventListener("click", (e) => {
       const sw = e.target.closest(".global-color-swatch");
@@ -9301,19 +9450,33 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       applyGlobalColor(sw.dataset.globalColor);
       closeGlobalColorPicker();
     });
-    document.getElementById("globalColorCustomInput")?.addEventListener("input", (e) => {
+    const customInput = document.getElementById("globalColorCustomInput");
+    customInput?.addEventListener("input", (e) => {
+      if (runtime.globalColorInputDebounce) clearTimeout(runtime.globalColorInputDebounce);
+      runtime.globalColorInputDebounce = setTimeout(() => {
+        runtime.globalColorInputDebounce = 0;
+        applyGlobalColor(e.target.value);
+      }, 32);
+    });
+    customInput?.addEventListener("change", (e) => {
+      if (runtime.globalColorInputDebounce) {
+        clearTimeout(runtime.globalColorInputDebounce);
+        runtime.globalColorInputDebounce = 0;
+      }
       applyGlobalColor(e.target.value);
     });
     document.getElementById("globalColorTargetToggle")?.addEventListener("click", (e) => {
       const t = e.target.closest(".global-color-target-btn");
       if (!t) return;
       e.preventDefault();
+      e.stopPropagation();
       setGlobalColorTarget(t.dataset.globalColorTarget);
     });
-    document.addEventListener("pointerdown", (e) => {
-      if (!runtime.globalColorPickerOpen) return;
-      if (e.target.closest("#globalColorPicker")) return;
-      closeGlobalColorPicker();
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && runtime.globalColorPickerOpen) closeGlobalColorPicker();
+    });
+    window.addEventListener("resize", () => {
+      if (runtime.globalColorPickerOpen) positionGlobalColorPickerPanel();
     });
     setGlobalColorTarget("fill");
   }
@@ -9328,8 +9491,14 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const selected = p.nodes.filter((n) => idSet.has(n.id));
     const rest = p.nodes.filter((n) => !idSet.has(n.id));
     p.nodes = toFront ? [...rest, ...selected] : [...selected, ...rest];
-    renderNodes();
+    if (nodesLayer) {
+      for (const n of p.nodes) {
+        const el = getNodeDomEl(n.id);
+        if (el) nodesLayer.appendChild(el);
+      }
+    }
     markDirty();
+    scheduleCanvasOverlaySync();
   }
 
   function nearestCornerRadiusStep(value) {
@@ -9462,9 +9631,9 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         applyNodeVisualStyles(el, n);
         if (el.classList.contains("node--svg-shape")) applyNodeSvgCornerRadius(el, n);
       }
-      updateNodeDom(id);
     }
     markDirty();
+    scheduleCanvasOverlaySync();
     runtime.isSyncingInspector = true;
     try {
       syncNodeStyleSegmentControls(getNodeById(runtime.selectedNodeId) || getNodeById(ids[0]));
@@ -15591,11 +15760,9 @@ clearFlowGroupSelection();
     syncTopbarGroupActions();
     syncGroupInspectorMeta();
     syncGroupOverlaySelectionClasses();
-    syncFcQuickEditToolbar();
     syncFcGroupQuickEditToolbar();
     syncFcMultiSelectBar();
-    syncCanvasCornerPill();
-    syncGlobalColorPickerFromSelection();
+    scheduleCanvasOverlaySync();
     if (isFlowchartMode() && canvasUnderlays) {
       for (const el of canvasUnderlays.querySelectorAll(".fc-flow-group")) {
         el.classList.toggle("selected", el.dataset.flowGroupId === runtime.selectedFlowGroupId);
