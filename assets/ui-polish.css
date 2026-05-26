@@ -1294,6 +1294,67 @@ html[data-theme="light"] .connector-width-input {
   margin-bottom: 0;
 }
 
+/* —— Inspector header: compact tabs + fullscreen —— */
+.rightbar-head {
+  margin-bottom: 6px;
+  gap: 6px;
+}
+
+.rightbar-head .pane-title {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.insp-fullscreen-btn {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  border-radius: 6px;
+}
+
+.right-tabs-wrap {
+  margin-bottom: 8px;
+}
+
+.right-tabs {
+  gap: 4px;
+  padding: 1px 1px 2px;
+}
+
+.right-tab {
+  min-width: 3.25rem;
+  min-height: 26px;
+  padding: 2px 8px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.diagram-sub-tabs {
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.diagram-sub-tab {
+  min-height: 26px;
+  padding: 2px 8px;
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.inspector-group--connector .insp-segment-btn {
+  padding: 2px 5px;
+  font-size: 9.5px;
+}
+
+.inspector-group--connector .insp-segment-group {
+  gap: 1px;
+}
+
 .inspector-micro-label,
 .insp-segment-row__label,
 .insp-field__label {
