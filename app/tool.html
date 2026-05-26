@@ -4899,11 +4899,6 @@
         </div>
         <div class="node-insp-row">
           <label style="min-width:120px">Color <input type="color" id="focusColor" value="#ffd482"></label>
-          <label style="flex:1;min-width:140px">Shape
-            <select id="focusShape" aria-label="Node shape">
-              <!-- Options synced from #nodeShape on init (full flowchart geometry set). -->
-            </select>
-          </label>
         </div>
         <label>Opacity <input type="range" id="nodeInspOpacity" min="0.2" max="1" step="0.05" value="0.9"></label>
         <label>Glow <input type="range" id="nodeInspGlow" min="0" max="40" step="1" value="12"></label>
@@ -5107,7 +5102,6 @@
   const focusOverlay = document.getElementById("focusOverlay");
   const focusModal = document.getElementById("focusModal");
   const focusColor = document.getElementById("focusColor");
-  const focusShape = document.getElementById("focusShape");
   const focusCloseBtn = document.getElementById("focusCloseBtn");
   function openJsonImportPicker() {
     if (focusOverlay && focusOverlay.classList.contains("open")) {
@@ -5283,7 +5277,6 @@
     pendingImportParsed: null,
     /** First edit in node inspector modal captures one undo snapshot (see primeFocusModalHistoryOnce). */
     focusModalHistoryPrimed: false,
-    focusModalPreservedShape: null,
     /** Watchdog: rolls back orphan backdrop if modal never paints. */
     focusModalWatchdog: null,
     /** Last node .body that called setPointerCapture — released when the inspector closes or pointer ends. */
@@ -5473,29 +5466,6 @@
     if (overlayRuntime) overlayRuntime.syncFocusModalOrphanGuard();
   }
 
-  function syncFocusShapeSelectFromNodeShape() {
-    if (!nodeShape || !focusShape) return;
-    focusShape.innerHTML = nodeShape.innerHTML;
-  }
-
-  function ensureFocusShapeOption(shape) {
-    if (!focusShape || !shape) return;
-    if ([...focusShape.options].some((o) => o.value === shape)) return;
-    const opt = document.createElement("option");
-    opt.value = shape;
-    opt.textContent = String(shape).replace(/-/g, " ");
-    focusShape.appendChild(opt);
-  }
-
-  function setFocusShapeControlValue(shape) {
-    if (!focusShape) return;
-    syncFocusShapeSelectFromNodeShape();
-    const s = NODE_SHAPE_CLASSES.includes(shape) ? shape : "rect";
-    ensureFocusShapeOption(s);
-    focusShape.value = s;
-    if (focusShape.value !== s) focusShape.value = "rect";
-  }
-
   function populateFocusModalFields(node) {
     const ti = document.getElementById("nodeInspTitle");
     const st = document.getElementById("nodeInspSubtitle");
@@ -5508,9 +5478,6 @@
     const tagsIn = document.getElementById("nodeInspTags");
     if (tagsIn) tagsIn.value = (node.semantic && node.semantic.tags && node.semantic.tags.join(", ")) || "";
     if (focusColor) focusColor.value = node.color || "#ffd482";
-    const preservedShape = NODE_SHAPE_CLASSES.includes(node.shape) ? node.shape : "rect";
-    runtime.focusModalPreservedShape = preservedShape;
-    setFocusShapeControlValue(preservedShape);
     const stStyle = ensureNodeStyle(node);
     const op = document.getElementById("nodeInspOpacity");
     const gl = document.getElementById("nodeInspGlow");
@@ -11833,7 +11800,6 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
   function closeFocusModal() {
     initMapDiagramRuntimes();
     if (overlayRuntime) overlayRuntime.closeFocusModal();
-    runtime.focusModalPreservedShape = null;
   }
 
   function nodeWorldCenter(n) {
@@ -17597,19 +17563,6 @@ clearFlowGroupSelection();
     const tagsIn = document.getElementById("nodeInspTags");
     if (tagsIn) node.semantic.tags = tagsIn.value.split(",").map((x) => x.trim()).filter(Boolean);
     if (focusColor) node.color = focusColor.value;
-    if (focusShape) {
-      const picked = focusShape.value;
-      if (NODE_SHAPE_CLASSES.includes(picked)) {
-        node.shape = picked;
-        runtime.focusModalPreservedShape = picked;
-      } else if (
-        runtime.focusModalPreservedShape &&
-        NODE_SHAPE_CLASSES.includes(runtime.focusModalPreservedShape)
-      ) {
-        node.shape = runtime.focusModalPreservedShape;
-        setFocusShapeControlValue(node.shape);
-      }
-    }
     const stStyle = ensureNodeStyle(node);
     const op = document.getElementById("nodeInspOpacity");
     const gl = document.getElementById("nodeInspGlow");
@@ -18124,7 +18077,6 @@ clearFlowGroupSelection();
     runtime.bootHydrating = true;
     try {
       initFlowchartModeUi();
-      syncFocusShapeSelectFromNodeShape();
       initSidebarPanelTabs();
       initFlowchartProductUi();
       initMapDiagramRuntimes();
