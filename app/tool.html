@@ -4375,11 +4375,8 @@
                 <span class="insp-field__label">Icon</span>
                 <input id="nodeIcon" type="text" placeholder="Emoji or SVG">
               </label>
-              <label class="insp-field insp-field--color">
-                <span class="insp-field__label">Fill</span>
-                <input type="color" id="nodeColor" value="#ffd482">
-              </label>
             </div>
+            <input type="color" id="nodeColor" value="#ffd482" hidden aria-hidden="true" tabindex="-1">
             <div class="mini-row insp-row">
               <label class="insp-field">
                 <span class="insp-field__label">Type</span>
@@ -4430,19 +4427,59 @@
             </div>
           </div>
           <hr class="insp-divider" aria-hidden="true">
-          <div class="inspector-group inspector-group--style">
-            <div class="inspector-group__title">Text styles</div>
-            <div class="inspector-form-grid">
-              <label class="insp-range"><span class="insp-field__label">Background opacity</span><input id="nodeOpacity" type="range" min="0.2" max="1" step="0.05" value="0.9"></label>
-              <label class="insp-range"><span class="insp-field__label">Border glow</span><input id="nodeGlow" type="range" min="0" max="40" step="1" value="12"></label>
-              <label class="insp-range"><span class="insp-field__label">Shadow intensity</span><input id="nodeShadow" type="range" min="0" max="40" step="1" value="20"></label>
-              <label class="insp-range"><span class="insp-field__label">Rounded corners</span><input id="nodeRadius" type="range" min="0" max="28" step="1" value="12"></label>
-              <label class="insp-field insp-field--color">
-                <span class="insp-field__label">Border color</span>
-                <input type="color" id="nodeBorderColor" value="#9cb8ff">
+          <div class="inspector-group inspector-group--node-color">
+            <div class="inspector-group__title">Fill</div>
+            <p class="muted inspector-hint inspector-hint--tight">Shape background for the selected node only.</p>
+            <div class="node-color-swatches" id="nodeFillSwatches" role="listbox" aria-label="Fill color presets">
+              <button type="button" class="node-color-swatch node-color-swatch--transparent" data-node-color-kind="fill" data-node-color="transparent" title="Transparent" aria-label="Transparent fill"></button>
+              <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#00A2E8" style="--swatch-color:#00A2E8" title="Electric blue" aria-label="Electric blue"></button>
+              <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#10B981" style="--swatch-color:#10B981" title="Emerald green" aria-label="Emerald green"></button>
+              <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#F59E0B" style="--swatch-color:#F59E0B" title="Neon amber" aria-label="Neon amber"></button>
+              <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#E11D48" style="--swatch-color:#E11D48" title="Deep ruby" aria-label="Deep ruby"></button>
+              <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#8B5CF6" style="--swatch-color:#8B5CF6" title="Soft violet" aria-label="Soft violet"></button>
+              <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#374151" style="--swatch-color:#374151" title="Charcoal" aria-label="Charcoal"></button>
+              <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#1E293B" style="--swatch-color:#1E293B" title="Slate glass" aria-label="Slate glass"></button>
+            </div>
+            <div class="node-color-custom-row">
+              <label class="node-color-picker-wrap" title="Custom fill color">
+                <span class="sr-only">Custom fill color</span>
+                <input type="color" id="nodeFillColorPicker" value="#BD7000" aria-label="Custom fill color">
               </label>
+              <input type="text" id="nodeFillColorHex" class="node-color-hex-input" placeholder="#BD7000" spellcheck="false" maxlength="12" aria-label="Fill color hex code" autocomplete="off">
             </div>
           </div>
+          <div class="inspector-group inspector-group--node-color">
+            <div class="inspector-group__title">Line / Glow</div>
+            <p class="muted inspector-hint inspector-hint--tight">Stroke and accent glow on the node outline.</p>
+            <div class="node-color-swatches" id="nodeStrokeSwatches" role="listbox" aria-label="Line color presets">
+              <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#00A2E8" style="--swatch-color:#00A2E8" title="Electric blue" aria-label="Electric blue line"></button>
+              <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#10B981" style="--swatch-color:#10B981" title="Emerald green" aria-label="Emerald green line"></button>
+              <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#F59E0B" style="--swatch-color:#F59E0B" title="Neon amber" aria-label="Neon amber line"></button>
+              <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#E11D48" style="--swatch-color:#E11D48" title="Deep ruby" aria-label="Deep ruby line"></button>
+              <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#F8FAFC" style="--swatch-color:#F8FAFC" title="Frost white" aria-label="Frost white line"></button>
+              <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#64748B" style="--swatch-color:#64748B" title="Cool slate" aria-label="Cool slate line"></button>
+              <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#22D3EE" style="--swatch-color:#22D3EE" title="Cyan accent" aria-label="Cyan accent line"></button>
+              <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#9CB8FF" style="--swatch-color:#9CB8FF" title="Default accent" aria-label="Default accent line"></button>
+            </div>
+            <div class="node-color-custom-row">
+              <label class="node-color-picker-wrap" title="Custom line color">
+                <span class="sr-only">Custom line color</span>
+                <input type="color" id="nodeStrokeColorPicker" value="#9CB8FF" aria-label="Custom line color">
+              </label>
+              <input type="text" id="nodeStrokeColorHex" class="node-color-hex-input" placeholder="#9CB8FF" spellcheck="false" maxlength="12" aria-label="Line color hex code" autocomplete="off">
+            </div>
+            <label class="insp-range"><span class="insp-field__label">Glow intensity</span><input id="nodeGlow" type="range" min="0" max="40" step="1" value="12"></label>
+          </div>
+          <hr class="insp-divider" aria-hidden="true">
+          <div class="inspector-group inspector-group--style">
+            <div class="inspector-group__title">Shape &amp; text</div>
+            <div class="inspector-form-grid">
+              <label class="insp-range"><span class="insp-field__label">Fill opacity</span><input id="nodeOpacity" type="range" min="0.2" max="1" step="0.05" value="0.9"></label>
+              <label class="insp-range"><span class="insp-field__label">Shadow intensity</span><input id="nodeShadow" type="range" min="0" max="40" step="1" value="20"></label>
+              <label class="insp-range"><span class="insp-field__label">Rounded corners</span><input id="nodeRadius" type="range" min="0" max="28" step="1" value="12"></label>
+            </div>
+          </div>
+            <input type="color" id="nodeBorderColor" value="#9cb8ff" hidden aria-hidden="true" tabindex="-1">
           <hr class="insp-divider" aria-hidden="true">
           <div class="inspector-group inspector-group--actions">
             <button type="button" id="openExtendedEditorBtn" class="text-btn-sm">Open extended editor…</button>
@@ -8893,6 +8930,207 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     if (isFlowchartMode()) syncFcAssistantFabDragState();
   }
 
+  function normalizeNodeHexColor(raw) {
+    if (raw == null) return null;
+    const s = String(raw).trim();
+    if (!s) return "";
+    if (s.toLowerCase() === "transparent") return "transparent";
+    let h = s.startsWith("#") ? s : `#${s}`;
+    if (!/^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?([0-9a-fA-F]{2})?$/.test(h)) return null;
+    if (h.length === 4) {
+      h = `#${h
+        .slice(1)
+        .split("")
+        .map((c) => c + c)
+        .join("")}`;
+    }
+    return h.toUpperCase();
+  }
+
+  function hexForColorPicker(value, fallback = "#121A2A") {
+    const norm = normalizeNodeHexColor(value);
+    if (!norm || norm === "transparent") return fallback;
+    return norm;
+  }
+
+  function getNodeFillColor(n) {
+    if (!n) return null;
+    const st = ensureNodeStyle(n);
+    if (st.fillColor != null && String(st.fillColor).trim() !== "") {
+      const norm = normalizeNodeHexColor(st.fillColor);
+      return norm === "" ? null : norm;
+    }
+    if (n.color) {
+      const legacy = normalizeNodeHexColor(n.color);
+      if (legacy && legacy !== "transparent") return legacy;
+    }
+    return null;
+  }
+
+  function getNodeStrokeColor(n) {
+    if (!n) return "#9CB8FF";
+    const st = ensureNodeStyle(n);
+    if (st.strokeColor != null && String(st.strokeColor).trim() !== "") {
+      const norm = normalizeNodeHexColor(st.strokeColor);
+      if (norm) return norm;
+    }
+    if (st.borderColor) {
+      const norm = normalizeNodeHexColor(st.borderColor);
+      if (norm) return norm;
+    }
+    const accent = normalizeNodeHexColor(n.color);
+    return accent || "#9CB8FF";
+  }
+
+  function setNodeFillColor(n, value) {
+    if (!n) return;
+    const st = ensureNodeStyle(n);
+    const norm = normalizeNodeHexColor(value);
+    if (norm === null) return;
+    if (!norm) {
+      delete st.fillColor;
+    } else {
+      st.fillColor = norm;
+      if (norm !== "transparent") n.color = norm;
+    }
+  }
+
+  function setNodeStrokeColor(n, value) {
+    if (!n) return;
+    const st = ensureNodeStyle(n);
+    const norm = normalizeNodeHexColor(value);
+    if (!norm || norm === "transparent") return;
+    st.strokeColor = norm;
+    st.borderColor = norm;
+  }
+
+  function getInspectorTargetNodeIds() {
+    if (runtime.selectedNodeIds && runtime.selectedNodeIds.size > 0) {
+      return [...runtime.selectedNodeIds];
+    }
+    return runtime.selectedNodeId ? [runtime.selectedNodeId] : [];
+  }
+
+  function applyNodeColorToSelection(kind, value) {
+    if (runtime.isSyncingInspector || runtime.readOnly) return;
+    const ids = getInspectorTargetNodeIds();
+    if (!ids.length) return;
+    for (const id of ids) {
+      const n = getNodeById(id);
+      if (!n) continue;
+      if (kind === "fill") setNodeFillColor(n, value);
+      else setNodeStrokeColor(n, value);
+      updateNodeDom(id);
+    }
+    markDirty();
+    runtime.isSyncingInspector = true;
+    try {
+      syncNodeColorInspectorFields(getNodeById(runtime.selectedNodeId));
+    } finally {
+      runtime.isSyncingInspector = false;
+    }
+  }
+
+  function syncNodeColorSwatchActiveState(container, value) {
+    if (!container) return;
+    const norm = value == null ? "" : String(value).toUpperCase();
+    container.querySelectorAll(".node-color-swatch").forEach((btn) => {
+      const sw = (btn.dataset.nodeColor || "").toUpperCase();
+      const on = sw === norm;
+      btn.classList.toggle("is-active", on);
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+    });
+  }
+
+  function syncNodeColorInspectorFields(node) {
+    const fillPicker = document.getElementById("nodeFillColorPicker");
+    const fillHex = document.getElementById("nodeFillColorHex");
+    const strokePicker = document.getElementById("nodeStrokeColorPicker");
+    const strokeHex = document.getElementById("nodeStrokeColorHex");
+    const fillSwatches = document.getElementById("nodeFillSwatches");
+    const strokeSwatches = document.getElementById("nodeStrokeSwatches");
+    const toggles = [
+      fillPicker,
+      fillHex,
+      strokePicker,
+      strokeHex,
+      ...(fillSwatches ? [...fillSwatches.querySelectorAll("button")] : []),
+      ...(strokeSwatches ? [...strokeSwatches.querySelectorAll("button")] : [])
+    ];
+    const disabled = !node;
+    for (const el of toggles) {
+      if (el) el.disabled = disabled;
+    }
+    if (!node) {
+      syncNodeColorSwatchActiveState(fillSwatches, "");
+      syncNodeColorSwatchActiveState(strokeSwatches, "");
+      if (fillHex) fillHex.value = "";
+      if (strokeHex) strokeHex.value = "";
+      return;
+    }
+    const fill = getNodeFillColor(node);
+    const stroke = getNodeStrokeColor(node);
+    const fillTransparent = fill === "transparent";
+    if (fillPicker) {
+      fillPicker.disabled = fillTransparent;
+      fillPicker.value = hexForColorPicker(fill, "#BD7000");
+    }
+    if (fillHex) fillHex.value = fillTransparent ? "transparent" : fill || "";
+    if (strokePicker) strokePicker.value = hexForColorPicker(stroke, "#9CB8FF");
+    if (strokeHex) strokeHex.value = stroke || "";
+    if (nodeColor) nodeColor.value = hexForColorPicker(fill || node.color, "#ffd482");
+    if (nodeBorderColor) nodeBorderColor.value = hexForColorPicker(stroke, "#9cb8ff");
+    syncNodeColorSwatchActiveState(fillSwatches, fill || "");
+    syncNodeColorSwatchActiveState(strokeSwatches, stroke || "");
+  }
+
+  function initNodeColorInspectorControls() {
+    const fillSwatches = document.getElementById("nodeFillSwatches");
+    const strokeSwatches = document.getElementById("nodeStrokeSwatches");
+    if (!fillSwatches || fillSwatches.dataset.nodeColorBound) return;
+    fillSwatches.dataset.nodeColorBound = "1";
+    const fillPicker = document.getElementById("nodeFillColorPicker");
+    const fillHex = document.getElementById("nodeFillColorHex");
+    const strokePicker = document.getElementById("nodeStrokeColorPicker");
+    const strokeHex = document.getElementById("nodeStrokeColorHex");
+    const onSwatchClick = (e) => {
+      const btn = e.target.closest(".node-color-swatch");
+      if (!btn || runtime.isSyncingInspector || runtime.readOnly) return;
+      e.preventDefault();
+      applyNodeColorToSelection(btn.dataset.nodeColorKind, btn.dataset.nodeColor);
+    };
+    fillSwatches.addEventListener("click", onSwatchClick);
+    strokeSwatches?.addEventListener("click", onSwatchClick);
+    fillPicker?.addEventListener("input", () => {
+      if (runtime.isSyncingInspector || runtime.readOnly) return;
+      applyNodeColorToSelection("fill", fillPicker.value);
+    });
+    strokePicker?.addEventListener("input", () => {
+      if (runtime.isSyncingInspector || runtime.readOnly) return;
+      applyNodeColorToSelection("stroke", strokePicker.value);
+    });
+    const commitHex = (kind, raw) => {
+      if (runtime.isSyncingInspector || runtime.readOnly) return;
+      const norm = normalizeNodeHexColor(raw);
+      if (norm === null) return;
+      applyNodeColorToSelection(kind, norm || "");
+    };
+    fillHex?.addEventListener("change", () => commitHex("fill", fillHex.value));
+    fillHex?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        commitHex("fill", fillHex.value);
+      }
+    });
+    strokeHex?.addEventListener("change", () => commitHex("stroke", strokeHex.value));
+    strokeHex?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        commitHex("stroke", strokeHex.value);
+      }
+    });
+  }
+
   function ensureNodeStyle(n) {
     n.style = n.style || {};
     if (n.style.opacity == null) n.style.opacity = 0.9;
@@ -8900,6 +9138,13 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     if (n.style.shadow == null) n.style.shadow = 20;
     if (n.style.radius == null) n.style.radius = (n.shape === "rounded" ? 16 : 12);
     if (!n.style.borderColor) n.style.borderColor = "#9cb8ff";
+    if (n.style.strokeColor == null && n.style.borderColor) {
+      n.style.strokeColor = n.style.borderColor;
+    }
+    if (n.style.fillColor == null && n.color) {
+      const legacyFill = normalizeNodeHexColor(n.color);
+      if (legacyFill) n.style.fillColor = legacyFill;
+    }
     if (n.style.borderWidth == null || !Number.isFinite(Number(n.style.borderWidth))) n.style.borderWidth = 1.5;
     else n.style.borderWidth = Math.max(0, Math.min(6, Number(n.style.borderWidth)));
     if (n.style.freeform == null) n.style.freeform = false;
@@ -9358,9 +9603,9 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
 
   function applyNodeSvgVisuals(el, n) {
     const st = ensureNodeStyle(n);
-    const accent = n.color || "#7aa2ff";
     const light = document.documentElement.getAttribute("data-theme") === "light";
-    const borderColor = st.borderColor || accent;
+    const strokeColor = getNodeStrokeColor(n);
+    const fillColor = getNodeFillColor(n);
     const glow = Math.max(0, Math.min(40, Number(st.glow) || 14));
     const shadow = Math.max(0, Math.min(40, Number(st.shadow) || 0));
     const shadowOuter = light
@@ -9370,11 +9615,21 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     el.style.border = "none";
     el.style.borderRadius = "0";
     el.style.boxShadow = shadowOuter;
-    el.style.setProperty("--node-svg-stroke", borderColor);
-    el.style.setProperty("--node-svg-glow", hexToRgba(accent, light ? 0.38 : 0.55));
+    el.style.setProperty("--node-svg-stroke", strokeColor);
+    el.style.setProperty("--node-svg-glow", hexToRgba(strokeColor, light ? 0.38 : 0.55));
     el.style.setProperty("--node-svg-glow-size", `${glow}px`);
-    const fillTop = light ? "rgba(255,255,255,.97)" : "rgba(18,26,42,.96)";
-    const fillBot = light ? "rgba(244,247,252,.94)" : "rgba(10,16,28,.92)";
+    let fillTop;
+    let fillBot;
+    if (fillColor === "transparent") {
+      fillTop = "transparent";
+      fillBot = "transparent";
+    } else if (fillColor) {
+      fillTop = hexToRgba(fillColor, light ? 0.97 : 0.96);
+      fillBot = hexToRgba(fillColor, light ? 0.9 : 0.88);
+    } else {
+      fillTop = light ? "rgba(255,255,255,.97)" : "rgba(18,26,42,.96)";
+      fillBot = light ? "rgba(244,247,252,.94)" : "rgba(10,16,28,.92)";
+    }
     el.style.setProperty("--node-svg-fill-top", fillTop);
     el.style.setProperty("--node-svg-fill-bot", fillBot);
     const svg = el.querySelector(":scope > .node-shape-svg");
@@ -10969,11 +11224,17 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       return;
     }
     const st = ensureNodeStyle(n);
-    const accent = n.color || "#7aa2ff";
+    const strokeColor = getNodeStrokeColor(n);
+    const fillColor = getNodeFillColor(n);
     const light = document.documentElement.getAttribute("data-theme") === "light";
-    const baseGrad = light
+    let baseGrad = light
       ? "linear-gradient(165deg, rgba(255,255,255,.98), rgba(246,248,252,.94))"
       : "linear-gradient(165deg, rgba(16,23,38,.96), rgba(10,16,28,.9))";
+    if (fillColor === "transparent") {
+      baseGrad = "transparent";
+    } else if (fillColor) {
+      baseGrad = `linear-gradient(165deg, ${hexToRgba(fillColor, light ? 0.98 : 0.96)}, ${hexToRgba(fillColor, light ? 0.9 : 0.88)})`;
+    }
     const mask = el.querySelector(":scope > .node-shape-mask");
     const surface = mask || el;
     if (n.media && n.media.backgroundImage && n.shape !== "diamond") {
@@ -10990,7 +11251,6 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     }
     el.style.opacity = String(Math.max(0.2, Math.min(1, Number(st.opacity) || 0.9)));
     el.style.setProperty("--node-radius", `${Math.max(0, Math.min(28, Number(st.radius) || 12))}px`);
-    const borderColor = st.borderColor || accent;
     const bw = Math.max(0, Math.min(6, Number(st.borderWidth) || 1.5));
     const glow = Math.max(0, Math.min(40, Number(st.glow) || 0));
     const shadow = Math.max(0, Math.min(40, Number(st.shadow) || 0));
@@ -11002,23 +11262,23 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       el.style.borderWidth = "0";
       el.style.borderStyle = "solid";
       el.style.boxShadow = shadowOuter;
-      surface.style.borderColor = borderColor;
+      surface.style.borderColor = strokeColor;
       surface.style.borderWidth = `${bw}px`;
       surface.style.borderStyle = "solid";
       surface.style.boxSizing = "border-box";
-      const strokeGlow = `drop-shadow(0 0 ${Math.max(1, bw)}px ${hexToRgba(borderColor, light ? 0.65 : 0.85)})`;
-      const outerGlow = glow > 0 ? ` drop-shadow(0 0 ${glow}px ${hexToRgba(accent, light ? 0.32 : 0.52)})` : "";
+      const strokeGlow = `drop-shadow(0 0 ${Math.max(1, bw)}px ${hexToRgba(strokeColor, light ? 0.65 : 0.85)})`;
+      const outerGlow = glow > 0 ? ` drop-shadow(0 0 ${glow}px ${hexToRgba(strokeColor, light ? 0.32 : 0.52)})` : "";
       surface.style.filter = strokeGlow + outerGlow;
       surface.style.boxShadow = insetRing;
     } else {
       el.style.background = surface === el ? surface.style.background : el.style.background;
       if (surface !== el) el.style.background = baseGrad;
-      el.style.borderColor = borderColor;
+      el.style.borderColor = strokeColor;
       el.style.borderWidth = `${bw}px`;
       el.style.borderStyle = "solid";
       el.style.filter = "";
       if (surface !== el) surface.style.filter = "";
-      el.style.boxShadow = `0 0 ${glow}px ${hexToRgba(accent, light ? 0.28 : 0.5)}, ${shadowOuter}, ${insetRing}`;
+      el.style.boxShadow = `0 0 ${glow}px ${hexToRgba(strokeColor, light ? 0.28 : 0.5)}, ${shadowOuter}, ${insetRing}`;
       if (surface !== el) surface.style.boxShadow = "";
     }
   }
@@ -14351,7 +14611,6 @@ clearFlowGroupSelection();
     runtime.isSyncingInspector = true;
     try {
       nodeText.value = selectedNode ? selectedNode.text : "";
-      nodeColor.value = selectedNode ? selectedNode.color : "#ffd482";
       nodeShape.value = selectedNode ? (selectedNode.shape || "rect") : "rect";
       nodeSubtitle.value = selectedNode ? (selectedNode.subtitle || "") : "";
       nodeDescription.value = selectedNode ? (selectedNode.description || "") : "";
@@ -14362,7 +14621,7 @@ clearFlowGroupSelection();
       nodeGlow.value = selectedNode ? String(selectedNode.style.glow ?? 12) : "12";
       nodeShadow.value = selectedNode ? String(selectedNode.style.shadow ?? 20) : "20";
       nodeRadius.value = selectedNode ? String(selectedNode.style.radius ?? 12) : "12";
-      nodeBorderColor.value = selectedNode ? (selectedNode.style.borderColor || "#9cb8ff") : "#9cb8ff";
+      syncNodeColorInspectorFields(selectedNode);
       const nql = document.getElementById("nodeQuickLockChk");
       if (nql) {
         if (selectedNode && !isNodeUnderPinnedGroup(p, selectedNode.id)) {
@@ -15671,15 +15930,11 @@ clearFlowGroupSelection();
     markDirty();
     scheduleSemanticAnalysis();
   });
-  nodeColor.addEventListener("input", () => {
+  nodeColor?.addEventListener("input", () => {
     if (runtime.isSyncingInspector) return;
-    const n = getNodeById(runtime.selectedNodeId);
-    if (!n) return;
-    n.color = nodeColor.value;
-    const el = getNodeDomEl(n.id);
-    if (el) applyNodeVisualStyles(el, n);
-    markDirty();
+    applyNodeColorToSelection("fill", nodeColor.value);
   });
+  initNodeColorInspectorControls();
   nodeShape.addEventListener("change", () => {
     if (runtime.isSyncingInspector) return;
     const n = getNodeById(runtime.selectedNodeId);
@@ -15828,13 +16083,19 @@ clearFlowGroupSelection();
     });
   }
   function bindStyleRange(el, key) {
+    if (!el) return;
     el.addEventListener("input", () => {
       if (runtime.isSyncingInspector) return;
-      const n = getNodeById(runtime.selectedNodeId);
-      if (!n) return;
-      ensureNodeStyle(n);
-      n.style[key] = key === "borderColor" ? el.value : Number(el.value);
-      updateNodeDom(n.id);
+      const ids = getInspectorTargetNodeIds();
+      if (!ids.length) return;
+      for (const id of ids) {
+        const n = getNodeById(id);
+        if (!n) continue;
+        ensureNodeStyle(n);
+        n.style[key] = key === "borderColor" || key === "strokeColor" ? el.value : Number(el.value);
+        if (key === "strokeColor") n.style.borderColor = el.value;
+        updateNodeDom(id);
+      }
       markDirty();
     });
   }
@@ -15842,7 +16103,10 @@ clearFlowGroupSelection();
   bindStyleRange(nodeGlow, "glow");
   bindStyleRange(nodeShadow, "shadow");
   bindStyleRange(nodeRadius, "radius");
-  bindStyleRange(nodeBorderColor, "borderColor");
+  nodeBorderColor?.addEventListener("input", () => {
+    if (runtime.isSyncingInspector) return;
+    applyNodeColorToSelection("stroke", nodeBorderColor.value);
+  });
 
   workspace.addEventListener("pointerdown", (e) => {
     if (runtime.focusNodeId) return;

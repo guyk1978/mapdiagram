@@ -1100,9 +1100,125 @@ html[data-theme="light"] .inspector-group {
 
 .inspector-group--canvas,
 .inspector-group--element,
-.inspector-group--style {
+.inspector-group--style,
+.inspector-group--node-color {
   padding: 10px 12px;
   gap: 8px;
+}
+
+.inspector-hint--tight {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.node-color-swatches {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+  min-width: 0;
+}
+
+.node-color-swatch {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  min-height: 26px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  background: var(--swatch-color, #374151);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.node-color-swatch:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.node-color-swatch.is-active {
+  border-color: #00a2e8;
+  box-shadow:
+    0 0 0 2px rgba(0, 162, 232, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.node-color-swatch--transparent {
+  background:
+    linear-gradient(45deg, rgba(120, 130, 150, 0.35) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(120, 130, 150, 0.35) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(120, 130, 150, 0.35) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(120, 130, 150, 0.35) 75%);
+  background-size: 8px 8px;
+  background-position:
+    0 0,
+    0 4px,
+    4px -4px,
+    -4px 0;
+  background-color: rgba(18, 24, 38, 0.5);
+}
+
+.node-color-custom-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.node-color-picker-wrap {
+  display: block;
+  margin: 0;
+}
+
+.node-color-picker-wrap input[type="color"] {
+  width: 100%;
+  height: 36px;
+  min-height: 36px;
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(8, 12, 22, 0.45);
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.node-color-hex-input {
+  width: 100%;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(8, 12, 22, 0.45);
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  box-sizing: border-box;
+}
+
+.node-color-hex-input:focus {
+  outline: none;
+  border-color: rgba(0, 162, 232, 0.65);
+  box-shadow: 0 0 0 2px rgba(0, 162, 232, 0.2);
+}
+
+html[data-theme="light"] .node-color-swatch {
+  border-color: rgba(40, 55, 90, 0.2);
+  box-shadow: 0 1px 3px rgba(20, 40, 80, 0.1);
+}
+
+html[data-theme="light"] .node-color-picker-wrap input[type="color"],
+html[data-theme="light"] .node-color-hex-input {
+  border-color: rgba(40, 55, 90, 0.18);
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .inspector-group--options-compact {
@@ -1238,6 +1354,7 @@ html[data-theme="light"] .inspector-group {
 
 #inspectorCanvasState .inspector-group,
 #inspectorElementState .inspector-group--style,
+#inspectorElementState .inspector-group--node-color,
 #inspectorElementState .inspector-group--element {
   gap: 8px;
 }
