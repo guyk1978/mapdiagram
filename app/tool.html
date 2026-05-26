@@ -10926,18 +10926,30 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       const root = document.createElement("div");
       root.className = "node-picker-categories";
       for (const cat of FLOWCHART_LIBRARY_CATEGORIES) {
+        const isOpen = cat.id === "core";
         const block = document.createElement("section");
-        block.className = "node-picker-category";
-        const header = document.createElement("div");
-        header.className = "node-picker-section";
-        header.textContent = cat.title;
+        block.className = "node-picker-category" + (isOpen ? "" : " is-collapsed");
+        const toggle = document.createElement("button");
+        toggle.type = "button";
+        toggle.className = "node-picker-category__toggle";
+        toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        toggle.innerHTML =
+          '<span class="node-picker-category__chev" aria-hidden="true">' + (isOpen ? "▼" : "▸") + "</span>" +
+          '<span class="node-picker-category__name">' + cat.title + "</span>";
         const grid = document.createElement("div");
-        grid.className = "node-picker-grid";
+        grid.className = "node-picker-grid" + (isOpen ? "" : " is-collapsed");
         const items = FLOWCHART_MODE_PRESETS.filter((p) => p.libraryCategory === cat.id);
         for (const preset of items) {
           grid.appendChild(renderFlowchartNodeTile(preset));
         }
-        block.append(header, grid);
+        toggle.addEventListener("click", () => {
+          const collapsed = grid.classList.toggle("is-collapsed");
+          block.classList.toggle("is-collapsed", collapsed);
+          toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+          const chev = toggle.querySelector(".node-picker-category__chev");
+          if (chev) chev.textContent = collapsed ? "▸" : "▼";
+        });
+        block.append(toggle, grid);
         root.appendChild(block);
       }
       nodePicker.appendChild(root);
