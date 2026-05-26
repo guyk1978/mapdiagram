@@ -2158,6 +2158,7 @@
   .node.node--svg-shape .node-shape-fill {
     fill: var(--node-svg-fill-top, rgba(18, 26, 42, 0.96));
     stroke: none;
+    opacity: var(--node-svg-fill-opacity, 1);
   }
   .node.node--svg-shape .node-shape-stroke {
     fill: none;
@@ -4502,21 +4503,28 @@
                 <span class="insp-segment-row__label">Corners</span>
                 <div class="insp-segment-group" data-style-key="radius" role="group" aria-label="Rounded corners">
                   <button type="button" class="insp-segment-btn" data-value="0" aria-pressed="false">None</button>
-                  <button type="button" class="insp-segment-btn" data-value="6" aria-pressed="false">S</button>
-                  <button type="button" class="insp-segment-btn" data-value="12" aria-pressed="false">M</button>
-                  <button type="button" class="insp-segment-btn" data-value="20" aria-pressed="false">L</button>
+                  <button type="button" class="insp-segment-btn" data-value="4" aria-pressed="false">S</button>
+                  <button type="button" class="insp-segment-btn" data-value="8" aria-pressed="false">M</button>
+                  <button type="button" class="insp-segment-btn" data-value="16" aria-pressed="false">L</button>
                 </div>
               </div>
             </div>
           </div>
             <input type="color" id="nodeBorderColor" value="#9cb8ff" hidden aria-hidden="true" tabindex="-1">
           <hr class="insp-divider" aria-hidden="true">
-          <div class="inspector-group inspector-group--actions">
-            <button type="button" id="openExtendedEditorBtn" class="text-btn-sm">Open extended editor…</button>
-            <button type="button" id="deleteNodeBtn" class="danger" aria-label="Delete selected node or nodes">Delete node(s)</button>
+          <div class="inspector-group inspector-group--actions inspector-compact">
+            <div class="inspector-action-row">
+              <button type="button" id="openExtendedEditorBtn" class="inspector-action-btn">Extended editor</button>
+              <button type="button" id="deleteNodeBtn" class="inspector-action-btn inspector-action-btn--danger" title="Delete selected node(s)" aria-label="Delete selected node(s)">
+                <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z"/></svg>
+              </button>
+            </div>
           </div>
         </div>
       </section>
+      <div id="nodeColorPopover" class="node-color-popover" hidden role="dialog" aria-label="Color palette">
+        <div class="node-color-popover__grid" id="nodeColorPopoverGrid"></div>
+      </div>
       <section class="section right-section section-critical active" data-tab="diagram" data-diagram-sub="groups" id="diagramSectionGroups" aria-labelledby="diagramHeadingStatus diagramStatusHint">
         <h3 id="diagramHeadingStatus">Status</h3>
         <p id="diagramStatusHint" class="sr-only">Selection counts, group tools, and layout helpers.</p>
@@ -9040,13 +9048,19 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
 
   function applyNodeColorToSelection(kind, value) {
     if (runtime.isSyncingInspector || runtime.readOnly) return;
-    const ids = getInspectorTargetNodeIds();
+    let ids = getInspectorTargetNodeIds();
+    if (!ids.length && runtime.selectedNodeId) ids = [runtime.selectedNodeId];
     if (!ids.length) return;
     for (const id of ids) {
       const n = getNodeById(id);
       if (!n) continue;
       if (kind === "fill") setNodeFillColor(n, value);
       else setNodeStrokeColor(n, value);
+      const el = getNodeDomEl(id);
+      if (el) {
+        applyNodeVisualStyles(el, n);
+        if (el.classList.contains("node--svg-shape")) applyNodeSvgCornerRadius(el, n);
+      }
       updateNodeDom(id);
     }
     markDirty();
@@ -9111,23 +9125,58 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     syncNodeColorSwatchActiveState(strokeSwatches, stroke || "");
   }
 
+  const NODE_EXTENDED_COLOR_PALETTE = [
+    "#00A2E8", "#0284C7", "#0EA5E9", "#38BDF8", "#22D3EE", "#06B6D4",
+    "#10B981", "#059669", "#14B8A6", "#34D399", "#84CC16", "#65A30D",
+    "#F59E0B", "#D97706", "#FBBF24", "#FCD34D", "#FB923C", "#EA580C",
+    "#E11D48", "#BE123C", "#F472B6", "#EC4899", "#8B5CF6", "#7C3AED",
+    "#9CB8FF", "#64748B", "#475569", "#374151", "#1E293B", "#0F172A",
+    "#F8FAFC", "#E2E8F0", "#CBD5E1", "#94A3B8", "transparent"
+  ];
+
+  function mapNodeCornerRadiusToSvg(rxPx, shape) {
+    const r = Math.max(0, Math.min(28, Number(rxPx) || 0));
+    if (["circle", "connector", "summing-junction", "diamond", "merge"].includes(shape)) return 0;
+    if (shape === "capsule") return Math.max(4, Math.round((r / 16) * 28));
+    return Math.max(0, Math.round((r / 16) * 18));
+  }
+
+  function applyNodeSvgCornerRadius(el, n) {
+    const svg = el?.querySelector?.(":scope > .node-shape-svg");
+    if (!svg || !n) return;
+    const rx = mapNodeCornerRadiusToSvg(ensureNodeStyle(n).radius, n.shape);
+    svg.querySelectorAll("rect").forEach((rect) => {
+      rect.setAttribute("rx", String(rx));
+      if (rect.hasAttribute("ry")) rect.setAttribute("ry", String(rx));
+    });
+  }
+
   function applyNodeStyleSegmentToSelection(key, value) {
     if (runtime.isSyncingInspector || runtime.readOnly) return;
-    const ids = getInspectorTargetNodeIds();
+    let ids = getInspectorTargetNodeIds();
+    if (!ids.length && runtime.selectedNodeId) ids = [runtime.selectedNodeId];
     if (!ids.length) return;
     const num = Number(value);
     if (!Number.isFinite(num)) return;
     for (const id of ids) {
       const n = getNodeById(id);
       if (!n) continue;
-      ensureNodeStyle(n);
-      n.style[key] = key === "opacity" ? Math.max(0.2, Math.min(1, num)) : Math.max(0, num);
+      const st = ensureNodeStyle(n);
+      if (key === "opacity") st.opacity = Math.max(0.2, Math.min(1, num));
+      else if (key === "glow") st.glow = Math.max(0, Math.min(40, num));
+      else if (key === "shadow") st.shadow = Math.max(0, Math.min(40, num));
+      else if (key === "radius") st.radius = Math.max(0, Math.min(28, num));
+      const el = getNodeDomEl(id);
+      if (el) {
+        applyNodeVisualStyles(el, n);
+        if (el.classList.contains("node--svg-shape")) applyNodeSvgCornerRadius(el, n);
+      }
       updateNodeDom(id);
     }
     markDirty();
     runtime.isSyncingInspector = true;
     try {
-      syncNodeStyleSegmentControls(getNodeById(runtime.selectedNodeId));
+      syncNodeStyleSegmentControls(getNodeById(runtime.selectedNodeId) || getNodeById(ids[0]));
     } finally {
       runtime.isSyncingInspector = false;
     }
@@ -9175,17 +9224,54 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
   }
 
   function initNodeStyleSegmentControls() {
-    if (!nodeStyleSegments || nodeStyleSegments.dataset.segmentBound) return;
-    nodeStyleSegments.dataset.segmentBound = "1";
-    nodeStyleSegments.addEventListener("click", (e) => {
+    const root = document.getElementById("diagramSectionNode");
+    if (!root || root.dataset.styleSegmentBound) return;
+    root.dataset.styleSegmentBound = "1";
+    root.addEventListener("click", (e) => {
       const btn = e.target.closest(".insp-segment-btn");
       if (!btn || btn.disabled || runtime.isSyncingInspector || runtime.readOnly) return;
       const group = btn.closest(".insp-segment-group");
       const key = group?.dataset?.styleKey;
-      if (!key) return;
+      if (!key || !root.contains(group)) return;
       e.preventDefault();
+      e.stopPropagation();
       applyNodeStyleSegmentToSelection(key, btn.dataset.value);
     });
+  }
+
+  let nodeColorPopoverKind = "fill";
+
+  function closeNodeColorPopover() {
+    const pop = document.getElementById("nodeColorPopover");
+    if (pop) pop.hidden = true;
+  }
+
+  function openNodeColorPopover(anchorEl, kind) {
+    const pop = document.getElementById("nodeColorPopover");
+    const grid = document.getElementById("nodeColorPopoverGrid");
+    if (!pop || !grid || !anchorEl) return;
+    nodeColorPopoverKind = kind === "stroke" ? "stroke" : "fill";
+    if (!grid.dataset.built) {
+      grid.dataset.built = "1";
+      grid.innerHTML = "";
+      for (const hex of NODE_EXTENDED_COLOR_PALETTE) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "node-color-popover-swatch";
+        if (hex === "transparent") btn.classList.add("node-color-popover-swatch--transparent");
+        btn.dataset.nodeColor = hex;
+        btn.style.setProperty("--swatch-color", hex === "transparent" ? "transparent" : hex);
+        btn.title = hex;
+        btn.setAttribute("aria-label", hex);
+        grid.appendChild(btn);
+      }
+    }
+    if (pop.parentElement !== document.body) document.body.appendChild(pop);
+    const r = anchorEl.getBoundingClientRect();
+    const maxLeft = Math.max(8, Math.min(window.innerWidth - 180, r.left));
+    pop.style.left = `${maxLeft}px`;
+    pop.style.top = `${Math.min(window.innerHeight - 120, r.bottom + 4)}px`;
+    pop.hidden = false;
   }
 
   function initNodeColorInspectorControls() {
@@ -9205,13 +9291,34 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     };
     fillSwatches.addEventListener("click", onSwatchClick);
     strokeSwatches?.addEventListener("click", onSwatchClick);
-    fillPicker?.addEventListener("input", () => {
-      if (runtime.isSyncingInspector || runtime.readOnly) return;
-      applyNodeColorToSelection("fill", fillPicker.value);
+    const bindPickerPopover = (wrap, kind, picker) => {
+      wrap?.addEventListener("click", (e) => {
+        if (runtime.readOnly) return;
+        e.preventDefault();
+        e.stopPropagation();
+        openNodeColorPopover(wrap, kind);
+      });
+      picker?.addEventListener("input", () => {
+        if (runtime.isSyncingInspector || runtime.readOnly) return;
+        applyNodeColorToSelection(kind, picker.value);
+        closeNodeColorPopover();
+      });
+    };
+    bindPickerPopover(fillPicker?.closest(".node-color-picker-wrap"), "fill", fillPicker);
+    bindPickerPopover(strokePicker?.closest(".node-color-picker-wrap"), "stroke", strokePicker);
+    document.getElementById("nodeColorPopoverGrid")?.addEventListener("click", (e) => {
+      const btn = e.target.closest(".node-color-popover-swatch");
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      applyNodeColorToSelection(nodeColorPopoverKind, btn.dataset.nodeColor);
+      closeNodeColorPopover();
     });
-    strokePicker?.addEventListener("input", () => {
-      if (runtime.isSyncingInspector || runtime.readOnly) return;
-      applyNodeColorToSelection("stroke", strokePicker.value);
+    document.addEventListener("pointerdown", (e) => {
+      const pop = document.getElementById("nodeColorPopover");
+      if (!pop || pop.hidden) return;
+      if (e.target.closest("#nodeColorPopover, .node-color-picker-wrap")) return;
+      closeNodeColorPopover();
     });
     const commitHex = (kind, raw) => {
       if (runtime.isSyncingInspector || runtime.readOnly) return;
@@ -9736,10 +9843,23 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     }
     el.style.setProperty("--node-svg-fill-top", fillTop);
     el.style.setProperty("--node-svg-fill-bot", fillBot);
+    const opacity = Math.max(0.2, Math.min(1, Number(st.opacity) || 0.9));
+    el.style.setProperty("--node-svg-fill-opacity", String(opacity));
     const svg = el.querySelector(":scope > .node-shape-svg");
     if (svg) {
       const strokeW = Math.max(1, Math.min(4, Number(st.borderWidth) || 1.6));
       svg.style.setProperty("--node-svg-stroke-width", String(strokeW));
+      const glowRgba = hexToRgba(strokeColor, light ? 0.38 : 0.55);
+      const filters = [`drop-shadow(0 0 1px ${hexToRgba(strokeColor, light ? 0.65 : 0.85)})`];
+      if (glow > 0) filters.push(`drop-shadow(0 0 ${glow}px ${glowRgba})`);
+      if (shadow > 0) {
+        filters.push(`drop-shadow(0 ${Math.round(4 + shadow / 5)}px ${Math.round(10 + shadow / 2)}px rgba(0,0,0,${light ? 0.14 : 0.42}))`);
+      }
+      svg.style.filter = filters.join(" ");
+      svg.querySelectorAll(".node-shape-fill").forEach((shapeEl) => {
+        shapeEl.style.opacity = String(opacity);
+      });
+      applyNodeSvgCornerRadius(el, n);
     }
   }
 
