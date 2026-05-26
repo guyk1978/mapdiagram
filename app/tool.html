@@ -4473,10 +4473,34 @@
           <hr class="insp-divider" aria-hidden="true">
           <div class="inspector-group inspector-group--style">
             <div class="inspector-group__title">Shape &amp; text</div>
-            <div class="inspector-form-grid">
-              <label class="insp-range"><span class="insp-field__label">Fill opacity</span><input id="nodeOpacity" type="range" min="0.2" max="1" step="0.05" value="0.9"></label>
-              <label class="insp-range"><span class="insp-field__label">Shadow intensity</span><input id="nodeShadow" type="range" min="0" max="40" step="1" value="20"></label>
-              <label class="insp-range"><span class="insp-field__label">Rounded corners</span><input id="nodeRadius" type="range" min="0" max="28" step="1" value="12"></label>
+            <div class="insp-segment-rows" id="nodeStyleSegments">
+              <div class="insp-segment-row">
+                <span class="insp-segment-row__label">Fill opacity</span>
+                <div class="insp-segment-group" data-style-key="opacity" role="group" aria-label="Fill opacity">
+                  <button type="button" class="insp-segment-btn" data-value="0.25" aria-pressed="false">25%</button>
+                  <button type="button" class="insp-segment-btn" data-value="0.5" aria-pressed="false">50%</button>
+                  <button type="button" class="insp-segment-btn" data-value="0.75" aria-pressed="false">75%</button>
+                  <button type="button" class="insp-segment-btn" data-value="1" aria-pressed="false">100%</button>
+                </div>
+              </div>
+              <div class="insp-segment-row">
+                <span class="insp-segment-row__label">Shadow</span>
+                <div class="insp-segment-group" data-style-key="shadow" role="group" aria-label="Shadow intensity">
+                  <button type="button" class="insp-segment-btn" data-value="0" aria-pressed="false">Off</button>
+                  <button type="button" class="insp-segment-btn" data-value="10" aria-pressed="false">Soft</button>
+                  <button type="button" class="insp-segment-btn" data-value="20" aria-pressed="false">Medium</button>
+                  <button type="button" class="insp-segment-btn" data-value="34" aria-pressed="false">Strong</button>
+                </div>
+              </div>
+              <div class="insp-segment-row">
+                <span class="insp-segment-row__label">Corners</span>
+                <div class="insp-segment-group" data-style-key="radius" role="group" aria-label="Rounded corners">
+                  <button type="button" class="insp-segment-btn" data-value="0" aria-pressed="false">None</button>
+                  <button type="button" class="insp-segment-btn" data-value="6" aria-pressed="false">Small</button>
+                  <button type="button" class="insp-segment-btn" data-value="12" aria-pressed="false">Medium</button>
+                  <button type="button" class="insp-segment-btn" data-value="20" aria-pressed="false">Large</button>
+                </div>
+              </div>
             </div>
           </div>
             <input type="color" id="nodeBorderColor" value="#9cb8ff" hidden aria-hidden="true" tabindex="-1">
@@ -4941,10 +4965,8 @@
   const nodeDescription = document.getElementById("nodeDescription");
   const nodeIcon = document.getElementById("nodeIcon");
   const nodeType = document.getElementById("nodeType");
-  const nodeOpacity = document.getElementById("nodeOpacity");
   const nodeGlow = document.getElementById("nodeGlow");
-  const nodeShadow = document.getElementById("nodeShadow");
-  const nodeRadius = document.getElementById("nodeRadius");
+  const nodeStyleSegments = document.getElementById("nodeStyleSegments");
   const nodeBorderColor = document.getElementById("nodeBorderColor");
   const nodePicker = document.getElementById("nodePicker");
   const stats = document.getElementById("stats");
@@ -9082,6 +9104,82 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     if (nodeBorderColor) nodeBorderColor.value = hexForColorPicker(stroke, "#9cb8ff");
     syncNodeColorSwatchActiveState(fillSwatches, fill || "");
     syncNodeColorSwatchActiveState(strokeSwatches, stroke || "");
+  }
+
+  function applyNodeStyleSegmentToSelection(key, value) {
+    if (runtime.isSyncingInspector || runtime.readOnly) return;
+    const ids = getInspectorTargetNodeIds();
+    if (!ids.length) return;
+    const num = Number(value);
+    if (!Number.isFinite(num)) return;
+    for (const id of ids) {
+      const n = getNodeById(id);
+      if (!n) continue;
+      ensureNodeStyle(n);
+      n.style[key] = key === "opacity" ? Math.max(0.2, Math.min(1, num)) : Math.max(0, num);
+      updateNodeDom(id);
+    }
+    markDirty();
+    runtime.isSyncingInspector = true;
+    try {
+      syncNodeStyleSegmentControls(getNodeById(runtime.selectedNodeId));
+    } finally {
+      runtime.isSyncingInspector = false;
+    }
+  }
+
+  function syncSegmentGroupActive(groupEl, value) {
+    if (!groupEl) return;
+    const target = Number(value);
+    if (!Number.isFinite(target)) return;
+    const btns = [...groupEl.querySelectorAll(".insp-segment-btn")];
+    let bestBtn = btns[0] || null;
+    let bestDist = Infinity;
+    for (const btn of btns) {
+      const v = Number(btn.dataset.value);
+      const dist = Math.abs(v - target);
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestBtn = btn;
+      }
+    }
+    for (const btn of btns) {
+      const on = btn === bestBtn;
+      btn.classList.toggle("is-active", on);
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+    }
+  }
+
+  function syncNodeStyleSegmentControls(node) {
+    const root = nodeStyleSegments;
+    if (!root) return;
+    const groups = root.querySelectorAll(".insp-segment-group");
+    const disabled = !node;
+    for (const group of groups) {
+      group.querySelectorAll(".insp-segment-btn").forEach((btn) => {
+        btn.disabled = disabled;
+      });
+      if (!node) continue;
+      const st = ensureNodeStyle(node);
+      const key = group.dataset.styleKey;
+      if (key === "opacity") syncSegmentGroupActive(group, st.opacity ?? 0.9);
+      else if (key === "shadow") syncSegmentGroupActive(group, st.shadow ?? 20);
+      else if (key === "radius") syncSegmentGroupActive(group, st.radius ?? 12);
+    }
+  }
+
+  function initNodeStyleSegmentControls() {
+    if (!nodeStyleSegments || nodeStyleSegments.dataset.segmentBound) return;
+    nodeStyleSegments.dataset.segmentBound = "1";
+    nodeStyleSegments.addEventListener("click", (e) => {
+      const btn = e.target.closest(".insp-segment-btn");
+      if (!btn || btn.disabled || runtime.isSyncingInspector || runtime.readOnly) return;
+      const group = btn.closest(".insp-segment-group");
+      const key = group?.dataset?.styleKey;
+      if (!key) return;
+      e.preventDefault();
+      applyNodeStyleSegmentToSelection(key, btn.dataset.value);
+    });
   }
 
   function initNodeColorInspectorControls() {
@@ -14617,11 +14715,9 @@ clearFlowGroupSelection();
       nodeIcon.value = selectedNode ? (selectedNode.icon || "") : "";
       nodeType.value = selectedNode ? (selectedNode.type || "process") : "process";
       if (selectedNode) ensureNodeStyle(selectedNode);
-      nodeOpacity.value = selectedNode ? String(selectedNode.style.opacity ?? 0.9) : "0.9";
       nodeGlow.value = selectedNode ? String(selectedNode.style.glow ?? 12) : "12";
-      nodeShadow.value = selectedNode ? String(selectedNode.style.shadow ?? 20) : "20";
-      nodeRadius.value = selectedNode ? String(selectedNode.style.radius ?? 12) : "12";
       syncNodeColorInspectorFields(selectedNode);
+      syncNodeStyleSegmentControls(selectedNode);
       const nql = document.getElementById("nodeQuickLockChk");
       if (nql) {
         if (selectedNode && !isNodeUnderPinnedGroup(p, selectedNode.id)) {
@@ -16099,10 +16195,8 @@ clearFlowGroupSelection();
       markDirty();
     });
   }
-  bindStyleRange(nodeOpacity, "opacity");
+  initNodeStyleSegmentControls();
   bindStyleRange(nodeGlow, "glow");
-  bindStyleRange(nodeShadow, "shadow");
-  bindStyleRange(nodeRadius, "radius");
   nodeBorderColor?.addEventListener("input", () => {
     if (runtime.isSyncingInspector) return;
     applyNodeColorToSelection("stroke", nodeBorderColor.value);
@@ -17141,10 +17235,8 @@ clearFlowGroupSelection();
       nodeShape.value = node.shape;
       nodeSubtitle.value = node.subtitle;
       nodeDescription.value = node.description;
-      if (op) nodeOpacity.value = String(stStyle.opacity);
       if (gl) nodeGlow.value = String(stStyle.glow);
-      if (sh) nodeShadow.value = String(stStyle.shadow);
-      if (ra) nodeRadius.value = String(stStyle.radius);
+      syncNodeStyleSegmentControls(node);
       if (bc) nodeBorderColor.value = stStyle.borderColor;
     }
     refreshSemanticTypeForNode(node);
