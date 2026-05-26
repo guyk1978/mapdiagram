@@ -4418,6 +4418,13 @@
                   <option value="arrow-right">→ Arrow right</option>
                   <option value="arrow-left">← Arrow left</option>
                   <option value="arrow-up-down">↕ Arrow up/down</option>
+                  <option value="arrow-up">↑ Arrow up</option>
+                  <option value="arrow-down">↓ Arrow down</option>
+                  <option value="extract">△ Extract</option>
+                  <option value="direct-access-storage">⟷ Direct access</option>
+                  <option value="sequential-storage">⦿ Sequential storage</option>
+                  <option value="star">★ Star</option>
+                  <option value="cloud">☁ Cloud</option>
                 </select>
               </label>
             </div>
@@ -7042,7 +7049,9 @@
   const NODE_SHAPE_CLASSES = [
     "rect", "circle", "diamond", "rounded", "document", "parallelogram", "cylinder", "subprocess", "connector",
     "manual-input", "internal-storage", "capsule", "hexagon", "multidocument", "manual-operation", "merge",
-    "summing-junction", "arrow-right", "arrow-left", "arrow-up-down"
+    "summing-junction", "arrow-right", "arrow-left", "arrow-up-down",
+    // Expanded engineering shapes (SVG geometry cases in buildNodeShapeGeometryGroup)
+    "extract", "direct-access-storage", "sequential-storage", "arrow-up", "arrow-down", "star", "cloud"
   ];
 
   const NODE_MASK_SHAPES = new Set([
@@ -7053,7 +7062,8 @@
   const NODE_SVG_SHAPES = new Set([
     "rect", "rounded", "circle", "diamond", "capsule", "hexagon", "document", "multidocument",
     "parallelogram", "cylinder", "internal-storage", "subprocess", "manual-input", "manual-operation",
-    "merge", "summing-junction", "connector", "arrow-right", "arrow-left", "arrow-up-down"
+    "merge", "summing-junction", "connector", "arrow-right", "arrow-left", "arrow-up-down",
+    "extract", "direct-access-storage", "sequential-storage", "arrow-up", "arrow-down", "star", "cloud"
   ]);
 
   const SVG_SHAPE_NS = "http://www.w3.org/2000/svg";
@@ -7078,36 +7088,54 @@
     connector: { width: 56, height: 56, minWidth: 44, minHeight: 44 },
     "arrow-right": { width: 128, height: 64, minWidth: 88, minHeight: 48 },
     "arrow-left": { width: 128, height: 64, minWidth: 88, minHeight: 48 },
-    "arrow-up-down": { width: 72, height: 128, minWidth: 48, minHeight: 88 }
+    "arrow-up-down": { width: 72, height: 128, minWidth: 48, minHeight: 88 },
+    // New shapes
+    extract: { width: 120, height: 96, minWidth: 80, minHeight: 64 },
+    "direct-access-storage": { width: 200, height: 64, minWidth: 140, minHeight: 44 },
+    "sequential-storage": { width: 96, height: 96, minWidth: 72, minHeight: 72 },
+    "arrow-up": { width: 72, height: 128, minWidth: 48, minHeight: 88 },
+    "arrow-down": { width: 72, height: 128, minWidth: 48, minHeight: 88 },
+    star: { width: 160, height: 100, minWidth: 120, minHeight: 70 },
+    cloud: { width: 160, height: 100, minWidth: 120, minHeight: 70 }
   };
 
   const FLOWCHART_LIBRARY_CATEGORIES = [
-    { id: "core", title: "Flowchart Core", defaultOpen: true },
-    { id: "data", title: "Data & Storage", defaultOpen: false },
-    { id: "advanced", title: "Advanced Flow", defaultOpen: false },
-    { id: "connectors", title: "Arrows & Connectors", defaultOpen: false }
+    { id: "core", title: "FLOWCHART CORE", defaultOpen: true },
+    { id: "advanced", title: "ADVANCED FLOW", defaultOpen: false },
+    { id: "data", title: "DATA & STORAGE", defaultOpen: false },
+    { id: "connectors", title: "ARROWS & MARKERS", defaultOpen: false }
   ];
 
   const FLOWCHART_MODE_PRESETS = [
-    { libraryCategory: "core", label: "Start", type: "input", shape: "capsule", icon: "▶", color: "#7fd9a8", subtitle: "Begin", description: "Flow start / terminator", fcRole: "start", width: 140, height: 72 },
-    { libraryCategory: "core", label: "Process", type: "process", shape: "rect", icon: "▭", color: "#8fb2ff", subtitle: "Step", description: "Process step", fcRole: "process", width: 190, height: 88 },
-    { libraryCategory: "core", label: "Decision", type: "decision", shape: "diamond", icon: "◆", color: "#ffd482", subtitle: "Branch", description: "Yes / No branch", fcRole: "decision", width: 130, height: 130 },
-    { libraryCategory: "core", label: "Preparation", type: "process", shape: "hexagon", icon: "⬡", color: "#c4b5ff", subtitle: "Setup", description: "Preparation step", fcRole: "process", width: 180, height: 96 },
-    { libraryCategory: "core", label: "End", type: "output", shape: "capsule", icon: "■", color: "#a8b4d4", subtitle: "Finish", description: "Flow end / terminator", fcRole: "end", width: 140, height: 72 },
-    { libraryCategory: "data", label: "Database", type: "data", shape: "cylinder", icon: "🗄", color: "#8dd7c2", subtitle: "Store", description: "Database storage", fcRole: "process", width: 168, height: 108 },
-    { libraryCategory: "data", label: "Document", type: "note", shape: "document", icon: "📄", color: "#b8c8ff", subtitle: "Report", description: "Document / file", fcRole: "process", width: 190, height: 100 },
-    { libraryCategory: "data", label: "Multi-doc", type: "note", shape: "multidocument", icon: "📑", color: "#a8bcff", subtitle: "Files", description: "Multiple documents", fcRole: "process", width: 190, height: 108 },
-    { libraryCategory: "data", label: "Data", type: "data", shape: "parallelogram", icon: "⇄", color: "#9be0cb", subtitle: "I/O", description: "Input / output data", fcRole: "process", width: 200, height: 80 },
-    { libraryCategory: "data", label: "Internal Storage", type: "data", shape: "internal-storage", icon: "▤", color: "#9ec8e8", subtitle: "Memory", description: "Internal storage", fcRole: "process", width: 190, height: 88 },
-    { libraryCategory: "advanced", label: "Subprocess", type: "system", shape: "subprocess", icon: "▣", color: "#a8b4ff", subtitle: "Call", description: "Subprocess reference", fcRole: "process", width: 200, height: 88 },
-    { libraryCategory: "advanced", label: "Manual Input", type: "input", shape: "manual-input", icon: "⌨", color: "#9fd4ff", subtitle: "Entry", description: "Manual data entry", fcRole: "process", width: 200, height: 88 },
-    { libraryCategory: "advanced", label: "Manual Op", type: "process", shape: "manual-operation", icon: "✋", color: "#ffc89a", subtitle: "Task", description: "Manual operation", fcRole: "process", width: 200, height: 88 },
-    { libraryCategory: "advanced", label: "Merge", type: "process", shape: "merge", icon: "▽", color: "#b8a8ff", subtitle: "Join", description: "Merge / extract", fcRole: "process", width: 120, height: 96 },
-    { libraryCategory: "advanced", label: "Summing", type: "process", shape: "summing-junction", icon: "+", color: "#9cb8ff", subtitle: "Sum", description: "Summing junction", fcRole: "process", width: 72, height: 72 },
-    { libraryCategory: "connectors", label: "Connector", type: "custom", shape: "connector", icon: "●", color: "#9cb8ff", subtitle: "Ref", description: "Connector point", fcRole: "process", width: 56, height: 56 },
-    { libraryCategory: "connectors", label: "Arrow →", type: "custom", shape: "arrow-right", icon: "→", color: "#8fb2ff", subtitle: "Right", description: "Block arrow right", fcRole: "process", width: 128, height: 64 },
-    { libraryCategory: "connectors", label: "Arrow ←", type: "custom", shape: "arrow-left", icon: "←", color: "#8fb2ff", subtitle: "Left", description: "Block arrow left", fcRole: "process", width: 128, height: 64 },
-    { libraryCategory: "connectors", label: "Arrow ↕", type: "custom", shape: "arrow-up-down", icon: "↕", color: "#8fb2ff", subtitle: "Up/Down", description: "Block arrow up/down", fcRole: "process", width: 72, height: 128 }
+    // CATEGORY 1 — FLOWCHART CORE
+    { libraryCategory: "core", label: "Process", type: "process", shape: "rect", tooltip: "process", icon: "▭", color: "#8fb2ff", fcRole: "process", width: 190, height: 88 },
+    { libraryCategory: "core", label: "Decision", type: "decision", shape: "diamond", tooltip: "decision", icon: "◆", color: "#ffd482", fcRole: "decision", width: 130, height: 130 },
+    { libraryCategory: "core", label: "Terminator", type: "process", shape: "capsule", tooltip: "terminator", icon: "⬭", color: "#7fd9a8", fcRole: "process", width: 140, height: 72 },
+    { libraryCategory: "core", label: "Data", type: "data", shape: "parallelogram", tooltip: "data", icon: "⇄", color: "#9be0cb", fcRole: "process", width: 200, height: 80 },
+    { libraryCategory: "core", label: "Document", type: "note", shape: "document", tooltip: "document", icon: "📄", color: "#b8c8ff", fcRole: "process", width: 190, height: 100 },
+
+    // CATEGORY 2 — ADVANCED FLOW
+    { libraryCategory: "advanced", label: "Predefined process", type: "system", shape: "subprocess", tooltip: "predefined-process", icon: "▣", color: "#a8b4ff", fcRole: "process", width: 200, height: 88 },
+    { libraryCategory: "advanced", label: "Preparation", type: "process", shape: "hexagon", tooltip: "preparation", icon: "⬡", color: "#c4b5ff", fcRole: "process", width: 180, height: 96 },
+    { libraryCategory: "advanced", label: "Manual input", type: "input", shape: "manual-input", tooltip: "manual-input", icon: "⌨", color: "#9fd4ff", fcRole: "process", width: 200, height: 88 },
+    { libraryCategory: "advanced", label: "Manual operation", type: "process", shape: "manual-operation", tooltip: "manual-operation", icon: "✋", color: "#ffc89a", fcRole: "process", width: 200, height: 88 },
+    { libraryCategory: "advanced", label: "Merge", type: "process", shape: "merge", tooltip: "merge", icon: "▽", color: "#b8a8ff", fcRole: "process", width: 120, height: 96 },
+    { libraryCategory: "advanced", label: "Extract", type: "process", shape: "extract", tooltip: "extract", icon: "△", color: "#b8a8ff", fcRole: "process", width: 120, height: 96 },
+
+    // CATEGORY 3 — DATA & STORAGE
+    { libraryCategory: "data", label: "Database", type: "data", shape: "cylinder", tooltip: "database", icon: "🗄", color: "#8dd7c2", fcRole: "process", width: 168, height: 108 },
+    { libraryCategory: "data", label: "Direct access storage", type: "data", shape: "direct-access-storage", tooltip: "direct-access-storage", icon: "⟷", color: "#8dd7c2", fcRole: "process", width: 200, height: 64 },
+    { libraryCategory: "data", label: "Internal storage", type: "data", shape: "internal-storage", tooltip: "internal-storage", icon: "▤", color: "#9ec8e8", fcRole: "process", width: 190, height: 88 },
+    { libraryCategory: "data", label: "Sequential storage", type: "data", shape: "sequential-storage", tooltip: "sequential-storage", icon: "⦿", color: "#9cb8ff", fcRole: "process", width: 96, height: 96 },
+
+    // CATEGORY 4 — ARROWS & MARKERS
+    { libraryCategory: "connectors", label: "Arrow right", type: "custom", shape: "arrow-right", tooltip: "arrow-right", icon: "→", color: "#8fb2ff", fcRole: "process", width: 128, height: 64 },
+    { libraryCategory: "connectors", label: "Arrow left", type: "custom", shape: "arrow-left", tooltip: "arrow-left", icon: "←", color: "#8fb2ff", fcRole: "process", width: 128, height: 64 },
+    { libraryCategory: "connectors", label: "Arrow up", type: "custom", shape: "arrow-up", tooltip: "arrow-up", icon: "↑", color: "#8fb2ff", fcRole: "process", width: 72, height: 128 },
+    { libraryCategory: "connectors", label: "Arrow down", type: "custom", shape: "arrow-down", tooltip: "arrow-down", icon: "↓", color: "#8fb2ff", fcRole: "process", width: 72, height: 128 },
+    { libraryCategory: "connectors", label: "Circle marker", type: "custom", shape: "connector", tooltip: "circle-marker", icon: "●", color: "#9cb8ff", fcRole: "process", width: 56, height: 56 },
+    { libraryCategory: "connectors", label: "Star annotation", type: "custom", shape: "star", tooltip: "star", icon: "★", color: "#bda8ff", fcRole: "process", width: 160, height: 100 },
+    { libraryCategory: "connectors", label: "Cloud annotation", type: "custom", shape: "cloud", tooltip: "cloud", icon: "☁", color: "#a8bcff", fcRole: "process", width: 160, height: 100 }
   ];
   const FLOWCHART_STARTER_PROMPTS = {
     invoice: "Invoice submitted → manager approval → finance review → payment issued",
@@ -9743,12 +9771,25 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       case "arrow-up-down":
         both("polygon", { points: "32,8 68,8 68,46 92,46 50,96 8,46 32,46" });
         break;
+      case "arrow-up":
+        both("polygon", { points: "32,92 32,68 18,68 50,14 82,68 68,68 68,92" });
+        break;
+      case "arrow-down":
+        both("polygon", { points: "32,8 32,32 18,32 50,86 82,32 68,32 68,8" });
+        break;
       case "cylinder":
         fill("path", { d: "M12,24 C12,16 30,10 50,10 C70,10 88,16 88,24 L88,76 C88,84 70,90 50,90 C30,90 12,84 12,76 Z" });
         stroke("ellipse", { cx: "50", cy: "24", rx: "38", ry: "10" });
         stroke("path", { d: "M12,24 L12,76", fill: "none" });
         stroke("path", { d: "M88,24 L88,76", fill: "none" });
         stroke("ellipse", { cx: "50", cy: "76", rx: "38", ry: "10" });
+        break;
+      case "direct-access-storage":
+        // Horizontal cylinder / direct-access storage
+        fill("path", { d: "M18,30 C18,22 32,18 50,18 C68,18 82,22 82,30 L82,70 C82,78 68,82 50,82 C32,82 18,78 18,70 Z" });
+        stroke("path", { d: "M18,30 L18,70", fill: "none" });
+        stroke("path", { d: "M82,30 L82,70", fill: "none" });
+        stroke("path", { d: "M18,50 C18,42 32,38 50,38 C68,38 82,42 82,50", fill: "none" });
         break;
       case "document": {
         const d = "M10,12 H90 V62 C82,66 74,72 62,72 C50,72 42,66 30,68 C22,69 14,64 10,60 Z";
@@ -9773,11 +9814,30 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         stroke("line", { x1: "20", y1: "14", x2: "20", y2: "86" });
         stroke("line", { x1: "80", y1: "14", x2: "80", y2: "86" });
         break;
+      case "extract":
+        // Standard triangle (extract)
+        both("polygon", { points: "50,10 8,86 92,86" });
+        break;
+      case "sequential-storage":
+        // Magnetic tape circle: disc + faint horizontal tape lines
+        both("ellipse", { cx: "50", cy: "50", rx: "38", ry: "38" });
+        stroke("path", { d: "M18,34 H82", fill: "none", opacity: "0.35" });
+        stroke("path", { d: "M14,50 H86", fill: "none", opacity: "0.5" });
+        stroke("path", { d: "M18,66 H82", fill: "none", opacity: "0.35" });
+        break;
       case "summing-junction":
         both("ellipse", { cx: "50", cy: "50", rx: "38", ry: "38" });
         stroke("line", { x1: "30", y1: "50", x2: "70", y2: "50" });
         stroke("line", { x1: "50", y1: "30", x2: "50", y2: "70" });
         break;
+      case "star":
+        both("polygon", { points: "50,8 61,34 90,34 66,52 76,86 50,68 24,86 34,52 10,34 39,34" });
+        break;
+      case "cloud": {
+        const d = "M29,66 C26,66 23,64 23,60 C23,55 27,52 31,53 C33,44 41,39 49,41 C56,31 70,31 76,41 C83,42 88,48 88,55 C88,62 83,67 76,67 H31 C30,67 29,66 29,66 Z";
+        both("path", { d });
+        break;
+      }
       default:
         both("rect", { x: "8", y: "14", width: "84", height: "72", rx: "4" });
     }
@@ -9929,7 +9989,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const defs = NODE_SHAPE_DEFAULTS[s] || NODE_SHAPE_DEFAULTS.rect;
     el.style.minWidth = `${defs.minWidth}px`;
     el.style.minHeight = `${defs.minHeight}px`;
-    if (s === "circle" || s === "summing-junction") {
+    if (s === "circle" || s === "summing-junction" || s === "sequential-storage") {
       el.style.aspectRatio = "1 / 1";
     } else if (s === "connector") {
       el.style.aspectRatio = "1 / 1";
@@ -12436,7 +12496,14 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       connector: `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><circle cx="22" cy="14" r="9" ${s}/></svg>`,
       "arrow-right": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M4 10h22l-2-6 16 10-16 10 2-6H4z" ${s}/></svg>`,
       "arrow-left": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M40 10H18l2-6-16 10 16 10-2-6h22z" ${s}/></svg>`,
-      "arrow-up-down": `<svg class="node-tile__svg" viewBox="0 0 28 44" aria-hidden="true"><path d="M10 4v22l-6-2 10 16 10-16-6 2V4zM18 40V18l6 2-10-16L4 20l6-2v22z" ${s}/></svg>`
+      "arrow-up-down": `<svg class="node-tile__svg" viewBox="0 0 28 44" aria-hidden="true"><path d="M10 4v22l-6-2 10 16 10-16-6 2V4zM18 40V18l6 2-10-16L4 20l6-2v22z" ${s}/></svg>`,
+      "arrow-up": `<svg class="node-tile__svg" viewBox="0 0 28 44" aria-hidden="true"><path d="M14 4v22l-6-2 10 16 10-16-6 2V4z" ${s}/></svg>`,
+      "arrow-down": `<svg class="node-tile__svg" viewBox="0 0 28 44" aria-hidden="true"><path d="M14 40V18l6 2-10-16L4 20l6-2v22z" ${s}/></svg>`,
+      extract: `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M22 4 6 24h32Z" ${s}/></svg>`,
+      "direct-access-storage": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M10 10c0-3 4-5 12-5s12 2 12 5v8c0 3-4 5-12 5s-12-2-12-5Z" ${s}/><path d="M10 14h24" ${s}/></svg>`,
+      "sequential-storage": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><ellipse cx="22" cy="14" rx="13" ry="10" ${s}/><path d="M11 10h22M9 14h26M11 18h22" ${s}/></svg>`,
+      star: `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M22 3l6 11 12 1-9 7 3 12-12-7-12 7 3-12-9-7 12-1Z" ${s}/></svg>`,
+      cloud: `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M14 21c-3 0-6-2-6-5 0-3 3-5 6-4 1-5 6-7 10-5 3-4 10-3 12 2 3 0 6 2 6 5 0 4-4 7-8 7H14Z" ${s}/></svg>`
     };
     return previews[shape] || previews.rect;
   }
@@ -12445,9 +12512,10 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const card = document.createElement("button");
     card.type = "button";
     card.className = `node-tile node-tile--shape-${preset.shape}`;
-    card.title = preset.label;
-    card.setAttribute("data-tooltip", preset.description || preset.label);
-    card.setAttribute("aria-label", preset.label);
+    const tooltip = preset.tooltip || preset.shape || preset.label;
+    card.title = tooltip;
+    card.setAttribute("data-tooltip", tooltip);
+    card.setAttribute("aria-label", preset.label || tooltip);
     const preview = flowchartShapePreviewMarkup(preset.shape);
     card.innerHTML =
       `<span class="node-tile__preview node-tile__preview--${preset.shape}" aria-hidden="true">${preview}</span>`;
