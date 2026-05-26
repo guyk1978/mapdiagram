@@ -1813,6 +1813,19 @@
   .node.shape-connector .node-subtitle,
   .node.shape-connector .node-desc { display: none; }
   .node.shape-connector .node-title { font-size: 12px; }
+  .node.shape-manual-input {
+    border-radius: 8px;
+    clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
+    overflow: hidden;
+  }
+  .node.shape-internal-storage {
+    border-radius: 8px;
+    clip-path: polygon(
+      14% 0%, 100% 0%, 100% 100%, 14% 100%,
+      12% 86%, 10% 100%, 8% 84%, 6% 100%, 4% 88%, 2% 100%, 0% 94%, 0% 6%
+    );
+    overflow: hidden;
+  }
   .node-builder{display:grid;gap:8px}
   .mini-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .node-picker{display:grid;gap:10px;min-height:0;overflow:hidden;padding-right:4px}
@@ -2962,7 +2975,9 @@
   .flowchart-mode .node.shape-document.fc-node-process,
   .flowchart-mode .node.shape-parallelogram.fc-node-process,
   .flowchart-mode .node.shape-cylinder.fc-node-process,
-  .flowchart-mode .node.shape-subprocess.fc-node-process {
+  .flowchart-mode .node.shape-subprocess.fc-node-process,
+  .flowchart-mode .node.shape-manual-input.fc-node-process,
+  .flowchart-mode .node.shape-internal-storage.fc-node-process {
     box-shadow:
       0 0 0 1px rgba(122, 162, 255, 0.22),
       0 12px 28px rgba(0, 0, 0, 0.28),
@@ -3811,9 +3826,14 @@
       <button id="railInsightBtn" class="rail-btn" type="button" title="Insights" aria-label="Insights"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
       <button id="railSettingsBtn" class="rail-btn" type="button" title="Settings" aria-label="Settings"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" stroke-width="1.75"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 0 1-4 0v-.09a1.7 1.7 0 0 0-1.05-1.55 1.7 1.7 0 0 0-1.87.41l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 0 1 0-4h.09a1.7 1.7 0 0 0 1.55-1.05 1.7 1.7 0 0 0-.41-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H12a1.7 1.7 0 0 0 1-1.55V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V12c0 .69-.41 1.31-1.05 1.55z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span></button>
     </aside>
-    <aside class="sidebar" id="projects-sidebar">
-      <div id="projectDock" style="display: none;">
-        <div class="section section--projects">
+    <aside class="sidebar" id="projects-sidebar" data-sidebar-panel="shapes">
+      <div class="sidebar-segment" role="tablist" aria-label="Sidebar panels">
+        <button type="button" id="sidebarTabShapes" class="sidebar-segment__btn active" role="tab" aria-selected="true" aria-controls="sidebarPanelShapes" data-sidebar-tab="shapes">Shapes</button>
+        <button type="button" id="sidebarTabProjects" class="sidebar-segment__btn" role="tab" aria-selected="false" aria-controls="sidebarPanelProjects" data-sidebar-tab="projects">Projects</button>
+      </div>
+      <div class="sidebar-panel-stack">
+      <div id="projectDock" class="sidebar-panel sidebar-panel--projects" role="tabpanel" aria-labelledby="sidebarTabProjects" hidden>
+        <div class="section section--projects sidebar-projects-card">
           <h3 class="section-heading section-heading--compact">
             <span class="section-heading__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16v12H4V7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 7V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
             <span class="section-heading__text">Projects</span>
@@ -3847,14 +3867,11 @@
           </aside>
         </div>
       </div>
-      <div class="sidebar-library-shell">
+      <div class="sidebar-library-shell sidebar-panel sidebar-panel--shapes" id="sidebarPanelShapes" role="tabpanel" aria-labelledby="sidebarTabShapes" aria-hidden="false">
         <div class="section section--library">
-          <h3 class="section-heading section-heading--compact">
-            <span class="section-heading__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg></span>
-            <span class="section-heading__text">Visual Node Library</span>
-          </h3>
           <div id="nodePicker" class="node-picker"></div>
         </div>
+      </div>
       </div>
       <button id="createAiBtn" class="ai-create-btn" type="button"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M7.05 7.05 5.64 5.64M18.36 18.36l-1.41-1.41M7.05 16.95l-1.41 1.41M18.36 5.64l-1.41 1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="m12 8 1.1 2.6 2.6 1.1-2.6 1.1L12 15.8l-1.1-2.6-2.6-1.1 2.6-1.1L12 8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span> Generate with AI</button>
     </aside>
@@ -4052,6 +4069,8 @@
                   <option value="parallelogram">▱ Data (I/O)</option>
                   <option value="cylinder">🗄 Cylinder</option>
                   <option value="subprocess">▣ Subprocess</option>
+                  <option value="manual-input">⌨ Manual input</option>
+                  <option value="internal-storage">▤ Internal storage</option>
                   <option value="connector">● Connector</option>
                 </select>
               </label>
@@ -6551,19 +6570,27 @@
 
   const FLOWCHART_ONBOARDED_KEY = "flowchart-onboarded";
   const NODE_SHAPE_CLASSES = [
-    "rect", "circle", "diamond", "rounded", "document", "parallelogram", "cylinder", "subprocess", "connector"
+    "rect", "circle", "diamond", "rounded", "document", "parallelogram", "cylinder", "subprocess", "connector",
+    "manual-input", "internal-storage"
+  ];
+
+  const FLOWCHART_LIBRARY_CATEGORIES = [
+    { id: "core", title: "Flowchart Core" },
+    { id: "data", title: "Data & Storage" },
+    { id: "advanced", title: "Advanced Flow" }
   ];
 
   const FLOWCHART_MODE_PRESETS = [
-    { label: "Start", type: "input", shape: "circle", icon: "▶", color: "#7fd9a8", subtitle: "Begin", description: "Flow start", fcRole: "start", width: 128, height: 72 },
-    { label: "Process", type: "process", shape: "rounded", icon: "⚙", color: "#8fb2ff", subtitle: "Step", description: "Action step", fcRole: "process", width: 190, height: 88 },
-    { label: "Decision", type: "decision", shape: "diamond", icon: "◆", color: "#ffd482", subtitle: "Branch", description: "Yes / No branch", fcRole: "decision", width: 130, height: 130 },
-    { label: "Document", type: "note", shape: "document", icon: "📄", color: "#b8c8ff", subtitle: "Report", description: "Document / file", fcRole: "process", width: 190, height: 100 },
-    { label: "Data", type: "data", shape: "parallelogram", icon: "⇄", color: "#9be0cb", subtitle: "I/O", description: "Input / output", fcRole: "process", width: 200, height: 80 },
-    { label: "Database", type: "data", shape: "cylinder", icon: "🗄", color: "#8dd7c2", subtitle: "Store", description: "Database storage", fcRole: "process", width: 168, height: 108 },
-    { label: "Subprocess", type: "system", shape: "subprocess", icon: "▣", color: "#a8b4ff", subtitle: "Call", description: "Subprocess reference", fcRole: "process", width: 200, height: 88 },
-    { label: "Connector", type: "custom", shape: "connector", icon: "●", color: "#9cb8ff", subtitle: "Ref", description: "Off-page connector", fcRole: "process", width: 56, height: 56 },
-    { label: "End", type: "output", shape: "circle", icon: "■", color: "#a8b4d4", subtitle: "Finish", description: "Flow end", fcRole: "end", width: 128, height: 72 }
+    { libraryCategory: "core", label: "Start", type: "input", shape: "circle", icon: "▶", color: "#7fd9a8", subtitle: "Begin", description: "Flow start", fcRole: "start", width: 128, height: 72 },
+    { libraryCategory: "core", label: "Process", type: "process", shape: "rounded", icon: "⚙", color: "#8fb2ff", subtitle: "Step", description: "Action step", fcRole: "process", width: 190, height: 88 },
+    { libraryCategory: "core", label: "Decision", type: "decision", shape: "diamond", icon: "◆", color: "#ffd482", subtitle: "Branch", description: "Yes / No branch", fcRole: "decision", width: 130, height: 130 },
+    { libraryCategory: "core", label: "End", type: "output", shape: "circle", icon: "■", color: "#a8b4d4", subtitle: "Finish", description: "Flow end", fcRole: "end", width: 128, height: 72 },
+    { libraryCategory: "data", label: "Database", type: "data", shape: "cylinder", icon: "🗄", color: "#8dd7c2", subtitle: "Store", description: "Database storage", fcRole: "process", width: 168, height: 108 },
+    { libraryCategory: "data", label: "Document", type: "note", shape: "document", icon: "📄", color: "#b8c8ff", subtitle: "Report", description: "Document / file", fcRole: "process", width: 190, height: 100 },
+    { libraryCategory: "data", label: "Data", type: "data", shape: "parallelogram", icon: "⇄", color: "#9be0cb", subtitle: "I/O", description: "Input / output (parallelogram)", fcRole: "process", width: 200, height: 80 },
+    { libraryCategory: "advanced", label: "Subprocess", type: "system", shape: "subprocess", icon: "▣", color: "#a8b4ff", subtitle: "Call", description: "Subprocess reference", fcRole: "process", width: 200, height: 88 },
+    { libraryCategory: "advanced", label: "Manual Input", type: "input", shape: "manual-input", icon: "⌨", color: "#9fd4ff", subtitle: "Entry", description: "Manual data entry", fcRole: "process", width: 200, height: 88 },
+    { libraryCategory: "advanced", label: "Internal Storage", type: "data", shape: "internal-storage", icon: "▤", color: "#9ec8e8", subtitle: "Memory", description: "Internal storage", fcRole: "process", width: 190, height: 88 }
   ];
   const FLOWCHART_STARTER_PROMPTS = {
     invoice: "Invoice submitted → manager approval → finance review → payment issued",
@@ -10859,13 +10886,52 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return card;
   }
 
+  function setSidebarPanel(panel) {
+    const mode = panel === "projects" ? "projects" : "shapes";
+    const sidebar = document.getElementById("projects-sidebar");
+    if (!sidebar) return;
+    sidebar.dataset.sidebarPanel = mode;
+    const shapesTab = document.getElementById("sidebarTabShapes");
+    const projectsTab = document.getElementById("sidebarTabProjects");
+    const projectDock = document.getElementById("projectDock");
+    const shapesPanel = document.getElementById("sidebarPanelShapes");
+    if (shapesTab) {
+      shapesTab.classList.toggle("active", mode === "shapes");
+      shapesTab.setAttribute("aria-selected", mode === "shapes" ? "true" : "false");
+    }
+    if (projectsTab) {
+      projectsTab.classList.toggle("active", mode === "projects");
+      projectsTab.setAttribute("aria-selected", mode === "projects" ? "true" : "false");
+    }
+    if (projectDock) projectDock.hidden = mode !== "projects";
+    if (shapesPanel) {
+      shapesPanel.hidden = mode !== "shapes";
+      shapesPanel.setAttribute("aria-hidden", mode === "shapes" ? "false" : "true");
+    }
+  }
+
+  function initSidebarPanelTabs() {
+    const shapesTab = document.getElementById("sidebarTabShapes");
+    const projectsTab = document.getElementById("sidebarTabProjects");
+    if (shapesTab) shapesTab.addEventListener("click", () => setSidebarPanel("shapes"));
+    if (projectsTab) projectsTab.addEventListener("click", () => setSidebarPanel("projects"));
+    setSidebarPanel("shapes");
+  }
+
   function renderNodePicker() {
     nodePicker.innerHTML = "";
     if (isFlowchartMode()) {
       const grid = document.createElement("div");
       grid.className = "node-picker-grid";
-      for (const preset of FLOWCHART_MODE_PRESETS) {
-        grid.appendChild(renderFlowchartNodeTile(preset));
+      for (const cat of FLOWCHART_LIBRARY_CATEGORIES) {
+        const header = document.createElement("div");
+        header.className = "node-picker-section";
+        header.textContent = cat.title;
+        grid.appendChild(header);
+        const items = FLOWCHART_MODE_PRESETS.filter((p) => p.libraryCategory === cat.id);
+        for (const preset of items) {
+          grid.appendChild(renderFlowchartNodeTile(preset));
+        }
       }
       nodePicker.appendChild(grid);
       return;
@@ -16259,6 +16325,7 @@ clearFlowGroupSelection();
     runtime.bootHydrating = true;
     try {
       initFlowchartModeUi();
+      initSidebarPanelTabs();
       initFlowchartProductUi();
       initMapDiagramRuntimes();
       restoreCanvasStateFromStorage();
