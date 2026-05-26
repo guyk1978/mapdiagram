@@ -7080,7 +7080,12 @@
     "manual-input", "internal-storage", "capsule", "hexagon", "multidocument", "manual-operation", "merge",
     "summing-junction", "arrow-right", "arrow-left", "arrow-up-down",
     // Expanded engineering shapes (SVG geometry cases in buildNodeShapeGeometryGroup)
-    "extract", "direct-access-storage", "sequential-storage", "arrow-up", "arrow-down", "star", "cloud"
+    "extract", "direct-access-storage", "sequential-storage", "arrow-up", "arrow-down", "star", "cloud",
+    // New geometry + badges
+    "octagon", "triangle-up", "triangle-down", "trapezoid-up", "trapezoid-down",
+    "cross-plus", "l-shape", "t-shape", "starburst",
+    // 3D / isometric blocks
+    "cube-3d", "iso-box"
   ];
 
   const NODE_MASK_SHAPES = new Set([
@@ -7092,7 +7097,10 @@
     "rect", "rounded", "circle", "diamond", "capsule", "hexagon", "document", "multidocument",
     "parallelogram", "cylinder", "internal-storage", "subprocess", "manual-input", "manual-operation",
     "merge", "summing-junction", "connector", "arrow-right", "arrow-left", "arrow-up-down",
-    "extract", "direct-access-storage", "sequential-storage", "arrow-up", "arrow-down", "star", "cloud"
+    "extract", "direct-access-storage", "sequential-storage", "arrow-up", "arrow-down", "star", "cloud",
+    "octagon", "triangle-up", "triangle-down", "trapezoid-up", "trapezoid-down",
+    "cross-plus", "l-shape", "t-shape", "starburst",
+    "cube-3d", "iso-box"
   ]);
 
   const SVG_SHAPE_NS = "http://www.w3.org/2000/svg";
@@ -7125,14 +7133,29 @@
     "arrow-up": { width: 72, height: 128, minWidth: 48, minHeight: 88 },
     "arrow-down": { width: 72, height: 128, minWidth: 48, minHeight: 88 },
     star: { width: 160, height: 100, minWidth: 120, minHeight: 70 },
-    cloud: { width: 160, height: 100, minWidth: 120, minHeight: 70 }
+    cloud: { width: 160, height: 100, minWidth: 120, minHeight: 70 },
+    // Geometry / badges
+    octagon: { width: 160, height: 160, minWidth: 110, minHeight: 110 },
+    "triangle-up": { width: 144, height: 120, minWidth: 96, minHeight: 80 },
+    "triangle-down": { width: 144, height: 120, minWidth: 96, minHeight: 80 },
+    "trapezoid-up": { width: 180, height: 96, minWidth: 120, minHeight: 72 },
+    "trapezoid-down": { width: 180, height: 96, minWidth: 120, minHeight: 72 },
+    "cross-plus": { width: 140, height: 140, minWidth: 96, minHeight: 96 },
+    "l-shape": { width: 160, height: 140, minWidth: 110, minHeight: 90 },
+    "t-shape": { width: 160, height: 140, minWidth: 110, minHeight: 90 },
+    starburst: { width: 170, height: 120, minWidth: 120, minHeight: 80 },
+    // 3D
+    "cube-3d": { width: 150, height: 140, minWidth: 110, minHeight: 90 },
+    "iso-box": { width: 170, height: 130, minWidth: 120, minHeight: 90 }
   };
 
   const FLOWCHART_LIBRARY_CATEGORIES = [
     { id: "core", title: "FLOWCHART CORE", defaultOpen: true },
     { id: "advanced", title: "ADVANCED FLOW", defaultOpen: false },
+    { id: "geom", title: "GEOMETRIC & BADGES", defaultOpen: false },
     { id: "data", title: "DATA & STORAGE", defaultOpen: false },
-    { id: "connectors", title: "ARROWS & MARKERS", defaultOpen: false }
+    { id: "connectors", title: "ARROWS & MARKERS", defaultOpen: false },
+    { id: "threeD", title: "3D ELEMENTS", defaultOpen: false }
   ];
 
   const FLOWCHART_MODE_PRESETS = [
@@ -7151,20 +7174,34 @@
     { libraryCategory: "advanced", label: "Merge", type: "process", shape: "merge", tooltip: "merge", icon: "▽", color: "#b8a8ff", fcRole: "process", width: 120, height: 96 },
     { libraryCategory: "advanced", label: "Extract", type: "process", shape: "extract", tooltip: "extract", icon: "△", color: "#b8a8ff", fcRole: "process", width: 120, height: 96 },
 
-    // CATEGORY 3 — DATA & STORAGE
+    // CATEGORY 3 — GEOMETRIC & BADGES
+    { libraryCategory: "geom", label: "Octagon", type: "process", shape: "octagon", tooltip: "octagon", icon: "⯃", color: "#9fb3ff", fcRole: "process", width: 160, height: 160 },
+    { libraryCategory: "geom", label: "Triangle up", type: "process", shape: "triangle-up", tooltip: "triangle-up", icon: "▲", color: "#fecf65", fcRole: "process", width: 144, height: 120 },
+    { libraryCategory: "geom", label: "Triangle down", type: "process", shape: "triangle-down", tooltip: "triangle-down", icon: "▼", color: "#fecf65", fcRole: "process", width: 144, height: 120 },
+    { libraryCategory: "geom", label: "Trapezoid", type: "process", shape: "trapezoid-up", tooltip: "trapezoid", icon: "⏢", color: "#93e1d0", fcRole: "process", width: 180, height: 96 },
+    { libraryCategory: "geom", label: "Cross", type: "process", shape: "cross-plus", tooltip: "cross-plus", icon: "✚", color: "#f9a8d4", fcRole: "process", width: 140, height: 140 },
+    { libraryCategory: "geom", label: "L-shape", type: "process", shape: "l-shape", tooltip: "l-shape", icon: "⊏", color: "#facc88", fcRole: "process", width: 160, height: 140 },
+    { libraryCategory: "geom", label: "T-shape", type: "process", shape: "t-shape", tooltip: "t-shape", icon: "⊤", color: "#c4b5ff", fcRole: "process", width: 160, height: 140 },
+    { libraryCategory: "geom", label: "Starburst badge", type: "custom", shape: "starburst", tooltip: "starburst", icon: "✺", color: "#fb7185", fcRole: "process", width: 170, height: 120 },
+
+    // CATEGORY 4 — DATA & STORAGE
     { libraryCategory: "data", label: "Database", type: "data", shape: "cylinder", tooltip: "database", icon: "🗄", color: "#8dd7c2", fcRole: "process", width: 168, height: 108 },
     { libraryCategory: "data", label: "Direct access storage", type: "data", shape: "direct-access-storage", tooltip: "direct-access-storage", icon: "⟷", color: "#8dd7c2", fcRole: "process", width: 200, height: 64 },
     { libraryCategory: "data", label: "Internal storage", type: "data", shape: "internal-storage", tooltip: "internal-storage", icon: "▤", color: "#9ec8e8", fcRole: "process", width: 190, height: 88 },
     { libraryCategory: "data", label: "Sequential storage", type: "data", shape: "sequential-storage", tooltip: "sequential-storage", icon: "⦿", color: "#9cb8ff", fcRole: "process", width: 96, height: 96 },
 
-    // CATEGORY 4 — ARROWS & MARKERS
+    // CATEGORY 5 — ARROWS & MARKERS
     { libraryCategory: "connectors", label: "Arrow right", type: "custom", shape: "arrow-right", tooltip: "arrow-right", icon: "→", color: "#8fb2ff", fcRole: "process", width: 128, height: 64 },
     { libraryCategory: "connectors", label: "Arrow left", type: "custom", shape: "arrow-left", tooltip: "arrow-left", icon: "←", color: "#8fb2ff", fcRole: "process", width: 128, height: 64 },
     { libraryCategory: "connectors", label: "Arrow up", type: "custom", shape: "arrow-up", tooltip: "arrow-up", icon: "↑", color: "#8fb2ff", fcRole: "process", width: 72, height: 128 },
     { libraryCategory: "connectors", label: "Arrow down", type: "custom", shape: "arrow-down", tooltip: "arrow-down", icon: "↓", color: "#8fb2ff", fcRole: "process", width: 72, height: 128 },
     { libraryCategory: "connectors", label: "Circle marker", type: "custom", shape: "connector", tooltip: "circle-marker", icon: "●", color: "#9cb8ff", fcRole: "process", width: 56, height: 56 },
     { libraryCategory: "connectors", label: "Star annotation", type: "custom", shape: "star", tooltip: "star", icon: "★", color: "#bda8ff", fcRole: "process", width: 160, height: 100 },
-    { libraryCategory: "connectors", label: "Cloud annotation", type: "custom", shape: "cloud", tooltip: "cloud", icon: "☁", color: "#a8bcff", fcRole: "process", width: 160, height: 100 }
+    { libraryCategory: "connectors", label: "Cloud annotation", type: "custom", shape: "cloud", tooltip: "cloud", icon: "☁", color: "#a8bcff", fcRole: "process", width: 160, height: 100 },
+
+    // CATEGORY 6 — 3D ELEMENTS
+    { libraryCategory: "threeD", label: "3D Cube", type: "system", shape: "cube-3d", tooltip: "cube-3d", icon: "⬢", color: "#9fd4ff", fcRole: "process", width: 150, height: 140 },
+    { libraryCategory: "threeD", label: "Isometric box", type: "system", shape: "iso-box", tooltip: "iso-box", icon: "⬡", color: "#8dd7c2", fcRole: "process", width: 170, height: 130 }
   ];
   const FLOWCHART_STARTER_PROMPTS = {
     invoice: "Invoice submitted → manager approval → finance review → payment issued",
@@ -9865,6 +9902,53 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       case "cloud": {
         const d = "M29,66 C26,66 23,64 23,60 C23,55 27,52 31,53 C33,44 41,39 49,41 C56,31 70,31 76,41 C83,42 88,48 88,55 C88,62 83,67 76,67 H31 C30,67 29,66 29,66 Z";
         both("path", { d });
+        break;
+      }
+      case "octagon":
+        both("polygon", { points: "36,6 64,6 88,30 88,68 64,94 36,94 12,68 12,30" });
+        break;
+      case "triangle-up":
+        both("polygon", { points: "50,10 10,86 90,86" });
+        break;
+      case "triangle-down":
+        both("polygon", { points: "10,14 90,14 50,90" });
+        break;
+      case "trapezoid-up":
+        both("polygon", { points: "26,18 74,18 94,82 6,82" });
+        break;
+      case "trapezoid-down":
+        both("polygon", { points: "6,18 94,18 74,82 26,82" });
+        break;
+      case "cross-plus":
+        both("path", { d: "M42,8 H58 V32 H82 V48 H58 V72 H82 V88 H58 V112 H42 V88 H18 V72 H42 V48 H18 V32 H42 Z" });
+        break;
+      case "l-shape":
+        both("path", { d: "M18,18 H42 V82 H88 V98 H18 Z" });
+        break;
+      case "t-shape":
+        both("path", { d: "M18,18 H82 V34 H62 V98 H38 V34 H18 Z" });
+        break;
+      case "starburst":
+        both("polygon", {
+          points: "50,6 57,22 74,14 70,32 88,30 76,44 92,50 76,56 88,70 70,68 74,86 57,78 50,94 43,78 26,86 30,68 12,70 24,56 8,50 24,44 12,30 30,32 26,14 43,22"
+        });
+        break;
+      case "cube-3d": {
+        const front = "M28,36 H72 V84 H28 Z";
+        const top = "M28,36 L50,18 72,36 50,54 Z";
+        const side = "M72,36 L72,84 50,102 50,54 Z";
+        both("path", { d: front });
+        both("path", { d: top });
+        both("path", { d: side });
+        break;
+      }
+      case "iso-box": {
+        const top = "M32,20 L68,20 88,32 52,32 Z";
+        const left = "M32,20 L32,64 52,78 52,32 Z";
+        const right = "M68,20 L68,64 52,78 52,32 Z";
+        both("path", { d: top });
+        both("path", { d: left });
+        both("path", { d: right });
         break;
       }
       default:
