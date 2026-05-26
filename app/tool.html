@@ -1642,8 +1642,8 @@
       0 14px 36px var(--node-shadow-outer),
       0 1px 0 rgba(255, 255, 255, 0.06) inset,
       0 -14px 20px rgba(0, 0, 0, 0.06) inset;
-    resize: both;
-    overflow: auto;
+    resize: none;
+    overflow: visible;
     user-select: none;
     --node-tx: 0px;
     --node-ty: 0px;
@@ -1667,10 +1667,7 @@
     transform: translate3d(var(--node-tx), var(--node-ty), 0) rotate(var(--node-rotation)) scale(1.022);
   }
   .node.selected {
-    box-shadow:
-      0 0 0 2px rgba(122, 162, 255, 0.65),
-      0 14px 34px rgba(0,0,0,.24),
-      0 1px 0 rgba(255, 255, 255, 0.07) inset;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
   }
   .node.connect-target {
     box-shadow:
@@ -1981,7 +1978,72 @@
     display: none !important;
     pointer-events: none !important;
   }
-  /* Ghost connection points — visible on node hover (drag to connect). */
+  /* Selection bounding box + 8 resize handles (draw.io-style). */
+  .node-selection-chrome {
+    position: absolute;
+    inset: 0;
+    z-index: 7;
+    display: none;
+    pointer-events: none;
+  }
+  .node.selected > .node-selection-chrome,
+  .node.fc-multi-picked > .node-selection-chrome {
+    display: block;
+  }
+  .node-selection-frame {
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    border: 1px dashed rgba(0, 162, 232, 0.6);
+    border-radius: 0;
+    pointer-events: none;
+  }
+  .node-resize-handles {
+    position: absolute;
+    inset: -8px;
+    pointer-events: none;
+  }
+  .node-resize-handle {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    margin: 0;
+    padding: 0;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: #00a2e8;
+    box-shadow: 0 1px 5px rgba(0, 24, 48, 0.35);
+    pointer-events: auto;
+    transform: translate(-50%, -50%);
+    touch-action: none;
+    z-index: 9;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .node-resize-handle:hover,
+  .node-resize-handle:focus-visible {
+    transform: translate(-50%, -50%) scale(1.12);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 10px rgba(0, 162, 232, 0.45);
+  }
+  .node-resize-handle[data-resize="nw"] { left: 0; top: 0; cursor: nwse-resize; }
+  .node-resize-handle[data-resize="n"] { left: 50%; top: 0; cursor: ns-resize; }
+  .node-resize-handle[data-resize="ne"] { left: 100%; top: 0; cursor: nesw-resize; }
+  .node-resize-handle[data-resize="e"] { left: 100%; top: 50%; cursor: ew-resize; }
+  .node-resize-handle[data-resize="se"] { left: 100%; top: 100%; cursor: nwse-resize; }
+  .node-resize-handle[data-resize="s"] { left: 50%; top: 100%; cursor: ns-resize; }
+  .node-resize-handle[data-resize="sw"] { left: 0; top: 100%; cursor: nesw-resize; }
+  .node-resize-handle[data-resize="w"] { left: 0; top: 50%; cursor: ew-resize; }
+  .node.is-resizing .node-selection-chrome,
+  .node.is-resizing .node-conn-handles {
+    pointer-events: auto;
+  }
+  .flowchart-mode .node {
+    resize: none;
+    overflow: visible;
+  }
+  .flowchart-mode .node.selected {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+  }
+  /* Connection anchors — 4 midpoints, offset outside bounding box. */
   .node-conn-handles {
     position: absolute;
     inset: -8px;
@@ -1990,21 +2052,18 @@
   }
   .node-conn-handle {
     position: absolute;
-    width: 10px;
-    height: 10px;
+    width: 9px;
+    height: 9px;
     margin: 0;
     padding: 0;
-    border: none;
+    border: 2px solid #fff;
     border-radius: 50%;
-    background: var(--accent, #7aa2ff);
-    box-shadow:
-      0 0 0 2px rgba(255, 255, 255, 0.95),
-      0 0 0 3px rgba(122, 162, 255, 0.42),
-      0 2px 10px rgba(18, 32, 64, 0.28);
+    background: #00a2e8;
+    box-shadow: 0 1px 5px rgba(0, 24, 48, 0.35);
     pointer-events: auto;
     cursor: crosshair;
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.72);
+    transform: translate(-50%, -50%) scale(0.85);
     transition:
       opacity 0.14s ease,
       transform 0.14s ease,
@@ -2012,23 +2071,18 @@
     touch-action: none;
   }
   html[data-theme="light"] .node-conn-handle {
-    box-shadow:
-      0 0 0 2px rgba(255, 255, 255, 1),
-      0 0 0 3px rgba(90, 130, 220, 0.42),
-      0 2px 8px rgba(30, 50, 90, 0.16);
+    box-shadow: 0 1px 4px rgba(30, 50, 90, 0.2);
   }
   .node-conn-handle:hover,
   .node-conn-handle:focus-visible {
-    transform: translate(-50%, -50%) scale(1.1);
-    box-shadow:
-      0 0 0 2px rgba(255, 255, 255, 1),
-      0 0 0 4px rgba(122, 162, 255, 0.55),
-      0 0 14px rgba(122, 162, 255, 0.45);
+    transform: translate(-50%, -50%) scale(1.12);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 10px rgba(0, 162, 232, 0.45);
   }
   .node:hover .node-conn-handle,
   .node:focus-within .node-conn-handle,
   .node.is-connect-from .node-conn-handle,
-  .node.selected .node-conn-handle {
+  .node.selected .node-conn-handle,
+  .node.fc-multi-picked .node-conn-handle {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
   }
@@ -2041,22 +2095,6 @@
   .node-conn-handle[data-side="right"] { left: 100%; top: 50%; }
   .node-conn-handle[data-side="bottom"] { left: 50%; top: 100%; }
   .node-conn-handle[data-side="left"] { left: 0; top: 50%; }
-  .node.shape-circle .node-conn-handle[data-side="top"],
-  .node.shape-capsule .node-conn-handle[data-side="top"],
-  .node.shape-summing-junction .node-conn-handle[data-side="top"],
-  .node.shape-connector .node-conn-handle[data-side="top"] { top: 2%; }
-  .node.shape-circle .node-conn-handle[data-side="bottom"],
-  .node.shape-capsule .node-conn-handle[data-side="bottom"],
-  .node.shape-summing-junction .node-conn-handle[data-side="bottom"],
-  .node.shape-connector .node-conn-handle[data-side="bottom"] { top: 98%; }
-  .node.shape-circle .node-conn-handle[data-side="left"],
-  .node.shape-capsule .node-conn-handle[data-side="left"],
-  .node.shape-summing-junction .node-conn-handle[data-side="left"],
-  .node.shape-connector .node-conn-handle[data-side="left"] { left: 2%; }
-  .node.shape-circle .node-conn-handle[data-side="right"],
-  .node.shape-capsule .node-conn-handle[data-side="right"],
-  .node.shape-summing-junction .node-conn-handle[data-side="right"],
-  .node.shape-connector .node-conn-handle[data-side="right"] { left: 98%; }
   /* SVG vector shapes on canvas (flowchart mode). */
   .node.node--svg-shape {
     background: transparent !important;
@@ -3251,11 +3289,8 @@
       0 0 0 2px rgba(122, 162, 255, 0.35),
       0 0 16px rgba(122, 162, 255, 0.42);
   }
-  .flowchart-mode .node.selected {
-    box-shadow:
-      0 0 0 2px rgba(122, 162, 255, 0.78),
-      0 0 28px rgba(122, 162, 255, 0.32),
-      0 16px 36px rgba(0, 0, 0, 0.26);
+  .flowchart-mode .node.selected:not(.node--svg-shape) {
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
   }
   .flowchart-mode .conn.confirm {
     animation: fcConnConfirm 520ms var(--fc-ease);
@@ -4991,6 +5026,8 @@
     dragEphemeralWorld: null,
     _connectHoverId: null,
     connHandleDelegationReady: false,
+    resizeHandleDelegationReady: false,
+    nodeResizing: null,
     collisionDebounceTimer: null,
     graphCache: null,
     graphCacheKey: "",
@@ -9915,6 +9952,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     } else if (runtime.dragging) {
       finalizeActiveNodeDragIfAny();
     }
+    if (runtime.nodeResizing) finalizeNodeResizeIfAny();
     if (runtime.flowGroupDragging) finalizeFlowGroupDragIfAny();
     clearPendingConnectionState();
     runtime.panning = null;
@@ -10495,6 +10533,30 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     });
   }
 
+  const NODE_HANDLE_OUTSET = 8;
+
+  function appendNodeSelectionChrome(nodeEl) {
+    if (nodeEl.querySelector(":scope > .node-selection-chrome")) return;
+    const chrome = document.createElement("div");
+    chrome.className = "node-selection-chrome";
+    chrome.setAttribute("aria-hidden", "true");
+    const frame = document.createElement("div");
+    frame.className = "node-selection-frame";
+    const resizeHost = document.createElement("div");
+    resizeHost.className = "node-resize-handles";
+    for (const pos of ["nw", "n", "ne", "e", "se", "s", "sw", "w"]) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "node-resize-handle";
+      btn.dataset.resize = pos;
+      btn.tabIndex = -1;
+      btn.setAttribute("aria-label", `Resize ${pos}`);
+      resizeHost.appendChild(btn);
+    }
+    chrome.append(frame, resizeHost);
+    nodeEl.appendChild(chrome);
+  }
+
   function appendNodeConnectHandles(nodeEl, nodeObj) {
     if (runtime.readOnly || isNodeHiddenCanvas(nodeObj)) return;
     if (nodeEl.querySelector(":scope > .node-conn-handles")) return;
@@ -10511,6 +10573,102 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       host.appendChild(handle);
     }
     nodeEl.appendChild(host);
+  }
+
+  function startNodeResize(node, handle, e) {
+    if (!node || runtime.readOnly || isNodeDragHardLocked(node)) return;
+    const w = getNodeWorldPosition(node);
+    runtime.nodeResizing = {
+      nodeId: node.id,
+      handle,
+      pointerId: e.pointerId,
+      startClientX: e.clientX,
+      startClientY: e.clientY,
+      startX: w.x,
+      startY: w.y,
+      startW: node.width,
+      startH: node.height
+    };
+    const el = getNodeDomEl(node.id);
+    if (el) el.classList.add("is-resizing");
+    try {
+      e.target.setPointerCapture(e.pointerId);
+    } catch (_) {}
+    e.stopPropagation();
+    e.preventDefault();
+  }
+
+  function updateNodeResize(e) {
+    const r = runtime.nodeResizing;
+    if (!r || (r.pointerId != null && e.pointerId !== r.pointerId)) return;
+    const n = getNodeById(r.nodeId);
+    if (!n) return;
+    const zoom = getProject().view.zoom || 1;
+    const dx = (e.clientX - r.startClientX) / zoom;
+    const dy = (e.clientY - r.startClientY) / zoom;
+    const defs = NODE_SHAPE_DEFAULTS[n.shape] || NODE_SHAPE_DEFAULTS.rect;
+    let x = r.startX;
+    let y = r.startY;
+    let w = r.startW;
+    let h = r.startH;
+    const hdl = r.handle;
+    if (hdl.includes("e")) w = Math.max(defs.minWidth, r.startW + dx);
+    if (hdl.includes("w")) {
+      w = Math.max(defs.minWidth, r.startW - dx);
+      x = r.startX + (r.startW - w);
+    }
+    if (hdl.includes("s")) h = Math.max(defs.minHeight, r.startH + dy);
+    if (hdl.includes("n")) {
+      h = Math.max(defs.minHeight, r.startH - dy);
+      y = r.startY + (r.startH - h);
+    }
+    n.x = x;
+    n.y = y;
+    n.width = w;
+    n.height = h;
+    const el = getNodeDomEl(n.id);
+    if (el) {
+      applyNodeWorldTransform(el, x, y);
+      el.style.width = `${w}px`;
+      el.style.height = `${h}px`;
+    }
+    scheduleRenderConnectionsDuringDrag();
+  }
+
+  function finalizeNodeResizeIfAny() {
+    const r = runtime.nodeResizing;
+    if (!r) return;
+    runtime.nodeResizing = null;
+    const el = getNodeDomEl(r.nodeId);
+    if (el) el.classList.remove("is-resizing");
+    syncNodeSizes();
+    scheduleRenderConnections();
+    renderSemanticOverlays();
+    markDirty();
+  }
+
+  function initNodeResizeHandleDelegation() {
+    if (runtime.resizeHandleDelegationReady || !nodesLayer) return;
+    runtime.resizeHandleDelegationReady = true;
+    nodesLayer.addEventListener("pointerdown", (e) => {
+      const handle = e.target.closest?.(".node-resize-handle");
+      if (!handle) return;
+      const nodeEl = handle.closest(".node");
+      const nodeId = nodeEl?.dataset?.nodeId;
+      const nodeObj = nodeId ? getNodeById(nodeId) : null;
+      if (!nodeObj || runtime.readOnly) return;
+      if (e.button !== 0) return;
+      if (isNodeDragHardLocked(nodeObj)) return;
+      runtime.dragging = null;
+      runtime.touchDragPending = null;
+      releaseStoredNodeBodyPointerCapture();
+      markInspectorDiagramTabFocus();
+      selectionRuntime.selectNode(nodeObj.id);
+      clearFlowGroupSelection();
+      clearAllEdgeSelection();
+      renderSelection();
+      startNodeResize(nodeObj, handle.dataset.resize, e);
+    });
   }
 
   function startBranchFromConnectionDrag(parentConnId) {
@@ -10897,6 +11055,19 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     }
   }
 
+  /** Cardinal midpoint on axis-aligned bounding box (flowchart connector symmetry). */
+  function anchorCardinalMidpoint(n, toward) {
+    const w = getNodeWorldPosition(n);
+    const cx = w.x + n.width / 2;
+    const cy = w.y + n.height / 2;
+    const dx = toward.x - cx;
+    const dy = toward.y - cy;
+    if (Math.abs(dx) * n.height > Math.abs(dy) * n.width) {
+      return dx > 0 ? { x: w.x + n.width, y: cy } : { x: w.x, y: cy };
+    }
+    return dy > 0 ? { x: cx, y: w.y + n.height } : { x: cx, y: w.y };
+  }
+
   /** Intersection of ray (center → toward) with axis-aligned node bounds — edge attachment anywhere on the body. */
   function anchorRectPerimeter(n, toward) {
     const w = getNodeWorldPosition(n);
@@ -10920,6 +11091,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const w = getNodeWorldPosition(n);
     const tw =
       towardPoint && typeof towardPoint.x === "number" && typeof towardPoint.y === "number" ? towardPoint : null;
+    if (tw && isFlowchartMode()) return anchorCardinalMidpoint(n, tw);
     if (tw) return anchorRectPerimeter(n, tw);
     const bias =
       type === "out"
@@ -11917,6 +12089,7 @@ clearFlowGroupSelection();
       else revealDiagramNodeInspectorAndOpenExtended(n.id);
     });
 
+    appendNodeSelectionChrome(el);
     appendNodeConnectHandles(el, n);
     if (st0.freeform) el.classList.add("node-freeform");
     if (isNodeHiddenCanvas(n)) el.classList.add("node-hidden-canvas");
@@ -15602,6 +15775,7 @@ clearFlowGroupSelection();
   });
 
   initNodeConnectHandleDelegation();
+  initNodeResizeHandleDelegation();
 
   document.addEventListener("pointermove", (e) => {
     if (runtime.focusNodeId) return;
@@ -15700,6 +15874,10 @@ clearFlowGroupSelection();
     }
     if (runtime.flowGroupDragging) {
       updateFlowGroupDrag(e);
+      return;
+    }
+    if (runtime.nodeResizing) {
+      updateNodeResize(e);
       return;
     }
     if (runtime.dragging) {
@@ -15916,6 +16094,9 @@ clearFlowGroupSelection();
       const fin = finalizeGroupConnectionDrag(e.clientX, e.clientY);
       mdGcLog("[GROUP CONNECT] pointerup ← finalize returned", { fin });
       return;
+    }
+    if (runtime.nodeResizing && (runtime.nodeResizing.pointerId == null || runtime.nodeResizing.pointerId === e.pointerId)) {
+      finalizeNodeResizeIfAny();
     }
     const dragSnap = runtime.dragging;
     if (dragSnap && (dragSnap.pointerId == null || dragSnap.pointerId === e.pointerId)) {
