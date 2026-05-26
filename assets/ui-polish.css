@@ -1122,7 +1122,8 @@ html[data-theme="light"] .inspector-group {
 .inspector-group--canvas,
 .inspector-group--element,
 .inspector-group--style,
-.inspector-group--node-color {
+.inspector-group--node-color,
+.inspector-group--node-text {
   padding: 5px 7px;
   gap: 4px;
 }
@@ -1445,6 +1446,100 @@ html[data-theme="light"] .node-color-popover {
   border-color: rgba(40, 55, 90, 0.16);
 }
 
+/* —— Inspector text controls —— */
+.node-text-font-row {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.insp-compact-select {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 12, 22, 0.55);
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.insp-size-input-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+
+.insp-size-input {
+  width: 36px;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 12, 22, 0.55);
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.insp-size-suffix {
+  font-size: 10px;
+  color: #8a8a93;
+  font-weight: 600;
+}
+
+.node-text-style-row {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.insp-segment-group--toggle {
+  flex: 0 0 auto;
+}
+
+.insp-text-toggle strong,
+.insp-text-toggle em,
+.insp-text-toggle .insp-text-u {
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.insp-text-toggle em {
+  font-style: italic;
+  font-weight: 600;
+}
+
+.insp-text-toggle .insp-text-u {
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+.node-text-color-line {
+  margin-top: 1px;
+}
+
+.node-text-color-line .node-color-hex-input {
+  width: 64px;
+}
+
+html[data-theme="light"] .insp-compact-select,
+html[data-theme="light"] .insp-size-input {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(40, 55, 90, 0.16);
+}
+
 .inspector-group--options-compact {
   background: transparent;
   border: none;
@@ -1580,6 +1675,7 @@ html[data-theme="light"] .node-color-popover {
 #inspectorCanvasState .inspector-group,
 #inspectorElementState .inspector-group--style,
 #inspectorElementState .inspector-group--node-color,
+#inspectorElementState .inspector-group--node-text,
 #inspectorElementState .inspector-group--element {
   gap: 8px;
 }

@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="/assets/toolbar-unified.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="./supabase-config.js"></script>
 
@@ -4507,6 +4507,59 @@
                   <button type="button" class="insp-segment-btn" data-value="8" aria-pressed="false">M</button>
                   <button type="button" class="insp-segment-btn" data-value="16" aria-pressed="false">L</button>
                 </div>
+              </div>
+            </div>
+          </div>
+          <div class="inspector-group inspector-group--node-text inspector-compact" id="nodeTextInspector">
+            <div class="insp-segment-row insp-segment-row--text-font">
+              <span class="insp-segment-row__label">Font</span>
+              <div class="node-text-font-row">
+                <select id="nodeTextFontFamily" class="insp-compact-select" aria-label="Font family">
+                  <option value="inter">Inter</option>
+                  <option value="poppins">Poppins</option>
+                  <option value="system">Sans-Serif</option>
+                  <option value="serif">Serif</option>
+                  <option value="mono">Mono</option>
+                </select>
+                <div class="insp-size-input-wrap">
+                  <input type="number" id="nodeTextFontSize" class="insp-size-input" min="10" max="28" step="1" value="14" aria-label="Font size">
+                  <span class="insp-size-suffix">px</span>
+                </div>
+              </div>
+            </div>
+            <div class="insp-segment-row">
+              <span class="insp-segment-row__label">Style</span>
+              <div class="node-text-style-row">
+                <div class="insp-segment-group insp-segment-group--toggle" role="group" aria-label="Text style">
+                  <button type="button" class="insp-segment-btn insp-text-toggle" data-text-toggle="bold" aria-pressed="false" title="Bold"><strong>B</strong></button>
+                  <button type="button" class="insp-segment-btn insp-text-toggle" data-text-toggle="italic" aria-pressed="false" title="Italic"><em>I</em></button>
+                  <button type="button" class="insp-segment-btn insp-text-toggle" data-text-toggle="underline" aria-pressed="false" title="Underline"><span class="insp-text-u">U</span></button>
+                </div>
+                <div class="insp-segment-group" data-text-key="align" role="group" aria-label="Text alignment">
+                  <button type="button" class="insp-segment-btn insp-text-align" data-value="left" aria-pressed="false" title="Align left">&#8676;</button>
+                  <button type="button" class="insp-segment-btn insp-text-align" data-value="center" aria-pressed="false" title="Align center">&#8596;</button>
+                  <button type="button" class="insp-segment-btn insp-text-align" data-value="right" aria-pressed="false" title="Align right">&#8677;</button>
+                </div>
+              </div>
+            </div>
+            <div class="node-color-line node-text-color-line">
+              <span class="inspector-micro-label">Color</span>
+              <div class="node-color-line__body">
+                <div class="node-color-swatches node-text-color-swatches" id="nodeTextColorSwatches" role="listbox" aria-label="Text color presets">
+                  <button type="button" class="node-color-swatch" data-text-color="#FFFFFF" style="--swatch-color:#FFFFFF" title="White" aria-label="White"></button>
+                  <button type="button" class="node-color-swatch" data-text-color="#E2E8F0" style="--swatch-color:#E2E8F0" title="Light gray" aria-label="Light gray"></button>
+                  <button type="button" class="node-color-swatch" data-text-color="#94A3B8" style="--swatch-color:#94A3B8" title="Slate" aria-label="Slate"></button>
+                  <button type="button" class="node-color-swatch" data-text-color="#1E293B" style="--swatch-color:#1E293B" title="Deep dark" aria-label="Deep dark"></button>
+                  <button type="button" class="node-color-swatch" data-text-color="#0F172A" style="--swatch-color:#0F172A" title="Ink" aria-label="Ink"></button>
+                  <button type="button" class="node-color-swatch" data-text-color="#00A2E8" style="--swatch-color:#00A2E8" title="Electric blue" aria-label="Electric blue"></button>
+                  <button type="button" class="node-color-swatch" data-text-color="#F8FAFC" style="--swatch-color:#F8FAFC" title="Frost" aria-label="Frost"></button>
+                  <button type="button" class="node-color-swatch" data-text-color="#F59E0B" style="--swatch-color:#F59E0B" title="Amber" aria-label="Amber"></button>
+                </div>
+                <label class="node-color-picker-wrap" title="Custom text color">
+                  <span class="sr-only">Custom text color</span>
+                  <input type="color" id="nodeTextColorPicker" value="#EEF3FF" aria-label="Custom text color">
+                </label>
+                <input type="text" id="nodeTextColorHex" class="node-color-hex-input" placeholder="#EEF3FF" spellcheck="false" maxlength="12" aria-label="Text color hex" autocomplete="off">
               </div>
             </div>
           </div>
@@ -9076,7 +9129,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     if (!container) return;
     const norm = value == null ? "" : String(value).toUpperCase();
     container.querySelectorAll(".node-color-swatch").forEach((btn) => {
-      const sw = (btn.dataset.nodeColor || "").toUpperCase();
+      const sw = (btn.dataset.nodeColor || btn.dataset.textColor || "").toUpperCase();
       const on = sw === norm;
       btn.classList.toggle("is-active", on);
       btn.setAttribute("aria-selected", on ? "true" : "false");
@@ -9363,8 +9416,18 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     else n.style.titleFontSize = Math.max(10, Math.min(28, Math.round(Number(n.style.titleFontSize))));
     const tw0 = Number(n.style.titleFontWeight);
     n.style.titleFontWeight = [400, 500, 600, 700].includes(tw0) ? tw0 : 600;
-    const fam = String(n.style.titleFontFamily || "ui");
-    n.style.titleFontFamily = ["ui", "serif", "mono"].includes(fam) ? fam : "ui";
+    let fam = String(n.style.titleFontFamily || "inter");
+    if (fam === "ui") fam = "inter";
+    n.style.titleFontFamily = ["inter", "poppins", "system", "serif", "mono"].includes(fam) ? fam : "inter";
+    if (n.style.titleBold == null) n.style.titleBold = Number(n.style.titleFontWeight) >= 700;
+    if (n.style.titleItalic == null) n.style.titleItalic = false;
+    if (n.style.titleUnderline == null) n.style.titleUnderline = false;
+    const align = String(n.style.titleTextAlign || "center");
+    n.style.titleTextAlign = ["left", "center", "right"].includes(align) ? align : "center";
+    if (n.style.textColor != null && n.style.textColor !== "") {
+      const tc = normalizeNodeHexColor(n.style.textColor);
+      n.style.textColor = tc || null;
+    }
     return n.style;
   }
 
@@ -11374,19 +11437,201 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
 
   function nodeTitleFontStackCss(st) {
     const fam = st && st.titleFontFamily;
+    if (fam === "poppins") return '"Poppins", Inter, system-ui, sans-serif';
     if (fam === "serif") return 'Georgia, "Times New Roman", serif';
     if (fam === "mono") return 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+    if (fam === "system") return 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
     return 'Inter, "Segoe UI", system-ui, -apple-system, sans-serif';
+  }
+
+  function getNodeTextColor(st) {
+    if (!st || st.textColor == null || st.textColor === "") return null;
+    return normalizeNodeHexColor(st.textColor);
   }
 
   function applyNodeTitleTypography(titleEl, n) {
     if (!titleEl || !n) return;
     const st = ensureNodeStyle(n);
     const px = Math.max(10, Math.min(28, Number(st.titleFontSize) || 14));
-    const w = [400, 500, 600, 700].includes(Number(st.titleFontWeight)) ? Number(st.titleFontWeight) : 600;
+    const w = st.titleBold ? 700 : [400, 500, 600].includes(Number(st.titleFontWeight)) ? Number(st.titleFontWeight) : 600;
     titleEl.style.fontSize = `${px}px`;
     titleEl.style.fontWeight = String(w);
     titleEl.style.fontFamily = nodeTitleFontStackCss(st);
+    titleEl.style.fontStyle = st.titleItalic ? "italic" : "normal";
+    titleEl.style.textDecoration = st.titleUnderline ? "underline" : "none";
+    const align = st.titleTextAlign || "center";
+    titleEl.style.textAlign = align;
+    const tc = getNodeTextColor(st);
+    titleEl.style.color = tc || "";
+  }
+
+  function applyNodeBodyTextStyles(body, n) {
+    if (!body || !n) return;
+    const st = ensureNodeStyle(n);
+    const align = st.titleTextAlign || "center";
+    const tc = getNodeTextColor(st);
+    body.style.textAlign = align;
+    const title = body.querySelector(".node-title");
+    if (title) applyNodeTitleTypography(title, n);
+    const subtitle = body.querySelector(".node-subtitle");
+    if (subtitle) {
+      subtitle.style.textAlign = align;
+      subtitle.style.color = tc ? hexToRgba(tc, 0.82) : "";
+    }
+    const desc = body.querySelector(".node-desc");
+    if (desc) {
+      desc.style.textAlign = align;
+      desc.style.color = tc ? hexToRgba(tc, 0.72) : "";
+    }
+  }
+
+  function refreshNodeTextOnCanvas(nodeId) {
+    const n = getNodeById(nodeId);
+    if (!n) return;
+    const el = getNodeDomEl(nodeId);
+    const body = el ? findNodeBodyEl(el) : null;
+    if (body && !body.isContentEditable) {
+      renderNodeBody(body, n);
+    } else {
+      updateNodeDom(nodeId);
+    }
+  }
+
+  function applyNodeTextStyleToSelection(patch) {
+    if (runtime.isSyncingInspector || runtime.readOnly || !patch) return;
+    let ids = getInspectorTargetNodeIds();
+    if (!ids.length && runtime.selectedNodeId) ids = [runtime.selectedNodeId];
+    if (!ids.length) return;
+    for (const id of ids) {
+      const n = getNodeById(id);
+      if (!n) continue;
+      const st = ensureNodeStyle(n);
+      if (patch.titleFontFamily != null) st.titleFontFamily = patch.titleFontFamily;
+      if (patch.titleFontSize != null) st.titleFontSize = patch.titleFontSize;
+      if (patch.titleBold != null) {
+        st.titleBold = !!patch.titleBold;
+        st.titleFontWeight = st.titleBold ? 700 : 600;
+      }
+      if (patch.titleItalic != null) st.titleItalic = !!patch.titleItalic;
+      if (patch.titleUnderline != null) st.titleUnderline = !!patch.titleUnderline;
+      if (patch.titleTextAlign != null) st.titleTextAlign = patch.titleTextAlign;
+      if (patch.textColor !== undefined) st.textColor = patch.textColor;
+      refreshNodeTextOnCanvas(id);
+    }
+    markDirty();
+    runtime.isSyncingInspector = true;
+    try {
+      syncNodeTextInspectorControls(getNodeById(runtime.selectedNodeId) || getNodeById(ids[0]));
+    } finally {
+      runtime.isSyncingInspector = false;
+    }
+  }
+
+  function syncNodeTextInspectorControls(node) {
+    const root = document.getElementById("nodeTextInspector");
+    if (!root) return;
+    const disabled = !node;
+    const famSel = document.getElementById("nodeTextFontFamily");
+    const sizeIn = document.getElementById("nodeTextFontSize");
+    const tcPicker = document.getElementById("nodeTextColorPicker");
+    const tcHex = document.getElementById("nodeTextColorHex");
+    [famSel, sizeIn, tcPicker, tcHex, ...root.querySelectorAll("button")].forEach((el) => {
+      if (el) el.disabled = disabled;
+    });
+    if (!node) {
+      syncNodeColorSwatchActiveState(document.getElementById("nodeTextColorSwatches"), "");
+      return;
+    }
+    const st = ensureNodeStyle(node);
+    if (famSel) famSel.value = st.titleFontFamily || "inter";
+    if (sizeIn) sizeIn.value = String(st.titleFontSize ?? 14);
+    root.querySelectorAll(".insp-text-toggle").forEach((btn) => {
+      const key = btn.dataset.textToggle;
+      let on = false;
+      if (key === "bold") on = !!st.titleBold;
+      else if (key === "italic") on = !!st.titleItalic;
+      else if (key === "underline") on = !!st.titleUnderline;
+      btn.classList.toggle("is-active", on);
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    syncSegmentGroupActive(root.querySelector('[data-text-key="align"]'), st.titleTextAlign || "center");
+    const tc = getNodeTextColor(st);
+    const tcNorm = tc || "";
+    if (tcPicker) tcPicker.value = hexForColorPicker(tc, "#EEF3FF");
+    if (tcHex) tcHex.value = tcNorm;
+    syncNodeColorSwatchActiveState(document.getElementById("nodeTextColorSwatches"), tcNorm);
+  }
+
+  function initNodeTextInspectorControls() {
+    const root = document.getElementById("diagramSectionNode");
+    if (!root || root.dataset.textInspBound) return;
+    root.dataset.textInspBound = "1";
+    document.getElementById("nodeTextFontFamily")?.addEventListener("change", (e) => {
+      if (runtime.isSyncingInspector || runtime.readOnly) return;
+      applyNodeTextStyleToSelection({ titleFontFamily: e.target.value });
+    });
+    const sizeIn = document.getElementById("nodeTextFontSize");
+    const commitSize = () => {
+      if (runtime.isSyncingInspector || runtime.readOnly) return;
+      const v = Math.max(10, Math.min(28, Math.round(Number(sizeIn?.value) || 14)));
+      applyNodeTextStyleToSelection({ titleFontSize: v });
+    };
+    sizeIn?.addEventListener("change", commitSize);
+    sizeIn?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        commitSize();
+      }
+    });
+    root.addEventListener("click", (e) => {
+      const toggle = e.target.closest(".insp-text-toggle");
+      if (toggle && !toggle.disabled && root.contains(toggle)) {
+        e.preventDefault();
+        e.stopPropagation();
+        const key = toggle.dataset.textToggle;
+        const n = getNodeById(runtime.selectedNodeId);
+        const st = n ? ensureNodeStyle(n) : null;
+        if (key === "bold") applyNodeTextStyleToSelection({ titleBold: !(st && st.titleBold) });
+        else if (key === "italic") applyNodeTextStyleToSelection({ titleItalic: !(st && st.titleItalic) });
+        else if (key === "underline") applyNodeTextStyleToSelection({ titleUnderline: !(st && st.titleUnderline) });
+        return;
+      }
+      const alignBtn = e.target.closest(".insp-text-align");
+      if (alignBtn && !alignBtn.disabled && root.contains(alignBtn)) {
+        e.preventDefault();
+        e.stopPropagation();
+        applyNodeTextStyleToSelection({ titleTextAlign: alignBtn.dataset.value });
+        return;
+      }
+      const tcSw = e.target.closest("#nodeTextColorSwatches .node-color-swatch");
+      if (tcSw && !tcSw.disabled) {
+        e.preventDefault();
+        applyNodeTextStyleToSelection({ textColor: tcSw.dataset.textColor });
+      }
+    });
+    document.getElementById("nodeTextColorPicker")?.addEventListener("input", (e) => {
+      if (runtime.isSyncingInspector || runtime.readOnly) return;
+      const norm = normalizeNodeHexColor(e.target.value);
+      if (norm) applyNodeTextStyleToSelection({ textColor: norm });
+    });
+    const tcHex = document.getElementById("nodeTextColorHex");
+    const commitTextColorHex = () => {
+      if (runtime.isSyncingInspector || runtime.readOnly) return;
+      const raw = tcHex?.value?.trim();
+      if (!raw) {
+        applyNodeTextStyleToSelection({ textColor: null });
+        return;
+      }
+      const norm = normalizeNodeHexColor(raw);
+      if (norm) applyNodeTextStyleToSelection({ textColor: norm });
+    };
+    tcHex?.addEventListener("change", commitTextColorHex);
+    tcHex?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        commitTextColorHex();
+      }
+    });
   }
 
   function renderNodeBody(body, n) {
@@ -11438,6 +11683,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       desc.textContent = n.description;
       body.appendChild(desc);
     }
+    applyNodeBodyTextStyles(body, n);
   }
 
   function applyNodeVisualStyles(el, n) {
@@ -14835,6 +15081,7 @@ clearFlowGroupSelection();
       if (selectedNode) ensureNodeStyle(selectedNode);
       syncNodeColorInspectorFields(selectedNode);
       syncNodeStyleSegmentControls(selectedNode);
+      syncNodeTextInspectorControls(selectedNode);
       const nql = document.getElementById("nodeQuickLockChk");
       if (nql) {
         if (selectedNode && !isNodeUnderPinnedGroup(p, selectedNode.id)) {
@@ -16138,7 +16385,7 @@ clearFlowGroupSelection();
     if (!n) return;
     n.title = nodeText.value || "Node";
     n.text = n.title;
-    const body = getNodeDomEl(n.id)?.querySelector(".body");
+    const body = getNodeDomEl(n.id) ? findNodeBodyEl(getNodeDomEl(n.id)) : null;
     if (body && !body.isContentEditable) renderNodeBody(body, n);
     markDirty();
     scheduleSemanticAnalysis();
@@ -16148,6 +16395,7 @@ clearFlowGroupSelection();
     applyNodeColorToSelection("fill", nodeColor.value);
   });
   initNodeColorInspectorControls();
+  initNodeTextInspectorControls();
   nodeShape.addEventListener("change", () => {
     if (runtime.isSyncingInspector) return;
     const n = getNodeById(runtime.selectedNodeId);
@@ -17333,6 +17581,7 @@ clearFlowGroupSelection();
       nodeSubtitle.value = node.subtitle;
       nodeDescription.value = node.description;
       syncNodeStyleSegmentControls(node);
+      syncNodeTextInspectorControls(node);
       if (bc) nodeBorderColor.value = stStyle.borderColor;
     }
     refreshSemanticTypeForNode(node);
