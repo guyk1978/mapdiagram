@@ -2032,3 +2032,136 @@ html[data-theme="light"] #inspector-panel-export .partner-banner {
 .flowchart-mode .node.is-connect-from .node-conn-handle {
   opacity: 1;
 }
+
+/* —— Global color picker (top bar) —— */
+.global-color-picker {
+  position: relative;
+  display: inline-flex;
+}
+
+.global-color-picker__trigger {
+  width: 36px;
+  height: 36px;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.global-color-picker__preview {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1.5px solid color-mix(in srgb, var(--line) 80%, #fff);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  background: #00a2e8;
+}
+
+.global-color-picker__preview.is-transparent {
+  background:
+    linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+}
+
+.global-color-picker__panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: calc(var(--z-sticky-topbar) + 20);
+  min-width: 168px;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--glass-shadow);
+}
+
+.global-color-target-toggle {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.global-color-target-btn {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.global-color-target-btn.is-active {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.global-color-swatches {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.global-color-swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 5px;
+  border: 1.5px solid color-mix(in srgb, var(--line) 55%, transparent);
+  background: var(--swatch-color, #888);
+  cursor: pointer;
+}
+
+.global-color-swatch.is-active {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.global-color-swatch--transparent {
+  background:
+    linear-gradient(45deg, #bbb 25%, transparent 25%),
+    linear-gradient(-45deg, #bbb 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #bbb 75%),
+    linear-gradient(-45deg, transparent 75%, #bbb 75%);
+  background-size: 6px 6px;
+}
+
+.global-color-custom input[type="color"] {
+  width: 100%;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* —— Structural inspector (condensed) —— */
+#inspectorElementState .inspector-hint--compact {
+  font-size: 11px;
+  margin: 0 0 8px;
+}
+
+#rightbar[data-inspector-mode="element"] .inspector-group--options,
+#rightbar[data-inspector-mode="connector"] .inspector-group--connector {
+  margin-top: 0;
+}
+
+.flowchart-mode .node-rotate-handle {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  max-width: 22px !important;
+  min-height: 22px !important;
+  max-height: 22px !important;
+  border-radius: 50% !important;
+}

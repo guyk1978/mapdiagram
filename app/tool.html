@@ -2017,6 +2017,26 @@
   .node-resize-handle[data-resize="s"] { left: 50%; top: 100%; cursor: ns-resize; }
   .node-resize-handle[data-resize="sw"] { left: 0; top: 100%; cursor: nesw-resize; }
   .node-resize-handle[data-resize="w"] { left: 0; top: 50%; cursor: ew-resize; }
+  .node-rotate-handle {
+    position: absolute;
+    left: 50%;
+    top: -28px;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    padding: 0;
+    border: 1.5px solid #fff;
+    border-radius: 50%;
+    background: #00a2e8;
+    box-shadow: 0 1px 6px rgba(0, 24, 48, 0.35);
+    transform: translate(-50%, -50%);
+    cursor: grab;
+    pointer-events: auto;
+    z-index: 10;
+    touch-action: none;
+  }
+  .node-rotate-handle:active { cursor: grabbing; }
+  .node.is-rotating .node-selection-chrome { pointer-events: auto; }
   .node.is-resizing .node-selection-chrome,
   .node.is-resizing .node-conn-handles {
     pointer-events: auto;
@@ -3280,6 +3300,8 @@
   body.public-view-mode .fc-assistant-root,
   body.public-view-mode .fc-empty-state,
   body.public-view-mode #fcQuickEdit,
+  body.public-view-mode #canvasCornerPill,
+  body.public-view-mode #globalColorPicker,
   body.public-view-mode #fcGroupQuickEdit,
   body.public-view-mode #fcMultiSelectBar,
   body.public-view-mode #fcDeleteConfirm,
@@ -3942,6 +3964,35 @@
     opacity: 0.4;
     cursor: not-allowed;
   }
+  .canvas-corner-pill {
+    position: absolute;
+    z-index: 14;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity var(--fc-dur-overlay) var(--fc-ease), transform var(--fc-dur-overlay) var(--fc-ease);
+  }
+  .canvas-corner-pill.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .canvas-corner-pill__btn {
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(122, 162, 255, 0.4);
+    background: rgba(14, 18, 30, 0.92);
+    color: var(--text);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    white-space: nowrap;
+    backdrop-filter: blur(8px);
+  }
+  html[data-theme="light"] .canvas-corner-pill__btn {
+    background: rgba(255, 255, 255, 0.95);
+  }
   .flowchart-mode .workspace.fc-composing #viewport {
     transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -4020,6 +4071,22 @@
         <button id="undoBtn" class="icon-btn" type="button" title="Undo" aria-label="Undo"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 14 4 9l5-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 15v-2a4 4 0 0 0-4-4H4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         <button id="redoBtn" class="icon-btn" type="button" title="Redo" aria-label="Redo"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="m15 14 5-5-5-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v-2a4 4 0 0 1 4-4h12" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         <button id="duplicateNodesToolbarBtn" class="icon-btn" type="button" title="Duplicate selection (Ctrl+D)" aria-label="Duplicate selection"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="8" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.75"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
+        <div class="global-color-picker" id="globalColorPicker">
+          <button type="button" id="globalColorPickerBtn" class="global-color-picker__trigger icon-btn" title="Color (fill or border)" aria-label="Global color" aria-haspopup="true" aria-expanded="false">
+            <span class="global-color-picker__preview" id="globalColorPreview" aria-hidden="true"></span>
+          </button>
+          <div id="globalColorPickerPanel" class="global-color-picker__panel" hidden role="dialog" aria-label="Color picker">
+            <div class="global-color-target-toggle" id="globalColorTargetToggle" role="group" aria-label="Apply color to">
+              <button type="button" class="global-color-target-btn is-active" data-global-color-target="fill" aria-pressed="true">Fill</button>
+              <button type="button" class="global-color-target-btn" data-global-color-target="stroke" aria-pressed="false">Border</button>
+            </div>
+            <div class="global-color-swatches" id="globalColorSwatches" role="listbox" aria-label="Color presets"></div>
+            <label class="global-color-custom" title="Custom color">
+              <span class="sr-only">Custom color</span>
+              <input type="color" id="globalColorCustomInput" value="#00A2E8" aria-label="Custom color">
+            </label>
+          </div>
+        </div>
         <button type="button" id="stickyMultiSelectBtn" class="icon-btn" title="Multi-select mode (M)" aria-label="Multi-select mode" aria-pressed="false"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="7" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.75"/><rect x="9" y="5" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.75" opacity=".85"/><path d="M12 12h4M12 16v-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
         <div id="topbarConnSelActions" class="group" role="toolbar" aria-label="Selected connection" hidden>
           <button type="button" id="topbarDeleteConnBtn" class="icon-btn" title="Delete connection" aria-label="Delete connection"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16M10 11v6M14 11v6M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1v2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7l1 14a1 1 0 0 0 1 .9h6a1 1 0 0 0 1-.9l1-14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
@@ -4171,6 +4238,22 @@
         </button>
       </div>
 
+      <div id="fcMultiSelectBar" class="fc-multi-select-bar" hidden role="toolbar" aria-label="Multi-selection actions">
+        <span id="fcMultiSelectCount" class="fc-multi-count">2 selected</span>
+        <button type="button" id="fcMultiGroupBtn" title="Group selection">Group</button>
+        <button type="button" id="fcMultiDupBtn" title="Duplicate">Duplicate</button>
+        <button type="button" id="fcMultiLayoutBtn" title="Improve layout">Layout</button>
+        <button type="button" id="fcMultiDeleteBtn" class="fc-quick-danger" title="Delete">Delete</button>
+      </div>
+      <div id="fcQuickEdit" class="fc-quick-edit canvas-element-toolbar" hidden role="toolbar" aria-label="Selection actions">
+        <button type="button" id="fcDuplicateBtn" title="Duplicate (Ctrl+D)" aria-label="Duplicate">Duplicate</button>
+        <button type="button" id="canvasBringForwardBtn" title="Bring to front" aria-label="Bring to front">Front</button>
+        <button type="button" id="canvasSendBackwardBtn" title="Send to back" aria-label="Send to back">Back</button>
+        <button type="button" id="fcDeleteBtn" class="fc-quick-danger" title="Delete" aria-label="Delete">Delete</button>
+      </div>
+      <div id="canvasCornerPill" class="canvas-corner-pill" hidden>
+        <button type="button" id="canvasCornerCycleBtn" class="canvas-corner-pill__btn" title="Cycle corner radius" aria-label="Cycle corner radius">Corners</button>
+      </div>
       <div id="fcDeleteConfirm" class="fc-delete-confirm" hidden role="alertdialog" aria-labelledby="fcDeleteConfirmText" aria-modal="true">
         <p id="fcDeleteConfirmText">Delete selected steps?</p>
         <p class="fc-delete-hint">Enter to confirm · Esc to cancel</p>
@@ -4252,8 +4335,8 @@
             <span class="section-heading__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M9 12h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
             <span class="section-heading__text" id="inspectorElementHeadingLabel">Action step</span>
           </h3>
-          <p id="quickEditInspectorHint" class="sr-only">Quick inspector: changes apply to the selected node on the canvas.</p>
-          <p class="muted inspector-hint" id="quickEditSurfaceHint">Edit titles here or double-click a node for the full inspector (sidebar “Edit node” also opens it). Long-press (or middle-click) a node to start a link from its edge.</p>
+          <p id="quickEditInspectorHint" class="sr-only">Structural node metadata. Style and color on the canvas and top bar.</p>
+          <p class="muted inspector-hint inspector-hint--compact" id="quickEditSurfaceHint">Title and type only — use the top color picker and on-canvas handles for styling.</p>
           <div class="inspector-group inspector-group--element">
             <div class="inspector-group__title">Node info</div>
             <div class="inspector-form-grid">
@@ -4332,142 +4415,8 @@
               <label class="insp-toggle"><input type="checkbox" id="nodeQuickFreeformChk"><span class="insp-toggle__track" aria-hidden="true"></span><span class="insp-toggle__label">Free-style</span></label>
             </div>
           </div>
-          <hr class="insp-divider" aria-hidden="true">
-          <div class="inspector-group inspector-group--node-color inspector-compact">
-            <div class="node-color-line">
-              <span class="inspector-micro-label">Fill</span>
-              <div class="node-color-line__body">
-                <div class="node-color-swatches" id="nodeFillSwatches" role="listbox" aria-label="Fill color presets">
-                  <button type="button" class="node-color-swatch node-color-swatch--transparent" data-node-color-kind="fill" data-node-color="transparent" title="Transparent" aria-label="Transparent fill"></button>
-                  <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#00A2E8" style="--swatch-color:#00A2E8" title="Electric blue" aria-label="Electric blue"></button>
-                  <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#10B981" style="--swatch-color:#10B981" title="Emerald" aria-label="Emerald"></button>
-                  <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#F59E0B" style="--swatch-color:#F59E0B" title="Amber" aria-label="Amber"></button>
-                  <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#E11D48" style="--swatch-color:#E11D48" title="Ruby" aria-label="Ruby"></button>
-                  <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#8B5CF6" style="--swatch-color:#8B5CF6" title="Violet" aria-label="Violet"></button>
-                  <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#374151" style="--swatch-color:#374151" title="Charcoal" aria-label="Charcoal"></button>
-                  <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#1E293B" style="--swatch-color:#1E293B" title="Slate" aria-label="Slate"></button>
-                </div>
-                <label class="node-color-picker-wrap" title="Custom fill">
-                  <span class="sr-only">Custom fill color</span>
-                  <input type="color" id="nodeFillColorPicker" value="#BD7000" aria-label="Custom fill color">
-                </label>
-                <input type="text" id="nodeFillColorHex" class="node-color-hex-input" placeholder="#BD7000" spellcheck="false" maxlength="12" aria-label="Fill hex" autocomplete="off">
-              </div>
-            </div>
-            <div class="node-color-line">
-              <span class="inspector-micro-label">Line</span>
-              <div class="node-color-line__body">
-                <div class="node-color-swatches" id="nodeStrokeSwatches" role="listbox" aria-label="Line color presets">
-                  <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#00A2E8" style="--swatch-color:#00A2E8" title="Electric blue" aria-label="Electric blue line"></button>
-                  <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#10B981" style="--swatch-color:#10B981" title="Emerald" aria-label="Emerald line"></button>
-                  <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#F59E0B" style="--swatch-color:#F59E0B" title="Amber" aria-label="Amber line"></button>
-                  <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#E11D48" style="--swatch-color:#E11D48" title="Ruby" aria-label="Ruby line"></button>
-                  <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#F8FAFC" style="--swatch-color:#F8FAFC" title="White" aria-label="White line"></button>
-                  <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#64748B" style="--swatch-color:#64748B" title="Slate" aria-label="Slate line"></button>
-                  <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#22D3EE" style="--swatch-color:#22D3EE" title="Cyan" aria-label="Cyan line"></button>
-                  <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#9CB8FF" style="--swatch-color:#9CB8FF" title="Accent" aria-label="Accent line"></button>
-                </div>
-                <label class="node-color-picker-wrap" title="Custom line">
-                  <span class="sr-only">Custom line color</span>
-                  <input type="color" id="nodeStrokeColorPicker" value="#9CB8FF" aria-label="Custom line color">
-                </label>
-                <input type="text" id="nodeStrokeColorHex" class="node-color-hex-input" placeholder="#9CB8FF" spellcheck="false" maxlength="12" aria-label="Line hex" autocomplete="off">
-              </div>
-            </div>
-          </div>
-          <div class="inspector-group inspector-group--style inspector-compact">
-            <div class="insp-segment-rows" id="nodeStyleSegments">
-              <div class="insp-segment-row">
-                <span class="insp-segment-row__label">Opacity</span>
-                <div class="insp-segment-group" data-style-key="opacity" role="group" aria-label="Fill opacity">
-                  <button type="button" class="insp-segment-btn" data-value="0.25" aria-pressed="false">25%</button>
-                  <button type="button" class="insp-segment-btn" data-value="0.5" aria-pressed="false">50%</button>
-                  <button type="button" class="insp-segment-btn" data-value="0.75" aria-pressed="false">75%</button>
-                  <button type="button" class="insp-segment-btn" data-value="1" aria-pressed="false">100%</button>
-                </div>
-              </div>
-              <div class="insp-segment-row">
-                <span class="insp-segment-row__label">Glow</span>
-                <div class="insp-segment-group" data-style-key="glow" role="group" aria-label="Glow intensity">
-                  <button type="button" class="insp-segment-btn" data-value="0" aria-pressed="false">Off</button>
-                  <button type="button" class="insp-segment-btn" data-value="8" aria-pressed="false">Soft</button>
-                  <button type="button" class="insp-segment-btn" data-value="16" aria-pressed="false">Med</button>
-                  <button type="button" class="insp-segment-btn" data-value="28" aria-pressed="false">Strong</button>
-                </div>
-              </div>
-              <div class="insp-segment-row">
-                <span class="insp-segment-row__label">Shadow</span>
-                <div class="insp-segment-group" data-style-key="shadow" role="group" aria-label="Shadow intensity">
-                  <button type="button" class="insp-segment-btn" data-value="0" aria-pressed="false">Off</button>
-                  <button type="button" class="insp-segment-btn" data-value="10" aria-pressed="false">Soft</button>
-                  <button type="button" class="insp-segment-btn" data-value="20" aria-pressed="false">Med</button>
-                  <button type="button" class="insp-segment-btn" data-value="34" aria-pressed="false">Strong</button>
-                </div>
-              </div>
-              <div class="insp-segment-row">
-                <span class="insp-segment-row__label">Corners</span>
-                <div class="insp-segment-group" data-style-key="radius" role="group" aria-label="Rounded corners">
-                  <button type="button" class="insp-segment-btn" data-value="0" aria-pressed="false">None</button>
-                  <button type="button" class="insp-segment-btn" data-value="4" aria-pressed="false">S</button>
-                  <button type="button" class="insp-segment-btn" data-value="8" aria-pressed="false">M</button>
-                  <button type="button" class="insp-segment-btn" data-value="16" aria-pressed="false">L</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="inspector-group inspector-group--node-text inspector-compact" id="nodeTextInspector">
-            <div class="insp-segment-row insp-segment-row--text-font">
-              <span class="insp-segment-row__label">Font</span>
-              <div class="node-text-font-row">
-                <select id="nodeTextFontFamily" class="insp-compact-select" aria-label="Font family">
-                  <option value="inter">Inter</option>
-                  <option value="poppins">Poppins</option>
-                  <option value="system">Sans-Serif</option>
-                  <option value="serif">Serif</option>
-                  <option value="mono">Mono</option>
-                </select>
-                <div class="insp-size-input-wrap">
-                  <input type="number" id="nodeTextFontSize" class="insp-size-input" min="10" max="28" step="1" value="14" aria-label="Font size">
-                  <span class="insp-size-suffix">px</span>
-                </div>
-              </div>
-            </div>
-            <div class="insp-segment-row">
-              <span class="insp-segment-row__label">Style</span>
-              <div class="node-text-style-row">
-                <div class="insp-segment-group insp-segment-group--toggle" role="group" aria-label="Text style">
-                  <button type="button" class="insp-segment-btn insp-text-toggle" data-text-toggle="bold" aria-pressed="false" title="Bold"><strong>B</strong></button>
-                  <button type="button" class="insp-segment-btn insp-text-toggle" data-text-toggle="italic" aria-pressed="false" title="Italic"><em>I</em></button>
-                  <button type="button" class="insp-segment-btn insp-text-toggle" data-text-toggle="underline" aria-pressed="false" title="Underline"><span class="insp-text-u">U</span></button>
-                </div>
-                <div class="insp-segment-group" data-text-key="align" role="group" aria-label="Text alignment">
-                  <button type="button" class="insp-segment-btn insp-text-align" data-value="left" aria-pressed="false" title="Align left">&#8676;</button>
-                  <button type="button" class="insp-segment-btn insp-text-align" data-value="center" aria-pressed="false" title="Align center">&#8596;</button>
-                  <button type="button" class="insp-segment-btn insp-text-align" data-value="right" aria-pressed="false" title="Align right">&#8677;</button>
-                </div>
-              </div>
-            </div>
-            <div class="node-color-line node-text-color-line">
-              <span class="inspector-micro-label">Color</span>
-              <div class="node-color-line__body">
-                <div class="node-color-swatches node-text-color-swatches" id="nodeTextColorSwatches" role="listbox" aria-label="Text color presets">
-                  <button type="button" class="node-color-swatch" data-text-color="#FFFFFF" style="--swatch-color:#FFFFFF" title="White" aria-label="White"></button>
-                  <button type="button" class="node-color-swatch" data-text-color="#E2E8F0" style="--swatch-color:#E2E8F0" title="Light gray" aria-label="Light gray"></button>
-                  <button type="button" class="node-color-swatch" data-text-color="#94A3B8" style="--swatch-color:#94A3B8" title="Slate" aria-label="Slate"></button>
-                  <button type="button" class="node-color-swatch" data-text-color="#1E293B" style="--swatch-color:#1E293B" title="Deep dark" aria-label="Deep dark"></button>
-                  <button type="button" class="node-color-swatch" data-text-color="#0F172A" style="--swatch-color:#0F172A" title="Ink" aria-label="Ink"></button>
-                  <button type="button" class="node-color-swatch" data-text-color="#00A2E8" style="--swatch-color:#00A2E8" title="Electric blue" aria-label="Electric blue"></button>
-                  <button type="button" class="node-color-swatch" data-text-color="#F8FAFC" style="--swatch-color:#F8FAFC" title="Frost" aria-label="Frost"></button>
-                  <button type="button" class="node-color-swatch" data-text-color="#F59E0B" style="--swatch-color:#F59E0B" title="Amber" aria-label="Amber"></button>
-                </div>
-                <label class="node-color-picker-wrap" title="Custom text color">
-                  <span class="sr-only">Custom text color</span>
-                  <input type="color" id="nodeTextColorPicker" value="#EEF3FF" aria-label="Custom text color">
-                </label>
-                <input type="text" id="nodeTextColorHex" class="node-color-hex-input" placeholder="#EEF3FF" spellcheck="false" maxlength="12" aria-label="Text color hex" autocomplete="off">
-              </div>
-            </div>
-          </div>
+            <input type="color" id="nodeFillColorPicker" value="#BD7000" hidden aria-hidden="true" tabindex="-1">
+            <input type="color" id="nodeStrokeColorPicker" value="#9CB8FF" hidden aria-hidden="true" tabindex="-1">
             <input type="color" id="nodeBorderColor" value="#9cb8ff" hidden aria-hidden="true" tabindex="-1">
           <hr class="insp-divider" aria-hidden="true">
           <div class="inspector-group inspector-group--actions inspector-compact">
@@ -4494,28 +4443,12 @@
             </div>
           </div>
           <div class="inspector-group inspector-group--connector inspector-compact">
-            <div class="node-color-line connector-line-control">
-              <span class="inspector-micro-label">Line</span>
-              <div class="node-color-line__body connector-line-row">
-                <label class="connector-thickness-field">
-                  <input type="number" id="edgeStrokeWidthInput" class="thickness-input" min="1" max="10" step="0.5" value="2" aria-label="Line thickness in pixels">
-                  <span class="thickness-unit">px</span>
-                </label>
-                <div class="node-color-swatches connector-color-swatches" id="edgeStrokeSwatches" role="listbox" aria-label="Line color presets">
-                  <button type="button" class="node-color-swatch" data-edge-color="#00A2E8" style="--swatch-color:#00A2E8" title="Electric blue" aria-label="Electric blue"></button>
-                  <button type="button" class="node-color-swatch" data-edge-color="#9CB8FF" style="--swatch-color:#9CB8FF" title="Accent" aria-label="Accent"></button>
-                  <button type="button" class="node-color-swatch" data-edge-color="#10B981" style="--swatch-color:#10B981" title="Emerald" aria-label="Emerald"></button>
-                  <button type="button" class="node-color-swatch" data-edge-color="#F59E0B" style="--swatch-color:#F59E0B" title="Amber" aria-label="Amber"></button>
-                  <button type="button" class="node-color-swatch" data-edge-color="#E11D48" style="--swatch-color:#E11D48" title="Ruby" aria-label="Ruby"></button>
-                  <button type="button" class="node-color-swatch" data-edge-color="#F8FAFC" style="--swatch-color:#F8FAFC" title="White" aria-label="White"></button>
-                </div>
-                <label class="node-color-picker-wrap" title="Custom line color">
-                  <span class="sr-only">Custom line color</span>
-                  <input type="color" id="edgeStrokeColorInput" value="#9cb8ff" aria-label="Custom line color">
-                </label>
-                <input type="text" id="edgeStrokeColorHex" class="node-color-hex-input connector-color-hex" placeholder="#9CB8FF" spellcheck="false" maxlength="12" aria-label="Line color hex" autocomplete="off">
-              </div>
-            </div>
+            <label class="connector-thickness-field">
+              <span class="insp-field__label">Thickness</span>
+              <input type="number" id="edgeStrokeWidthInput" class="thickness-input" min="1" max="10" step="0.5" value="2" aria-label="Line thickness in pixels">
+              <span class="thickness-unit">px</span>
+            </label>
+            <input type="color" id="edgeStrokeColorInput" value="#9cb8ff" hidden aria-hidden="true" tabindex="-1">
           </div>
           <div class="inspector-group inspector-group--connector inspector-compact">
             <div class="inspector-group__title">Line pattern</div>
@@ -5114,6 +5047,9 @@
     connHandleDelegationReady: false,
     resizeHandleDelegationReady: false,
     nodeResizing: null,
+    nodeRotating: null,
+    globalColorTarget: "fill",
+    globalColorPickerOpen: false,
     collisionDebounceTimer: null,
     graphCache: null,
     graphCacheKey: "",
@@ -5587,6 +5523,7 @@
     renderConnections();
     markDirty();
     syncEdgeInspectorPanel();
+    syncGlobalColorPickerFromSelection();
   }
 
   /** Custom edge stroke (hex); null = use theme gradient / bridge colors. */
@@ -6263,9 +6200,14 @@
     n.y = wy - oy;
   }
 
-  function nodeRotationForEl(el) {
+  function nodeRotationForEl(el, node) {
     if (!el) return "0deg";
-    return el.classList.contains("shape-diamond") ? "45deg" : "0deg";
+    const n = node || (el.dataset?.nodeId ? getNodeById(el.dataset.nodeId) : null);
+    const shapeOffset = el.classList.contains("shape-diamond") ? 45 : 0;
+    const userDeg = n ? Number(ensureNodeStyle(n).rotationDeg) : 0;
+    const extra = Number.isFinite(userDeg) ? userDeg : 0;
+    const total = shapeOffset + extra;
+    return total ? `${total}deg` : "0deg";
   }
 
   /** Canonical placement: world coords via compositor-friendly translate3d custom properties. */
@@ -6276,6 +6218,8 @@
     el.style.removeProperty("transform");
     el.style.setProperty("--node-tx", `${wx}px`);
     el.style.setProperty("--node-ty", `${wy}px`);
+    const n = el.dataset?.nodeId ? getNodeById(el.dataset.nodeId) : null;
+    el.style.setProperty("--node-rotation", nodeRotationForEl(el, n));
   }
 
   /** Drag hot path: inline translate3d layer (cleared on commit). */
@@ -6283,7 +6227,8 @@
     if (!el) return;
     el.style.left = "0px";
     el.style.top = "0px";
-    const rot = nodeRotationForEl(el);
+    const n = el.dataset?.nodeId ? getNodeById(el.dataset.nodeId) : null;
+    const rot = nodeRotationForEl(el, n);
     el.style.transform = `translate3d(${wx}px, ${wy}px, 0) rotate(${rot}) scale(1)`;
   }
 
@@ -7853,7 +7798,7 @@ function finalizeFlowGroupDragIfAny() {
 
   function syncFcMultiSelectBar() {
     const bar = document.getElementById("fcMultiSelectBar");
-    if (!bar || !fcEditorCanSelect()) {
+    if (!bar || runtime.readOnly) {
       if (bar) {
         bar.hidden = true;
         bar.classList.remove("is-visible");
@@ -8532,11 +8477,16 @@ function finalizeFlowGroupDragIfAny() {
 
   function syncFcQuickEditToolbar() {
     const bar = document.getElementById("fcQuickEdit");
-    if (!bar || !isFlowchartMode() || runtime.readOnly) {
+    if (!bar || runtime.readOnly) {
       if (bar) {
         bar.hidden = true;
         bar.classList.remove("is-visible");
       }
+      return;
+    }
+    if (hasSelectedConnections() && !getNodeById(runtime.selectedNodeId)) {
+      bar.hidden = true;
+      bar.classList.remove("is-visible");
       return;
     }
     if (runtime.selectedFlowGroupId) {
@@ -8555,13 +8505,13 @@ function finalizeFlowGroupDragIfAny() {
       return;
     }
     const canEdit = nodeCanWorkspaceTransform(n);
-    const renameBtn = document.getElementById("fcRenameBtn");
     const dupBtn = document.getElementById("fcDuplicateBtn");
-    const connBtn = document.getElementById("fcAddConnectedBtn");
+    const fwdBtn = document.getElementById("canvasBringForwardBtn");
+    const backBtn = document.getElementById("canvasSendBackwardBtn");
     const delBtn = document.getElementById("fcDeleteBtn");
-    if (renameBtn) renameBtn.disabled = !canEdit;
     if (dupBtn) dupBtn.disabled = !canEdit;
-    if (connBtn) connBtn.disabled = !canEdit;
+    if (fwdBtn) fwdBtn.disabled = !canEdit;
+    if (backBtn) backBtn.disabled = !canEdit;
     if (delBtn) delBtn.disabled = !canEdit;
     bar.hidden = false;
     const el = getNodeDomEl(n.id);
@@ -8606,20 +8556,17 @@ function finalizeFlowGroupDragIfAny() {
       endFcToolbarInteraction();
     };
 
-    document.getElementById("fcRenameBtn")?.addEventListener("click", (e) => {
-      runToolbarAction(e, (nodeId) => {
-        if (!nodeId) return;
-        fcStartInlineRename(nodeId);
-      });
-    });
     document.getElementById("fcDuplicateBtn")?.addEventListener("click", (e) => {
       runToolbarAction(e, () => {
         if (!getFcQuickEditTargetNodeId()) return;
         duplicateSelectedNodesAction();
       });
     });
-    document.getElementById("fcAddConnectedBtn")?.addEventListener("click", (e) => {
-      runToolbarAction(e, (nodeId) => fcAddConnectedNodeFromSelection(nodeId));
+    document.getElementById("canvasBringForwardBtn")?.addEventListener("click", (e) => {
+      runToolbarAction(e, () => reorderSelectedNodesLayer(true));
+    });
+    document.getElementById("canvasSendBackwardBtn")?.addEventListener("click", (e) => {
+      runToolbarAction(e, () => reorderSelectedNodesLayer(false));
     });
     document.getElementById("fcDeleteBtn")?.addEventListener("click", (e) => {
       runToolbarAction(e, () => {
@@ -9209,9 +9156,237 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     runtime.isSyncingInspector = true;
     try {
       syncNodeColorInspectorFields(getNodeById(runtime.selectedNodeId));
+      syncGlobalColorPickerFromSelection();
     } finally {
       runtime.isSyncingInspector = false;
     }
+  }
+
+  const GLOBAL_COLOR_PRESETS = [
+    "#00A2E8", "#10B981", "#F59E0B", "#E11D48", "#8B5CF6", "#9CB8FF",
+    "#F8FAFC", "#64748B", "#374151", "#1E293B", "transparent"
+  ];
+  const CORNER_RADIUS_CYCLE = [
+    { value: 0, label: "None" },
+    { value: 4, label: "S" },
+    { value: 8, label: "M" },
+    { value: 16, label: "L" }
+  ];
+
+  function closeGlobalColorPicker() {
+    const panel = document.getElementById("globalColorPickerPanel");
+    const btn = document.getElementById("globalColorPickerBtn");
+    if (panel) panel.hidden = true;
+    if (btn) btn.setAttribute("aria-expanded", "false");
+    runtime.globalColorPickerOpen = false;
+  }
+
+  function openGlobalColorPicker() {
+    const panel = document.getElementById("globalColorPickerPanel");
+    const btn = document.getElementById("globalColorPickerBtn");
+    if (!panel || !btn) return;
+    panel.hidden = false;
+    btn.setAttribute("aria-expanded", "true");
+    runtime.globalColorPickerOpen = true;
+    syncGlobalColorPickerFromSelection();
+  }
+
+  function setGlobalColorTarget(kind) {
+    runtime.globalColorTarget = kind === "stroke" ? "stroke" : "fill";
+    document.querySelectorAll(".global-color-target-btn").forEach((b) => {
+      const on = b.dataset.globalColorTarget === runtime.globalColorTarget;
+      b.classList.toggle("is-active", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    syncGlobalColorPickerFromSelection();
+  }
+
+  function applyGlobalColor(value) {
+    if (runtime.readOnly) return;
+    const edgeSelected = hasSelectedConnections() && !getNodeById(runtime.selectedNodeId);
+    if (edgeSelected) {
+      const norm = normalizeNodeHexColor(value);
+      if (norm === null) return;
+      applyEdgeStyleToSelection((c) => {
+        c.strokeColor = norm || null;
+      });
+      const colInp = document.getElementById("edgeStrokeColorInput");
+      if (colInp && norm) colInp.value = norm;
+      syncGlobalColorPickerFromSelection();
+      return;
+    }
+    const kind = runtime.globalColorTarget === "stroke" ? "stroke" : "fill";
+    applyNodeColorToSelection(kind, value);
+  }
+
+  function syncGlobalColorPickerFromSelection() {
+    const preview = document.getElementById("globalColorPreview");
+    const custom = document.getElementById("globalColorCustomInput");
+    const toggle = document.getElementById("globalColorTargetToggle");
+    const swatches = document.getElementById("globalColorSwatches");
+    if (!preview) return;
+    const edgeSelected = hasSelectedConnections() && !getNodeById(runtime.selectedNodeId);
+    if (toggle) {
+      toggle.hidden = edgeSelected;
+      toggle.style.display = edgeSelected ? "none" : "";
+    }
+    if (edgeSelected) {
+      const { nn, bridges, gcs } = getSelectedConnectionRecords();
+      const strokeRecs = [...nn, ...bridges, ...gcs];
+      const cols = strokeRecs.map((c) => connectionStrokeColorOrNull(c)).filter(Boolean);
+      const u = new Set(cols.map((h) => h.toLowerCase()));
+      const hex = u.size === 1 ? [...u][0] : "#9CB8FF";
+      preview.style.background = hex;
+      preview.classList.remove("is-transparent");
+      if (custom) custom.value = hexForColorPicker(hex, "#9CB8FF");
+      if (swatches) {
+        swatches.querySelectorAll(".global-color-swatch").forEach((btn) => {
+          const sw = (btn.dataset.globalColor || "").toLowerCase();
+          btn.classList.toggle("is-active", !!hex && sw === hex.toLowerCase());
+        });
+      }
+      return;
+    }
+    const node = getNodeById(runtime.selectedNodeId) || getNodeById([...runtime.selectedNodeIds][0]);
+    const disabled = !node;
+    document.getElementById("globalColorPickerBtn")?.toggleAttribute("disabled", disabled);
+    if (!node) {
+      preview.style.background = "transparent";
+      preview.classList.add("is-transparent");
+      return;
+    }
+    const kind = runtime.globalColorTarget === "stroke" ? "stroke" : "fill";
+    const raw = kind === "stroke" ? getNodeStrokeColor(node) : getNodeFillColor(node);
+    const transparent = kind === "fill" && raw === "transparent";
+    preview.classList.toggle("is-transparent", transparent);
+    preview.style.background = transparent ? "transparent" : (raw || "#BD7000");
+    if (custom) custom.value = hexForColorPicker(raw, kind === "stroke" ? "#9CB8FF" : "#BD7000");
+    if (swatches) {
+      const norm = (raw || "").toUpperCase();
+      swatches.querySelectorAll(".global-color-swatch").forEach((btn) => {
+        const sw = (btn.dataset.globalColor || "").toUpperCase();
+        btn.classList.toggle("is-active", sw === norm);
+      });
+    }
+  }
+
+  function initGlobalColorPicker() {
+    const root = document.getElementById("globalColorPicker");
+    const swatches = document.getElementById("globalColorSwatches");
+    const btn = document.getElementById("globalColorPickerBtn");
+    if (!root || !swatches || root.dataset.bound) return;
+    root.dataset.bound = "1";
+    swatches.innerHTML = "";
+    for (const hex of GLOBAL_COLOR_PRESETS) {
+      const el = document.createElement("button");
+      el.type = "button";
+      el.className = "global-color-swatch";
+      if (hex === "transparent") el.classList.add("global-color-swatch--transparent");
+      el.dataset.globalColor = hex;
+      el.style.setProperty("--swatch-color", hex === "transparent" ? "transparent" : hex);
+      el.title = hex;
+      el.setAttribute("aria-label", hex);
+      swatches.appendChild(el);
+    }
+    btn?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (runtime.globalColorPickerOpen) closeGlobalColorPicker();
+      else openGlobalColorPicker();
+    });
+    swatches.addEventListener("click", (e) => {
+      const sw = e.target.closest(".global-color-swatch");
+      if (!sw) return;
+      e.preventDefault();
+      e.stopPropagation();
+      applyGlobalColor(sw.dataset.globalColor);
+      closeGlobalColorPicker();
+    });
+    document.getElementById("globalColorCustomInput")?.addEventListener("input", (e) => {
+      applyGlobalColor(e.target.value);
+    });
+    document.getElementById("globalColorTargetToggle")?.addEventListener("click", (e) => {
+      const t = e.target.closest(".global-color-target-btn");
+      if (!t) return;
+      e.preventDefault();
+      setGlobalColorTarget(t.dataset.globalColorTarget);
+    });
+    document.addEventListener("pointerdown", (e) => {
+      if (!runtime.globalColorPickerOpen) return;
+      if (e.target.closest("#globalColorPicker")) return;
+      closeGlobalColorPicker();
+    });
+    setGlobalColorTarget("fill");
+  }
+
+  function reorderSelectedNodesLayer(toFront) {
+    const p = getProject();
+    let ids = getInspectorTargetNodeIds();
+    if (!ids.length && runtime.selectedNodeId) ids = [runtime.selectedNodeId];
+    if (!ids.length) return;
+    pushHistory();
+    const idSet = new Set(ids);
+    const selected = p.nodes.filter((n) => idSet.has(n.id));
+    const rest = p.nodes.filter((n) => !idSet.has(n.id));
+    p.nodes = toFront ? [...rest, ...selected] : [...selected, ...rest];
+    renderNodes();
+    markDirty();
+  }
+
+  function nearestCornerRadiusStep(value) {
+    const v = Number(value) || 0;
+    let best = CORNER_RADIUS_CYCLE[0];
+    let bestDist = Infinity;
+    for (const step of CORNER_RADIUS_CYCLE) {
+      const d = Math.abs(step.value - v);
+      if (d < bestDist) {
+        bestDist = d;
+        best = step;
+      }
+    }
+    return best;
+  }
+
+  function cycleCornerRadiusForSelection() {
+    const node = getNodeById(runtime.selectedNodeId);
+    if (!node || runtime.readOnly) return;
+    const st = ensureNodeStyle(node);
+    const cur = nearestCornerRadiusStep(st.radius ?? 12);
+    const idx = CORNER_RADIUS_CYCLE.indexOf(cur);
+    const next = CORNER_RADIUS_CYCLE[(idx + 1) % CORNER_RADIUS_CYCLE.length];
+    applyNodeStyleSegmentToSelection("radius", next.value);
+    const btn = document.getElementById("canvasCornerCycleBtn");
+    if (btn) btn.textContent = `Corners · ${next.label}`;
+  }
+
+  function syncCanvasCornerPill() {
+    const pill = document.getElementById("canvasCornerPill");
+    const btn = document.getElementById("canvasCornerCycleBtn");
+    if (!pill || !btn) return;
+    if (runtime.readOnly || runtime.selectedNodeIds.size > 1) {
+      pill.hidden = true;
+      pill.classList.remove("is-visible");
+      return;
+    }
+    const nodeId = getFcQuickEditTargetNodeId();
+    const n = nodeId ? getNodeById(nodeId) : null;
+    if (!n || runtime.editingNodeId) {
+      pill.hidden = true;
+      pill.classList.remove("is-visible");
+      return;
+    }
+    const el = getNodeDomEl(n.id);
+    if (!el) return;
+    const step = nearestCornerRadiusStep(ensureNodeStyle(n).radius ?? 12);
+    btn.textContent = `Corners · ${step.label}`;
+    pill.hidden = false;
+    const nodeR = el.getBoundingClientRect();
+    const wsR = workspace.getBoundingClientRect();
+    const pillW = pill.offsetWidth || 88;
+    const left = nodeR.right - wsR.left - pillW - 4;
+    const top = nodeR.bottom - wsR.top + 10;
+    pill.style.left = `${Math.max(8, Math.min(wsR.width - pillW - 8, left))}px`;
+    pill.style.top = `${Math.max(8, top)}px`;
+    pill.classList.add("is-visible");
   }
 
   function syncNodeColorSwatchActiveState(container, value) {
@@ -9227,44 +9402,18 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
 
   function syncNodeColorInspectorFields(node) {
     const fillPicker = document.getElementById("nodeFillColorPicker");
-    const fillHex = document.getElementById("nodeFillColorHex");
     const strokePicker = document.getElementById("nodeStrokeColorPicker");
-    const strokeHex = document.getElementById("nodeStrokeColorHex");
-    const fillSwatches = document.getElementById("nodeFillSwatches");
-    const strokeSwatches = document.getElementById("nodeStrokeSwatches");
-    const toggles = [
-      fillPicker,
-      fillHex,
-      strokePicker,
-      strokeHex,
-      ...(fillSwatches ? [...fillSwatches.querySelectorAll("button")] : []),
-      ...(strokeSwatches ? [...strokeSwatches.querySelectorAll("button")] : [])
-    ];
-    const disabled = !node;
-    for (const el of toggles) {
-      if (el) el.disabled = disabled;
-    }
     if (!node) {
-      syncNodeColorSwatchActiveState(fillSwatches, "");
-      syncNodeColorSwatchActiveState(strokeSwatches, "");
-      if (fillHex) fillHex.value = "";
-      if (strokeHex) strokeHex.value = "";
+      syncGlobalColorPickerFromSelection();
       return;
     }
     const fill = getNodeFillColor(node);
     const stroke = getNodeStrokeColor(node);
-    const fillTransparent = fill === "transparent";
-    if (fillPicker) {
-      fillPicker.disabled = fillTransparent;
-      fillPicker.value = hexForColorPicker(fill, "#BD7000");
-    }
-    if (fillHex) fillHex.value = fillTransparent ? "transparent" : fill || "";
+    if (fillPicker) fillPicker.value = hexForColorPicker(fill, "#BD7000");
     if (strokePicker) strokePicker.value = hexForColorPicker(stroke, "#9CB8FF");
-    if (strokeHex) strokeHex.value = stroke || "";
     if (nodeColor) nodeColor.value = hexForColorPicker(fill || node.color, "#ffd482");
     if (nodeBorderColor) nodeBorderColor.value = hexForColorPicker(stroke, "#9cb8ff");
-    syncNodeColorSwatchActiveState(fillSwatches, fill || "");
-    syncNodeColorSwatchActiveState(strokeSwatches, stroke || "");
+    syncGlobalColorPickerFromSelection();
   }
 
   const NODE_EXTENDED_COLOR_PALETTE = [
@@ -9501,6 +9650,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     if (n.style.borderWidth == null || !Number.isFinite(Number(n.style.borderWidth))) n.style.borderWidth = 1.5;
     else n.style.borderWidth = Math.max(0, Math.min(6, Number(n.style.borderWidth)));
     if (n.style.freeform == null) n.style.freeform = false;
+    if (n.style.rotationDeg == null || !Number.isFinite(Number(n.style.rotationDeg))) n.style.rotationDeg = 0;
+    else n.style.rotationDeg = Math.round(Number(n.style.rotationDeg));
     if (n.style.titleFontSize == null || !Number.isFinite(Number(n.style.titleFontSize))) n.style.titleFontSize = 14;
     else n.style.titleFontSize = Math.max(10, Math.min(28, Math.round(Number(n.style.titleFontSize))));
     const tw0 = Number(n.style.titleFontWeight);
@@ -10703,6 +10854,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       finalizeActiveNodeDragIfAny();
     }
     if (runtime.nodeResizing) finalizeNodeResizeIfAny();
+    if (runtime.nodeRotating) finalizeNodeRotateIfAny();
     if (runtime.flowGroupDragging) finalizeFlowGroupDragIfAny();
     clearPendingConnectionState();
     runtime.panning = null;
@@ -11304,7 +11456,12 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       btn.setAttribute("aria-label", `Resize ${pos}`);
       resizeHost.appendChild(btn);
     }
-    chrome.append(frame, resizeHost);
+    const rotateBtn = document.createElement("button");
+    rotateBtn.type = "button";
+    rotateBtn.className = "node-rotate-handle";
+    rotateBtn.tabIndex = -1;
+    rotateBtn.setAttribute("aria-label", "Rotate");
+    chrome.append(frame, resizeHost, rotateBtn);
     nodeEl.appendChild(chrome);
   }
 
@@ -11396,6 +11553,78 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     scheduleRenderConnections();
     renderSemanticOverlays();
     markDirty();
+  }
+
+  function startNodeRotate(node, e) {
+    if (!node || runtime.readOnly || isNodeDragHardLocked(node)) return;
+    const el = getNodeDomEl(node.id);
+    const w = getNodeWorldPosition(node);
+    const rect = el?.getBoundingClientRect();
+    const zoom = getProject().view.zoom || 1;
+    const cx = rect ? rect.left + rect.width / 2 : w.x * zoom;
+    const cy = rect ? rect.top + rect.height / 2 : w.y * zoom;
+    const st = ensureNodeStyle(node);
+    runtime.nodeRotating = {
+      nodeId: node.id,
+      pointerId: e.pointerId,
+      centerClientX: cx,
+      centerClientY: cy,
+      startAngle: Math.atan2(e.clientY - cy, e.clientX - cx),
+      startRotationDeg: Number(st.rotationDeg) || 0
+    };
+    if (el) el.classList.add("is-rotating");
+    try {
+      e.target.setPointerCapture(e.pointerId);
+    } catch (_) {}
+    e.stopPropagation();
+    e.preventDefault();
+  }
+
+  function updateNodeRotate(e) {
+    const r = runtime.nodeRotating;
+    if (!r || (r.pointerId != null && e.pointerId !== r.pointerId)) return;
+    const n = getNodeById(r.nodeId);
+    if (!n) return;
+    const angle = Math.atan2(e.clientY - r.centerClientY, e.clientX - r.centerClientX);
+    const delta = (angle - r.startAngle) * (180 / Math.PI);
+    const st = ensureNodeStyle(n);
+    st.rotationDeg = Math.round(r.startRotationDeg + delta);
+    const el = getNodeDomEl(n.id);
+    if (el) {
+      const w = getNodeWorldPosition(n);
+      applyNodeWorldTransform(el, w.x, w.y);
+    }
+  }
+
+  function finalizeNodeRotateIfAny() {
+    const r = runtime.nodeRotating;
+    if (!r) return;
+    runtime.nodeRotating = null;
+    const el = getNodeDomEl(r.nodeId);
+    if (el) el.classList.remove("is-rotating");
+    markDirty();
+  }
+
+  function initNodeRotateHandleDelegation() {
+    if (runtime.rotateHandleDelegationReady || !nodesLayer) return;
+    runtime.rotateHandleDelegationReady = true;
+    nodesLayer.addEventListener("pointerdown", (e) => {
+      const handle = e.target.closest?.(".node-rotate-handle");
+      if (!handle) return;
+      const nodeEl = handle.closest(".node");
+      const nodeId = nodeEl?.dataset?.nodeId;
+      const nodeObj = nodeId ? getNodeById(nodeId) : null;
+      if (!nodeObj || runtime.readOnly || e.button !== 0) return;
+      if (isNodeDragHardLocked(nodeObj)) return;
+      runtime.dragging = null;
+      if (runtime.carryDrag) finalizeCarryDragIfAny();
+      markInspectorDiagramTabFocus();
+      selectionRuntime.selectNode(nodeObj.id);
+      clearFlowGroupSelection();
+      clearAllEdgeSelection();
+      renderSelection();
+      startNodeRotate(nodeObj, e);
+    });
   }
 
   function initNodeResizeHandleDelegation() {
@@ -15250,6 +15479,7 @@ clearFlowGroupSelection();
         if (elementStateEl) elementStateEl.style.display = "none";
         if (connectorStateEl) connectorStateEl.style.display = "block";
         document.getElementById("rightbar")?.setAttribute("data-inspector-mode", "connector");
+        if (!runtime.isSyncingInspector) setGlobalColorTarget("stroke");
         syncEdgeInspectorPanel();
       } else if (!selectedNode) {
         if (canvasStateEl) canvasStateEl.style.display = "block";
@@ -15364,6 +15594,8 @@ clearFlowGroupSelection();
     syncFcQuickEditToolbar();
     syncFcGroupQuickEditToolbar();
     syncFcMultiSelectBar();
+    syncCanvasCornerPill();
+    syncGlobalColorPickerFromSelection();
     if (isFlowchartMode() && canvasUnderlays) {
       for (const el of canvasUnderlays.querySelectorAll(".fc-flow-group")) {
         el.classList.toggle("selected", el.dataset.flowGroupId === runtime.selectedFlowGroupId);
@@ -16734,7 +16966,7 @@ clearFlowGroupSelection();
     }
     if (runtime.readOnly) return;
     if (runtime.fcToolbarInteracting || runtime.fcMultiBarInteracting) return;
-    if (e.target.closest("#fcDeleteConfirm, .fc-delete-confirm, #fcAssistantRoot, .fc-assistant-root, .fc-flow-group, .fc-flow-group-header, .fc-flow-group-body, .fc-flow-group-handle")) return;
+    if (e.target.closest("#fcQuickEdit, #fcGroupQuickEdit, #fcMultiSelectBar, #canvasCornerPill, .fc-quick-edit, .fc-multi-select-bar, .canvas-corner-pill, #fcDeleteConfirm, .fc-delete-confirm, #fcAssistantRoot, .fc-assistant-root, .fc-flow-group, .fc-flow-group-header, .fc-flow-group-body, .fc-flow-group-handle")) return;
     if (e.target.closest(".node") || e.target.closest(".conn") || e.target.closest(".conn-hit")) return;
     /* Group label/handles live above nodes; ignore canvas clear/pan when interacting with a group frame */
     if (e.target.closest(".group-chrome, .group-chrome-body, .group-drag-surface")) return;
@@ -17140,6 +17372,9 @@ clearFlowGroupSelection();
     }
     if (runtime.nodeResizing && (runtime.nodeResizing.pointerId == null || runtime.nodeResizing.pointerId === e.pointerId)) {
       finalizeNodeResizeIfAny();
+    }
+    if (runtime.nodeRotating && (runtime.nodeRotating.pointerId == null || runtime.nodeRotating.pointerId === e.pointerId)) {
+      finalizeNodeRotateIfAny();
     }
     const dragSnap = runtime.dragging;
     if (dragSnap && (dragSnap.pointerId == null || dragSnap.pointerId === e.pointerId)) {
@@ -18222,6 +18457,18 @@ clearFlowGroupSelection();
       }
       initConnectionListPanelUi();
       initEdgeInspectorPanelUi();
+      initGlobalColorPicker();
+      initNodeRotateHandleDelegation();
+      bindFcQuickEditToolbar();
+      bindFcMultiSelectBar();
+      const cornerPill = document.getElementById("canvasCornerPill");
+      cornerPill?.addEventListener("pointerdown", (e) => e.stopPropagation(), true);
+      document.getElementById("canvasCornerCycleBtn")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        cycleCornerRadiusForSelection();
+        syncCanvasCornerPill();
+      });
       initOutlineTreePanelUi();
       initCommandPaletteAndHelpUi();
       initSavedViewsUi();
