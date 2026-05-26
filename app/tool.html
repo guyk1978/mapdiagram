@@ -4336,8 +4336,8 @@
               <label class="insp-field">
                 <span class="insp-field__label">Connector style</span>
                 <select id="connectorStyleSelect">
+                  <option value="orthogonal" selected>Orthogonal</option>
                   <option value="curved">Curved</option>
-                  <option value="orthogonal">Orthogonal</option>
                 </select>
               </label>
             </div>
@@ -4427,55 +4427,52 @@
             </div>
           </div>
           <hr class="insp-divider" aria-hidden="true">
-          <div class="inspector-group inspector-group--node-color">
-            <div class="inspector-group__title">Fill</div>
-            <p class="muted inspector-hint inspector-hint--tight">Shape background for the selected node only.</p>
-            <div class="node-color-swatches" id="nodeFillSwatches" role="listbox" aria-label="Fill color presets">
-              <button type="button" class="node-color-swatch node-color-swatch--transparent" data-node-color-kind="fill" data-node-color="transparent" title="Transparent" aria-label="Transparent fill"></button>
-              <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#00A2E8" style="--swatch-color:#00A2E8" title="Electric blue" aria-label="Electric blue"></button>
-              <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#10B981" style="--swatch-color:#10B981" title="Emerald green" aria-label="Emerald green"></button>
-              <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#F59E0B" style="--swatch-color:#F59E0B" title="Neon amber" aria-label="Neon amber"></button>
-              <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#E11D48" style="--swatch-color:#E11D48" title="Deep ruby" aria-label="Deep ruby"></button>
-              <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#8B5CF6" style="--swatch-color:#8B5CF6" title="Soft violet" aria-label="Soft violet"></button>
-              <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#374151" style="--swatch-color:#374151" title="Charcoal" aria-label="Charcoal"></button>
-              <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#1E293B" style="--swatch-color:#1E293B" title="Slate glass" aria-label="Slate glass"></button>
+          <div class="inspector-group inspector-group--node-color inspector-compact">
+            <div class="node-color-line">
+              <span class="inspector-micro-label">Fill</span>
+              <div class="node-color-line__body">
+                <div class="node-color-swatches" id="nodeFillSwatches" role="listbox" aria-label="Fill color presets">
+                  <button type="button" class="node-color-swatch node-color-swatch--transparent" data-node-color-kind="fill" data-node-color="transparent" title="Transparent" aria-label="Transparent fill"></button>
+                  <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#00A2E8" style="--swatch-color:#00A2E8" title="Electric blue" aria-label="Electric blue"></button>
+                  <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#10B981" style="--swatch-color:#10B981" title="Emerald" aria-label="Emerald"></button>
+                  <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#F59E0B" style="--swatch-color:#F59E0B" title="Amber" aria-label="Amber"></button>
+                  <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#E11D48" style="--swatch-color:#E11D48" title="Ruby" aria-label="Ruby"></button>
+                  <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#8B5CF6" style="--swatch-color:#8B5CF6" title="Violet" aria-label="Violet"></button>
+                  <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#374151" style="--swatch-color:#374151" title="Charcoal" aria-label="Charcoal"></button>
+                  <button type="button" class="node-color-swatch" data-node-color-kind="fill" data-node-color="#1E293B" style="--swatch-color:#1E293B" title="Slate" aria-label="Slate"></button>
+                </div>
+                <label class="node-color-picker-wrap" title="Custom fill">
+                  <span class="sr-only">Custom fill color</span>
+                  <input type="color" id="nodeFillColorPicker" value="#BD7000" aria-label="Custom fill color">
+                </label>
+                <input type="text" id="nodeFillColorHex" class="node-color-hex-input" placeholder="#BD7000" spellcheck="false" maxlength="12" aria-label="Fill hex" autocomplete="off">
+              </div>
             </div>
-            <div class="node-color-custom-row">
-              <label class="node-color-picker-wrap" title="Custom fill color">
-                <span class="sr-only">Custom fill color</span>
-                <input type="color" id="nodeFillColorPicker" value="#BD7000" aria-label="Custom fill color">
-              </label>
-              <input type="text" id="nodeFillColorHex" class="node-color-hex-input" placeholder="#BD7000" spellcheck="false" maxlength="12" aria-label="Fill color hex code" autocomplete="off">
+            <div class="node-color-line">
+              <span class="inspector-micro-label">Line</span>
+              <div class="node-color-line__body">
+                <div class="node-color-swatches" id="nodeStrokeSwatches" role="listbox" aria-label="Line color presets">
+                  <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#00A2E8" style="--swatch-color:#00A2E8" title="Electric blue" aria-label="Electric blue line"></button>
+                  <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#10B981" style="--swatch-color:#10B981" title="Emerald" aria-label="Emerald line"></button>
+                  <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#F59E0B" style="--swatch-color:#F59E0B" title="Amber" aria-label="Amber line"></button>
+                  <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#E11D48" style="--swatch-color:#E11D48" title="Ruby" aria-label="Ruby line"></button>
+                  <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#F8FAFC" style="--swatch-color:#F8FAFC" title="White" aria-label="White line"></button>
+                  <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#64748B" style="--swatch-color:#64748B" title="Slate" aria-label="Slate line"></button>
+                  <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#22D3EE" style="--swatch-color:#22D3EE" title="Cyan" aria-label="Cyan line"></button>
+                  <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#9CB8FF" style="--swatch-color:#9CB8FF" title="Accent" aria-label="Accent line"></button>
+                </div>
+                <label class="node-color-picker-wrap" title="Custom line">
+                  <span class="sr-only">Custom line color</span>
+                  <input type="color" id="nodeStrokeColorPicker" value="#9CB8FF" aria-label="Custom line color">
+                </label>
+                <input type="text" id="nodeStrokeColorHex" class="node-color-hex-input" placeholder="#9CB8FF" spellcheck="false" maxlength="12" aria-label="Line hex" autocomplete="off">
+              </div>
             </div>
           </div>
-          <div class="inspector-group inspector-group--node-color">
-            <div class="inspector-group__title">Line / Glow</div>
-            <p class="muted inspector-hint inspector-hint--tight">Stroke and accent glow on the node outline.</p>
-            <div class="node-color-swatches" id="nodeStrokeSwatches" role="listbox" aria-label="Line color presets">
-              <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#00A2E8" style="--swatch-color:#00A2E8" title="Electric blue" aria-label="Electric blue line"></button>
-              <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#10B981" style="--swatch-color:#10B981" title="Emerald green" aria-label="Emerald green line"></button>
-              <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#F59E0B" style="--swatch-color:#F59E0B" title="Neon amber" aria-label="Neon amber line"></button>
-              <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#E11D48" style="--swatch-color:#E11D48" title="Deep ruby" aria-label="Deep ruby line"></button>
-              <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#F8FAFC" style="--swatch-color:#F8FAFC" title="Frost white" aria-label="Frost white line"></button>
-              <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#64748B" style="--swatch-color:#64748B" title="Cool slate" aria-label="Cool slate line"></button>
-              <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#22D3EE" style="--swatch-color:#22D3EE" title="Cyan accent" aria-label="Cyan accent line"></button>
-              <button type="button" class="node-color-swatch" data-node-color-kind="stroke" data-node-color="#9CB8FF" style="--swatch-color:#9CB8FF" title="Default accent" aria-label="Default accent line"></button>
-            </div>
-            <div class="node-color-custom-row">
-              <label class="node-color-picker-wrap" title="Custom line color">
-                <span class="sr-only">Custom line color</span>
-                <input type="color" id="nodeStrokeColorPicker" value="#9CB8FF" aria-label="Custom line color">
-              </label>
-              <input type="text" id="nodeStrokeColorHex" class="node-color-hex-input" placeholder="#9CB8FF" spellcheck="false" maxlength="12" aria-label="Line color hex code" autocomplete="off">
-            </div>
-            <label class="insp-range"><span class="insp-field__label">Glow intensity</span><input id="nodeGlow" type="range" min="0" max="40" step="1" value="12"></label>
-          </div>
-          <hr class="insp-divider" aria-hidden="true">
-          <div class="inspector-group inspector-group--style">
-            <div class="inspector-group__title">Shape &amp; text</div>
+          <div class="inspector-group inspector-group--style inspector-compact">
             <div class="insp-segment-rows" id="nodeStyleSegments">
               <div class="insp-segment-row">
-                <span class="insp-segment-row__label">Fill opacity</span>
+                <span class="insp-segment-row__label">Opacity</span>
                 <div class="insp-segment-group" data-style-key="opacity" role="group" aria-label="Fill opacity">
                   <button type="button" class="insp-segment-btn" data-value="0.25" aria-pressed="false">25%</button>
                   <button type="button" class="insp-segment-btn" data-value="0.5" aria-pressed="false">50%</button>
@@ -4484,11 +4481,20 @@
                 </div>
               </div>
               <div class="insp-segment-row">
+                <span class="insp-segment-row__label">Glow</span>
+                <div class="insp-segment-group" data-style-key="glow" role="group" aria-label="Glow intensity">
+                  <button type="button" class="insp-segment-btn" data-value="0" aria-pressed="false">Off</button>
+                  <button type="button" class="insp-segment-btn" data-value="8" aria-pressed="false">Soft</button>
+                  <button type="button" class="insp-segment-btn" data-value="16" aria-pressed="false">Med</button>
+                  <button type="button" class="insp-segment-btn" data-value="28" aria-pressed="false">Strong</button>
+                </div>
+              </div>
+              <div class="insp-segment-row">
                 <span class="insp-segment-row__label">Shadow</span>
                 <div class="insp-segment-group" data-style-key="shadow" role="group" aria-label="Shadow intensity">
                   <button type="button" class="insp-segment-btn" data-value="0" aria-pressed="false">Off</button>
                   <button type="button" class="insp-segment-btn" data-value="10" aria-pressed="false">Soft</button>
-                  <button type="button" class="insp-segment-btn" data-value="20" aria-pressed="false">Medium</button>
+                  <button type="button" class="insp-segment-btn" data-value="20" aria-pressed="false">Med</button>
                   <button type="button" class="insp-segment-btn" data-value="34" aria-pressed="false">Strong</button>
                 </div>
               </div>
@@ -4496,9 +4502,9 @@
                 <span class="insp-segment-row__label">Corners</span>
                 <div class="insp-segment-group" data-style-key="radius" role="group" aria-label="Rounded corners">
                   <button type="button" class="insp-segment-btn" data-value="0" aria-pressed="false">None</button>
-                  <button type="button" class="insp-segment-btn" data-value="6" aria-pressed="false">Small</button>
-                  <button type="button" class="insp-segment-btn" data-value="12" aria-pressed="false">Medium</button>
-                  <button type="button" class="insp-segment-btn" data-value="20" aria-pressed="false">Large</button>
+                  <button type="button" class="insp-segment-btn" data-value="6" aria-pressed="false">S</button>
+                  <button type="button" class="insp-segment-btn" data-value="12" aria-pressed="false">M</button>
+                  <button type="button" class="insp-segment-btn" data-value="20" aria-pressed="false">L</button>
                 </div>
               </div>
             </div>
@@ -4965,7 +4971,6 @@
   const nodeDescription = document.getElementById("nodeDescription");
   const nodeIcon = document.getElementById("nodeIcon");
   const nodeType = document.getElementById("nodeType");
-  const nodeGlow = document.getElementById("nodeGlow");
   const nodeStyleSegments = document.getElementById("nodeStyleSegments");
   const nodeBorderColor = document.getElementById("nodeBorderColor");
   const nodePicker = document.getElementById("nodePicker");
@@ -5196,7 +5201,7 @@
     isSyncingInspector: false,
     /** @type {{ kind: "conn"|"gc", id: string }|null} Highlight edge from inspector connection list hover */
     listHoverLink: null,
-    connectorStyle: "curved",
+    connectorStyle: "orthogonal",
     selectedGroupId: null,
     selectedGroupIds: new Set(),
     selectedGroupConnId: null,
@@ -9163,6 +9168,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       const st = ensureNodeStyle(node);
       const key = group.dataset.styleKey;
       if (key === "opacity") syncSegmentGroupActive(group, st.opacity ?? 0.9);
+      else if (key === "glow") syncSegmentGroupActive(group, st.glow ?? 12);
       else if (key === "shadow") syncSegmentGroupActive(group, st.shadow ?? 20);
       else if (key === "radius") syncSegmentGroupActive(group, st.radius ?? 12);
     }
@@ -11615,8 +11621,20 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       offset += (tries % 2 === 0 ? 1 : -1) * 40 * (Math.floor(tries / 2) + 1);
       tries += 1;
     }
-    const auto = autoCurve(from, to);
-    return curvePath(from, auto.cp1, auto.cp2, to);
+    const midX = (from.x + to.x) / 2;
+    return `M ${from.x} ${from.y} L ${midX} ${from.y} L ${midX} ${to.y} L ${to.x} ${to.y}`;
+  }
+
+  function resolveConnectorStyle() {
+    if (isFlowchartMode()) return "orthogonal";
+    return runtime.connectorStyle === "curved" ? "curved" : "orthogonal";
+  }
+
+  function routeConnectionPath(from, to, obstacles, curve) {
+    if (resolveConnectorStyle() === "orthogonal") {
+      return orthogonalPath(from, to, obstacles);
+    }
+    return curvePath(from, curve.cp1, curve.cp2, to);
   }
 
   function getNodeNodeEdgeLayout(c, p) {
@@ -11635,10 +11653,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         const w = getNodeWorldPosition(n);
         return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
       });
-    const d =
-      runtime.connectorStyle === "orthogonal"
-        ? orthogonalPath(from, to, obstacles)
-        : curvePath(from, curve.cp1, curve.cp2, to);
+    const d = routeConnectionPath(from, to, obstacles, curve);
     return { fromNode, toNode, from, to, curve, d };
   }
 
@@ -12711,9 +12726,7 @@ clearFlowGroupSelection();
             return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
           })
           .concat(nodesInsideGroupBoxObstacles(toBox, new Set([c.from])));
-        const d = runtime.connectorStyle === "orthogonal"
-          ? orthogonalPath(from, to, obsRects)
-          : curvePath(from, auto.cp1, auto.cp2, to);
+        const d = routeConnectionPath(from, to, obsRects, auto);
         const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
         hit.setAttribute("d", d);
         hit.setAttribute("class", "conn-hit");
@@ -12758,9 +12771,7 @@ clearFlowGroupSelection();
             return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
           })
           .concat(nodesInsideGroupBoxObstacles(fromBox, new Set([c.to])));
-        const d = runtime.connectorStyle === "orthogonal"
-          ? orthogonalPath(from, to, obsRects)
-          : curvePath(from, auto.cp1, auto.cp2, to);
+        const d = routeConnectionPath(from, to, obsRects, auto);
         const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
         hit.setAttribute("d", d);
         hit.setAttribute("class", "conn-hit");
@@ -12806,9 +12817,7 @@ clearFlowGroupSelection();
             return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
           })
           .concat(nodesInsideGroupBoxObstacles(toBox, new Set([c.from])));
-        const d = runtime.connectorStyle === "orthogonal"
-          ? orthogonalPath(from, to, obsRects)
-          : curvePath(from, auto.cp1, auto.cp2, to);
+        const d = routeConnectionPath(from, to, obsRects, auto);
         const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
         hit.setAttribute("d", d);
         hit.setAttribute("class", "conn-hit");
@@ -12853,9 +12862,7 @@ clearFlowGroupSelection();
             return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
           })
           .concat(nodesInsideGroupBoxObstacles(fromBox, new Set([c.to])));
-        const d = runtime.connectorStyle === "orthogonal"
-          ? orthogonalPath(from, to, obsRects)
-          : curvePath(from, auto.cp1, auto.cp2, to);
+        const d = routeConnectionPath(from, to, obsRects, auto);
         const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
         hit.setAttribute("d", d);
         hit.setAttribute("class", "conn-hit");
@@ -12897,9 +12904,7 @@ clearFlowGroupSelection();
           ...nodesInsideGroupBoxObstacles(fromBox, new Set()),
           ...nodesInsideGroupBoxObstacles(toBox, new Set()),
         ];
-        const d = runtime.connectorStyle === "orthogonal"
-          ? orthogonalPath(from, to, obs)
-          : curvePath(from, auto.cp1, auto.cp2, to);
+        const d = routeConnectionPath(from, to, obs, auto);
         const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
         hit.setAttribute("d", d);
         hit.setAttribute("class", "conn-hit");
@@ -12945,9 +12950,7 @@ clearFlowGroupSelection();
           const w = getNodeWorldPosition(n);
           return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
         });
-      const d = runtime.connectorStyle === "orthogonal"
-        ? orthogonalPath(from, to, obstacles)
-        : curvePath(from, curve.cp1, curve.cp2, to);
+      const d = routeConnectionPath(from, to, obstacles, curve);
       const nnStroke = connectionStrokeColorOrNull(c);
       let gradId = null;
       if (!nnStroke) {
@@ -13104,10 +13107,7 @@ clearFlowGroupSelection();
           const w = getNodeWorldPosition(n);
           return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
         });
-      const dBr =
-        runtime.connectorStyle === "orthogonal"
-          ? orthogonalPath(fromPt, to, obstacles)
-          : curvePath(fromPt, curve.cp1, curve.cp2, to);
+      const dBr = routeConnectionPath(fromPt, to, obstacles, curve);
       const brStroke = connectionStrokeColorOrNull(c);
       let brGradId = null;
       if (!brStroke) {
@@ -13184,9 +13184,7 @@ clearFlowGroupSelection();
         ...nodesInsideGroupBoxObstacles(toBox, new Set())
       ];
       const auto = autoCurve(from, to);
-      const d = runtime.connectorStyle === "orthogonal"
-        ? orthogonalPath(from, to, obs)
-        : curvePath(from, auto.cp1, auto.cp2, to);
+      const d = routeConnectionPath(from, to, obs, auto);
       const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
       hit.setAttribute("d", d);
       hit.setAttribute("class", "conn-hit");
@@ -14640,7 +14638,7 @@ clearFlowGroupSelection();
       if (gridChk) gridChk.checked = v.grid !== false;
       const gFont = document.getElementById("canvasGlobalFontSelect");
       if (gFont) gFont.value = v.defaultTitleFontFamily;
-      if (connectorStyleSelect) connectorStyleSelect.value = runtime.connectorStyle || "curved";
+      if (connectorStyleSelect) connectorStyleSelect.value = runtime.connectorStyle || "orthogonal";
     } finally {
       if (!wasSyncing) runtime.isSyncingInspector = false;
     }
@@ -14715,7 +14713,6 @@ clearFlowGroupSelection();
       nodeIcon.value = selectedNode ? (selectedNode.icon || "") : "";
       nodeType.value = selectedNode ? (selectedNode.type || "process") : "process";
       if (selectedNode) ensureNodeStyle(selectedNode);
-      nodeGlow.value = selectedNode ? String(selectedNode.style.glow ?? 12) : "12";
       syncNodeColorInspectorFields(selectedNode);
       syncNodeStyleSegmentControls(selectedNode);
       const nql = document.getElementById("nodeQuickLockChk");
@@ -16178,25 +16175,7 @@ clearFlowGroupSelection();
       markDirty();
     });
   }
-  function bindStyleRange(el, key) {
-    if (!el) return;
-    el.addEventListener("input", () => {
-      if (runtime.isSyncingInspector) return;
-      const ids = getInspectorTargetNodeIds();
-      if (!ids.length) return;
-      for (const id of ids) {
-        const n = getNodeById(id);
-        if (!n) continue;
-        ensureNodeStyle(n);
-        n.style[key] = key === "borderColor" || key === "strokeColor" ? el.value : Number(el.value);
-        if (key === "strokeColor") n.style.borderColor = el.value;
-        updateNodeDom(id);
-      }
-      markDirty();
-    });
-  }
   initNodeStyleSegmentControls();
-  bindStyleRange(nodeGlow, "glow");
   nodeBorderColor?.addEventListener("input", () => {
     if (runtime.isSyncingInspector) return;
     applyNodeColorToSelection("stroke", nodeBorderColor.value);
@@ -16381,9 +16360,7 @@ clearFlowGroupSelection();
       const from = anchors ? anchors.from : groupAnchor(fromBox, "out", point);
       const to = toBox ? anchors.to : point;
       const auto = autoCurve(from, to);
-      const d = runtime.connectorStyle === "orthogonal"
-        ? orthogonalPath(from, to, [])
-        : curvePath(from, auto.cp1, auto.cp2, to);
+      const d = routeConnectionPath(from, to, [], auto);
       runtime.groupPreviewPath.setAttribute("d", d);
       runtime.groupPreviewPath.classList.remove("preview-valid", "preview-invalid", "preview-neutral");
       runtime.groupPreviewPath.classList.add(toBox ? "preview-valid" : "preview-neutral");
@@ -16498,7 +16475,7 @@ clearFlowGroupSelection();
         const from = runtime.previewFrom;
         if (!from) return;
         const auto = autoCurve(from, point);
-        runtime.previewPath.setAttribute("d", curvePath(from, auto.cp1, auto.cp2, point));
+        runtime.previewPath.setAttribute("d", routeConnectionPath(from, point, [], auto));
         runtime.previewPath.classList.remove("preview-valid", "preview-invalid", "preview-neutral");
         runtime.previewPath.classList.add(hoverNodeId || hoverFgId ? "preview-valid" : "preview-invalid");
         syncConnectTargetHighlight(hoverNodeId);
@@ -16523,7 +16500,7 @@ clearFlowGroupSelection();
         const from = runtime.previewFrom;
         if (!from) return;
         const auto = autoCurve(from, point);
-        runtime.previewPath.setAttribute("d", curvePath(from, auto.cp1, auto.cp2, point));
+        runtime.previewPath.setAttribute("d", routeConnectionPath(from, point, [], auto));
         runtime.previewPath.classList.remove("preview-valid", "preview-invalid", "preview-neutral");
         runtime.previewPath.classList.add(hoveredNodeId || hoverGroupInId ? "preview-valid" : "preview-invalid");
         syncConnectTargetHighlight(hoveredNodeId);
@@ -16563,7 +16540,7 @@ clearFlowGroupSelection();
       }
       const from = runtime.previewFrom || anchorNodeForConnection(runtime.connecting.fromNodeId, "from", point);
       const auto = autoCurve(from, point);
-      runtime.previewPath.setAttribute("d", curvePath(from, auto.cp1, auto.cp2, point));
+      runtime.previewPath.setAttribute("d", routeConnectionPath(from, point, [], auto));
       runtime.previewPath.classList.remove("preview-valid", "preview-invalid", "preview-neutral");
       runtime.previewPath.classList.add(
         hoveredNodeId || hoverGroupInId || hoverFlowGroupId ? "preview-valid" : "preview-invalid"
@@ -17235,7 +17212,6 @@ clearFlowGroupSelection();
       nodeShape.value = node.shape;
       nodeSubtitle.value = node.subtitle;
       nodeDescription.value = node.description;
-      if (gl) nodeGlow.value = String(stStyle.glow);
       syncNodeStyleSegmentControls(node);
       if (bc) nodeBorderColor.value = stStyle.borderColor;
     }

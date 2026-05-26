@@ -964,16 +964,16 @@ html[data-theme="light"] .ai-create-btn {
 }
 
 .inspector-hint {
-  font-size: 11px;
-  line-height: 1.4;
-  margin: 0 0 8px;
+  font-size: 10px;
+  line-height: 1.3;
+  margin: 0 0 4px;
 }
 
 .inspector-group {
   display: grid;
-  gap: 8px;
-  padding: 10px 10px;
-  border-radius: 10px;
+  gap: 4px;
+  padding: 6px 8px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--panel) 38%, transparent);
   border: 1px solid color-mix(in srgb, var(--line) 45%, transparent);
 }
@@ -994,7 +994,7 @@ html[data-theme="light"] .inspector-group {
 .insp-divider {
   border: none;
   border-top: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
-  margin: 4px 0;
+  margin: 2px 0;
 }
 
 .insp-field {
@@ -1005,8 +1005,10 @@ html[data-theme="light"] .inspector-group {
 
 .insp-field__label {
   font-size: 11px;
-  font-weight: 500;
-  color: var(--label-color);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #8a8a93;
   line-height: 1.2;
 }
 
@@ -1017,10 +1019,11 @@ html[data-theme="light"] .inspector-group {
 #inspectorElementState .insp-field select,
 #inspectorElementState .insp-field textarea {
   width: 100%;
-  min-height: var(--control-height);
-  height: var(--control-height);
-  padding: 0 10px;
-  border-radius: 8px;
+  min-height: 28px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 12px;
   box-sizing: border-box;
 }
 
@@ -1082,8 +1085,25 @@ html[data-theme="light"] .inspector-group {
 }
 
 #diagramSectionNode {
-  gap: 8px;
+  gap: 4px;
   padding: 0;
+}
+
+#inspectorElementState {
+  gap: 4px;
+}
+
+.inspector-micro-label,
+.insp-segment-row__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #8a8a93;
+  line-height: 1;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  min-width: 48px;
 }
 
 .inspector-form-grid {
@@ -1102,58 +1122,79 @@ html[data-theme="light"] .inspector-group {
 .inspector-group--element,
 .inspector-group--style,
 .inspector-group--node-color {
-  padding: 8px 10px;
-  gap: 6px;
+  padding: 5px 7px;
+  gap: 4px;
+}
+
+.inspector-compact {
+  padding: 4px 6px;
+  gap: 3px;
 }
 
 .inspector-hint--tight {
   margin: 0;
-  font-size: 11px;
-  line-height: 1.35;
+  font-size: 10px;
+  line-height: 1.3;
 }
 
-.inspector-group--node-color .inspector-group__title {
+.inspector-group--node-color .inspector-group__title,
+.inspector-group--style .inspector-group__title {
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-muted, var(--muted));
+  color: #8a8a93;
+  margin: 0;
+}
+
+.node-color-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.node-color-line__body {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .node-color-swatches {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 2px;
   min-width: 0;
 }
 
 .node-color-swatch {
-  width: 24px !important;
-  height: 24px !important;
+  width: 18px !important;
+  height: 18px !important;
+  margin: 2px;
   padding: 0;
   border-radius: 4px !important;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   background: var(--swatch-color, #374151);
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
   cursor: pointer;
+  flex: 0 0 auto;
   transition:
-    transform 120ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    box-shadow 120ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    border-color 120ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    transform 100ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 100ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-color 100ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .node-color-swatch:hover {
-  transform: translateY(-1px) scale(1.03);
-  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.06);
+  border-color: rgba(255, 255, 255, 0.45);
 }
 
 .node-color-swatch.is-active {
-  border-width: 2px;
-  border-color: #ffffff;
-  box-shadow:
-    0 0 4px rgba(0, 0, 0, 0.5);
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
 }
 
 .node-color-swatch--transparent {
@@ -1171,44 +1212,39 @@ html[data-theme="light"] .inspector-group {
   background-color: rgba(18, 24, 38, 0.5);
 }
 
-.node-color-custom-row {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 6px;
-  align-items: center;
-  min-width: 0;
-}
-
 .node-color-picker-wrap {
   display: block;
   margin: 0;
+  flex: 0 0 auto;
 }
 
 .node-color-picker-wrap input[type="color"] {
-  width: 26px;
-  height: 26px;
-  min-height: 26px;
-  padding: 3px;
-  border-radius: 6px;
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+  padding: 1px;
+  border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(8, 12, 22, 0.45);
+  background: rgba(8, 12, 22, 0.55);
   box-sizing: border-box;
   cursor: pointer;
 }
 
 .node-color-hex-input {
-  width: 100%;
-  height: 26px;
-  min-height: 26px;
-  padding: 0 8px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(8, 12, 22, 0.45);
+  width: 72px;
+  max-width: 88px;
+  height: 22px;
+  min-height: 22px;
+  padding: 0 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 12, 22, 0.55);
   color: var(--text);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
-  letter-spacing: 0.02em;
+  font-size: 10px;
+  letter-spacing: 0.03em;
   box-sizing: border-box;
+  flex: 0 1 auto;
 }
 
 .node-color-hex-input:focus {
@@ -1228,69 +1264,52 @@ html[data-theme="light"] .node-color-hex-input {
   background: rgba(255, 255, 255, 0.92);
 }
 
-/* —— Inspector segmented style controls (Shape & text) —— */
-.inspector-group--style .inspector-group__title {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted, var(--muted));
-}
-
+/* —— Inspector segmented style controls —— */
 .insp-segment-rows {
   display: grid;
-  gap: 6px;
+  gap: 3px;
   min-width: 0;
 }
 
 .insp-segment-row {
-  display: grid;
-  grid-template-columns: minmax(72px, 0.42fr) minmax(0, 1fr);
-  gap: 6px;
+  display: flex;
   align-items: center;
+  gap: 6px;
   min-width: 0;
-}
-
-.insp-segment-row__label {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--muted);
-  line-height: 1.2;
-  white-space: nowrap;
 }
 
 .insp-segment-group {
   display: flex;
+  flex: 1;
   flex-wrap: nowrap;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
-  padding: 2px;
-  border-radius: 7px;
-  background: rgba(8, 12, 22, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  padding: 1px;
+  border-radius: 5px;
+  background: rgba(8, 12, 22, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .insp-segment-btn {
   flex: 1 1 0;
   min-width: 0;
-  height: 24px;
-  padding: 0 6px;
+  height: auto;
+  padding: 2px 6px;
   margin: 0;
   border: 1px solid transparent;
-  border-radius: 5px;
+  border-radius: 4px;
   background: transparent;
   color: var(--muted);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.02em;
-  line-height: 1;
+  line-height: 1.2;
   cursor: pointer;
   white-space: nowrap;
   transition:
-    background 120ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    border-color 120ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    color 120ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    background 100ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-color 100ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    color 100ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .insp-segment-btn:hover:not(:disabled) {
@@ -1323,13 +1342,14 @@ html[data-theme="light"] .insp-segment-btn.is-active {
 .inspector-group--options-compact {
   background: transparent;
   border: none;
-  padding: 0;
-  gap: 6px;
+  padding: 0 2px;
+  gap: 3px;
 }
 
 .inspector-options-row {
-  display: grid;
-  gap: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
 }
 
 .insp-check--inline {
@@ -1345,11 +1365,11 @@ html[data-theme="light"] .insp-segment-btn.is-active {
 .insp-toggle {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   margin: 0;
   cursor: pointer;
   user-select: none;
-  min-height: 28px;
+  min-height: 22px;
 }
 
 .insp-toggle input {
@@ -1362,8 +1382,8 @@ html[data-theme="light"] .insp-segment-btn.is-active {
 
 .insp-toggle__track {
   flex-shrink: 0;
-  width: 34px;
-  height: 18px;
+  width: 28px;
+  height: 16px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--muted) 35%, var(--panel));
   border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
