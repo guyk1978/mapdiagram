@@ -148,6 +148,11 @@ html[data-theme="light"] .sidebar-segment {
   overflow: hidden;
 }
 
+#projects-sidebar .sidebar-panel-stack {
+  flex: 1;
+  min-height: 0;
+}
+
 .sidebar-panel {
   flex: 1;
   display: flex;
@@ -215,22 +220,29 @@ html[data-theme="light"] .sidebar-projects-card {
   min-height: 0;
   width: 100%;
   box-sizing: border-box;
-  overflow: visible;
 }
 
 .sidebar-panel--shapes {
   width: 100%;
   box-sizing: border-box;
-  padding: 0 0 8px;
-  overflow: visible;
+  padding: 0;
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 #projects-sidebar .sidebar-library-shell.sidebar-panel--shapes {
-  padding: 6px;
+  padding: 6px 6px 20px;
   border-radius: var(--radius-panel);
   background: color-mix(in srgb, var(--panel) 42%, transparent);
   border: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 html[data-theme="light"] #projects-sidebar .sidebar-library-shell.sidebar-panel--shapes {
@@ -239,13 +251,11 @@ html[data-theme="light"] #projects-sidebar .sidebar-library-shell.sidebar-panel-
 }
 
 #nodePicker {
-  flex: 1;
   display: block;
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  overflow-x: visible;
-  overflow-y: auto;
+  overflow: visible;
   padding: 0;
 }
 
@@ -611,8 +621,7 @@ html[data-theme="light"] .ai-create-btn {
   margin: 0 !important;
   gap: 0 !important;
   max-height: none !important;
-  overflow-x: visible;
-  overflow-y: auto;
+  overflow: visible;
 }
 
 .node-picker-accordion {
@@ -693,7 +702,7 @@ html[data-theme="light"] .ai-create-btn {
   width: 100%;
   box-sizing: border-box;
   padding: 4px;
-  margin: 0 0 4px;
+  margin: 0 0 8px;
   overflow: visible;
 }
 

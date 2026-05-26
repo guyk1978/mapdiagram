@@ -1758,12 +1758,14 @@
   }
   .node.shape-document {
     border-radius: 12px 12px 4px 4px;
+  }
+  .node.shape-document > .node-shape-mask {
+    border-radius: 12px 12px 4px 4px;
     clip-path: polygon(
       0% 0%, 100% 0%, 100% 78%,
       96% 86%, 88% 79%, 80% 88%, 72% 80%, 64% 89%, 56% 81%, 48% 90%,
       40% 82%, 32% 91%, 24% 83%, 16% 92%, 8% 84%, 0% 90%
     );
-    overflow: hidden;
   }
   .node.shape-cylinder {
     border-radius: 50% / 18%;
@@ -1813,10 +1815,9 @@
   .node.shape-connector .node-subtitle,
   .node.shape-connector .node-desc { display: none; }
   .node.shape-connector .node-title { font-size: 12px; }
-  .node.shape-manual-input {
-    border-radius: 8px;
+  .node.shape-manual-input > .node-shape-mask {
     clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
-    overflow: hidden;
+    border-radius: 4px;
   }
   .node.shape-internal-storage {
     border-radius: 8px;
@@ -1849,9 +1850,8 @@
     border-radius: 999px / 46%;
     min-height: 64px;
   }
-  .node.shape-hexagon {
+  .node.shape-hexagon > .node-shape-mask {
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-    overflow: hidden;
   }
   .node.shape-multidocument {
     border-radius: 10px 10px 4px 4px;
@@ -1877,13 +1877,13 @@
     opacity: 0.75;
   }
   .node.shape-multidocument .body { position: relative; z-index: 1; }
-  .node.shape-manual-operation {
-    clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%);
-    overflow: hidden;
+  .node.shape-manual-operation > .node-shape-mask {
+    clip-path: polygon(0% 100%, 10% 0%, 90% 0%, 100% 100%);
+  }
+  .node.shape-merge > .node-shape-mask {
+    clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
   }
   .node.shape-merge {
-    clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
-    overflow: hidden;
     min-height: 72px;
   }
   .node.shape-merge .body {
@@ -1915,20 +1915,38 @@
     width: 2px;
     height: 42%;
   }
-  .node.shape-arrow-right {
+  .node.shape-arrow-right > .node-shape-mask {
     clip-path: polygon(0% 22%, 58% 22%, 58% 0%, 100% 50%, 58% 100%, 58% 78%, 0% 78%);
-    overflow: hidden;
-    min-height: 56px;
   }
-  .node.shape-arrow-left {
+  .node.shape-arrow-left > .node-shape-mask {
     clip-path: polygon(100% 22%, 42% 22%, 42% 0%, 0% 50%, 42% 100%, 42% 78%, 100% 78%);
-    overflow: hidden;
+  }
+  .node.shape-arrow-up-down > .node-shape-mask {
+    clip-path: polygon(22% 0%, 78% 0%, 78% 42%, 100% 42%, 50% 100%, 0% 42%, 22% 42%);
+  }
+  .node.shape-arrow-right,
+  .node.shape-arrow-left {
     min-height: 56px;
   }
   .node.shape-arrow-up-down {
-    clip-path: polygon(22% 0%, 78% 0%, 78% 42%, 100% 42%, 50% 100%, 0% 42%, 22% 42%);
-    overflow: hidden;
     min-width: 56px;
+  }
+  .node.node--shape-masked {
+    overflow: visible;
+    background: transparent !important;
+  }
+  .node > .node-shape-mask {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  .node.node--shape-masked > .body,
+  .node.node--shape-masked > .node-shape-mask > .body {
+    position: relative;
+    z-index: 1;
   }
   .node.shape-arrow-right .node-subtitle,
   .node.shape-arrow-left .node-subtitle,
@@ -3101,6 +3119,14 @@
       0 0 0 1px rgba(122, 162, 255, 0.22),
       0 12px 28px rgba(0, 0, 0, 0.28),
       0 0 18px rgba(122, 162, 255, 0.18);
+  }
+  .flowchart-mode .node.node--shape-masked.fc-node-process {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+  }
+  .flowchart-mode .node.node--shape-masked.fc-node-process > .node-shape-mask {
+    border-color: rgba(143, 178, 255, 0.55);
+    filter: drop-shadow(0 0 1px rgba(122, 162, 255, 0.75))
+      drop-shadow(0 0 16px rgba(122, 162, 255, 0.28));
   }
   .flowchart-mode .node.shape-connector.fc-node-process {
     box-shadow:
@@ -6703,6 +6729,34 @@
     "summing-junction", "arrow-right", "arrow-left", "arrow-up-down"
   ];
 
+  const NODE_MASK_SHAPES = new Set([
+    "document", "manual-input", "hexagon", "manual-operation", "merge",
+    "arrow-right", "arrow-left", "arrow-up-down"
+  ]);
+
+  const NODE_SHAPE_DEFAULTS = {
+    rect: { width: 190, height: 88, minWidth: 120, minHeight: 70 },
+    rounded: { width: 190, height: 88, minWidth: 120, minHeight: 70 },
+    circle: { width: 128, height: 128, minWidth: 96, minHeight: 96 },
+    diamond: { width: 130, height: 130, minWidth: 110, minHeight: 110 },
+    capsule: { width: 140, height: 72, minWidth: 100, minHeight: 52 },
+    hexagon: { width: 180, height: 96, minWidth: 120, minHeight: 72 },
+    document: { width: 190, height: 100, minWidth: 120, minHeight: 72 },
+    multidocument: { width: 190, height: 108, minWidth: 120, minHeight: 80 },
+    parallelogram: { width: 200, height: 80, minWidth: 140, minHeight: 56 },
+    cylinder: { width: 168, height: 108, minWidth: 120, minHeight: 88 },
+    "internal-storage": { width: 190, height: 88, minWidth: 120, minHeight: 70 },
+    subprocess: { width: 200, height: 88, minWidth: 140, minHeight: 70 },
+    "manual-input": { width: 200, height: 88, minWidth: 140, minHeight: 64 },
+    "manual-operation": { width: 200, height: 88, minWidth: 140, minHeight: 64 },
+    merge: { width: 120, height: 96, minWidth: 80, minHeight: 64 },
+    "summing-junction": { width: 72, height: 72, minWidth: 56, minHeight: 56 },
+    connector: { width: 56, height: 56, minWidth: 44, minHeight: 44 },
+    "arrow-right": { width: 128, height: 64, minWidth: 88, minHeight: 48 },
+    "arrow-left": { width: 128, height: 64, minWidth: 88, minHeight: 48 },
+    "arrow-up-down": { width: 72, height: 128, minWidth: 48, minHeight: 88 }
+  };
+
   const FLOWCHART_LIBRARY_CATEGORIES = [
     { id: "core", title: "Flowchart Core", defaultOpen: true },
     { id: "data", title: "Data & Storage", defaultOpen: false },
@@ -7702,6 +7756,11 @@ function finalizeFlowGroupDragIfAny() {
   function applyFlowchartNodeRoleClass(el, n) {
     if (!isFlowchartMode() || !el || !n) return;
     el.classList.remove("fc-node-start", "fc-node-process", "fc-node-decision", "fc-node-end");
+    ensureNodeExtendedModel(n);
+    const fcRole = n.semantic && n.semantic.role ? String(n.semantic.role) : "";
+    if (fcRole === "start") { el.classList.add("fc-node-start"); return; }
+    if (fcRole === "end") { el.classList.add("fc-node-end"); return; }
+    if (fcRole === "decision") { el.classList.add("fc-node-decision"); return; }
     const t = String(n.type || "process").toLowerCase();
     const title = String(n.title || n.text || "");
     if (t === "input" || /\bstart\b/i.test(title)) el.classList.add("fc-node-start");
@@ -8898,16 +8957,58 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return !!(n && n.security && n.security.locked && n.security.lockMode === "hard");
   }
 
+  function needsShapeMask(shape) {
+    return NODE_MASK_SHAPES.has(shape);
+  }
+
+  function ensureNodeShapeShell(el, node) {
+    if (!el || !node) return;
+    let body = el.querySelector(":scope > .body");
+    const mask = el.querySelector(":scope > .node-shape-mask");
+    if (!body && mask) body = mask.querySelector(":scope > .body");
+    if (!body) return;
+    const wantMask = needsShapeMask(node.shape);
+    if (wantMask && !mask) {
+      const shell = document.createElement("div");
+      shell.className = "node-shape-mask";
+      el.insertBefore(shell, body);
+      shell.appendChild(body);
+      el.classList.add("node--shape-masked");
+    } else if (!wantMask && mask) {
+      el.insertBefore(body, mask);
+      mask.remove();
+      el.classList.remove("node--shape-masked");
+    } else if (wantMask && mask && body.parentElement !== mask) {
+      mask.appendChild(body);
+      el.classList.add("node--shape-masked");
+    } else {
+      el.classList.toggle("node--shape-masked", wantMask);
+    }
+  }
+
   function applyNodeShapeClasses(el, shape) {
     if (!el) return;
     const s = NODE_SHAPE_CLASSES.includes(shape) ? shape : "rect";
     for (const cls of NODE_SHAPE_CLASSES) el.classList.remove(`shape-${cls}`);
     el.classList.add(`shape-${s}`);
+    const defs = NODE_SHAPE_DEFAULTS[s] || NODE_SHAPE_DEFAULTS.rect;
+    el.style.minWidth = `${defs.minWidth}px`;
+    el.style.minHeight = `${defs.minHeight}px`;
+    if (s === "circle" || s === "summing-junction") {
+      el.style.aspectRatio = "1 / 1";
+    } else if (s === "connector") {
+      el.style.aspectRatio = "1 / 1";
+    } else {
+      el.style.aspectRatio = "";
+    }
   }
 
   function normalizeNode(nodeObj) {
     if (!nodeObj.shape) nodeObj.shape = "rect";
     if (!NODE_SHAPE_CLASSES.includes(nodeObj.shape)) nodeObj.shape = "rect";
+    const defs = NODE_SHAPE_DEFAULTS[nodeObj.shape] || NODE_SHAPE_DEFAULTS.rect;
+    if (!Number(nodeObj.width) || nodeObj.width < 40) nodeObj.width = defs.width;
+    if (!Number(nodeObj.height) || nodeObj.height < 40) nodeObj.height = defs.height;
     if (!nodeObj.type) nodeObj.type = "process";
     if (!nodeObj.title) nodeObj.title = nodeObj.text || "Node";
     if (nodeObj.subtitle == null) nodeObj.subtitle = "";
@@ -10217,6 +10318,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     normalizeNode(node);
     const el = getNodeDomEl(nodeId);
     if (!el) return;
+    ensureNodeShapeShell(el, node);
     const body = el.querySelector(".body");
     applyNodeShapeClasses(el, node.shape);
     const st = ensureNodeStyle(node);
@@ -10343,29 +10445,53 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const baseGrad = light
       ? "linear-gradient(165deg, rgba(255,255,255,.98), rgba(246,248,252,.94))"
       : "linear-gradient(165deg, rgba(16,23,38,.96), rgba(10,16,28,.9))";
+    const mask = el.querySelector(":scope > .node-shape-mask");
+    const surface = mask || el;
     if (n.media && n.media.backgroundImage && n.shape !== "diamond") {
       const u = JSON.stringify(String(n.media.backgroundImage));
-      el.style.background = `${baseGrad}, url(${u})`;
-      el.style.backgroundSize = "cover, cover";
-      el.style.backgroundPosition = "center, center";
-      el.style.backgroundRepeat = "no-repeat, no-repeat";
+      surface.style.background = `${baseGrad}, url(${u})`;
+      surface.style.backgroundSize = "cover, cover";
+      surface.style.backgroundPosition = "center, center";
+      surface.style.backgroundRepeat = "no-repeat, no-repeat";
     } else {
-      el.style.background = baseGrad;
-      el.style.backgroundSize = "";
-      el.style.backgroundPosition = "";
-      el.style.backgroundRepeat = "";
+      surface.style.background = baseGrad;
+      surface.style.backgroundSize = "";
+      surface.style.backgroundPosition = "";
+      surface.style.backgroundRepeat = "";
     }
     el.style.opacity = String(Math.max(0.2, Math.min(1, Number(st.opacity) || 0.9)));
     el.style.setProperty("--node-radius", `${Math.max(0, Math.min(28, Number(st.radius) || 12))}px`);
-    el.style.borderColor = st.borderColor || accent;
+    const borderColor = st.borderColor || accent;
     const bw = Math.max(0, Math.min(6, Number(st.borderWidth) || 1.5));
-    el.style.borderWidth = `${bw}px`;
-    el.style.borderStyle = "solid";
     const glow = Math.max(0, Math.min(40, Number(st.glow) || 0));
     const shadow = Math.max(0, Math.min(40, Number(st.shadow) || 0));
     const shadowOuter = light ? `0 10px ${12 + shadow}px rgba(30,50,90,.12)` : `0 10px ${12 + shadow}px rgba(0,0,0,.46)`;
     const insetRing = light ? `0 0 0 1px rgba(180,195,220,.35) inset` : `0 0 0 1px rgba(214,228,255,.08) inset`;
-    el.style.boxShadow = `0 0 ${glow}px ${hexToRgba(accent, light ? 0.28 : 0.5)}, ${shadowOuter}, ${insetRing}`;
+    if (mask) {
+      el.style.background = "transparent";
+      el.style.borderColor = "transparent";
+      el.style.borderWidth = "0";
+      el.style.borderStyle = "solid";
+      el.style.boxShadow = shadowOuter;
+      surface.style.borderColor = borderColor;
+      surface.style.borderWidth = `${bw}px`;
+      surface.style.borderStyle = "solid";
+      surface.style.boxSizing = "border-box";
+      const strokeGlow = `drop-shadow(0 0 ${Math.max(1, bw)}px ${hexToRgba(borderColor, light ? 0.65 : 0.85)})`;
+      const outerGlow = glow > 0 ? ` drop-shadow(0 0 ${glow}px ${hexToRgba(accent, light ? 0.32 : 0.52)})` : "";
+      surface.style.filter = strokeGlow + outerGlow;
+      surface.style.boxShadow = insetRing;
+    } else {
+      el.style.background = surface === el ? surface.style.background : el.style.background;
+      if (surface !== el) el.style.background = baseGrad;
+      el.style.borderColor = borderColor;
+      el.style.borderWidth = `${bw}px`;
+      el.style.borderStyle = "solid";
+      el.style.filter = "";
+      if (surface !== el) surface.style.filter = "";
+      el.style.boxShadow = `0 0 ${glow}px ${hexToRgba(accent, light ? 0.28 : 0.5)}, ${shadowOuter}, ${insetRing}`;
+      if (surface !== el) surface.style.boxShadow = "";
+    }
   }
 
   function setNodeInspectorTab(tab) {
@@ -11337,11 +11463,20 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const st0 = ensureNodeStyle(n);
     const el = document.createElement("div");
     el.className = "node";
-    applyNodeShapeClasses(el, n.shape);
     el.dataset.nodeId = n.id;
     const body = document.createElement("div");
     body.className = "body";
     renderNodeBody(body, n);
+    if (needsShapeMask(n.shape)) {
+      const mask = document.createElement("div");
+      mask.className = "node-shape-mask";
+      mask.appendChild(body);
+      el.appendChild(mask);
+      el.classList.add("node--shape-masked");
+    } else {
+      el.appendChild(body);
+    }
+    applyNodeShapeClasses(el, n.shape);
 
     body.addEventListener("pointerdown", (e) => {
       if (body.isContentEditable) return;
@@ -11450,7 +11585,6 @@ clearFlowGroupSelection();
       else revealDiagramNodeInspectorAndOpenExtended(n.id);
     });
 
-    el.append(body);
     appendNodeConnectHandles(el, n);
     if (st0.freeform) el.classList.add("node-freeform");
     if (isNodeHiddenCanvas(n)) el.classList.add("node-hidden-canvas");
@@ -13630,8 +13764,13 @@ clearFlowGroupSelection();
     for (const el of nodesLayer.querySelectorAll(".node")) {
       const n = getNodeById(el.dataset.nodeId);
       if (!n) continue;
-      n.width = el.offsetWidth;
-      n.height = el.offsetHeight;
+      const w = Math.round(el.offsetWidth);
+      const h = Math.round(el.offsetHeight);
+      if (w > 0) n.width = w;
+      if (h > 0) n.height = h;
+      const defs = NODE_SHAPE_DEFAULTS[n.shape] || NODE_SHAPE_DEFAULTS.rect;
+      n.width = Math.max(defs.minWidth, n.width);
+      n.height = Math.max(defs.minHeight, n.height);
     }
   }
 
@@ -14884,9 +15023,17 @@ clearFlowGroupSelection();
     const n = getNodeById(runtime.selectedNodeId);
     if (!n) return;
     n.shape = nodeShape.value;
+    const defs = NODE_SHAPE_DEFAULTS[n.shape] || NODE_SHAPE_DEFAULTS.rect;
+    if (!runtime.selectedNodeIds || runtime.selectedNodeIds.size <= 1) {
+      n.width = defs.width;
+      n.height = defs.height;
+    }
     const el = getNodeDomEl(n.id);
     if (el) {
+      ensureNodeShapeShell(el, n);
       applyNodeShapeClasses(el, n.shape);
+      el.style.width = `${n.width}px`;
+      el.style.height = `${n.height}px`;
       applyNodeVisualStyles(el, n);
       const body = el.querySelector(".body");
       if (body && !body.isContentEditable) renderNodeBody(body, n);
