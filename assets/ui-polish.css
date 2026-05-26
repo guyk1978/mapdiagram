@@ -79,11 +79,16 @@ textarea {
   padding-top: 10px;
 }
 
+.sidebar-library-shell {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .sidebar-segment {
   display: flex;
   flex-shrink: 0;
   gap: 4px;
-  margin: 0 12px 10px;
+  margin: 0 10px 10px;
   padding: 4px;
   border-radius: 12px;
   background: color-mix(in srgb, var(--panel) 52%, transparent);
@@ -154,7 +159,9 @@ html[data-theme="light"] .sidebar-segment {
 
 #projectDock.sidebar-panel--projects:not([hidden]) {
   display: flex;
-  padding: 0 12px 8px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 10px 8px;
 }
 
 .sidebar-projects-card {
@@ -162,6 +169,8 @@ html[data-theme="light"] .sidebar-segment {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
   gap: 10px;
   padding: 12px 14px;
   border-radius: var(--radius-panel);
@@ -202,10 +211,14 @@ html[data-theme="light"] .sidebar-projects-card {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .sidebar-panel--shapes {
-  padding: 0 12px 8px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 10px 8px;
 }
 
 #nodePicker {
@@ -247,7 +260,9 @@ html[data-theme="light"] .sidebar-projects-card {
 
 /* —— Section cards (Node Library) —— */
 .sidebar-library-shell > .section--library {
-  padding: 12px 14px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
   border-radius: var(--radius-panel);
   background: color-mix(in srgb, var(--panel) 42%, transparent);
   border: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
@@ -584,33 +599,63 @@ html[data-theme="light"] .ai-create-btn {
   font-size: 11px !important;
 }
 
-.node-picker {
+#projects-sidebar .node-picker {
+  display: flex !important;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 2px 0 4px !important;
-  gap: 10px !important;
+  gap: 0 !important;
   max-height: none !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.node-picker-categories {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.node-picker-category {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .node-picker-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr) !important;
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .node-picker-section {
   grid-column: 1 / -1;
-  margin: 6px 0 0;
-  padding: 6px 2px 0;
-  font-size: 10px;
+  width: 100%;
+  margin-top: 12px;
+  margin-bottom: 8px;
+  padding: 0 2px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--muted) 72%, transparent);
-  line-height: 1.2;
+  color: var(--text-muted, #888);
+  line-height: 1.25;
 }
 
-.node-picker-section:first-child {
+.node-picker-category:first-child .node-picker-section {
   margin-top: 0;
-  padding-top: 0;
+}
+
+.node-picker-grid .node-tile {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .node-picker-grid.is-collapsed {
@@ -651,8 +696,9 @@ html[data-theme="light"] .ai-create-btn {
   align-items: center;
   justify-content: center;
   gap: 6px;
+  min-width: 0;
   min-height: 72px;
-  padding: 10px 8px;
+  padding: 10px 6px;
   border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
   background: color-mix(in srgb, var(--panel) 72%, transparent);

@@ -3461,8 +3461,10 @@
     background: rgba(239, 91, 91, 0.2);
     color: #ffb4b4;
   }
-  .flowchart-mode .node-picker {
-    max-height: 280px;
+  .flowchart-mode #projects-sidebar .node-picker {
+    max-height: none;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
   .flowchart-mode .picker-category h4 {
     display: none;
@@ -10921,19 +10923,24 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
   function renderNodePicker() {
     nodePicker.innerHTML = "";
     if (isFlowchartMode()) {
-      const grid = document.createElement("div");
-      grid.className = "node-picker-grid";
+      const root = document.createElement("div");
+      root.className = "node-picker-categories";
       for (const cat of FLOWCHART_LIBRARY_CATEGORIES) {
+        const block = document.createElement("section");
+        block.className = "node-picker-category";
         const header = document.createElement("div");
         header.className = "node-picker-section";
         header.textContent = cat.title;
-        grid.appendChild(header);
+        const grid = document.createElement("div");
+        grid.className = "node-picker-grid";
         const items = FLOWCHART_MODE_PRESETS.filter((p) => p.libraryCategory === cat.id);
         for (const preset of items) {
           grid.appendChild(renderFlowchartNodeTile(preset));
         }
+        block.append(header, grid);
+        root.appendChild(block);
       }
-      nodePicker.appendChild(grid);
+      nodePicker.appendChild(root);
       return;
     }
     const categories = ["General", "Flowchart", "Advanced"];
