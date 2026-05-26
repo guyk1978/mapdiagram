@@ -4205,7 +4205,12 @@
         </div>
       </div>
       <div class="sidebar-library-shell sidebar-panel sidebar-panel--shapes" id="sidebarPanelShapes" role="tabpanel" aria-labelledby="sidebarTabShapes" aria-hidden="false">
-        <div id="nodePicker" class="node-picker node-picker--flowchart"></div>
+        <div class="sidebar-shapes-shell">
+          <div class="sidebar-search-wrap">
+            <input type="text" id="sidebarShapeSearch" placeholder="Search shapes..." class="sidebar-search-input" aria-label="Search shapes" autocomplete="off" spellcheck="false">
+          </div>
+          <div id="nodePicker" class="node-picker node-picker--flowchart"></div>
+        </div>
       </div>
       </div>
       <button id="createAiBtn" class="ai-create-btn" type="button"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M7.05 7.05 5.64 5.64M18.36 18.36l-1.41-1.41M7.05 16.95l-1.41 1.41M18.36 5.64l-1.41 1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="m12 8 1.1 2.6 2.6 1.1-2.6 1.1L12 15.8l-1.1-2.6-2.6-1.1 2.6-1.1L12 8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span> Generate with AI</button>
@@ -12450,13 +12455,42 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const card = document.createElement("button");
     card.type = "button";
     card.className = `node-tile node-tile--shape-${preset.shape}`;
-    card.title = preset.description || preset.label;
+    card.title = preset.label;
+    card.setAttribute("data-tooltip", preset.description || preset.label);
+    card.setAttribute("aria-label", preset.label);
     const preview = flowchartShapePreviewMarkup(preset.shape);
     card.innerHTML =
-      `<span class="node-tile__preview node-tile__preview--${preset.shape}" aria-hidden="true">${preview}</span>` +
-      `<span class="node-tile__label">${preset.label}</span>`;
+      `<span class="node-tile__preview node-tile__preview--${preset.shape}" aria-hidden="true">${preview}</span>`;
     card.addEventListener("click", () => insertPresetNode(preset));
     return card;
+  }
+
+  function filterSidebarShapes(query) {
+    const picker = document.getElementById("nodePicker");
+    if (!picker) return;
+    const q = String(query || "").trim().toLowerCase();
+    picker.querySelectorAll(".node-picker-accordion, .picker-category").forEach((section) => {
+      let visible = 0;
+      section.querySelectorAll(".node-tile").forEach((tile) => {
+        const hay = (tile.getAttribute("data-tooltip") || tile.title || "").toLowerCase();
+        const show = !q || hay.includes(q);
+        tile.classList.toggle("is-filter-hidden", !show);
+        if (show) visible += 1;
+      });
+      section.classList.toggle("is-filter-empty", q.length > 0 && visible === 0);
+    });
+  }
+
+  function applySidebarShapeSearchFilter() {
+    const input = document.getElementById("sidebarShapeSearch");
+    if (input && input.value) filterSidebarShapes(input.value);
+  }
+
+  function initSidebarShapeSearch() {
+    const input = document.getElementById("sidebarShapeSearch");
+    if (!input || input.dataset.bound === "1") return;
+    input.dataset.bound = "1";
+    input.addEventListener("input", () => filterSidebarShapes(input.value));
   }
 
   function setSidebarPanel(panel) {
@@ -12488,6 +12522,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const projectsTab = document.getElementById("sidebarTabProjects");
     if (shapesTab) shapesTab.addEventListener("click", () => setSidebarPanel("shapes"));
     if (projectsTab) projectsTab.addEventListener("click", () => setSidebarPanel("projects"));
+    initSidebarShapeSearch();
     setSidebarPanel("shapes");
   }
 
@@ -12505,8 +12540,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
         toggle.setAttribute("aria-controls", "node-picker-grid-" + cat.id);
         toggle.innerHTML =
-          '<span class="node-picker-accordion__chev" aria-hidden="true">' + (isOpen ? "▼" : "▸") + "</span>" +
-          '<span class="node-picker-accordion__name">' + cat.title + "</span>";
+          '<span class="node-picker-accordion__name">' + cat.title + "</span>" +
+          '<span class="node-picker-accordion__chev" aria-hidden="true">' + (isOpen ? "▾" : "▸") + "</span>";
         const grid = document.createElement("div");
         grid.className = "node-picker-grid" + (isOpen ? "" : " is-collapsed");
         grid.id = "node-picker-grid-" + cat.id;
@@ -12520,11 +12555,12 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
           block.classList.toggle("is-open", !collapsed);
           toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
           const chev = toggle.querySelector(".node-picker-accordion__chev");
-          if (chev) chev.textContent = collapsed ? "▸" : "▼";
+          if (chev) chev.textContent = collapsed ? "▸" : "▾";
         });
         block.append(toggle, grid);
         nodePicker.appendChild(block);
       }
+      applySidebarShapeSearchFilter();
       return;
     }
     nodePicker.classList.remove("node-picker--flowchart");
@@ -12543,7 +12579,10 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         const card = document.createElement("button");
         card.type = "button";
         card.className = "node-tile";
-        card.innerHTML = `<span class="node-tile__icon">${preset.icon}</span><span class="node-tile__label">${preset.label}</span>`;
+        card.title = preset.label;
+        card.setAttribute("data-tooltip", preset.label);
+        card.setAttribute("aria-label", preset.label);
+        card.innerHTML = `<span class="node-tile__icon">${preset.icon}</span>`;
         card.addEventListener("click", () => insertPresetNode(preset));
         body.appendChild(card);
       }
@@ -12556,6 +12595,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       group.append(head, body);
       nodePicker.appendChild(group);
     }
+    applySidebarShapeSearchFilter();
   }
 
   function createUserGroupFromSelection({ showAlertWhenEmpty = true, autoPrompt = false } = {}) {
