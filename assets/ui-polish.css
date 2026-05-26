@@ -1211,6 +1211,89 @@ html[data-theme="light"] .inspector-group {
   gap: 4px;
 }
 
+#inspectorConnectorState {
+  gap: 4px;
+}
+
+.inspector-group--connector .inspector-group__title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8a8a93;
+  margin: 0;
+}
+
+.connector-line-control {
+  align-items: flex-start;
+}
+
+.connector-line-row {
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.connector-width-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+
+.connector-width-input {
+  width: 36px;
+  height: 22px;
+  min-height: 22px;
+  padding: 0 4px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 12, 22, 0.55);
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.connector-width-input:focus {
+  outline: none;
+  border-color: rgba(0, 162, 232, 0.65);
+  box-shadow: 0 0 0 2px rgba(0, 162, 232, 0.2);
+}
+
+.connector-width-suffix {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1;
+}
+
+.connector-color-swatches {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.connector-color-hex {
+  width: 64px;
+  max-width: 72px;
+}
+
+.connector-label-field {
+  margin: 0;
+}
+
+.connector-action-row {
+  margin-top: 2px;
+}
+
+html[data-theme="light"] .connector-width-input {
+  border-color: rgba(40, 55, 90, 0.18);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+#rightbar[data-inspector-mode="connector"] #diagramSectionNode .section-heading--compact {
+  margin-bottom: 0;
+}
+
 .inspector-micro-label,
 .insp-segment-row__label,
 .insp-field__label {
@@ -1241,7 +1324,8 @@ html[data-theme="light"] .inspector-group {
 .inspector-group--element,
 .inspector-group--style,
 .inspector-group--node-color,
-.inspector-group--node-text {
+.inspector-group--node-text,
+.inspector-group--connector {
   padding: 5px 7px;
   gap: 4px;
 }

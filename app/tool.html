@@ -4586,6 +4586,69 @@
             </div>
           </div>
         </div>
+        <div id="inspectorConnectorState" class="inspector-context-shell" style="display: none;">
+          <h3 class="section-heading section-heading--compact">
+            <span class="section-heading__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 12h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13 7l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="section-heading__text">Connector style</span>
+          </h3>
+          <p id="edgeInspectorCount" class="muted inspector-hint"></p>
+          <div class="inspector-group inspector-group--connector inspector-compact">
+            <div class="inspector-group__title">Routing type</div>
+            <div class="insp-segment-group" id="edgeRouteStyleSegments" role="group" aria-label="Connector routing type">
+              <button type="button" class="insp-segment-btn" data-value="straight" aria-pressed="false">Straight</button>
+              <button type="button" class="insp-segment-btn" data-value="orthogonal" aria-pressed="false">Orthogonal</button>
+              <button type="button" class="insp-segment-btn" data-value="curved" aria-pressed="false">Curved</button>
+            </div>
+          </div>
+          <div class="inspector-group inspector-group--connector inspector-compact">
+            <div class="node-color-line connector-line-control">
+              <span class="inspector-micro-label">Line</span>
+              <div class="node-color-line__body connector-line-row">
+                <div class="connector-width-wrap">
+                  <input type="number" id="edgeStrokeWidthInput" class="connector-width-input" min="1" max="8" step="0.5" value="2" aria-label="Line thickness in pixels">
+                  <span class="connector-width-suffix">px</span>
+                </div>
+                <div class="node-color-swatches connector-color-swatches" id="edgeStrokeSwatches" role="listbox" aria-label="Line color presets">
+                  <button type="button" class="node-color-swatch" data-edge-color="#00A2E8" style="--swatch-color:#00A2E8" title="Electric blue" aria-label="Electric blue"></button>
+                  <button type="button" class="node-color-swatch" data-edge-color="#9CB8FF" style="--swatch-color:#9CB8FF" title="Accent" aria-label="Accent"></button>
+                  <button type="button" class="node-color-swatch" data-edge-color="#10B981" style="--swatch-color:#10B981" title="Emerald" aria-label="Emerald"></button>
+                  <button type="button" class="node-color-swatch" data-edge-color="#F59E0B" style="--swatch-color:#F59E0B" title="Amber" aria-label="Amber"></button>
+                  <button type="button" class="node-color-swatch" data-edge-color="#E11D48" style="--swatch-color:#E11D48" title="Ruby" aria-label="Ruby"></button>
+                  <button type="button" class="node-color-swatch" data-edge-color="#F8FAFC" style="--swatch-color:#F8FAFC" title="White" aria-label="White"></button>
+                </div>
+                <label class="node-color-picker-wrap" title="Custom line color">
+                  <span class="sr-only">Custom line color</span>
+                  <input type="color" id="edgeStrokeColorInput" value="#9cb8ff" aria-label="Custom line color">
+                </label>
+                <input type="text" id="edgeStrokeColorHex" class="node-color-hex-input connector-color-hex" placeholder="#9CB8FF" spellcheck="false" maxlength="12" aria-label="Line color hex" autocomplete="off">
+              </div>
+            </div>
+          </div>
+          <div class="inspector-group inspector-group--connector inspector-compact">
+            <div class="inspector-group__title">Line pattern</div>
+            <div class="insp-segment-group" id="edgeDashStyleSegments" role="group" aria-label="Line pattern">
+              <button type="button" class="insp-segment-btn" data-value="solid" aria-pressed="false">Solid</button>
+              <button type="button" class="insp-segment-btn" data-value="dashed" aria-pressed="false">Dashed</button>
+              <button type="button" class="insp-segment-btn" data-value="dotted" aria-pressed="false">Dotted</button>
+            </div>
+          </div>
+          <div class="inspector-group inspector-group--connector inspector-compact">
+            <div class="inspector-group__title">Arrow endings</div>
+            <div class="insp-segment-group" id="edgeArrowEndsSegments" role="group" aria-label="Arrow endings">
+              <button type="button" class="insp-segment-btn" data-value="none" aria-pressed="false">No arrow</button>
+              <button type="button" class="insp-segment-btn" data-value="end" aria-pressed="false">Single end</button>
+              <button type="button" class="insp-segment-btn" data-value="both" aria-pressed="false">Both ends</button>
+            </div>
+          </div>
+          <label class="insp-field connector-label-field">
+            <span class="insp-field__label">Label</span>
+            <input type="text" id="edgeLabelInput" placeholder="Edge caption" autocomplete="off">
+          </label>
+          <div class="inspector-action-row connector-action-row">
+            <button type="button" id="edgeStrokeColorClearBtn" class="inspector-action-btn">Theme color</button>
+            <button type="button" id="edgeBulkDeleteBtn" class="inspector-action-btn inspector-action-btn--danger">Delete link</button>
+          </div>
+        </div>
       </section>
       <div id="nodeColorPopover" class="node-color-popover" hidden role="dialog" aria-label="Color palette">
         <div class="node-color-popover__grid" id="nodeColorPopoverGrid"></div>
@@ -4618,35 +4681,6 @@
             <option value="warnings">Semantic warnings</option>
           </select>
           <ul id="connectionListBody" class="connection-list-body" aria-label="Diagram connections"></ul>
-        </div>
-        <!-- Phase 2+3: selected edge style + node–node labels (inspector). -->
-        <div id="edgeInspectorPanel" class="edge-inspector-panel" hidden>
-          <h4 class="connection-list-head">Selected link(s)</h4>
-          <p id="edgeInspectorCount" class="muted" style="margin:0 0 6px;font-size:11px"></p>
-          <label class="muted">Label (node–node) <input type="text" id="edgeLabelInput" placeholder="Edge caption" autocomplete="off"></label>
-          <label class="muted">Line weight
-            <select id="edgeStrokeWidthSel" aria-label="Edge line weight">
-              <option value="">Default</option>
-              <option value="1.5">Thin</option>
-              <option value="2.5">Medium</option>
-              <option value="3.5">Bold</option>
-            </select>
-          </label>
-          <label class="muted">Dash style
-            <select id="edgeStrokeDashSel" aria-label="Edge dash style">
-              <option value="">Mixed / default</option>
-              <option value="solid">Solid</option>
-              <option value="dashed">Dashed</option>
-              <option value="dotted">Dotted</option>
-            </select>
-          </label>
-          <label class="muted">Line color
-            <input type="color" id="edgeStrokeColorInput" value="#9cb8ff" aria-label="Custom line color" title="Custom stroke color (all selected links)">
-          </label>
-          <button type="button" id="edgeStrokeColorClearBtn" class="text-btn-sm">Use theme colors</button>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-            <button type="button" id="edgeBulkDeleteBtn" class="danger text-btn-sm">Delete selected</button>
-          </div>
         </div>
         <div id="outlinePanel" class="outline-panel">
           <h4 class="connection-list-head">Outline</h4>
@@ -5633,7 +5667,40 @@
     if (c.strokeWidth != null && !Number.isFinite(Number(c.strokeWidth))) c.strokeWidth = null;
     if (!c.strokeDash || !["solid", "dashed", "dotted"].includes(c.strokeDash)) c.strokeDash = "solid";
     if (c.strokeColor != null && typeof c.strokeColor !== "string") c.strokeColor = null;
+    if (c.routeStyle != null && !["straight", "orthogonal", "curved"].includes(c.routeStyle)) c.routeStyle = null;
+    if (!c.arrowEnds || !["none", "end", "both"].includes(c.arrowEnds)) c.arrowEnds = "end";
     if (c.meta?.isBackEdge && c.strokeDash === "solid") c.strokeDash = "dashed";
+  }
+
+  function hasSelectedConnections() {
+    return runtime.selectedConnectionIds.size > 0 || runtime.selectedGroupConnIds.size > 0;
+  }
+
+  function getEdgeInspectorTargetRecords() {
+    const { nn, bridges, gcs } = getSelectedConnectionRecords();
+    return [...nn, ...bridges, ...gcs];
+  }
+
+  function syncEdgeSegmentGroup(groupEl, value) {
+    if (!groupEl) return;
+    groupEl.querySelectorAll(".insp-segment-btn").forEach((btn) => {
+      const on = btn.dataset.value === value;
+      btn.classList.toggle("is-active", on);
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+  }
+
+  function applyEdgeStyleToSelection(mutator) {
+    const recs = getEdgeInspectorTargetRecords();
+    if (!recs.length) return;
+    primeEdgeInspectorHistoryOnce();
+    for (const c of recs) {
+      mutator(c);
+      normalizeConnectionEdge(c);
+    }
+    scheduleRenderConnections();
+    markDirty();
+    syncEdgeInspectorPanel();
   }
 
   /** Custom edge stroke (hex); null = use theme gradient / bridge colors. */
@@ -5670,6 +5737,34 @@
     marker.appendChild(arrowPath);
     defs.appendChild(marker);
     return `url(#${markerId})`;
+  }
+
+  function applyConnectionPathMarkers(path, defs, c, strokeHex) {
+    if (!path || !c) return;
+    normalizeConnectionEdge(c);
+    const ends = c.arrowEnds || "end";
+    if (ends === "none") {
+      path.removeAttribute("marker-end");
+      path.removeAttribute("marker-start");
+      return;
+    }
+    const defaultMarker = "url(#arrow-head)";
+    if (ends === "end" || ends === "both") {
+      const endUrl = strokeHex
+        ? appendSvgArrowMarkerDef(defs, `arr-end-${c.id}`, strokeHex)
+        : defaultMarker;
+      path.setAttribute("marker-end", endUrl);
+    } else {
+      path.removeAttribute("marker-end");
+    }
+    if (ends === "both") {
+      const startUrl = strokeHex
+        ? appendSvgArrowMarkerDef(defs, `arr-start-${c.id}`, strokeHex)
+        : defaultMarker;
+      path.setAttribute("marker-start", startUrl);
+    } else {
+      path.removeAttribute("marker-start");
+    }
   }
 
   function toggleShiftConnectionEdgeSelection(connId) {
@@ -5714,8 +5809,10 @@
     runtime.selectedNodeIds.clear();
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
+    markInspectorDiagramTabFocus();
     renderConnections();
     renderSelection();
+    focusInspectorDiagramTab();
   }
 
   function toggleShiftGroupConnSelection(gcId) {
@@ -5774,8 +5871,10 @@
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
     runtime.selectedNodeIds.clear();
+    markInspectorDiagramTabFocus();
     renderConnections();
     renderSelection();
+    focusInspectorDiagramTab();
   }
 
   let resizeObsCoalesceRaf = null;
@@ -12051,8 +12150,17 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return runtime.connectorStyle === "curved" ? "curved" : "orthogonal";
   }
 
-  function routeConnectionPath(from, to, obstacles, curve) {
-    if (resolveConnectorStyle() === "orthogonal") {
+  function resolveConnectionRouteStyle(c) {
+    if (c && ["straight", "orthogonal", "curved"].includes(c.routeStyle)) return c.routeStyle;
+    return resolveConnectorStyle();
+  }
+
+  function routeConnectionPath(from, to, obstacles, curve, routeStyle) {
+    const style = routeStyle || resolveConnectorStyle();
+    if (style === "straight") {
+      return `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
+    }
+    if (style === "orthogonal") {
       return orthogonalPath(from, to, obstacles);
     }
     return curvePath(from, curve.cp1, curve.cp2, to);
@@ -12074,7 +12182,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         const w = getNodeWorldPosition(n);
         return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
       });
-    const d = routeConnectionPath(from, to, obstacles, curve);
+    const d = routeConnectionPath(from, to, obstacles, curve, resolveConnectionRouteStyle(c));
     return { fromNode, toNode, from, to, curve, d };
   }
 
@@ -13190,7 +13298,7 @@ clearFlowGroupSelection();
             return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
           })
           .concat(nodesInsideGroupBoxObstacles(toBox, new Set([c.from])));
-        const d = routeConnectionPath(from, to, obsRects, auto);
+        const d = routeConnectionPath(from, to, obsRects, auto, resolveConnectionRouteStyle(c));
         const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
         hit.setAttribute("d", d);
         hit.setAttribute("class", "conn-hit");
@@ -13210,12 +13318,8 @@ clearFlowGroupSelection();
         const dashNg = connectionDashArray(c.strokeDash);
         if (dashNg) path.setAttribute("stroke-dasharray", dashNg);
         const brCol = connectionStrokeColorOrNull(c);
-        if (brCol) {
-          path.setAttribute("stroke", brCol);
-          path.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-bng-${c.id}`, brCol));
-        } else {
-          path.setAttribute("marker-end", "url(#arrow-head)");
-        }
+        if (brCol) path.setAttribute("stroke", brCol);
+        applyConnectionPathMarkers(path, defs, c, brCol);
         path.dataset.connId = c.id;
         connectionsLayer.append(hit, path);
         continue;
@@ -13235,7 +13339,7 @@ clearFlowGroupSelection();
             return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
           })
           .concat(nodesInsideGroupBoxObstacles(fromBox, new Set([c.to])));
-        const d = routeConnectionPath(from, to, obsRects, auto);
+        const d = routeConnectionPath(from, to, obsRects, auto, resolveConnectionRouteStyle(c));
         const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
         hit.setAttribute("d", d);
         hit.setAttribute("class", "conn-hit");
@@ -13255,12 +13359,8 @@ clearFlowGroupSelection();
         const dashGn = connectionDashArray(c.strokeDash);
         if (dashGn) path.setAttribute("stroke-dasharray", dashGn);
         const brCol2 = connectionStrokeColorOrNull(c);
-        if (brCol2) {
-          path.setAttribute("stroke", brCol2);
-          path.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-bn2-${c.id}`, brCol2));
-        } else {
-          path.setAttribute("marker-end", "url(#arrow-head)");
-        }
+        if (brCol2) path.setAttribute("stroke", brCol2);
+        applyConnectionPathMarkers(path, defs, c, brCol2);
         path.dataset.connId = c.id;
         connectionsLayer.append(hit, path);
         continue;
@@ -13281,7 +13381,7 @@ clearFlowGroupSelection();
             return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
           })
           .concat(nodesInsideGroupBoxObstacles(toBox, new Set([c.from])));
-        const d = routeConnectionPath(from, to, obsRects, auto);
+        const d = routeConnectionPath(from, to, obsRects, auto, resolveConnectionRouteStyle(c));
         const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
         hit.setAttribute("d", d);
         hit.setAttribute("class", "conn-hit");
@@ -13301,12 +13401,8 @@ clearFlowGroupSelection();
         const dashFg = connectionDashArray(c.strokeDash);
         if (dashFg) path.setAttribute("stroke-dasharray", dashFg);
         const brColFg = connectionStrokeColorOrNull(c);
-        if (brColFg) {
-          path.setAttribute("stroke", brColFg);
-          path.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-nfg-${c.id}`, brColFg));
-        } else {
-          path.setAttribute("marker-end", "url(#arrow-head)");
-        }
+        if (brColFg) path.setAttribute("stroke", brColFg);
+        applyConnectionPathMarkers(path, defs, c, brColFg);
         path.dataset.connId = c.id;
         connectionsLayer.append(hit, path);
         continue;
@@ -13326,7 +13422,7 @@ clearFlowGroupSelection();
             return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
           })
           .concat(nodesInsideGroupBoxObstacles(fromBox, new Set([c.to])));
-        const d = routeConnectionPath(from, to, obsRects, auto);
+        const d = routeConnectionPath(from, to, obsRects, auto, resolveConnectionRouteStyle(c));
         const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
         hit.setAttribute("d", d);
         hit.setAttribute("class", "conn-hit");
@@ -13346,12 +13442,8 @@ clearFlowGroupSelection();
         const dashFgn = connectionDashArray(c.strokeDash);
         if (dashFgn) path.setAttribute("stroke-dasharray", dashFgn);
         const brColFgn = connectionStrokeColorOrNull(c);
-        if (brColFgn) {
-          path.setAttribute("stroke", brColFgn);
-          path.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-fgn-${c.id}`, brColFgn));
-        } else {
-          path.setAttribute("marker-end", "url(#arrow-head)");
-        }
+        if (brColFgn) path.setAttribute("stroke", brColFgn);
+        applyConnectionPathMarkers(path, defs, c, brColFgn);
         path.dataset.connId = c.id;
         connectionsLayer.append(hit, path);
         continue;
@@ -13368,7 +13460,7 @@ clearFlowGroupSelection();
           ...nodesInsideGroupBoxObstacles(fromBox, new Set()),
           ...nodesInsideGroupBoxObstacles(toBox, new Set()),
         ];
-        const d = routeConnectionPath(from, to, obs, auto);
+        const d = routeConnectionPath(from, to, obs, auto, resolveConnectionRouteStyle(c));
         const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
         hit.setAttribute("d", d);
         hit.setAttribute("class", "conn-hit");
@@ -13388,12 +13480,8 @@ clearFlowGroupSelection();
         const dashFgg = connectionDashArray(c.strokeDash);
         if (dashFgg) path.setAttribute("stroke-dasharray", dashFgg);
         const brColFgg = connectionStrokeColorOrNull(c);
-        if (brColFgg) {
-          path.setAttribute("stroke", brColFgg);
-          path.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-fgg-${c.id}`, brColFgg));
-        } else {
-          path.setAttribute("marker-end", "url(#arrow-head)");
-        }
+        if (brColFgg) path.setAttribute("stroke", brColFgg);
+        applyConnectionPathMarkers(path, defs, c, brColFgg);
         path.dataset.connId = c.id;
         connectionsLayer.append(hit, path);
         continue;
@@ -13414,7 +13502,7 @@ clearFlowGroupSelection();
           const w = getNodeWorldPosition(n);
           return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
         });
-      const d = routeConnectionPath(from, to, obstacles, curve);
+      const d = routeConnectionPath(from, to, obstacles, curve, resolveConnectionRouteStyle(c));
       const nnStroke = connectionStrokeColorOrNull(c);
       let gradId = null;
       if (!nnStroke) {
@@ -13463,11 +13551,10 @@ clearFlowGroupSelection();
       );
       if (nnStroke) {
         path.setAttribute("stroke", nnStroke);
-        path.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-nn-${c.id}`, nnStroke));
       } else {
         path.setAttribute("stroke", `url(#${gradId})`);
-        path.setAttribute("marker-end", "url(#arrow-head)");
       }
+      applyConnectionPathMarkers(path, defs, c, nnStroke);
       path.setAttribute("stroke-width", String(connectionStrokeWidthPx(c, 2.25)));
       const dashNn = connectionDashArray(c.strokeDash);
       if (dashNn) path.setAttribute("stroke-dasharray", dashNn);
@@ -13571,7 +13658,7 @@ clearFlowGroupSelection();
           const w = getNodeWorldPosition(n);
           return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
         });
-      const dBr = routeConnectionPath(fromPt, to, obstacles, curve);
+      const dBr = routeConnectionPath(fromPt, to, obstacles, curve, resolveConnectionRouteStyle(c));
       const brStroke = connectionStrokeColorOrNull(c);
       let brGradId = null;
       if (!brStroke) {
@@ -13610,11 +13697,10 @@ clearFlowGroupSelection();
       );
       if (brStroke) {
         pathB.setAttribute("stroke", brStroke);
-        pathB.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-br-${c.id}`, brStroke));
       } else {
         pathB.setAttribute("stroke", `url(#${brGradId})`);
-        pathB.setAttribute("marker-end", "url(#arrow-head)");
       }
+      applyConnectionPathMarkers(pathB, defs, c, brStroke);
       pathB.setAttribute("stroke-width", String(connectionStrokeWidthPx(c, 2.05)));
       const dashBr = connectionDashArray(c.strokeDash);
       if (dashBr) pathB.setAttribute("stroke-dasharray", dashBr);
@@ -13648,7 +13734,7 @@ clearFlowGroupSelection();
         ...nodesInsideGroupBoxObstacles(toBox, new Set())
       ];
       const auto = autoCurve(from, to);
-      const d = routeConnectionPath(from, to, obs, auto);
+      const d = routeConnectionPath(from, to, obs, auto, resolveConnectionRouteStyle(gc));
       const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
       hit.setAttribute("d", d);
       hit.setAttribute("class", "conn-hit");
@@ -13676,12 +13762,8 @@ clearFlowGroupSelection();
       const dashGc = connectionDashArray(gc.strokeDash);
       if (dashGc) path.setAttribute("stroke-dasharray", dashGc);
       const gcCol = connectionStrokeColorOrNull(gc);
-      if (gcCol) {
-        path.setAttribute("stroke", gcCol);
-        path.setAttribute("marker-end", appendSvgArrowMarkerDef(defs, `arr-gc-${gc.id}`, gcCol));
-      } else {
-        path.setAttribute("marker-end", "url(#arrow-head)");
-      }
+      if (gcCol) path.setAttribute("stroke", gcCol);
+      applyConnectionPathMarkers(path, defs, gc, gcCol);
       path.dataset.gcId = gc.id;
       connectionsLayer.append(hit, path);
       if (gc.label) {
@@ -14091,28 +14173,33 @@ clearFlowGroupSelection();
     showToast(`Deleted ${removedConn + delGc.size} link(s).`, "danger");
   }
 
-  /** Phase 2–3: sync edge inspector fields (label + stroke) with current multi-selection. */
+  /** Sync connector-style inspector with current edge multi-selection. */
   function syncEdgeInspectorPanel() {
-    const panel = document.getElementById("edgeInspectorPanel");
     const countEl = document.getElementById("edgeInspectorCount");
     const labelInput = document.getElementById("edgeLabelInput");
-    const wSel = document.getElementById("edgeStrokeWidthSel");
-    const dSel = document.getElementById("edgeStrokeDashSel");
+    const widthInput = document.getElementById("edgeStrokeWidthInput");
     const colInp = document.getElementById("edgeStrokeColorInput");
-    if (!panel || !countEl || !labelInput || !wSel || !dSel) return;
+    const colHex = document.getElementById("edgeStrokeColorHex");
+    const routeGroup = document.getElementById("edgeRouteStyleSegments");
+    const dashGroup = document.getElementById("edgeDashStyleSegments");
+    const arrowGroup = document.getElementById("edgeArrowEndsSegments");
+    const swatches = document.getElementById("edgeStrokeSwatches");
+    if (!countEl) return;
     const { nn, bridges, gcs } = getSelectedConnectionRecords();
-    const nEdge = nn.length + bridges.length + gcs.length;
-    if (!nEdge) {
-      panel.hidden = true;
-      return;
-    }
-    panel.hidden = false;
-    countEl.textContent = `${nEdge} link(s) · ${nn.length} node–node · ${bridges.length} bridge · ${gcs.length} system`;
+    const strokeRecs = [...nn, ...bridges, ...gcs];
+    if (!strokeRecs.length) return;
+
+    const parts = [];
+    if (nn.length) parts.push(`${nn.length} node–node`);
+    if (bridges.length) parts.push(`${bridges.length} bridge`);
+    if (gcs.length) parts.push(`${gcs.length} system`);
+    countEl.textContent = parts.length
+      ? `${strokeRecs.length} link(s) · ${parts.join(" · ")}`
+      : `${strokeRecs.length} link(s)`;
 
     const fh = document.activeElement;
-    const strokeRecs = [...nn, ...bridges, ...gcs];
 
-    if (fh !== labelInput) {
+    if (labelInput && fh !== labelInput) {
       labelInput.disabled = !nn.length;
       labelInput.placeholder = "Edge caption";
       if (!nn.length) labelInput.value = "";
@@ -14123,17 +14210,28 @@ clearFlowGroupSelection();
         if (uniq.size > 1) labelInput.placeholder = "Mixed labels — typing replaces all selected";
       }
     }
-    if (fh !== wSel) {
+    if (routeGroup && !routeGroup.contains(fh)) {
+      const rs = strokeRecs.map((c) => resolveConnectionRouteStyle(c));
+      const ru = new Set(rs);
+      syncEdgeSegmentGroup(routeGroup, ru.size === 1 ? [...ru][0] : "");
+    }
+    if (dashGroup && !dashGroup.contains(fh)) {
+      const ds = strokeRecs.map((c) => c.strokeDash || "solid");
+      const du = new Set(ds);
+      syncEdgeSegmentGroup(dashGroup, du.size === 1 ? [...du][0] : "");
+    }
+    if (arrowGroup && !arrowGroup.contains(fh)) {
+      const as = strokeRecs.map((c) => c.arrowEnds || "end");
+      const au = new Set(as);
+      syncEdgeSegmentGroup(arrowGroup, au.size === 1 ? [...au][0] : "");
+    }
+    if (widthInput && fh !== widthInput) {
       const ws = strokeRecs.map((c) =>
         c.strokeWidth != null && Number.isFinite(Number(c.strokeWidth)) ? String(Number(c.strokeWidth)) : ""
       );
       const wu = new Set(ws);
-      wSel.value = wu.size === 1 ? ws[0] : "";
-    }
-    if (fh !== dSel) {
-      const ds = strokeRecs.map((c) => c.strokeDash || "solid");
-      const du = new Set(ds);
-      dSel.value = du.size === 1 ? ds[0] : "";
+      widthInput.value = wu.size === 1 ? ws[0] : "";
+      widthInput.placeholder = wu.size > 1 ? "—" : "";
     }
     if (colInp && fh !== colInp) {
       const cols = strokeRecs.map((c) => connectionStrokeColorOrNull(c));
@@ -14145,6 +14243,22 @@ clearFlowGroupSelection();
           : "Custom stroke color (clears to theme gradient)";
       colInp.value = u.size === 1 ? [...u][0] : "#9cb8ff";
     }
+    if (colHex && fh !== colHex) {
+      const cols = strokeRecs.map((c) => connectionStrokeColorOrNull(c));
+      const defined = cols.filter(Boolean);
+      const u = new Set(defined);
+      colHex.value = u.size === 1 ? [...u][0] : "";
+      colHex.placeholder = u.size > 1 ? "Mixed" : "#9CB8FF";
+    }
+    if (swatches) {
+      const cols = strokeRecs.map((c) => connectionStrokeColorOrNull(c));
+      const u = new Set(cols.filter(Boolean).map((h) => h.toLowerCase()));
+      const active = u.size === 1 ? [...u][0] : "";
+      swatches.querySelectorAll(".node-color-swatch").forEach((btn) => {
+        const hex = (btn.dataset.edgeColor || "").toLowerCase();
+        btn.classList.toggle("is-active", !!active && hex === active);
+      });
+    }
   }
 
   let edgeInspectorHistoryPrimed = false;
@@ -14154,26 +14268,41 @@ clearFlowGroupSelection();
     edgeInspectorHistoryPrimed = true;
   }
 
-  /** Phase 3: wire edge inspector controls (single + multi apply). */
+  function bindEdgeInspectorSegmentGroup(groupId, applyValue) {
+    const group = document.getElementById(groupId);
+    if (!group || group.dataset.bound) return;
+    group.dataset.bound = "1";
+    group.addEventListener("click", (e) => {
+      const btn = e.target.closest(".insp-segment-btn");
+      if (!btn || runtime.isSyncingInspector || runtime.readOnly) return;
+      const val = btn.dataset.value;
+      if (!val) return;
+      e.preventDefault();
+      applyEdgeStyleToSelection((c) => applyValue(c, val));
+    });
+  }
+
+  /** Wire connector-style inspector controls (single + multi apply). */
   function initEdgeInspectorPanelUi() {
+    const panel = document.getElementById("inspectorConnectorState");
     const labelInput = document.getElementById("edgeLabelInput");
-    const wSel = document.getElementById("edgeStrokeWidthSel");
-    const dSel = document.getElementById("edgeStrokeDashSel");
+    const widthInput = document.getElementById("edgeStrokeWidthInput");
     const colInp = document.getElementById("edgeStrokeColorInput");
+    const colHex = document.getElementById("edgeStrokeColorHex");
+    const swatches = document.getElementById("edgeStrokeSwatches");
     const clrBtn = document.getElementById("edgeStrokeColorClearBtn");
     const delBtn = document.getElementById("edgeBulkDeleteBtn");
-    const panel = document.getElementById("edgeInspectorPanel");
-    if (!labelInput || !wSel || !dSel || !delBtn || delBtn.dataset.bound) return;
+    if (!panel || !delBtn || delBtn.dataset.bound) return;
     delBtn.dataset.bound = "1";
-    panel?.addEventListener("focusout", () => {
+    panel.addEventListener("focusout", () => {
       window.setTimeout(() => {
-        if (!panel?.contains(document.activeElement)) edgeInspectorHistoryPrimed = false;
+        if (!panel.contains(document.activeElement)) edgeInspectorHistoryPrimed = false;
       }, 0);
     });
-    labelInput.addEventListener("focus", () => {
+    labelInput?.addEventListener("focus", () => {
       edgeInspectorHistoryPrimed = false;
     });
-    labelInput.addEventListener("input", () => {
+    labelInput?.addEventListener("input", () => {
       const { nn } = getSelectedConnectionRecords();
       if (!nn.length) return;
       primeEdgeInspectorHistoryOnce();
@@ -14184,64 +14313,59 @@ clearFlowGroupSelection();
       }
       scheduleRenderConnections();
       markDirty();
+      syncEdgeInspectorPanel();
     });
-    wSel.addEventListener("change", () => {
-      const { nn, bridges, gcs } = getSelectedConnectionRecords();
-      const recs = [...nn, ...bridges, ...gcs];
-      if (!recs.length) return;
-      primeEdgeInspectorHistoryOnce();
-      const raw = wSel.value;
-      for (const c of recs) {
-        if (raw === "" || raw == null) c.strokeWidth = null;
-        else c.strokeWidth = Number(raw);
-        normalizeConnectionEdge(c);
-      }
-      scheduleRenderConnections();
-      markDirty();
+    bindEdgeInspectorSegmentGroup("edgeRouteStyleSegments", (c, val) => {
+      c.routeStyle = val;
     });
-    dSel.addEventListener("change", () => {
-      const { nn, bridges, gcs } = getSelectedConnectionRecords();
-      const recs = [...nn, ...bridges, ...gcs];
-      if (!recs.length) return;
-      primeEdgeInspectorHistoryOnce();
-      const raw = dSel.value;
-      if (!raw) return;
-      for (const c of recs) {
-        c.strokeDash = raw;
-        normalizeConnectionEdge(c);
-      }
-      scheduleRenderConnections();
-      markDirty();
+    bindEdgeInspectorSegmentGroup("edgeDashStyleSegments", (c, val) => {
+      c.strokeDash = val;
     });
-    if (colInp) {
-      colInp.addEventListener("input", () => {
-        const { nn, bridges, gcs } = getSelectedConnectionRecords();
-        const recs = [...nn, ...bridges, ...gcs];
-        if (!recs.length) return;
-        primeEdgeInspectorHistoryOnce();
-        const hex = colInp.value;
-        for (const c of recs) {
-          c.strokeColor = hex;
-          normalizeConnectionEdge(c);
-        }
-        scheduleRenderConnections();
-        markDirty();
+    bindEdgeInspectorSegmentGroup("edgeArrowEndsSegments", (c, val) => {
+      c.arrowEnds = val;
+    });
+    const applyWidth = () => {
+      const raw = widthInput?.value;
+      if (raw === "" || raw == null) return;
+      const n = Number(raw);
+      if (!Number.isFinite(n) || n <= 0) return;
+      applyEdgeStyleToSelection((c) => {
+        c.strokeWidth = Math.max(0.5, Math.min(8, n));
       });
-    }
-    if (clrBtn) {
-      clrBtn.addEventListener("click", () => {
-        const { nn, bridges, gcs } = getSelectedConnectionRecords();
-        const recs = [...nn, ...bridges, ...gcs];
-        if (!recs.length) return;
-        primeEdgeInspectorHistoryOnce();
-        for (const c of recs) {
-          c.strokeColor = null;
-          normalizeConnectionEdge(c);
-        }
-        scheduleRenderConnections();
-        markDirty();
+    };
+    widthInput?.addEventListener("change", applyWidth);
+    widthInput?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        applyWidth();
+      }
+    });
+    const applyEdgeColor = (hex) => {
+      const norm = normalizeNodeHexColor(hex);
+      if (norm === null) return;
+      applyEdgeStyleToSelection((c) => {
+        c.strokeColor = norm || null;
       });
-    }
+    };
+    colInp?.addEventListener("input", () => applyEdgeColor(colInp.value));
+    colHex?.addEventListener("change", () => applyEdgeColor(colHex.value));
+    colHex?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        applyEdgeColor(colHex.value);
+      }
+    });
+    swatches?.addEventListener("click", (e) => {
+      const btn = e.target.closest(".node-color-swatch");
+      if (!btn || runtime.isSyncingInspector || runtime.readOnly) return;
+      e.preventDefault();
+      applyEdgeColor(btn.dataset.edgeColor);
+    });
+    clrBtn?.addEventListener("click", () => {
+      applyEdgeStyleToSelection((c) => {
+        c.strokeColor = null;
+      });
+    });
     delBtn.addEventListener("click", () => bulkDeleteSelectedEdgesAction());
   }
 
@@ -15119,15 +15243,25 @@ clearFlowGroupSelection();
       const selectedNode = getNodeById(runtime.selectedNodeId);
       const canvasStateEl = document.getElementById("inspectorCanvasState");
       const elementStateEl = document.getElementById("inspectorElementState");
+      const connectorStateEl = document.getElementById("inspectorConnectorState");
+      const edgeSelected = hasSelectedConnections() && !selectedNode;
 
-      if (!selectedNode) {
+      if (edgeSelected) {
+        if (canvasStateEl) canvasStateEl.style.display = "none";
+        if (elementStateEl) elementStateEl.style.display = "none";
+        if (connectorStateEl) connectorStateEl.style.display = "block";
+        document.getElementById("rightbar")?.setAttribute("data-inspector-mode", "connector");
+        syncEdgeInspectorPanel();
+      } else if (!selectedNode) {
         if (canvasStateEl) canvasStateEl.style.display = "block";
         if (elementStateEl) elementStateEl.style.display = "none";
+        if (connectorStateEl) connectorStateEl.style.display = "none";
         document.getElementById("rightbar")?.setAttribute("data-inspector-mode", "canvas");
         syncInspectorCanvasControlsFromProject();
       } else {
         if (canvasStateEl) canvasStateEl.style.display = "none";
         if (elementStateEl) elementStateEl.style.display = "block";
+        if (connectorStateEl) connectorStateEl.style.display = "none";
         document.getElementById("rightbar")?.setAttribute("data-inspector-mode", "element");
         const heading = document.getElementById("inspectorElementHeadingLabel");
         if (heading) {
@@ -16826,7 +16960,7 @@ clearFlowGroupSelection();
       const from = anchors ? anchors.from : groupAnchor(fromBox, "out", point);
       const to = toBox ? anchors.to : point;
       const auto = autoCurve(from, to);
-      const d = routeConnectionPath(from, to, [], auto);
+      const d = routeConnectionPath(from, to, [], auto, resolveConnectorStyle());
       runtime.groupPreviewPath.setAttribute("d", d);
       runtime.groupPreviewPath.classList.remove("preview-valid", "preview-invalid", "preview-neutral");
       runtime.groupPreviewPath.classList.add(toBox ? "preview-valid" : "preview-neutral");
@@ -16941,7 +17075,7 @@ clearFlowGroupSelection();
         const from = runtime.previewFrom;
         if (!from) return;
         const auto = autoCurve(from, point);
-        runtime.previewPath.setAttribute("d", routeConnectionPath(from, point, [], auto));
+        runtime.previewPath.setAttribute("d", routeConnectionPath(from, point, [], auto, resolveConnectorStyle()));
         runtime.previewPath.classList.remove("preview-valid", "preview-invalid", "preview-neutral");
         runtime.previewPath.classList.add(hoverNodeId || hoverFgId ? "preview-valid" : "preview-invalid");
         syncConnectTargetHighlight(hoverNodeId);
@@ -16966,7 +17100,7 @@ clearFlowGroupSelection();
         const from = runtime.previewFrom;
         if (!from) return;
         const auto = autoCurve(from, point);
-        runtime.previewPath.setAttribute("d", routeConnectionPath(from, point, [], auto));
+        runtime.previewPath.setAttribute("d", routeConnectionPath(from, point, [], auto, resolveConnectorStyle()));
         runtime.previewPath.classList.remove("preview-valid", "preview-invalid", "preview-neutral");
         runtime.previewPath.classList.add(hoveredNodeId || hoverGroupInId ? "preview-valid" : "preview-invalid");
         syncConnectTargetHighlight(hoveredNodeId);
@@ -17006,7 +17140,7 @@ clearFlowGroupSelection();
       }
       const from = runtime.previewFrom || anchorNodeForConnection(runtime.connecting.fromNodeId, "from", point);
       const auto = autoCurve(from, point);
-      runtime.previewPath.setAttribute("d", routeConnectionPath(from, point, [], auto));
+      runtime.previewPath.setAttribute("d", routeConnectionPath(from, point, [], auto, resolveConnectorStyle()));
       runtime.previewPath.classList.remove("preview-valid", "preview-invalid", "preview-neutral");
       runtime.previewPath.classList.add(
         hoveredNodeId || hoverGroupInId || hoverFlowGroupId ? "preview-valid" : "preview-invalid"
