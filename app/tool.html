@@ -2005,12 +2005,19 @@
   }
   .node-resize-handle {
     position: absolute;
-    width: 9px;
-    height: 9px;
+    width: 8px !important;
+    height: 8px !important;
+    min-width: 8px;
+    max-width: 8px;
+    min-height: 8px;
+    max-height: 8px;
+    aspect-ratio: 1 / 1;
+    flex: 0 0 auto;
     margin: 0;
     padding: 0;
-    border: 2px solid #fff;
-    border-radius: 50%;
+    box-sizing: border-box;
+    border: 1.5px solid #fff;
+    border-radius: 50% !important;
     background: #00a2e8;
     box-shadow: 0 1px 5px rgba(0, 24, 48, 0.35);
     pointer-events: auto;
@@ -2052,12 +2059,19 @@
   }
   .node-conn-handle {
     position: absolute;
-    width: 9px;
-    height: 9px;
+    width: 8px !important;
+    height: 8px !important;
+    min-width: 8px;
+    max-width: 8px;
+    min-height: 8px;
+    max-height: 8px;
+    aspect-ratio: 1 / 1;
+    flex: 0 0 auto;
     margin: 0;
     padding: 0;
-    border: 2px solid #fff;
-    border-radius: 50%;
+    box-sizing: border-box;
+    border: 1.5px solid #fff;
+    border-radius: 50% !important;
     background: #00a2e8;
     box-shadow: 0 1px 5px rgba(0, 24, 48, 0.35);
     pointer-events: auto;
@@ -2095,6 +2109,28 @@
   .node-conn-handle[data-side="right"] { left: 100%; top: 50%; }
   .node-conn-handle[data-side="bottom"] { left: 50%; top: 100%; }
   .node-conn-handle[data-side="left"] { left: 0; top: 50%; }
+  .node.shape-parallelogram .node-conn-handle,
+  .node.shape-parallelogram .node-resize-handle {
+    transform: translate(-50%, -50%) skewX(14deg);
+  }
+  .node.shape-parallelogram .node-conn-handle:hover,
+  .node.shape-parallelogram .node-conn-handle:focus-visible,
+  .node.shape-parallelogram.selected .node-conn-handle,
+  .node.shape-parallelogram:hover .node-conn-handle {
+    transform: translate(-50%, -50%) skewX(14deg) scale(1.12);
+  }
+  .node.shape-parallelogram.selected .node-conn-handle,
+  .node.shape-parallelogram:hover .node-conn-handle,
+  .node.shape-parallelogram.fc-multi-picked .node-conn-handle,
+  .node.shape-parallelogram.is-connect-from .node-conn-handle {
+    transform: translate(-50%, -50%) skewX(14deg) scale(1);
+  }
+  body.fc-carry-mode #workspace {
+    cursor: grabbing;
+  }
+  body.fc-carry-mode .node.is-dragging {
+    cursor: grabbing;
+  }
   /* SVG vector shapes on canvas (flowchart mode). */
   .node.node--svg-shape {
     background: transparent !important;
@@ -5015,6 +5051,8 @@
     selectedConnectionIds: new Set(),
     editingNodeId: null,
     dragging: null,
+    /** Flowchart click-to-carry: node tracks cursor until next click (see carryDrag). */
+    carryDrag: null,
     panning: null,
     connecting: null,
     previewPath: null,
@@ -6125,8 +6163,7 @@
     runtime.dragEphemeralWorld = Object.keys(ep).length ? ep : null;
   }
 
-  function commitActiveNodeDragPositions() {
-    const drag = runtime.dragging;
+  function commitNodeDragPositions(drag) {
     if (!drag) return;
     const snapDx = drag.lastSnapDx ?? 0;
     const snapDy = drag.lastSnapDy ?? 0;
@@ -6159,6 +6196,10 @@
       if (!dn || !start || start.wx == null) continue;
       setNodeWorldPosition(dn, start.wx + snapDx, start.wy + snapDy);
     }
+  }
+
+  function commitActiveNodeDragPositions() {
+    commitNodeDragPositions(runtime.dragging);
   }
 
   function commitFlowGroupDragPositions(gd) {
@@ -7028,6 +7069,7 @@ function clearFcInteractionState(opts = {}) {
   }
   if (runtime.groupDragging) abortGroupDrag();
   releaseStoredNodeBodyPointerCapture();
+  if (runtime.carryDrag) abortCarryDragIfAny();
   if (runtime.dragging) {
     const ids = runtime.dragging.dragIds || [runtime.dragging.nodeId];
     clearDragEphemeralWorld();
@@ -8079,7 +8121,7 @@ function finalizeFlowGroupDragIfAny() {
   function syncFcAssistantFabDragState() {
     const fab = document.getElementById("fcAssistantFab");
     if (!fab) return;
-    fab.classList.toggle("is-fc-dragging", !!(runtime.dragging || runtime.groupDragging || runtime.flowGroupDragging));
+    fab.classList.toggle("is-fc-dragging", !!(runtime.dragging || runtime.carryDrag || runtime.groupDragging || runtime.flowGroupDragging));
   }
 
   function syncFcAssistantFabCollision() {
@@ -9949,6 +9991,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       const gd = runtime.groupDragging;
       if ((gd.lastDx || 0) !== 0 || (gd.lastDy || 0) !== 0) endGroupDrag();
       else abortGroupDrag();
+    } else if (runtime.carryDrag) {
+      finalizeCarryDragIfAny();
     } else if (runtime.dragging) {
       finalizeActiveNodeDragIfAny();
     }
@@ -10519,6 +10563,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       runtime.bodyPressStart = null;
       runtime.bodyPressNodeId = null;
       runtime.dragging = null;
+      if (runtime.carryDrag) finalizeCarryDragIfAny();
       runtime.touchDragPending = null;
       releaseStoredNodeBodyPointerCapture();
       if (isFlowchartMode() && !fcEditorCanSelect()) return;
@@ -10660,6 +10705,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       if (e.button !== 0) return;
       if (isNodeDragHardLocked(nodeObj)) return;
       runtime.dragging = null;
+      if (runtime.carryDrag) finalizeCarryDragIfAny();
       runtime.touchDragPending = null;
       releaseStoredNodeBodyPointerCapture();
       markInspectorDiagramTabFocus();
@@ -10758,6 +10804,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     runtime.bodyPressNodeId = null;
     runtime.touchDragPending = null;
     releaseStoredNodeBodyPointerCapture();
+    finalizeCarryDragIfAny();
     finalizeActiveNodeDragIfAny();
   }
 
@@ -11954,6 +12001,104 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     openFocusModal(nodeId);
   }
 
+  function openFcNodeQuickEdit(nodeId) {
+    if (!nodeId || !getNodeById(nodeId) || runtime.readOnly) return;
+    markInspectorDiagramTabFocus();
+    selectionRuntime.selectNode(nodeId);
+    clearFlowGroupSelection();
+    clearAllEdgeSelection();
+    renderSelection();
+    focusInspectorDiagramTab();
+    if (!isNarrowScreen()) {
+      runtime.deskRightCollapsed = false;
+      applyDesktopSidebarCollapse();
+    }
+    const rightbar = document.getElementById("rightbar");
+    if (rightbar) {
+      rightbar.classList.remove("compact");
+      runtime.inspectorCompact = false;
+    }
+    requestAnimationFrame(() => {
+      syncFcQuickEditToolbar();
+      const first = document.querySelector(
+        "#diagramSectionNode input:not([type=hidden]):not([disabled]), #diagramSectionNode select:not([disabled]), #diagramSectionNode textarea:not([disabled])"
+      );
+      if (first && typeof first.focus === "function") first.focus({ preventScroll: true });
+    });
+  }
+
+  function startCarryDrag(node, e, dragIds) {
+    const w0 = getNodeWorldPosition(node);
+    const pt = world(e.clientX, e.clientY);
+    runtime.carryDrag = {
+      nodeId: node.id,
+      dragIds,
+      x: w0.x,
+      y: w0.y,
+      offsetX: pt.x - w0.x,
+      offsetY: pt.y - w0.y,
+      starts: Object.fromEntries(dragIds.map((id) => {
+        const dn = getNodeById(id);
+        const w = dn ? getNodeWorldPosition(dn) : { x: 0, y: 0 };
+        return [id, { wx: w.x, wy: w.y }];
+      }))
+    };
+    document.body.classList.add("fc-carry-mode");
+    setFlowchartNodesDragging(dragIds, true);
+    syncFcQuickEditToolbar();
+  }
+
+  function updateCarryDragFromPointer(e) {
+    const drag = runtime.carryDrag;
+    if (!drag) return;
+    const n = getNodeById(drag.nodeId);
+    if (!n) return;
+    const pt = world(e.clientX, e.clientY);
+    const rawX = pt.x - (drag.offsetX ?? 0);
+    const rawY = pt.y - (drag.offsetY ?? 0);
+    const snapped = applySnapForNode(n.id, rawX, rawY);
+    const snapDx = snapped.x - drag.x;
+    const snapDy = snapped.y - drag.y;
+    drag.lastSnapDx = snapDx;
+    drag.lastSnapDy = snapDy;
+    const dragIds = drag.dragIds || [n.id];
+    setDragEphemeralWorldFromStarts(drag.starts, snapDx, snapDy);
+    for (const id of dragIds) {
+      const start = drag.starts?.[id];
+      const el = getNodeDomEl(id);
+      if (!start || start.wx == null || !el) continue;
+      applyNodeWorldTransformFast(el, start.wx + snapDx, start.wy + snapDy);
+    }
+    scheduleRenderConnectionsDuringDrag();
+    scheduleSemanticOverlaysDuringDrag();
+  }
+
+  function abortCarryDragIfAny() {
+    if (!runtime.carryDrag) return;
+    const drag = runtime.carryDrag;
+    const dragIds = drag.dragIds || [drag.nodeId];
+    clearDragEphemeralWorld();
+    for (const id of dragIds) {
+      const st = drag.starts?.[id];
+      const el = getNodeDomEl(id);
+      if (st && el) applyNodeWorldTransform(el, st.wx, st.wy);
+    }
+    setFlowchartNodesDragging(dragIds, false);
+    runtime.carryDrag = null;
+    document.body.classList.remove("fc-carry-mode");
+    clearSnapGuides();
+    scheduleRenderConnections();
+    renderSemanticOverlays();
+  }
+
+  function finalizeCarryDragIfAny() {
+    if (!runtime.carryDrag) return;
+    runtime.dragging = runtime.carryDrag;
+    runtime.carryDrag = null;
+    document.body.classList.remove("fc-carry-mode");
+    finalizeActiveNodeDragIfAny();
+  }
+
   function createNodeElement(n) {
     normalizeNode(n);
     const st0 = ensureNodeStyle(n);
@@ -11992,7 +12137,13 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         return;
       }
       e.stopPropagation();
-      if (e.pointerId != null && body.setPointerCapture) {
+      const useCarryMove = isFlowchartMode() && e.button === 0 && e.pointerType !== "touch";
+      let droppedCarryThisClick = false;
+      if (useCarryMove && runtime.carryDrag) {
+        finalizeCarryDragIfAny();
+        droppedCarryThisClick = true;
+      }
+      if (!useCarryMove && e.pointerId != null && body.setPointerCapture) {
         body.setPointerCapture(e.pointerId);
         runtime.activeNodeBodyCapture = { pointerId: e.pointerId, el: body };
       }
@@ -12041,7 +12192,11 @@ clearFlowGroupSelection();
       if (blocked) {
         runtime.dragging = null;
         runtime.touchDragPending = null;
-      } else {
+        if (runtime.carryDrag) abortCarryDragIfAny();
+      } else if (useCarryMove && !droppedCarryThisClick) {
+        runtime.dragging = null;
+        startCarryDrag(n, e, dragIds);
+      } else if (!useCarryMove) {
         const w0 = getNodeWorldPosition(n);
         runtime.dragging = {
           nodeId: n.id,
@@ -12063,13 +12218,15 @@ clearFlowGroupSelection();
       runtime.bodyPressPointerId = e.pointerId;
       runtime.bodyPressStart = { x: e.clientX, y: e.clientY };
       runtime.bodyPressNodeId = n.id;
-      if (runtime.bodyConnectPressTimer) clearTimeout(runtime.bodyConnectPressTimer);
-      runtime.bodyConnectPressTimer = setTimeout(() => {
-        if (runtime.bodyPressNodeId === n.id && runtime.dragging && runtime.dragging.nodeId === n.id) {
-          runtime.dragging = null;
-          startConnectionDrag(n, e);
-        }
-      }, 300);
+      if (!useCarryMove) {
+        if (runtime.bodyConnectPressTimer) clearTimeout(runtime.bodyConnectPressTimer);
+        runtime.bodyConnectPressTimer = setTimeout(() => {
+          if (runtime.bodyPressNodeId === n.id && runtime.dragging && runtime.dragging.nodeId === n.id) {
+            runtime.dragging = null;
+            startConnectionDrag(n, e);
+          }
+        }, 300);
+      }
       renderSelection();
       if (isNarrowScreen()) closeDrawers();
     });
@@ -12085,7 +12242,7 @@ clearFlowGroupSelection();
     body.addEventListener("dblclick", (e) => {
       e.stopPropagation();
       e.preventDefault();
-      if (isFlowchartMode()) fcStartInlineRename(n.id);
+      if (isFlowchartMode()) openFcNodeQuickEdit(n.id);
       else revealDiagramNodeInspectorAndOpenExtended(n.id);
     });
 
@@ -15691,6 +15848,12 @@ clearFlowGroupSelection();
     if (runtime.focusNodeId) return;
     if (runtime.groupConnecting) return;
     runtime.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (runtime.carryDrag && e.button === 0 && !e.target.closest(".node")) {
+      finalizeCarryDragIfAny();
+      renderSelection();
+      syncFcQuickEditToolbar();
+      return;
+    }
     if (runtime.readOnly) return;
     if (runtime.fcToolbarInteracting || runtime.fcMultiBarInteracting) return;
     if (e.target.closest("#fcQuickEdit, #fcGroupQuickEdit, .fc-quick-edit, .fc-group-quick-edit, #fcMultiSelectBar, .fc-multi-select-bar, #fcDeleteConfirm, .fc-delete-confirm, #fcAssistantRoot, .fc-assistant-root, .fc-flow-group, .fc-flow-group-header, .fc-flow-group-body, .fc-flow-group-handle")) return;
@@ -15880,6 +16043,10 @@ clearFlowGroupSelection();
       updateNodeResize(e);
       return;
     }
+    if (runtime.carryDrag) {
+      updateCarryDragFromPointer(e);
+      return;
+    }
     if (runtime.dragging) {
       if (runtime.bodyPressStart && runtime.bodyPressPointerId === e.pointerId) {
         const moved = Math.hypot(e.clientX - runtime.bodyPressStart.x, e.clientY - runtime.bodyPressStart.y);
@@ -15911,7 +16078,7 @@ clearFlowGroupSelection();
       scheduleSemanticOverlaysDuringDrag();
       return;
     }
-    if (runtime.workspacePanPending && !runtime.panning && !runtime.dragging && !runtime.groupDragging && !runtime.marquee) {
+    if (runtime.workspacePanPending && !runtime.panning && !runtime.dragging && !runtime.carryDrag && !runtime.groupDragging && !runtime.marquee) {
       const pending = runtime.workspacePanPending;
       if (pending.pointerId == null || pending.pointerId === e.pointerId) {
         const moved = Math.hypot(e.clientX - pending.x, e.clientY - pending.y);
@@ -16474,6 +16641,11 @@ clearFlowGroupSelection();
       return;
     }
     if (fcEditorCanSelect() && e.key === "Escape" && !typing && !runtime.editingNodeId) {
+      if (runtime.carryDrag) {
+        e.preventDefault();
+        abortCarryDragIfAny();
+        return;
+      }
       if (runtime.connecting) {
         e.preventDefault();
         clearPendingConnectionState();
