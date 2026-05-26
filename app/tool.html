@@ -1744,9 +1744,78 @@
   .node.shape-diamond .node-badges { display: none; }
   .node.shape-diamond .node-media-strip { display: none; }
   .node.shape-diamond .node-title { font-size:13px; max-width:110px; }
+  .node.shape-parallelogram {
+    border-radius: 10px;
+    transform: translate3d(var(--node-tx), var(--node-ty), 0) rotate(var(--node-rotation)) skewX(-14deg);
+  }
+  .node.shape-parallelogram .body {
+    transform: skewX(14deg);
+  }
+  .node.shape-parallelogram:hover,
+  .node.shape-parallelogram.selected,
+  .node.shape-parallelogram.connect-target {
+    transform: translate3d(var(--node-tx), var(--node-ty), 0) rotate(var(--node-rotation)) skewX(-14deg) scale(1.022);
+  }
+  .node.shape-document {
+    border-radius: 12px 12px 4px 4px;
+    clip-path: polygon(
+      0% 0%, 100% 0%, 100% 78%,
+      96% 86%, 88% 79%, 80% 88%, 72% 80%, 64% 89%, 56% 81%, 48% 90%,
+      40% 82%, 32% 91%, 24% 83%, 16% 92%, 8% 84%, 0% 90%
+    );
+    overflow: hidden;
+  }
+  .node.shape-cylinder {
+    border-radius: 50% / 18%;
+    min-height: 88px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  .node.shape-cylinder::before,
+  .node.shape-cylinder::after {
+    content: "";
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    height: 12px;
+    border: 1px solid color-mix(in srgb, currentColor 12%, rgba(156, 184, 255, 0.55));
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .node.shape-cylinder::before { top: 5px; }
+  .node.shape-cylinder::after { bottom: 5px; }
+  .node.shape-subprocess {
+    border-radius: 10px;
+  }
+  .node.shape-subprocess::before,
+  .node.shape-subprocess::after {
+    content: "";
+    position: absolute;
+    top: 14%;
+    bottom: 14%;
+    width: 3px;
+    border-radius: 2px;
+    background: color-mix(in srgb, rgba(122, 162, 255, 0.85) 70%, transparent);
+    box-shadow: 0 0 10px rgba(122, 162, 255, 0.35);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .node.shape-subprocess::before { left: 16px; }
+  .node.shape-subprocess::after { right: 16px; }
+  .node.shape-connector {
+    border-radius: 999px;
+    min-width: 48px;
+    min-height: 48px;
+    aspect-ratio: 1 / 1;
+  }
+  .node.shape-connector .node-icon,
+  .node.shape-connector .node-subtitle,
+  .node.shape-connector .node-desc { display: none; }
+  .node.shape-connector .node-title { font-size: 12px; }
   .node-builder{display:grid;gap:8px}
   .mini-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .node-picker{display:grid;gap:10px;max-height:360px;overflow:auto;padding-right:4px}
+  .node-picker{display:grid;gap:10px;min-height:0;overflow:hidden;padding-right:4px}
   .picker-category{display:grid;gap:8px}
   .picker-category h4{margin:0;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
   .node-preview{
@@ -2780,12 +2849,17 @@
   .flowchart-mode .workspace {
     --fc-ws-void: #080c14;
   }
+  .workspace {
+    --workspace-page-opacity: 1;
+    --workspace-grid-alpha: 0.12;
+  }
   .flowchart-mode .workspace::before {
     content: "";
     position: absolute;
     inset: 0;
     z-index: 0;
     pointer-events: none;
+    opacity: calc(0.9 * var(--workspace-page-opacity, 1));
     background:
       radial-gradient(ellipse 130% 92% at 50% 44%, rgba(74, 108, 196, 0.17) 0%, transparent 56%),
       radial-gradient(ellipse 62% 48% at 50% 38%, rgba(142, 108, 228, 0.1) 0%, transparent 54%),
@@ -2798,12 +2872,34 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    opacity: 0.9;
+    opacity: calc(0.9 * var(--workspace-page-opacity, 1));
     background:
       radial-gradient(circle at 1px 1px, rgba(154, 170, 205, 0.09) 1px, transparent 0) 0 0 / 32px 32px;
   }
+  .flowchart-mode .workspace.grid-style-lines::after {
+    background:
+      linear-gradient(rgba(154, 170, 205, 0.07) 1px, transparent 1px) 0 0 / 32px 32px,
+      linear-gradient(90deg, rgba(154, 170, 205, 0.07) 1px, transparent 1px) 0 0 / 32px 32px;
+  }
+  .flowchart-mode .workspace.grid-style-cross::after {
+    background:
+      radial-gradient(circle at 1px 1px, rgba(154, 170, 205, 0.09) 1px, transparent 0) 0 0 / 28px 28px,
+      radial-gradient(circle at 1px 1px, rgba(110, 128, 170, 0.06) 1px, transparent 0) 14px 14px / 28px 28px;
+  }
   .flowchart-mode .workspace.grid-off::after {
     opacity: 0;
+  }
+  .workspace:not(.flowchart-mode):not(.grid-off) {
+    background:
+      radial-gradient(circle at 1px 1px, rgba(154,170,205,var(--workspace-grid-alpha, .12)) 1px, transparent 0) 0 0 / 28px 28px,
+      radial-gradient(circle at 1px 1px, rgba(110,128,170,calc(var(--workspace-grid-alpha, .12) * 0.66)) 1px, transparent 0) 14px 14px / 28px 28px,
+      var(--workspace-base);
+  }
+  .workspace:not(.flowchart-mode).grid-style-lines:not(.grid-off) {
+    background:
+      linear-gradient(rgba(154,170,205,calc(var(--workspace-grid-alpha, .12) * 0.85)) 1px, transparent 1px) 0 0 / 28px 28px,
+      linear-gradient(90deg, rgba(154,170,205,calc(var(--workspace-grid-alpha, .12) * 0.85)) 1px, transparent 1px) 0 0 / 28px 28px,
+      var(--workspace-base);
   }
   .flowchart-mode .workspace > * {
     z-index: 1;
@@ -2862,6 +2958,20 @@
   }
   .flowchart-mode .node.fc-node-process {
     border-color: rgba(143, 178, 255, 0.48);
+  }
+  .flowchart-mode .node.shape-document.fc-node-process,
+  .flowchart-mode .node.shape-parallelogram.fc-node-process,
+  .flowchart-mode .node.shape-cylinder.fc-node-process,
+  .flowchart-mode .node.shape-subprocess.fc-node-process {
+    box-shadow:
+      0 0 0 1px rgba(122, 162, 255, 0.22),
+      0 12px 28px rgba(0, 0, 0, 0.28),
+      0 0 18px rgba(122, 162, 255, 0.18);
+  }
+  .flowchart-mode .node.shape-connector.fc-node-process {
+    box-shadow:
+      0 0 0 2px rgba(122, 162, 255, 0.35),
+      0 0 16px rgba(122, 162, 255, 0.42);
   }
   .flowchart-mode .node.selected {
     box-shadow:
@@ -3702,43 +3812,49 @@
       <button id="railSettingsBtn" class="rail-btn" type="button" title="Settings" aria-label="Settings"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" stroke-width="1.75"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 0 1-4 0v-.09a1.7 1.7 0 0 0-1.05-1.55 1.7 1.7 0 0 0-1.87.41l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 0 1 0-4h.09a1.7 1.7 0 0 0 1.55-1.05 1.7 1.7 0 0 0-.41-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H12a1.7 1.7 0 0 0 1-1.55V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V12c0 .69-.41 1.31-1.05 1.55z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span></button>
     </aside>
     <aside class="sidebar" id="projects-sidebar">
-      <div class="section section--projects">
-        <h3 class="section-heading section-heading--compact">
-          <span class="section-heading__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16v12H4V7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 7V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-          <span class="section-heading__text">Projects</span>
-        </h3>
-        <input id="projectName" type="text" placeholder="Project name">
-        <div class="project-toolbar">
-          <button id="newProjectBtn" type="button">New Project</button>
-          <button id="renameProjectBtn" type="button">Rename</button>
+      <div id="projectDock" style="display: none;">
+        <div class="section section--projects">
+          <h3 class="section-heading section-heading--compact">
+            <span class="section-heading__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16v12H4V7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 7V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+            <span class="section-heading__text">Projects</span>
+          </h3>
+          <input id="projectName" type="text" placeholder="Project name">
+          <div class="project-toolbar">
+            <button id="newProjectBtn" type="button">New Project</button>
+            <button id="renameProjectBtn" type="button">Rename</button>
+          </div>
+          <div id="projectList" class="project-list"></div>
         </div>
-        <div id="projectList" class="project-list"></div>
       </div>
-      <div class="section section--templates" data-flowchart-hide>
-        <h3 class="section-heading section-heading--compact">
-          <span class="section-heading__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6h6v4H6V6zm10 0h6v4h-6V6zM6 14h6v4H6v-4zm10 0h6v4h-6v-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
-          <span class="section-heading__text">Templates</span>
-        </h3>
-        <select id="templateSelect">
-          <option value="blank">Blank Canvas</option>
-          <option value="flowchart">Flowchart Template</option>
-          <option value="mindmap">Mind Map Template</option>
-          <option value="family">Family Tree Template</option>
-          <option value="recipe">Recipe Diagram Template</option>
-        </select>
-        <button id="applyTemplateBtn">Apply Template</button>
-        <aside class="partner-banner partner-banner--calnex partner-banner--compact" aria-label="CalnexApp financial modeling">
-          <p class="partner-banner__kicker">Business &amp; financial mapping</p>
-          <p class="partner-banner__text">Planning a loan or business structure? Use <strong>CalnexApp</strong> to model your repayments, then map the workflow here.</p>
-          <a class="partner-banner__cta" href="https://calnexapp.com/" target="_blank" rel="noopener noreferrer">Model repayments in CalnexApp →</a>
-        </aside>
+      <div id="templateDock" style="display: none;">
+        <div class="section section--templates" data-flowchart-hide>
+          <h3 class="section-heading section-heading--compact">
+            <span class="section-heading__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6h6v4H6V6zm10 0h6v4h-6V6zM6 14h6v4H6v-4zm10 0h6v4h-6v-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>
+            <span class="section-heading__text">Templates</span>
+          </h3>
+          <select id="templateSelect">
+            <option value="blank">Blank Canvas</option>
+            <option value="flowchart">Flowchart Template</option>
+            <option value="mindmap">Mind Map Template</option>
+            <option value="family">Family Tree Template</option>
+            <option value="recipe">Recipe Diagram Template</option>
+          </select>
+          <button id="applyTemplateBtn">Apply Template</button>
+          <aside class="partner-banner partner-banner--calnex partner-banner--compact" aria-label="CalnexApp financial modeling">
+            <p class="partner-banner__kicker">Business &amp; financial mapping</p>
+            <p class="partner-banner__text">Planning a loan or business structure? Use <strong>CalnexApp</strong> to model your repayments, then map the workflow here.</p>
+            <a class="partner-banner__cta" href="https://calnexapp.com/" target="_blank" rel="noopener noreferrer">Model repayments in CalnexApp →</a>
+          </aside>
+        </div>
       </div>
-      <div class="section section--library">
-        <h3 class="section-heading section-heading--compact">
-          <span class="section-heading__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg></span>
-          <span class="section-heading__text">Visual Node Library</span>
-        </h3>
-        <div id="nodePicker" class="node-picker"></div>
+      <div class="sidebar-library-shell">
+        <div class="section section--library">
+          <h3 class="section-heading section-heading--compact">
+            <span class="section-heading__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg></span>
+            <span class="section-heading__text">Visual Node Library</span>
+          </h3>
+          <div id="nodePicker" class="node-picker"></div>
+        </div>
       </div>
       <button id="createAiBtn" class="ai-create-btn" type="button"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M7.05 7.05 5.64 5.64M18.36 18.36l-1.41-1.41M7.05 16.95l-1.41 1.41M18.36 5.64l-1.41 1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="m12 8 1.1 2.6 2.6 1.1-2.6 1.1L12 15.8l-1.1-2.6-2.6-1.1 2.6-1.1L12 8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span> Generate with AI</button>
     </aside>
@@ -3818,7 +3934,6 @@
       <div class="right-tabs-wrap">
       <div class="right-tabs" role="tablist" aria-label="Inspector">
         <button id="tabDiagram" class="right-tab active" type="button" role="tab" aria-selected="true" aria-controls="inspector-panel-diagram" tabindex="0">Diagram</button>
-        <button id="tabStyle" class="right-tab" type="button" role="tab" aria-selected="false" aria-controls="inspector-panel-style" tabindex="-1">Style</button>
         <button id="tabLayout" class="right-tab" type="button" role="tab" aria-selected="false" aria-controls="inspector-panel-layout" tabindex="-1">Layout</button>
         <button id="tabExport" class="right-tab" type="button" role="tab" aria-selected="false" aria-controls="inspector-panel-export" tabindex="-1">Export</button>
         <button id="tabAi" class="right-tab" type="button" title="AI credits &amp; generation" aria-label="AI credits and generation" role="tab" aria-selected="false" aria-controls="inspector-panel-ai" tabindex="-1">AI</button>
@@ -3831,83 +3946,146 @@
         <button type="button" class="diagram-sub-tab" role="tab" id="diagramSubTabGroups" data-diagram-sub-tab="groups" aria-selected="false" aria-controls="diagramSectionGroups" tabindex="-1">Groups</button>
         <button type="button" class="diagram-sub-tab" role="tab" id="diagramSubTabSuggest" data-diagram-sub-tab="suggestions" aria-selected="false" aria-controls="diagramSectionSuggestions" tabindex="-1">Suggestions</button>
       </div>
-      <section class="section right-section section-critical node-builder active diagram-sub-on" data-tab="diagram" data-diagram-sub="node" id="diagramSectionNode" aria-labelledby="diagramHeadingSelNode quickEditInspectorHint">
-        <h3 id="diagramHeadingSelNode" class="section-heading section-heading--compact">
-          <span class="section-heading__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M9 12h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-          <span class="section-heading__text">Selected Node</span>
-        </h3>
-        <p id="quickEditInspectorHint" class="sr-only">Quick inspector: changes apply to the selected node on the canvas.</p>
-        <p class="muted inspector-hint" id="quickEditSurfaceHint">Edit titles here or double-click a node for the full inspector (sidebar “Edit node” also opens it). Long-press (or middle-click) a node to start a link from its edge.</p>
-        <div class="inspector-group">
-          <div class="inspector-group__title">Node info</div>
-          <label class="insp-field">
-            <span class="insp-field__label">Title</span>
-            <textarea id="nodeText" rows="1" placeholder="Double-click node or edit here"></textarea>
-          </label>
-          <label class="insp-field">
-            <span class="insp-field__label">Subtitle</span>
-            <input id="nodeSubtitle" type="text" placeholder="Optional">
-          </label>
-          <label class="insp-field">
-            <span class="insp-field__label">Description</span>
-            <input id="nodeDescription" type="text" placeholder="Optional">
-          </label>
-          <div class="mini-row insp-row">
-            <label class="insp-field">
-              <span class="insp-field__label">Icon</span>
-              <input id="nodeIcon" type="text" placeholder="Emoji or SVG">
-            </label>
-            <label class="insp-field insp-field--color">
-              <span class="insp-field__label">Fill</span>
-              <input type="color" id="nodeColor" value="#ffd482">
-            </label>
+      <section class="section right-section section-critical node-builder active diagram-sub-on" data-tab="diagram" data-diagram-sub="node" id="diagramSectionNode" aria-labelledby="diagramHeadingSelNode diagramHeadingCanvas quickEditInspectorHint">
+        <div id="inspectorCanvasState" class="inspector-context-shell">
+          <h3 id="diagramHeadingCanvas" class="section-heading section-heading--compact">
+            <span class="section-heading__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+            <span class="section-heading__text">Style</span>
+          </h3>
+          <p class="muted inspector-hint">Canvas and diagram-wide appearance. Select a node to edit its properties.</p>
+          <div class="inspector-group inspector-group--canvas">
+            <div class="inspector-group__title">Canvas</div>
+            <div class="inspector-form-grid">
+              <label class="insp-range"><span class="insp-field__label">Page background opacity</span><input id="canvasPageBgOpacity" type="range" min="0.15" max="1" step="0.05" value="1" aria-label="Page background opacity"></label>
+              <label class="insp-field insp-field--color">
+                <span class="insp-field__label">Background color</span>
+                <input id="canvasBgColor" type="color" value="#0b0f1a">
+              </label>
+              <label class="insp-field insp-field--color">
+                <span class="insp-field__label">Accent glow</span>
+                <input id="accentGlowColor" type="color" value="#7aa2ff">
+              </label>
+              <label class="insp-check insp-check--inline"><input type="checkbox" id="inspectorGridToggleChk" checked><span>Show grid</span></label>
+              <div class="inspector-field-block">
+                <span class="insp-field__label">Grid style</span>
+                <div class="grid-style-picker" role="group" aria-label="Grid style">
+                  <button type="button" class="grid-style-btn active" data-grid-style="dots" title="Dot grid" aria-pressed="true">⋯</button>
+                  <button type="button" class="grid-style-btn" data-grid-style="lines" title="Line grid" aria-pressed="false">☰</button>
+                  <button type="button" class="grid-style-btn" data-grid-style="cross" title="Cross grid" aria-pressed="false">⌖</button>
+                </div>
+              </div>
+              <label class="insp-field">
+                <span class="insp-field__label">Global font</span>
+                <select id="canvasGlobalFontSelect" aria-label="Global diagram font">
+                  <option value="ui">UI Sans</option>
+                  <option value="serif">Serif</option>
+                  <option value="mono">Monospace</option>
+                </select>
+              </label>
+              <label class="insp-field">
+                <span class="insp-field__label">Connector style</span>
+                <select id="connectorStyleSelect">
+                  <option value="curved">Curved</option>
+                  <option value="orthogonal">Orthogonal</option>
+                </select>
+              </label>
+            </div>
           </div>
-          <div class="mini-row insp-row">
-            <label class="insp-field">
-              <span class="insp-field__label">Type</span>
-              <select id="nodeType">
-                <option value="process">Process</option>
-                <option value="decision">Decision</option>
-                <option value="data">Data</option>
-                <option value="system">System</option>
-                <option value="note">Note</option>
-                <option value="custom">Custom</option>
-              </select>
-            </label>
-            <label class="insp-field">
-              <span class="insp-field__label">Shape</span>
-              <select id="nodeShape">
-                <option value="rect">◼ Rect</option>
-                <option value="circle">◯ Circle</option>
-                <option value="diamond">♦ Diamond</option>
-                <option value="rounded">⬡ Rounded</option>
-              </select>
-            </label>
+          <div id="inspectorCanvasTips" class="inspector-canvas-tips" aria-labelledby="styleTipsHint">
+            <p id="styleTipsHint" class="sr-only">How the canvas adapts to light or dark theme.</p>
+            <p class="inspector-canvas-tips__line muted">Glow accents and subtle depth adapt to the current theme (light or dark).</p>
+            <p class="inspector-canvas-tips__line muted">Use Grid / Fit / Zoom in the top bar for fast navigation.</p>
           </div>
         </div>
-        <hr class="insp-divider" aria-hidden="true">
-        <div class="inspector-group inspector-group--options">
-          <div class="inspector-group__title">Options</div>
-          <label class="insp-check"><input type="checkbox" id="nodeQuickLockChk"> Lock / pin (blocks canvas drag)</label>
-          <label class="insp-check"><input type="checkbox" id="nodeQuickHiddenChk"> Hide node on canvas</label>
-          <label class="insp-check"><input type="checkbox" id="nodeQuickFreeformChk"> Free-style node (centered label)</label>
-        </div>
-        <hr class="insp-divider" aria-hidden="true">
-        <div class="inspector-group inspector-group--style">
-          <div class="inspector-group__title">Style</div>
-          <label class="insp-range"><span class="insp-field__label">Background opacity</span><input id="nodeOpacity" type="range" min="0.2" max="1" step="0.05" value="0.9"></label>
-          <label class="insp-range"><span class="insp-field__label">Border glow</span><input id="nodeGlow" type="range" min="0" max="40" step="1" value="12"></label>
-          <label class="insp-range"><span class="insp-field__label">Shadow intensity</span><input id="nodeShadow" type="range" min="0" max="40" step="1" value="20"></label>
-          <label class="insp-range"><span class="insp-field__label">Rounded corners</span><input id="nodeRadius" type="range" min="0" max="28" step="1" value="12"></label>
-          <label class="insp-field insp-field--color">
-            <span class="insp-field__label">Border color</span>
-            <input type="color" id="nodeBorderColor" value="#9cb8ff">
-          </label>
-        </div>
-        <hr class="insp-divider" aria-hidden="true">
-        <div class="inspector-group inspector-group--actions">
-          <button type="button" id="openExtendedEditorBtn" class="text-btn-sm">Open extended editor…</button>
-          <button type="button" id="deleteNodeBtn" class="danger" aria-label="Delete selected node or nodes">Delete node(s)</button>
+        <div id="inspectorElementState" class="inspector-context-shell" style="display: none;">
+          <h3 id="diagramHeadingSelNode" class="section-heading section-heading--compact">
+            <span class="section-heading__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M9 12h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+            <span class="section-heading__text" id="inspectorElementHeadingLabel">Action step</span>
+          </h3>
+          <p id="quickEditInspectorHint" class="sr-only">Quick inspector: changes apply to the selected node on the canvas.</p>
+          <p class="muted inspector-hint" id="quickEditSurfaceHint">Edit titles here or double-click a node for the full inspector (sidebar “Edit node” also opens it). Long-press (or middle-click) a node to start a link from its edge.</p>
+          <div class="inspector-group inspector-group--element">
+            <div class="inspector-group__title">Node info</div>
+            <div class="inspector-form-grid">
+            <label class="insp-field">
+              <span class="insp-field__label">Title</span>
+              <textarea id="nodeText" rows="1" placeholder="Double-click node or edit here"></textarea>
+            </label>
+            <label class="insp-field">
+              <span class="insp-field__label">Subtitle</span>
+              <input id="nodeSubtitle" type="text" placeholder="Optional">
+            </label>
+            <label class="insp-field">
+              <span class="insp-field__label">Description</span>
+              <input id="nodeDescription" type="text" placeholder="Optional">
+            </label>
+            <div class="mini-row insp-row">
+              <label class="insp-field">
+                <span class="insp-field__label">Icon</span>
+                <input id="nodeIcon" type="text" placeholder="Emoji or SVG">
+              </label>
+              <label class="insp-field insp-field--color">
+                <span class="insp-field__label">Fill</span>
+                <input type="color" id="nodeColor" value="#ffd482">
+              </label>
+            </div>
+            <div class="mini-row insp-row">
+              <label class="insp-field">
+                <span class="insp-field__label">Type</span>
+                <select id="nodeType">
+                  <option value="process">Process</option>
+                  <option value="decision">Decision</option>
+                  <option value="data">Data</option>
+                  <option value="system">System</option>
+                  <option value="note">Note</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </label>
+              <label class="insp-field">
+                <span class="insp-field__label">Shape</span>
+                <select id="nodeShape">
+                  <option value="rect">◼ Rect</option>
+                  <option value="rounded">⬡ Rounded</option>
+                  <option value="circle">◯ Circle</option>
+                  <option value="diamond">♦ Diamond</option>
+                  <option value="document">📄 Document</option>
+                  <option value="parallelogram">▱ Data (I/O)</option>
+                  <option value="cylinder">🗄 Cylinder</option>
+                  <option value="subprocess">▣ Subprocess</option>
+                  <option value="connector">● Connector</option>
+                </select>
+              </label>
+            </div>
+            </div>
+          </div>
+          <hr class="insp-divider" aria-hidden="true">
+          <div class="inspector-group inspector-group--options inspector-group--options-compact">
+            <div class="inspector-group__title">Options</div>
+            <div class="inspector-options-row">
+              <label class="insp-toggle"><input type="checkbox" id="nodeQuickLockChk"><span class="insp-toggle__track" aria-hidden="true"></span><span class="insp-toggle__label">Lock / pin</span></label>
+              <label class="insp-toggle"><input type="checkbox" id="nodeQuickHiddenChk"><span class="insp-toggle__track" aria-hidden="true"></span><span class="insp-toggle__label">Hide node</span></label>
+              <label class="insp-toggle"><input type="checkbox" id="nodeQuickFreeformChk"><span class="insp-toggle__track" aria-hidden="true"></span><span class="insp-toggle__label">Free-style</span></label>
+            </div>
+          </div>
+          <hr class="insp-divider" aria-hidden="true">
+          <div class="inspector-group inspector-group--style">
+            <div class="inspector-group__title">Text styles</div>
+            <div class="inspector-form-grid">
+              <label class="insp-range"><span class="insp-field__label">Background opacity</span><input id="nodeOpacity" type="range" min="0.2" max="1" step="0.05" value="0.9"></label>
+              <label class="insp-range"><span class="insp-field__label">Border glow</span><input id="nodeGlow" type="range" min="0" max="40" step="1" value="12"></label>
+              <label class="insp-range"><span class="insp-field__label">Shadow intensity</span><input id="nodeShadow" type="range" min="0" max="40" step="1" value="20"></label>
+              <label class="insp-range"><span class="insp-field__label">Rounded corners</span><input id="nodeRadius" type="range" min="0" max="28" step="1" value="12"></label>
+              <label class="insp-field insp-field--color">
+                <span class="insp-field__label">Border color</span>
+                <input type="color" id="nodeBorderColor" value="#9cb8ff">
+              </label>
+            </div>
+          </div>
+          <hr class="insp-divider" aria-hidden="true">
+          <div class="inspector-group inspector-group--actions">
+            <button type="button" id="openExtendedEditorBtn" class="text-btn-sm">Open extended editor…</button>
+            <button type="button" id="deleteNodeBtn" class="danger" aria-label="Delete selected node or nodes">Delete node(s)</button>
+          </div>
         </div>
       </section>
       <section class="section right-section section-critical active" data-tab="diagram" data-diagram-sub="groups" id="diagramSectionGroups" aria-labelledby="diagramHeadingStatus diagramStatusHint">
@@ -3999,26 +4177,6 @@
         <div id="suggestions" class="suggestions"></div>
       </section>
       </div>
-      </div>
-      <div id="inspector-panel-style" role="tabpanel" aria-labelledby="tabStyle" data-inspector-tab-panel="style" aria-hidden="true">
-      <section class="section right-section" data-tab="style" aria-labelledby="styleCanvasHeading styleCanvasHint">
-        <h3 id="styleCanvasHeading">Canvas / Theme</h3>
-        <p id="styleCanvasHint" class="sr-only">Background, accent, and connector appearance.</p>
-        <label class="muted">Background color <input id="canvasBgColor" type="color" value="#0b0f1a"></label>
-        <label class="muted">Accent glow <input id="accentGlowColor" type="color" value="#7aa2ff"></label>
-        <label class="muted">Connector style
-          <select id="connectorStyleSelect">
-            <option value="curved">Curved</option>
-            <option value="orthogonal">Orthogonal</option>
-          </select>
-        </label>
-      </section>
-      <section class="section right-section" data-tab="style" aria-labelledby="styleTipsHeading styleTipsHint">
-        <h3 id="styleTipsHeading">Canvas style</h3>
-        <p id="styleTipsHint" class="sr-only">How the canvas adapts to light or dark theme.</p>
-        <div class="muted">Glow accents and subtle depth adapt to the current theme (light or dark).</div>
-        <div class="muted">Use Grid / Fit / Zoom in the top bar for fast navigation.</div>
-      </section>
       </div>
       <section id="inspector-panel-layout" class="section right-section" data-tab="layout" role="tabpanel" aria-labelledby="tabLayout layoutHeading layoutHint" data-inspector-tab-panel="layout" aria-hidden="true">
         <h3 id="layoutHeading">Layout</h3>
@@ -4424,7 +4582,6 @@
   const aiGenerateBtn = document.getElementById("aiGenerateBtn");
   const aiStatus = document.getElementById("aiStatus");
   const tabDiagram = document.getElementById("tabDiagram");
-  const tabStyle = document.getElementById("tabStyle");
   const tabLayout = document.getElementById("tabLayout");
   const tabExport = document.getElementById("tabExport");
   const canvasBgColor = document.getElementById("canvasBgColor");
@@ -4610,6 +4767,8 @@
     semOverlayRaf: 0,
     activeRightTab: "diagram",
     activeDiagramSub: "node",
+    /** Prevents renderSelection ↔ inspector sync infinite loops. */
+    isSyncingInspector: false,
     /** @type {{ kind: "conn"|"gc", id: string }|null} Highlight edge from inspector connection list hover */
     listHoverLink: null,
     connectorStyle: "curved",
@@ -4753,6 +4912,7 @@
 
   function selectNodesViaRuntime(nodeIds, opts = {}) {
     initMapDiagramRuntimes();
+    if (opts.focusDiagramTab) markInspectorDiagramTabFocus();
     if (selectionRuntime?.selectNodes) {
       selectionRuntime.selectNodes(nodeIds, opts);
       return;
@@ -4766,6 +4926,15 @@
     else if (runtime.selectedNodeIds.size === 1) runtime.selectedNodeId = [...runtime.selectedNodeIds][0];
     else runtime.selectedNodeId = opts.keepPrimary && valid.has(opts.keepPrimary) ? opts.keepPrimary : null;
     renderSelection();
+  }
+
+  function markInspectorDiagramTabFocus() {
+    runtime._inspectorUserFocusPending = true;
+  }
+
+  function focusInspectorDiagramTab() {
+    if (runtime.activeRightTab !== "diagram") setRightTab("diagram");
+    if ((runtime.activeDiagramSub || "node") !== "node") applyDiagramSubTab("node");
   }
 
   function assertProjectIntegrity(context) {
@@ -5151,7 +5320,7 @@
       userGroups: [],
       groupConnections: [],
       flowGroups: [],
-      view: { x: 0, y: 0, zoom: 1, grid: true },
+      view: { x: 0, y: 0, zoom: 1, grid: true, gridStyle: "dots", bgOpacity: 1, defaultTitleFontFamily: "ui" },
       updatedAt: Date.now()
     };
   }
@@ -6381,10 +6550,19 @@
   ];
 
   const FLOWCHART_ONBOARDED_KEY = "flowchart-onboarded";
+  const NODE_SHAPE_CLASSES = [
+    "rect", "circle", "diamond", "rounded", "document", "parallelogram", "cylinder", "subprocess", "connector"
+  ];
+
   const FLOWCHART_MODE_PRESETS = [
     { label: "Start", type: "input", shape: "circle", icon: "▶", color: "#7fd9a8", subtitle: "Begin", description: "Flow start", fcRole: "start", width: 128, height: 72 },
     { label: "Process", type: "process", shape: "rounded", icon: "⚙", color: "#8fb2ff", subtitle: "Step", description: "Action step", fcRole: "process", width: 190, height: 88 },
     { label: "Decision", type: "decision", shape: "diamond", icon: "◆", color: "#ffd482", subtitle: "Branch", description: "Yes / No branch", fcRole: "decision", width: 130, height: 130 },
+    { label: "Document", type: "note", shape: "document", icon: "📄", color: "#b8c8ff", subtitle: "Report", description: "Document / file", fcRole: "process", width: 190, height: 100 },
+    { label: "Data", type: "data", shape: "parallelogram", icon: "⇄", color: "#9be0cb", subtitle: "I/O", description: "Input / output", fcRole: "process", width: 200, height: 80 },
+    { label: "Database", type: "data", shape: "cylinder", icon: "🗄", color: "#8dd7c2", subtitle: "Store", description: "Database storage", fcRole: "process", width: 168, height: 108 },
+    { label: "Subprocess", type: "system", shape: "subprocess", icon: "▣", color: "#a8b4ff", subtitle: "Call", description: "Subprocess reference", fcRole: "process", width: 200, height: 88 },
+    { label: "Connector", type: "custom", shape: "connector", icon: "●", color: "#9cb8ff", subtitle: "Ref", description: "Off-page connector", fcRole: "process", width: 56, height: 56 },
     { label: "End", type: "output", shape: "circle", icon: "■", color: "#a8b4d4", subtitle: "Finish", description: "Flow end", fcRole: "end", width: 128, height: 72 }
   ];
   const FLOWCHART_STARTER_PROMPTS = {
@@ -8554,8 +8732,16 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return !!(n && n.security && n.security.locked && n.security.lockMode === "hard");
   }
 
+  function applyNodeShapeClasses(el, shape) {
+    if (!el) return;
+    const s = NODE_SHAPE_CLASSES.includes(shape) ? shape : "rect";
+    for (const cls of NODE_SHAPE_CLASSES) el.classList.remove(`shape-${cls}`);
+    el.classList.add(`shape-${s}`);
+  }
+
   function normalizeNode(nodeObj) {
     if (!nodeObj.shape) nodeObj.shape = "rect";
+    if (!NODE_SHAPE_CLASSES.includes(nodeObj.shape)) nodeObj.shape = "rect";
     if (!nodeObj.type) nodeObj.type = "process";
     if (!nodeObj.title) nodeObj.title = nodeObj.text || "Node";
     if (nodeObj.subtitle == null) nodeObj.subtitle = "";
@@ -9095,6 +9281,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
 
   /** Clears selection highlights only — never mutates groups, flow groups, or nodes. */
   function clearCanvasSelectionVisual() {
+    markInspectorDiagramTabFocus();
     initMapDiagramRuntimes();
     if (selectionRuntime) {
       selectionRuntime.clearSelection("nodes");
@@ -9713,6 +9900,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       if (isFlowchartMode() && !fcEditorCanSelect()) return;
       if (isNodeHiddenCanvas(nodeObj)) return;
       const side = handle.dataset.side;
+      markInspectorDiagramTabFocus();
       selectionRuntime.selectNode(nodeObj.id);
       clearFlowGroupSelection();
       clearAllEdgeSelection();
@@ -9864,8 +10052,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const el = getNodeDomEl(nodeId);
     if (!el) return;
     const body = el.querySelector(".body");
-    el.classList.remove("shape-rect", "shape-circle", "shape-diamond", "shape-rounded");
-    el.classList.add(`shape-${node.shape || "rect"}`);
+    applyNodeShapeClasses(el, node.shape);
     const st = ensureNodeStyle(node);
     el.classList.toggle("node-freeform", !!st.freeform);
     el.classList.toggle("node-hidden-canvas", isNodeHiddenCanvas(node));
@@ -10660,18 +10847,25 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     renderSavedViewsList();
   }
 
+  function renderFlowchartNodeTile(preset) {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = `node-tile node-tile--shape-${preset.shape}`;
+    card.title = preset.description || preset.label;
+    card.innerHTML =
+      `<span class="node-tile__preview node-tile__preview--${preset.shape}" aria-hidden="true"></span>` +
+      `<span class="node-tile__label">${preset.label}</span>`;
+    card.addEventListener("click", () => insertPresetNode(preset));
+    return card;
+  }
+
   function renderNodePicker() {
     nodePicker.innerHTML = "";
     if (isFlowchartMode()) {
       const grid = document.createElement("div");
       grid.className = "node-picker-grid";
       for (const preset of FLOWCHART_MODE_PRESETS) {
-        const card = document.createElement("button");
-        card.type = "button";
-        card.className = "node-tile";
-        card.innerHTML = `<span class="node-tile__icon">${preset.icon}</span><span class="node-tile__label">${preset.label}</span>`;
-        card.addEventListener("click", () => insertPresetNode(preset));
-        grid.appendChild(card);
+        grid.appendChild(renderFlowchartNodeTile(preset));
       }
       nodePicker.appendChild(grid);
       return;
@@ -10848,7 +11042,13 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       type: preset.type,
       color: preset.color,
       shape: preset.shape,
-      style: { opacity: 0.88, glow: 14, shadow: 22, radius: preset.shape === "rounded" ? 16 : 12, borderColor: "#9cb8ff" }
+      style: {
+        opacity: 0.88,
+        glow: preset.shape === "connector" ? 18 : 14,
+        shadow: 22,
+        radius: preset.shape === "rounded" ? 16 : preset.shape === "connector" ? 999 : 12,
+        borderColor: "#9cb8ff"
+      }
     };
     p.nodes.push(n);
 
@@ -10882,7 +11082,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     normalizeNode(n);
     const st0 = ensureNodeStyle(n);
     const el = document.createElement("div");
-    el.className = `node shape-${n.shape}`;
+    el.className = "node";
+    applyNodeShapeClasses(el, n.shape);
     el.dataset.nodeId = n.id;
     const body = document.createElement("div");
     body.className = "body";
@@ -10908,6 +11109,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         runtime.touchDragPending = null;
       }
       if (isAdditiveSelection(e) && (!isFlowchartMode() || fcEditorCanSelect())) {
+  markInspectorDiagramTabFocus();
   selectionRuntime.toggleNode(n.id);
 
   clearAllEdgeSelection();
@@ -10916,6 +11118,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
   return;
 }
       if (e.ctrlKey || e.metaKey) {
+  markInspectorDiagramTabFocus();
   selectionRuntime.toggleNode(n.id);
 
 } else if (
@@ -10924,10 +11127,12 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
   runtime.selectedNodeIds.size > 1
 ) {
 
+  markInspectorDiagramTabFocus();
   runtime.selectedNodeId = n.id;
 
 } else {
 
+  markInspectorDiagramTabFocus();
   selectionRuntime.selectNode(n.id);
 clearFlowGroupSelection();
 
@@ -12996,6 +13201,79 @@ clearFlowGroupSelection();
     brB.style.opacity = canBranch ? "" : "0.45";
   }
 
+  function ensureProjectViewDefaults(p) {
+    if (!p.view) p.view = { x: 0, y: 0, zoom: 1, grid: true };
+    if (p.view.grid == null) p.view.grid = true;
+    if (!["dots", "lines", "cross"].includes(p.view.gridStyle)) p.view.gridStyle = "dots";
+    if (p.view.bgOpacity == null || Number.isNaN(Number(p.view.bgOpacity))) p.view.bgOpacity = 1;
+    if (!["ui", "serif", "mono"].includes(p.view.defaultTitleFontFamily)) p.view.defaultTitleFontFamily = "ui";
+    return p.view;
+  }
+
+  function applyWorkspaceViewStyles() {
+    const wasSyncing = runtime.isSyncingInspector;
+    if (!wasSyncing) runtime.isSyncingInspector = true;
+    try {
+      const p = getProject();
+      const v = ensureProjectViewDefaults(p);
+      const op = Math.max(0.15, Math.min(1, Number(v.bgOpacity) || 1));
+      workspace.style.setProperty("--workspace-page-opacity", String(op));
+      workspace.style.setProperty("--workspace-grid-alpha", String(op * 0.12));
+      workspace.classList.remove("grid-style-dots", "grid-style-lines", "grid-style-cross");
+      workspace.classList.add("grid-style-" + v.gridStyle);
+      document.querySelectorAll(".grid-style-btn").forEach((btn) => {
+        const on = btn.dataset.gridStyle === v.gridStyle;
+        btn.classList.toggle("active", on);
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+      const pageOp = document.getElementById("canvasPageBgOpacity");
+      if (pageOp) pageOp.value = String(op);
+      const gridChk = document.getElementById("inspectorGridToggleChk");
+      if (gridChk) gridChk.checked = v.grid !== false;
+      const gFont = document.getElementById("canvasGlobalFontSelect");
+      if (gFont) gFont.value = v.defaultTitleFontFamily;
+      if (connectorStyleSelect) connectorStyleSelect.value = runtime.connectorStyle || "curved";
+    } finally {
+      if (!wasSyncing) runtime.isSyncingInspector = false;
+    }
+  }
+
+  function syncInspectorCanvasControlsFromProject() {
+    applyWorkspaceViewStyles();
+  }
+
+  function syncInspectorPanelContext() {
+    if (runtime.isSyncingInspector) return;
+    runtime.isSyncingInspector = true;
+    try {
+      const selectedNode = getNodeById(runtime.selectedNodeId);
+      const canvasStateEl = document.getElementById("inspectorCanvasState");
+      const elementStateEl = document.getElementById("inspectorElementState");
+
+      if (!selectedNode) {
+        if (canvasStateEl) canvasStateEl.style.display = "block";
+        if (elementStateEl) elementStateEl.style.display = "none";
+        document.getElementById("rightbar")?.setAttribute("data-inspector-mode", "canvas");
+        syncInspectorCanvasControlsFromProject();
+      } else {
+        if (canvasStateEl) canvasStateEl.style.display = "none";
+        if (elementStateEl) elementStateEl.style.display = "block";
+        document.getElementById("rightbar")?.setAttribute("data-inspector-mode", "element");
+        const heading = document.getElementById("inspectorElementHeadingLabel");
+        if (heading) {
+          const label = (selectedNode.description || selectedNode.text || "Action step").trim();
+          heading.textContent = label.length > 42 ? label.slice(0, 39) + "…" : label || "Action step";
+        }
+      }
+      if (runtime._inspectorUserFocusPending) {
+        runtime._inspectorUserFocusPending = false;
+        focusInspectorDiagramTab();
+      }
+    } finally {
+      runtime.isSyncingInspector = false;
+    }
+  }
+
   function renderSelection() {
     
     const p = getProject();
@@ -13020,55 +13298,60 @@ clearFlowGroupSelection();
       c.classList.toggle("selected", selConn || selGc);
     }
     const selectedNode = getNodeById(runtime.selectedNodeId);
-    nodeText.value = selectedNode ? selectedNode.text : "";
-    nodeColor.value = selectedNode ? selectedNode.color : "#ffd482";
-    nodeShape.value = selectedNode ? (selectedNode.shape || "rect") : "rect";
-    nodeSubtitle.value = selectedNode ? (selectedNode.subtitle || "") : "";
-    nodeDescription.value = selectedNode ? (selectedNode.description || "") : "";
-    nodeIcon.value = selectedNode ? (selectedNode.icon || "") : "";
-    nodeType.value = selectedNode ? (selectedNode.type || "process") : "process";
-    if (selectedNode) ensureNodeStyle(selectedNode);
-    nodeOpacity.value = selectedNode ? String(selectedNode.style.opacity ?? 0.9) : "0.9";
-    nodeGlow.value = selectedNode ? String(selectedNode.style.glow ?? 12) : "12";
-    nodeShadow.value = selectedNode ? String(selectedNode.style.shadow ?? 20) : "20";
-    nodeRadius.value = selectedNode ? String(selectedNode.style.radius ?? 12) : "12";
-    nodeBorderColor.value = selectedNode ? (selectedNode.style.borderColor || "#9cb8ff") : "#9cb8ff";
-    const nql = document.getElementById("nodeQuickLockChk");
-    if (nql) {
-      if (selectedNode && !isNodeUnderPinnedGroup(p, selectedNode.id)) {
-        ensureNodeExtendedModel(selectedNode);
-        nql.disabled = false;
-        nql.checked = isNodeDragHardLocked(selectedNode);
-      } else {
-        nql.disabled = true;
-        nql.checked = false;
+    runtime.isSyncingInspector = true;
+    try {
+      nodeText.value = selectedNode ? selectedNode.text : "";
+      nodeColor.value = selectedNode ? selectedNode.color : "#ffd482";
+      nodeShape.value = selectedNode ? (selectedNode.shape || "rect") : "rect";
+      nodeSubtitle.value = selectedNode ? (selectedNode.subtitle || "") : "";
+      nodeDescription.value = selectedNode ? (selectedNode.description || "") : "";
+      nodeIcon.value = selectedNode ? (selectedNode.icon || "") : "";
+      nodeType.value = selectedNode ? (selectedNode.type || "process") : "process";
+      if (selectedNode) ensureNodeStyle(selectedNode);
+      nodeOpacity.value = selectedNode ? String(selectedNode.style.opacity ?? 0.9) : "0.9";
+      nodeGlow.value = selectedNode ? String(selectedNode.style.glow ?? 12) : "12";
+      nodeShadow.value = selectedNode ? String(selectedNode.style.shadow ?? 20) : "20";
+      nodeRadius.value = selectedNode ? String(selectedNode.style.radius ?? 12) : "12";
+      nodeBorderColor.value = selectedNode ? (selectedNode.style.borderColor || "#9cb8ff") : "#9cb8ff";
+      const nql = document.getElementById("nodeQuickLockChk");
+      if (nql) {
+        if (selectedNode && !isNodeUnderPinnedGroup(p, selectedNode.id)) {
+          ensureNodeExtendedModel(selectedNode);
+          nql.disabled = false;
+          nql.checked = isNodeDragHardLocked(selectedNode);
+        } else {
+          nql.disabled = true;
+          nql.checked = false;
+        }
       }
-    }
-    const nqh = document.getElementById("nodeQuickHiddenChk");
-    if (nqh) {
-      if (selectedNode) {
-        ensureNodeExtendedModel(selectedNode);
-        nqh.disabled = false;
-        nqh.checked = isNodeHiddenCanvas(selectedNode);
-      } else {
-        nqh.disabled = true;
-        nqh.checked = false;
+      const nqh = document.getElementById("nodeQuickHiddenChk");
+      if (nqh) {
+        if (selectedNode) {
+          ensureNodeExtendedModel(selectedNode);
+          nqh.disabled = false;
+          nqh.checked = isNodeHiddenCanvas(selectedNode);
+        } else {
+          nqh.disabled = true;
+          nqh.checked = false;
+        }
       }
-    }
-    const nqf = document.getElementById("nodeQuickFreeformChk");
-    if (nqf) {
-      if (selectedNode) {
-        nqf.disabled = false;
-        nqf.checked = !!ensureNodeStyle(selectedNode).freeform;
-      } else {
-        nqf.disabled = true;
-        nqf.checked = false;
+      const nqf = document.getElementById("nodeQuickFreeformChk");
+      if (nqf) {
+        if (selectedNode) {
+          nqf.disabled = false;
+          nqf.checked = !!ensureNodeStyle(selectedNode).freeform;
+        } else {
+          nqf.disabled = true;
+          nqf.checked = false;
+        }
       }
+      const selectedGroup = p.userGroups.find((g) => g.id === runtime.selectedGroupId) || null;
+      groupControls.classList.toggle("active", !!selectedGroup);
+      groupNameInput.value = selectedGroup ? (selectedGroup.name || "") : "";
+      groupColorInput.value = selectedGroup ? (selectedGroup.color || "#8baeff") : "#8baeff";
+    } finally {
+      runtime.isSyncingInspector = false;
     }
-    const selectedGroup = p.userGroups.find((g) => g.id === runtime.selectedGroupId) || null;
-    groupControls.classList.toggle("active", !!selectedGroup);
-    groupNameInput.value = selectedGroup ? (selectedGroup.name || "") : "";
-    groupColorInput.value = selectedGroup ? (selectedGroup.color || "#8baeff") : "#8baeff";
     const bridges = (p.connections || []).filter((c) => !isNodeNodeConnection(c) && !isBranchFromConnection(c)).length;
     stats.textContent = `${p.nodes.length} nodes • ${p.connections.length} links (${bridges} system) • ${(p.userGroups || []).length} groups • ${p.title}`;
     renderConnectionListPanel();
@@ -13086,6 +13369,7 @@ clearFlowGroupSelection();
         el.classList.toggle("selected", el.dataset.flowGroupId === runtime.selectedFlowGroupId);
       }
     }
+    syncInspectorPanelContext();
   }
 
   function syncNodeSizes() {
@@ -13116,9 +13400,10 @@ clearFlowGroupSelection();
     if (prof && prof.perfEnabled()) prof.markStart("renderAll");
     try {
       renderCanvasLayers();
-      if (nodePicker && !nodePicker.children.length) renderNodePicker();
+      if (nodePicker && !nodePicker.children.length)       renderNodePicker();
       renderProjects();
       renderSuggestions();
+      applyWorkspaceViewStyles();
       mobileHint.textContent = "Touch: one finger drag/pan, two fingers pinch zoom.";
       if (runtime._fcCenterAfterOnboard && isFlowchartMode()) {
         runtime._fcCenterAfterOnboard = false;
@@ -13673,16 +13958,64 @@ clearFlowGroupSelection();
   document.getElementById("alignNodesVCenterBtn")?.addEventListener("click", () => alignDistributeSelection("vcenter"));
   document.getElementById("distributeNodesHBtn")?.addEventListener("click", () => alignDistributeSelection("disth"));
   document.getElementById("distributeNodesVBtn")?.addEventListener("click", () => alignDistributeSelection("distv"));
-  document.getElementById("nodeQuickLockChk")?.addEventListener("change", () => applyNodeQuickLockFromInspector());
-  document.getElementById("nodeQuickHiddenChk")?.addEventListener("change", () => applyNodeQuickHiddenFromInspector());
-  document.getElementById("nodeQuickFreeformChk")?.addEventListener("change", () => applyNodeQuickFreeformFromInspector());
+  document.getElementById("nodeQuickLockChk")?.addEventListener("change", () => {
+    if (runtime.isSyncingInspector) return;
+    applyNodeQuickLockFromInspector();
+  });
+  document.getElementById("nodeQuickHiddenChk")?.addEventListener("change", () => {
+    if (runtime.isSyncingInspector) return;
+    applyNodeQuickHiddenFromInspector();
+  });
+  document.getElementById("nodeQuickFreeformChk")?.addEventListener("change", () => {
+    if (runtime.isSyncingInspector) return;
+    applyNodeQuickFreeformFromInspector();
+  });
   gridToggleBtn.onclick = () => {
     const p = getProject();
-    if (p.view.grid == null) p.view.grid = true;
+    ensureProjectViewDefaults(p);
     p.view.grid = !p.view.grid;
+    const gridChk = document.getElementById("inspectorGridToggleChk");
+    if (gridChk) gridChk.checked = p.view.grid !== false;
     updateViewport();
     markDirty();
   };
+  document.getElementById("inspectorGridToggleChk")?.addEventListener("change", (e) => {
+    if (runtime.isSyncingInspector) return;
+    const p = getProject();
+    ensureProjectViewDefaults(p);
+    p.view.grid = !!e.target.checked;
+    updateViewport();
+    markDirty();
+  });
+  document.getElementById("canvasPageBgOpacity")?.addEventListener("input", (e) => {
+    if (runtime.isSyncingInspector) return;
+    const p = getProject();
+    ensureProjectViewDefaults(p);
+    p.view.bgOpacity = parseFloat(e.target.value);
+    applyWorkspaceViewStyles();
+    markDirty();
+  });
+  document.querySelector(".grid-style-picker")?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".grid-style-btn");
+    if (!btn || !btn.dataset.gridStyle) return;
+    const p = getProject();
+    const v = ensureProjectViewDefaults(p);
+    v.gridStyle = btn.dataset.gridStyle;
+    applyWorkspaceViewStyles();
+    markDirty();
+  });
+  document.getElementById("canvasGlobalFontSelect")?.addEventListener("change", (e) => {
+    if (runtime.isSyncingInspector) return;
+    const p = getProject();
+    const v = ensureProjectViewDefaults(p);
+    const fv = e.target.value;
+    v.defaultTitleFontFamily = ["ui", "serif", "mono"].includes(fv) ? fv : "ui";
+    for (const n of p.nodes) {
+      ensureNodeStyle(n).titleFontFamily = v.defaultTitleFontFamily;
+    }
+    renderAll();
+    markDirty();
+  });
   createGroupBtn.onclick = () => {
     if (isFlowchartMode()) createGroupFromSelection();
     else createUserGroupFromSelection({ showAlertWhenEmpty: true, autoPrompt: false });
@@ -13789,11 +14122,11 @@ clearFlowGroupSelection();
     runtime.activeRightTab = tab;
     const tabPairs = [
       ["tabDiagram", "diagram"],
-      ["tabStyle", "style"],
       ["tabLayout", "layout"],
       ["tabExport", "export"],
       ["tabAi", "ai"],
     ];
+    if (tab === "style") tab = "diagram";
     tabPairs.forEach(([btnId, key]) => {
       const btn = document.getElementById(btnId);
       if (!btn) return;
@@ -13818,10 +14151,6 @@ clearFlowGroupSelection();
   tabDiagram.onclick = () => {
     setRightTab("diagram");
     tabDiagram.focus();
-  };
-  tabStyle.onclick = () => {
-    setRightTab("style");
-    tabStyle.focus();
   };
   tabLayout.onclick = () => {
     setRightTab("layout");
@@ -13875,8 +14204,8 @@ clearFlowGroupSelection();
     scheduleRenderConnections();
     markDirty();
   });
-  const rightTabOrder = ["diagram", "style", "layout", "export", "ai"];
-  const rightTabIds = ["tabDiagram", "tabStyle", "tabLayout", "tabExport", "tabAi"];
+  const rightTabOrder = ["diagram", "layout", "export", "ai"];
+  const rightTabIds = ["tabDiagram", "tabLayout", "tabExport", "tabAi"];
   document.querySelector(".right-tabs")?.addEventListener("keydown", (e) => {
     const cur = rightTabOrder.indexOf(runtime.activeRightTab || "diagram");
     if (cur < 0) return;
@@ -13973,12 +14302,14 @@ clearFlowGroupSelection();
     });
   }
   connectorStyleSelect.addEventListener("change", () => {
+    if (runtime.isSyncingInspector) return;
     runtime.connectorStyle = connectorStyleSelect.value;
     renderConnections();
     markDirty();
   });
   canvasBgColor.addEventListener("input", () => {
     workspace.style.backgroundColor = canvasBgColor.value;
+    markDirty();
   });
   accentGlowColor.addEventListener("input", () => {
     document.documentElement.style.setProperty("--theme-glow", hexToRgba(accentGlowColor.value, 0.38));
@@ -14275,6 +14606,7 @@ clearFlowGroupSelection();
   });
 
   nodeText.addEventListener("input", () => {
+    if (runtime.isSyncingInspector) return;
     const n = getNodeById(runtime.selectedNodeId);
     if (!n) return;
     n.title = nodeText.value || "Node";
@@ -14285,6 +14617,7 @@ clearFlowGroupSelection();
     scheduleSemanticAnalysis();
   });
   nodeColor.addEventListener("input", () => {
+    if (runtime.isSyncingInspector) return;
     const n = getNodeById(runtime.selectedNodeId);
     if (!n) return;
     n.color = nodeColor.value;
@@ -14293,13 +14626,13 @@ clearFlowGroupSelection();
     markDirty();
   });
   nodeShape.addEventListener("change", () => {
+    if (runtime.isSyncingInspector) return;
     const n = getNodeById(runtime.selectedNodeId);
     if (!n) return;
     n.shape = nodeShape.value;
     const el = getNodeDomEl(n.id);
     if (el) {
-      el.classList.remove("shape-rect", "shape-circle", "shape-diamond", "shape-rounded");
-      el.classList.add(`shape-${n.shape}`);
+      applyNodeShapeClasses(el, n.shape);
       applyNodeVisualStyles(el, n);
       const body = el.querySelector(".body");
       if (body && !body.isContentEditable) renderNodeBody(body, n);
@@ -14308,6 +14641,7 @@ clearFlowGroupSelection();
     markDirty();
   });
   nodeSubtitle.addEventListener("input", () => {
+    if (runtime.isSyncingInspector) return;
     const n = getNodeById(runtime.selectedNodeId);
     if (!n) return;
     n.subtitle = nodeSubtitle.value || "";
@@ -14315,6 +14649,7 @@ clearFlowGroupSelection();
     markDirty();
   });
   nodeDescription.addEventListener("input", () => {
+    if (runtime.isSyncingInspector) return;
     const n = getNodeById(runtime.selectedNodeId);
     if (!n) return;
     n.description = nodeDescription.value || "";
@@ -14322,6 +14657,7 @@ clearFlowGroupSelection();
     markDirty();
   });
   nodeIcon.addEventListener("input", () => {
+    if (runtime.isSyncingInspector) return;
     const n = getNodeById(runtime.selectedNodeId);
     if (!n) return;
     n.icon = nodeIcon.value || "";
@@ -14329,6 +14665,7 @@ clearFlowGroupSelection();
     markDirty();
   });
   nodeType.addEventListener("change", () => {
+    if (runtime.isSyncingInspector) return;
     const n = getNodeById(runtime.selectedNodeId);
     if (!n) return;
     n.type = nodeType.value;
@@ -14427,6 +14764,7 @@ clearFlowGroupSelection();
   }
   function bindStyleRange(el, key) {
     el.addEventListener("input", () => {
+      if (runtime.isSyncingInspector) return;
       const n = getNodeById(runtime.selectedNodeId);
       if (!n) return;
       ensureNodeStyle(n);
@@ -14872,6 +15210,7 @@ clearFlowGroupSelection();
       runtime.selectedGroupConnId = null;
       runtime.marquee = null;
       marquee.style.display = "none";
+      markInspectorDiagramTabFocus();
       renderSelection();
       const marqueeW = Math.abs(m.x - m.startX);
       const marqueeH = Math.abs(m.y - m.startY);

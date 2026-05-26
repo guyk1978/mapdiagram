@@ -67,6 +67,36 @@ textarea {
   scrollbar-color: color-mix(in srgb, var(--muted) 45%, transparent) transparent;
 }
 
+/* Node library fills sidebar height (draw.io-style density). */
+#projects-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.sidebar-library-shell,
+.section--library {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+#nodePicker {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+#projects-sidebar .ai-create-btn {
+  margin-top: auto;
+  position: static;
+  flex-shrink: 0;
+}
+
 .rightbar {
   border-left: 1px solid var(--glass-border) !important;
   padding: 14px 16px;
@@ -92,19 +122,24 @@ textarea {
   background: transparent;
 }
 
-/* —— Section cards (Projects, Node Library) —— */
-.sidebar > .section {
+/* —— Section cards (Node Library) —— */
+.sidebar-library-shell > .section--library {
   padding: 12px 14px;
   border-radius: var(--radius-panel);
   background: color-mix(in srgb, var(--panel) 42%, transparent);
   border: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   gap: var(--space-3, 12px);
+  margin: 0;
 }
 
-html[data-theme="light"] .sidebar > .section {
+html[data-theme="light"] .sidebar-library-shell > .section--library {
   background: color-mix(in srgb, #fff 72%, transparent);
   box-shadow: 0 4px 14px rgba(20, 40, 80, 0.05);
+}
+
+.sidebar-library-shell .section-heading {
+  flex-shrink: 0;
 }
 
 .section h3,
@@ -434,7 +469,7 @@ html[data-theme="light"] .ai-create-btn {
 
 .node-picker-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr) !important;
   gap: 10px;
 }
 
@@ -501,6 +536,109 @@ html[data-theme="light"] .ai-create-btn {
   line-height: 1;
 }
 
+.node-tile__preview {
+  width: 44px;
+  height: 32px;
+  position: relative;
+  display: block;
+  flex-shrink: 0;
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, var(--line));
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--accent) 22%, var(--panel)),
+    color-mix(in srgb, var(--panel) 88%, transparent)
+  );
+  box-shadow:
+    0 0 12px color-mix(in srgb, var(--accent) 28%, transparent),
+    inset 0 1px 0 color-mix(in srgb, #fff 12%, transparent);
+}
+
+.node-tile__preview--circle,
+.node-tile__preview--connector {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+}
+
+.node-tile__preview--rounded {
+  border-radius: 10px;
+}
+
+.node-tile__preview--diamond {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  transform: rotate(45deg);
+}
+
+.node-tile__preview--document {
+  border-radius: 8px 8px 2px 2px;
+  clip-path: polygon(
+    0% 0%, 100% 0%, 100% 72%,
+    92% 82%, 80% 74%, 68% 84%, 56% 76%, 44% 86%, 32% 78%, 20% 88%, 8% 80%, 0% 86%
+  );
+}
+
+.node-tile__preview--parallelogram {
+  transform: skewX(-14deg);
+  border-radius: 6px;
+}
+
+.node-tile__preview--cylinder {
+  border-radius: 50% / 22%;
+  height: 34px;
+}
+
+.node-tile__preview--cylinder::before,
+.node-tile__preview--cylinder::after {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  height: 5px;
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  border-radius: 50%;
+}
+
+.node-tile__preview--cylinder::before {
+  top: 3px;
+}
+
+.node-tile__preview--cylinder::after {
+  bottom: 3px;
+}
+
+.node-tile__preview--subprocess::before,
+.node-tile__preview--subprocess::after {
+  content: "";
+  position: absolute;
+  top: 16%;
+  bottom: 16%;
+  width: 2px;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--accent) 65%, transparent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.node-tile__preview--subprocess::before {
+  left: 9px;
+}
+
+.node-tile__preview--subprocess::after {
+  right: 9px;
+}
+
+.node-tile--shape-connector {
+  min-height: 68px;
+}
+
+.node-tile:hover .node-tile__preview {
+  border-color: color-mix(in srgb, var(--accent) 62%, var(--line));
+  box-shadow:
+    0 0 16px color-mix(in srgb, var(--accent) 38%, transparent),
+    inset 0 1px 0 color-mix(in srgb, #fff 14%, transparent);
+}
+
 .node-tile__label {
   font-size: 10px;
   font-weight: 600;
@@ -564,9 +702,12 @@ html[data-theme="light"] .inspector-group {
   line-height: 1.2;
 }
 
-#diagramSectionNode .insp-field input:not([type="color"]),
-#diagramSectionNode .insp-field select,
-#diagramSectionNode .insp-field textarea {
+#inspectorCanvasState .insp-field input:not([type="color"]):not([type="range"]):not([type="checkbox"]),
+#inspectorCanvasState .insp-field select,
+#inspectorCanvasState .insp-field textarea,
+#inspectorElementState .insp-field input:not([type="color"]):not([type="range"]):not([type="checkbox"]),
+#inspectorElementState .insp-field select,
+#inspectorElementState .insp-field textarea {
   width: 100%;
   min-height: var(--control-height);
   height: var(--control-height);
@@ -575,7 +716,7 @@ html[data-theme="light"] .inspector-group {
   box-sizing: border-box;
 }
 
-#diagramSectionNode .insp-field textarea {
+#inspectorElementState .insp-field textarea {
   padding-top: 8px;
   padding-bottom: 8px;
   height: auto;
@@ -622,6 +763,185 @@ html[data-theme="light"] .inspector-group {
   border: none;
   padding: 0;
   gap: 6px;
+}
+
+/* —— Context-aware inspector (canvas vs element) —— */
+.inspector-context-shell {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 0;
+}
+
+#diagramSectionNode {
+  gap: 8px;
+  padding: 0;
+}
+
+.inspector-form-grid {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.inspector-field-block {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.inspector-group--canvas,
+.inspector-group--element,
+.inspector-group--style {
+  padding: 10px 12px;
+  gap: 8px;
+}
+
+.inspector-group--options-compact {
+  background: transparent;
+  border: none;
+  padding: 0;
+  gap: 6px;
+}
+
+.inspector-options-row {
+  display: grid;
+  gap: 6px;
+}
+
+.insp-check--inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  margin: 0;
+  font-size: 12px;
+  color: var(--label-color);
+}
+
+.insp-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  cursor: pointer;
+  user-select: none;
+  min-height: 28px;
+}
+
+.insp-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.insp-toggle__track {
+  flex-shrink: 0;
+  width: 34px;
+  height: 18px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted) 35%, var(--panel));
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  position: relative;
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+
+.insp-toggle__track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #e8eeff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+  transition: transform 0.16s ease;
+}
+
+.insp-toggle input:checked + .insp-toggle__track {
+  background: color-mix(in srgb, var(--accent) 72%, var(--panel));
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+}
+
+.insp-toggle input:checked + .insp-toggle__track::after {
+  transform: translateX(16px);
+}
+
+.insp-toggle input:focus-visible + .insp-toggle__track {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.insp-toggle__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--label-color);
+  line-height: 1.25;
+}
+
+.grid-style-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.grid-style-btn {
+  min-height: 34px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  background: color-mix(in srgb, var(--panel) 65%, transparent);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.grid-style-btn:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+}
+
+.grid-style-btn.active {
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--line));
+  background: color-mix(in srgb, var(--accent) 18%, var(--panel));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.inspector-canvas-tips {
+  display: grid;
+  gap: 6px;
+  margin: 2px 0 0;
+  padding: 10px 12px 2px;
+  border-top: 1px solid color-mix(in srgb, var(--line) 50%, transparent);
+}
+
+.inspector-canvas-tips__line {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+#inspectorCanvasState .inspector-group,
+#inspectorElementState .inspector-group--style,
+#inspectorElementState .inspector-group--element {
+  gap: 8px;
+}
+
+#inspectorCanvasState .insp-range,
+#inspectorElementState .insp-range {
+  gap: 6px;
+}
+
+#inspectorCanvasState .grid-style-picker,
+#inspectorElementState .insp-row {
+  margin: 0;
 }
 
 /* —— Partner integrations (editor panels) —— */
