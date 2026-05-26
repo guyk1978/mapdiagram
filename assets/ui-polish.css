@@ -562,12 +562,7 @@ html[data-theme="light"] .ai-create-btn {
   color: var(--label-color);
 }
 
-/* Rail subtle glass */
-.tool-rail {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
+/* Sidebar subtle glass */
 @media (max-width: 1024px) {
   .sidebar,
   .rightbar {
@@ -1233,38 +1228,52 @@ html[data-theme="light"] .inspector-group {
   gap: 4px;
 }
 
-.connector-width-wrap {
+.connector-thickness-field {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   flex: 0 0 auto;
 }
 
-.connector-width-input {
-  width: 36px;
-  height: 22px;
-  min-height: 22px;
-  padding: 0 4px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+.thickness-input {
+  width: 44px;
+  height: 24px;
+  min-height: 24px;
+  padding: 0 6px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(8, 12, 22, 0.55);
   color: var(--text);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 10px;
+  font-size: 11px;
   text-align: center;
   box-sizing: border-box;
+  -moz-appearance: textfield;
 }
 
-.connector-width-input:focus {
+.thickness-input::-webkit-outer-spin-button,
+.thickness-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.thickness-input:focus {
   outline: none;
   border-color: rgba(0, 162, 232, 0.65);
   box-shadow: 0 0 0 2px rgba(0, 162, 232, 0.2);
 }
 
-.connector-width-suffix {
+.thickness-unit {
   font-size: 10px;
+  font-weight: 500;
   color: var(--muted);
   line-height: 1;
+  user-select: none;
+}
+
+html[data-theme="light"] .thickness-input {
+  border-color: rgba(40, 55, 90, 0.18);
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .connector-color-swatches {
@@ -1283,11 +1292,6 @@ html[data-theme="light"] .inspector-group {
 
 .connector-action-row {
   margin-top: 2px;
-}
-
-html[data-theme="light"] .connector-width-input {
-  border-color: rgba(40, 55, 90, 0.18);
-  background: rgba(255, 255, 255, 0.92);
 }
 
 #rightbar[data-inspector-mode="connector"] #diagramSectionNode .section-heading--compact {

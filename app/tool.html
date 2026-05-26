@@ -67,8 +67,7 @@
     --fc-dur-select: 160ms;
     --fc-dur-overlay: 220ms;
     --drawer-scrim: rgba(6, 10, 16, 0.52);
-    /* Desktop main grid: rail + left panel + canvas + inspector (widths collapse via .app on wide viewports). */
-    --layout-rail: 54px;
+    /* Desktop main grid: left panel + canvas + inspector (widths collapse via .app on wide viewports). */
     --layout-sidebar-left: 290px;
     --layout-sidebar-right: 320px;
   }
@@ -113,7 +112,6 @@
     --handle-ring: #f0f4ff;
     --handle-hover: #2d4aa8;
     --drawer-scrim: rgba(25, 40, 62, 0.22);
-    --layout-rail: 52px;
     --layout-sidebar-left: 280px;
     --layout-sidebar-right: 302px;
   }
@@ -155,8 +153,7 @@
     flex-shrink: 0;
     pointer-events: none;
   }
-  .icon-btn .icon-svg,
-  .rail-btn .icon-svg {
+  .icon-btn .icon-svg {
     width: 20px;
     height: 20px;
   }
@@ -461,36 +458,12 @@
   }
   .layout {
     display: grid;
-    grid-template-columns: var(--layout-rail) var(--layout-sidebar-left) 1fr var(--layout-sidebar-right);
+    grid-template-columns: var(--layout-sidebar-left) 1fr var(--layout-sidebar-right);
     min-height: 0;
     min-width: 0;
     max-width: 100%;
     overflow: hidden;
     transition: grid-template-columns 0.3s var(--ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
-  }
-  .tool-rail{
-    background: var(--rail-bg);
-    border-right: 1px solid rgba(55,74,108,.4);
-    padding: 12px 8px;
-    display: grid;
-    align-content: start;
-    gap: 8px;
-  }
-  .rail-btn{
-    width: 36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
-    background: var(--btn-bg);border:1px solid var(--btn-border);color:var(--muted);font-size:14px;
-    transition:
-      background var(--duration-interaction, 0.2s) var(--ease-standard, ease),
-      border-color var(--duration-interaction, 0.2s) var(--ease-standard, ease),
-      color var(--duration-interaction, 0.2s) var(--ease-standard, ease),
-      box-shadow var(--duration-interaction, 0.2s) var(--ease-standard, ease),
-      transform var(--duration-fast, 0.14s) var(--ease-out-soft, ease);
-  }
-  .rail-btn.active{
-    background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 38%, transparent), color-mix(in srgb, var(--theme-glow-2) 32%, transparent));
-    border-color: color-mix(in srgb, var(--accent) 55%, var(--btn-border));
-    box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 35%, transparent);
-    color: var(--text);
   }
   .sidebar {
     background: var(--sidebar-bg);
@@ -2493,8 +2466,7 @@
     to { opacity: 0; }
   }
   @media (max-width: 1024px) {
-    .layout { grid-template-columns: 48px 1fr; grid-template-rows: 1fr; }
-    .tool-rail { border-right: 1px solid rgba(55,74,108,.4); border-bottom:none; overflow-y:auto; overflow-x:hidden; }
+    .layout { grid-template-columns: 1fr; grid-template-rows: 1fr; }
     .sidebar, .rightbar{
       position: fixed;
       top: 56px;
@@ -2582,44 +2554,9 @@
     .layout{
       grid-template-columns: 1fr;
       box-sizing: border-box;
-      padding-bottom: 56px;
-    }
-    /* Real diagram toolbar: same DOM buttons as desktop, fixed bottom row (not display:none). */
-    .tool-rail{
-      display: flex !important;
-      flex-direction: row;
-      flex-wrap: nowrap;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 10px;
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-      height: auto;
-      min-height: 56px;
-      max-height: none;
-      padding: 8px 10px;
-      z-index: var(--z-floating-toolbar);
-      overflow-x: auto;
-      overflow-y: hidden;
-      -webkit-overflow-scrolling: touch;
-      border-right: none !important;
-      border-top: 1px solid var(--line);
-      box-shadow: 0 -10px 28px rgba(0, 0, 0, 0.22);
-      background: var(--rail-bg);
-      box-sizing: border-box;
-    }
-    .tool-rail .rail-btn{
-      flex: 0 0 auto;
-      width: 44px;
-      height: 44px;
-      min-width: 44px;
-      min-height: 44px;
     }
     .drawer-backdrop.open{
-      bottom: 56px;
+      bottom: 0;
     }
     .sidebar, .rightbar{
       width: min(92vw, 360px);
@@ -2864,9 +2801,6 @@
     background: color-mix(in srgb, var(--accent) 10%, var(--panel));
     border-color: color-mix(in srgb, var(--accent) 18%, var(--line));
   }
-  html[data-theme="light"] .tool-rail {
-    border-right-color: color-mix(in srgb, var(--line) 85%, transparent);
-  }
   html[data-theme="light"] .sidebar {
     border-right-color: color-mix(in srgb, var(--line) 88%, transparent);
     box-shadow: 4px 0 24px rgba(20, 40, 80, 0.03);
@@ -2923,22 +2857,6 @@
   html[data-theme="light"] .node-preview:hover {
     border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
     box-shadow: 0 6px 16px rgba(20, 40, 80, 0.06);
-  }
-  html[data-theme="light"] .rail-btn {
-    background: transparent;
-    border-color: transparent;
-    color: var(--muted);
-  }
-  html[data-theme="light"] .rail-btn:hover {
-    background: color-mix(in srgb, var(--accent) 8%, transparent);
-    border-color: color-mix(in srgb, var(--accent) 15%, transparent);
-    color: var(--text);
-  }
-  html[data-theme="light"] .rail-btn.active {
-    background: color-mix(in srgb, var(--accent) 14%, var(--panel));
-    border-color: color-mix(in srgb, var(--accent) 45%, var(--btn-border));
-    color: var(--accent);
-    box-shadow: none;
   }
   html[data-theme="light"] .node-insp-tabs {
     background: var(--panel);
@@ -3170,9 +3088,6 @@
   }
 
   /* —— Flowchart mode (Phase 0) —— */
-  .flowchart-mode #railSystemBtn,
-  .flowchart-mode #railDataBtn,
-  .flowchart-mode #railInsightBtn,
   .flowchart-mode [data-flowchart-hide],
   .flowchart-mode #tabAi,
   .flowchart-mode #diagramSubTabSuggest,
@@ -4159,15 +4074,6 @@
     </div>
   </header>
   <div class="layout">
-    <aside class="tool-rail" role="toolbar" aria-label="Diagram tools: Select, Shapes, Flow, System, Data, Insights, Settings">
-      <button id="railSelectBtn" class="rail-btn" type="button" title="Select mode" aria-label="Select mode"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 4 14 9l-2 11-7-16Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M14 9v11l5-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
-      <button id="railShapesBtn" class="rail-btn active" type="button" title="Shapes" aria-label="Shapes"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="6" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.75"/></svg></span></button>
-      <button id="railFlowBtn" class="rail-btn" type="button" title="Flow" aria-label="Flow"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 8h6l2 2-2 2H8M16 12h2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
-      <button id="railSystemBtn" class="rail-btn" type="button" title="System" aria-label="System"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 8 12 12l8-4M4 12l8 4 8-4M4 16l8 4 8-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
-      <button id="railDataBtn" class="rail-btn" type="button" title="Data" aria-label="Data"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="12" cy="7" rx="7" ry="3" stroke="currentColor" stroke-width="1.75"/><path d="M5 7v10c0 1.7 3.1 3 7 3s7-1.3 7-3V7" stroke="currentColor" stroke-width="1.75"/><ellipse cx="12" cy="17" rx="7" ry="3" stroke="currentColor" stroke-width="1.75"/></svg></span></button>
-      <button id="railInsightBtn" class="rail-btn" type="button" title="Insights" aria-label="Insights"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
-      <button id="railSettingsBtn" class="rail-btn" type="button" title="Settings" aria-label="Settings"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" stroke-width="1.75"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 0 1-4 0v-.09a1.7 1.7 0 0 0-1.05-1.55 1.7 1.7 0 0 0-1.87.41l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 0 1 0-4h.09a1.7 1.7 0 0 0 1.55-1.05 1.7 1.7 0 0 0-.41-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H12a1.7 1.7 0 0 0 1-1.55V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V12c0 .69-.41 1.31-1.05 1.55z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span></button>
-    </aside>
     <aside class="sidebar" id="projects-sidebar" data-sidebar-panel="shapes">
       <div class="sidebar-segment" role="tablist" aria-label="Sidebar panels">
         <button type="button" id="sidebarTabShapes" class="sidebar-segment__btn active" role="tab" aria-selected="true" aria-controls="sidebarPanelShapes" data-sidebar-tab="shapes">Shapes</button>
@@ -4266,26 +4172,6 @@
       <div id="fcDeleteConfirm" class="fc-delete-confirm" hidden role="alertdialog" aria-labelledby="fcDeleteConfirmText" aria-modal="true">
         <p id="fcDeleteConfirmText">Delete selected steps?</p>
         <p class="fc-delete-hint">Enter to confirm · Esc to cancel</p>
-      </div>
-      <div id="fcMultiSelectBar" class="fc-multi-select-bar" hidden role="toolbar" aria-label="Multi-selection actions">
-        <span id="fcMultiSelectCount" class="fc-multi-count">2 selected</span>
-        <button type="button" id="fcMultiGroupBtn">Group</button>
-        <button type="button" id="fcMultiDupBtn">Duplicate</button>
-        <button type="button" id="fcMultiLayoutBtn">Improve layout</button>
-        <button type="button" id="fcMultiDeleteBtn" class="fc-quick-danger">Delete</button>
-      </div>
-      <div id="fcGroupQuickEdit" class="fc-quick-edit fc-group-quick-edit" hidden role="toolbar" aria-label="Group actions">
-        <button type="button" id="fcGroupRenameBtn" title="Rename (F2)">Rename</button>
-        <button type="button" id="fcGroupColorBtn" title="Cycle group color">Color</button>
-        <button type="button" id="fcGroupDupBtn" title="Duplicate group">Duplicate</button>
-        <button type="button" id="fcGroupConnectBtn" title="Connect from group">Connect</button>
-        <button type="button" id="fcGroupUngroupBtn" title="Ungroup (keep steps)">Ungroup</button>
-        <button type="button" id="fcGroupDeleteBtn" class="fc-quick-danger" title="Delete group">Delete</button>
-      </div>      <div id="fcQuickEdit" class="fc-quick-edit" hidden role="toolbar" aria-label="Quick edit selection">
-        <button type="button" id="fcRenameBtn" title="Rename (F2)">Rename</button>
-        <button type="button" id="fcDuplicateBtn" title="Duplicate (Ctrl+D)">Duplicate</button>
-        <button type="button" id="fcAddConnectedBtn" title="Add connected step (Tab)">+ Connect</button>
-        <button type="button" id="fcDeleteBtn" class="fc-quick-danger" title="Delete">Delete</button>
       </div>
     </main>
     <aside id="rightbar" class="rightbar">
@@ -4609,10 +4495,10 @@
             <div class="node-color-line connector-line-control">
               <span class="inspector-micro-label">Line</span>
               <div class="node-color-line__body connector-line-row">
-                <div class="connector-width-wrap">
-                  <input type="number" id="edgeStrokeWidthInput" class="connector-width-input" min="1" max="8" step="0.5" value="2" aria-label="Line thickness in pixels">
-                  <span class="connector-width-suffix">px</span>
-                </div>
+                <label class="connector-thickness-field">
+                  <input type="number" id="edgeStrokeWidthInput" class="thickness-input" min="1" max="10" step="0.5" value="2" aria-label="Line thickness in pixels">
+                  <span class="thickness-unit">px</span>
+                </label>
                 <div class="node-color-swatches connector-color-swatches" id="edgeStrokeSwatches" role="listbox" aria-label="Line color presets">
                   <button type="button" class="node-color-swatch" data-edge-color="#00A2E8" style="--swatch-color:#00A2E8" title="Electric blue" aria-label="Electric blue"></button>
                   <button type="button" class="node-color-swatch" data-edge-color="#9CB8FF" style="--swatch-color:#9CB8FF" title="Accent" aria-label="Accent"></button>
@@ -5090,13 +4976,6 @@
   const marquee = document.getElementById("marquee");
   const createGroupBtn = document.getElementById("createGroupBtn");
   const ungroupBtn = document.getElementById("ungroupBtn");
-  const railShapesBtn = document.getElementById("railShapesBtn");
-  const railFlowBtn = document.getElementById("railFlowBtn");
-  const railSystemBtn = document.getElementById("railSystemBtn");
-  const railDataBtn = document.getElementById("railDataBtn");
-  const railInsightBtn = document.getElementById("railInsightBtn");
-  const railSelectBtn = document.getElementById("railSelectBtn");
-  const railSettingsBtn = document.getElementById("railSettingsBtn");
   const sidebar = document.querySelector(".sidebar");
   const toggleLeftPanelBtn = document.getElementById("toggleLeftPanelBtn");
   const toggleRightPanelBtn = document.getElementById("toggleRightPanelBtn");
@@ -14336,7 +14215,7 @@ clearFlowGroupSelection();
       const n = Number(raw);
       if (!Number.isFinite(n) || n <= 0) return;
       applyEdgeStyleToSelection((c) => {
-        c.strokeWidth = Math.max(0.5, Math.min(8, n));
+        c.strokeWidth = Math.max(1, Math.min(10, n));
       });
     };
     widthInput?.addEventListener("input", applyWidth);
@@ -16388,75 +16267,6 @@ clearFlowGroupSelection();
     setFlowchartPromptText(aiPromptInput.value.trim());
     await runFlowchartGeneration(aiPromptInput.value.trim());
   };
-  function setRailActive(btn) {
-    [railSelectBtn, railShapesBtn, railFlowBtn, railSystemBtn, railDataBtn, railInsightBtn, railSettingsBtn].forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-  }
-  railSelectBtn.onclick = () => {
-    runtime.selectionMode = !runtime.selectionMode;
-    setRailActive(runtime.selectionMode ? railSelectBtn : railShapesBtn);
-    savedIndicator.textContent = runtime.selectionMode ? "Selection mode on" : "Selection mode off";
-    setTimeout(() => (savedIndicator.textContent = "Saved"), 900);
-  };
-  railShapesBtn.onclick = () => {
-    setRailActive(railShapesBtn);
-    runtime.selectionMode = false;
-    document.querySelector(".sidebar")?.scrollTo({ top: 0, behavior: "smooth" });
-    if (isNarrowScreen()) openDrawer("left");
-  };
-  railFlowBtn.onclick = () => {
-    setRailActive(railFlowBtn);
-    runtime.selectionMode = false;
-    pushHistory();
-    const p = getProject();
-    p.title = "Flowchart";
-    p.nodes = [];
-    p.connections = [];
-    p.userGroups = [];
-    p.groupConnections = [];
-    runtime.connectionUi = {};
-    p.view = { x: 0, y: 0, zoom: 1, grid: p.view && p.view.grid !== false };
-    initMapDiagramRuntimes();
-    selectionRuntime.clearSelection("nodes");
-    runtime.selectedConnectionId = null;
-    runtime.selectedGroupId = null;
-    runtime.selectedGroupIds.clear();
-    runtime.selectedGroupConnId = null;
-    const res = generateTemplate("flowchart", ["Start", "Process", "Decision", "End"], { worldX: 72, worldY: 72 });
-    if (res) {
-      runtime.selectedGroupId = res.groupId;
-      runtime.selectedGroupIds.clear();
-      runtime.selectedGroupIds.add(res.groupId);
-    }
-    renderAll();
-    markDirty();
-    scheduleSemanticAnalysis();
-    if (isNarrowScreen()) closeDrawers();
-  };
-  railSystemBtn.onclick = () => {
-    setRailActive(railSystemBtn);
-    const preset = NODE_PRESETS.find((x) => x.type === "system");
-    if (preset) insertPresetNode(preset);
-    if (isNarrowScreen()) closeDrawers();
-  };
-  railDataBtn.onclick = () => {
-    setRailActive(railDataBtn);
-    const preset = NODE_PRESETS.find((x) => x.type === "data");
-    if (preset) insertPresetNode(preset);
-    if (isNarrowScreen()) closeDrawers();
-  };
-  railInsightBtn.onclick = () => {
-    setRailActive(railInsightBtn);
-    analyzeDiagramSemantics();
-    suggestionsEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    if (isNarrowScreen()) openDrawer("right");
-  };
-  railSettingsBtn.onclick = () => {
-    rightbar.classList.remove("compact");
-    setRailActive(railSettingsBtn);
-    rightbar.scrollTo({ top: 0, behavior: "smooth" });
-    if (isNarrowScreen()) openDrawer("right");
-  };
   const DESK_SB_L = "mapdiagram-desktop-left-collapsed";
   const DESK_SB_R = "mapdiagram-desktop-right-collapsed";
 
@@ -16816,7 +16626,7 @@ clearFlowGroupSelection();
     }
     if (runtime.readOnly) return;
     if (runtime.fcToolbarInteracting || runtime.fcMultiBarInteracting) return;
-    if (e.target.closest("#fcQuickEdit, #fcGroupQuickEdit, .fc-quick-edit, .fc-group-quick-edit, #fcMultiSelectBar, .fc-multi-select-bar, #fcDeleteConfirm, .fc-delete-confirm, #fcAssistantRoot, .fc-assistant-root, .fc-flow-group, .fc-flow-group-header, .fc-flow-group-body, .fc-flow-group-handle")) return;
+    if (e.target.closest("#fcDeleteConfirm, .fc-delete-confirm, #fcAssistantRoot, .fc-assistant-root, .fc-flow-group, .fc-flow-group-header, .fc-flow-group-body, .fc-flow-group-handle")) return;
     if (e.target.closest(".node") || e.target.closest(".conn") || e.target.closest(".conn-hit")) return;
     /* Group label/handles live above nodes; ignore canvas clear/pan when interacting with a group frame */
     if (e.target.closest(".group-chrome, .group-chrome-body, .group-drag-surface")) return;
