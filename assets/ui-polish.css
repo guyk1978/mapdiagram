@@ -1275,3 +1275,39 @@ html[data-theme="light"] #inspector-panel-export .partner-banner {
 #inspector-panel-export .partner-banner__cta {
   color: var(--text);
 }
+
+/* —— Canvas SVG flowchart nodes + external connection handles —— */
+.flowchart-mode .node.node--svg-shape {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  overflow: visible;
+}
+
+.flowchart-mode .node.node--svg-shape > .node-shape-content > .body {
+  background: transparent !important;
+}
+
+.flowchart-mode .node-conn-handles {
+  inset: -8px;
+}
+
+.flowchart-mode .node-conn-handle {
+  width: 10px;
+  height: 10px;
+  margin: 0;
+  transform: translate(-50%, -50%) scale(0.72);
+}
+
+.flowchart-mode .node:hover .node-conn-handle,
+.flowchart-mode .node:focus-within .node-conn-handle,
+.flowchart-mode .node.selected .node-conn-handle,
+.flowchart-mode .node.is-connect-from .node-conn-handle {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.flowchart-mode .node-conn-handle:hover,
+.flowchart-mode .node-conn-handle:focus-visible {
+  transform: translate(-50%, -50%) scale(1.1);
+}
