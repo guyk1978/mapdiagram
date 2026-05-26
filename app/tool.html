@@ -1820,12 +1820,122 @@
   }
   .node.shape-internal-storage {
     border-radius: 8px;
-    clip-path: polygon(
-      14% 0%, 100% 0%, 100% 100%, 14% 100%,
-      12% 86%, 10% 100%, 8% 84%, 6% 100%, 4% 88%, 2% 100%, 0% 94%, 0% 6%
-    );
     overflow: hidden;
   }
+  .node.shape-internal-storage::before,
+  .node.shape-internal-storage::after {
+    content: "";
+    position: absolute;
+    background: color-mix(in srgb, rgba(122, 162, 255, 0.85) 70%, transparent);
+    box-shadow: 0 0 8px rgba(122, 162, 255, 0.28);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .node.shape-internal-storage::before {
+    left: 18px;
+    top: 12%;
+    bottom: 12%;
+    width: 2px;
+    border-radius: 1px;
+  }
+  .node.shape-internal-storage::after {
+    left: 12%;
+    right: 8%;
+    top: 22px;
+    height: 2px;
+    border-radius: 1px;
+  }
+  .node.shape-capsule {
+    border-radius: 999px / 46%;
+    min-height: 64px;
+  }
+  .node.shape-hexagon {
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    overflow: hidden;
+  }
+  .node.shape-multidocument {
+    border-radius: 10px 10px 4px 4px;
+    overflow: visible;
+  }
+  .node.shape-multidocument::before,
+  .node.shape-multidocument::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid color-mix(in srgb, currentColor 12%, rgba(156, 184, 255, 0.5));
+    border-radius: 10px 10px 4px 4px;
+    background: color-mix(in srgb, var(--node-fill, var(--panel)) 88%, transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .node.shape-multidocument::before {
+    transform: translate(6px, -6px);
+    opacity: 0.55;
+  }
+  .node.shape-multidocument::after {
+    transform: translate(3px, -3px);
+    opacity: 0.75;
+  }
+  .node.shape-multidocument .body { position: relative; z-index: 1; }
+  .node.shape-manual-operation {
+    clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%);
+    overflow: hidden;
+  }
+  .node.shape-merge {
+    clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
+    overflow: hidden;
+    min-height: 72px;
+  }
+  .node.shape-merge .body {
+    padding-top: 18px;
+  }
+  .node.shape-summing-junction {
+    border-radius: 999px;
+    aspect-ratio: 1 / 1;
+    min-width: 56px;
+    min-height: 56px;
+  }
+  .node.shape-summing-junction::before,
+  .node.shape-summing-junction::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    background: color-mix(in srgb, rgba(122, 162, 255, 0.9) 75%, transparent);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 2;
+    border-radius: 1px;
+  }
+  .node.shape-summing-junction::before {
+    width: 42%;
+    height: 2px;
+  }
+  .node.shape-summing-junction::after {
+    width: 2px;
+    height: 42%;
+  }
+  .node.shape-arrow-right {
+    clip-path: polygon(0% 22%, 58% 22%, 58% 0%, 100% 50%, 58% 100%, 58% 78%, 0% 78%);
+    overflow: hidden;
+    min-height: 56px;
+  }
+  .node.shape-arrow-left {
+    clip-path: polygon(100% 22%, 42% 22%, 42% 0%, 0% 50%, 42% 100%, 42% 78%, 100% 78%);
+    overflow: hidden;
+    min-height: 56px;
+  }
+  .node.shape-arrow-up-down {
+    clip-path: polygon(22% 0%, 78% 0%, 78% 42%, 100% 42%, 50% 100%, 0% 42%, 22% 42%);
+    overflow: hidden;
+    min-width: 56px;
+  }
+  .node.shape-arrow-right .node-subtitle,
+  .node.shape-arrow-left .node-subtitle,
+  .node.shape-arrow-up-down .node-subtitle,
+  .node.shape-arrow-right .node-desc,
+  .node.shape-arrow-left .node-desc,
+  .node.shape-arrow-up-down .node-desc { display: none; }
   .node-builder{display:grid;gap:8px}
   .mini-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .node-picker{display:grid;gap:10px;min-height:0;overflow:hidden;padding-right:4px}
@@ -2977,7 +3087,16 @@
   .flowchart-mode .node.shape-cylinder.fc-node-process,
   .flowchart-mode .node.shape-subprocess.fc-node-process,
   .flowchart-mode .node.shape-manual-input.fc-node-process,
-  .flowchart-mode .node.shape-internal-storage.fc-node-process {
+  .flowchart-mode .node.shape-internal-storage.fc-node-process,
+  .flowchart-mode .node.shape-capsule.fc-node-process,
+  .flowchart-mode .node.shape-hexagon.fc-node-process,
+  .flowchart-mode .node.shape-multidocument.fc-node-process,
+  .flowchart-mode .node.shape-manual-operation.fc-node-process,
+  .flowchart-mode .node.shape-merge.fc-node-process,
+  .flowchart-mode .node.shape-summing-junction.fc-node-process,
+  .flowchart-mode .node.shape-arrow-right.fc-node-process,
+  .flowchart-mode .node.shape-arrow-left.fc-node-process,
+  .flowchart-mode .node.shape-arrow-up-down.fc-node-process {
     box-shadow:
       0 0 0 1px rgba(122, 162, 255, 0.22),
       0 12px 28px rgba(0, 0, 0, 0.28),
@@ -3464,7 +3583,7 @@
   .flowchart-mode #projects-sidebar .node-picker {
     max-height: none;
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: visible;
   }
   .flowchart-mode .picker-category h4 {
     display: none;
@@ -3870,9 +3989,7 @@
         </div>
       </div>
       <div class="sidebar-library-shell sidebar-panel sidebar-panel--shapes" id="sidebarPanelShapes" role="tabpanel" aria-labelledby="sidebarTabShapes" aria-hidden="false">
-        <div class="section section--library">
-          <div id="nodePicker" class="node-picker"></div>
-        </div>
+        <div id="nodePicker" class="node-picker node-picker--flowchart"></div>
       </div>
       </div>
       <button id="createAiBtn" class="ai-create-btn" type="button"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M7.05 7.05 5.64 5.64M18.36 18.36l-1.41-1.41M7.05 16.95l-1.41 1.41M18.36 5.64l-1.41 1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="m12 8 1.1 2.6 2.6 1.1-2.6 1.1L12 15.8l-1.1-2.6-2.6-1.1 2.6-1.1L12 8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span> Generate with AI</button>
@@ -4071,9 +4188,18 @@
                   <option value="parallelogram">▱ Data (I/O)</option>
                   <option value="cylinder">🗄 Cylinder</option>
                   <option value="subprocess">▣ Subprocess</option>
+                  <option value="capsule">⬭ Capsule</option>
+                  <option value="hexagon">⬡ Hexagon</option>
+                  <option value="multidocument">📑 Multi-document</option>
                   <option value="manual-input">⌨ Manual input</option>
+                  <option value="manual-operation">✋ Manual operation</option>
                   <option value="internal-storage">▤ Internal storage</option>
+                  <option value="merge">▽ Merge</option>
+                  <option value="summing-junction">+ Summing</option>
                   <option value="connector">● Connector</option>
+                  <option value="arrow-right">→ Arrow right</option>
+                  <option value="arrow-left">← Arrow left</option>
+                  <option value="arrow-up-down">↕ Arrow up/down</option>
                 </select>
               </label>
             </div>
@@ -6573,26 +6699,37 @@
   const FLOWCHART_ONBOARDED_KEY = "flowchart-onboarded";
   const NODE_SHAPE_CLASSES = [
     "rect", "circle", "diamond", "rounded", "document", "parallelogram", "cylinder", "subprocess", "connector",
-    "manual-input", "internal-storage"
+    "manual-input", "internal-storage", "capsule", "hexagon", "multidocument", "manual-operation", "merge",
+    "summing-junction", "arrow-right", "arrow-left", "arrow-up-down"
   ];
 
   const FLOWCHART_LIBRARY_CATEGORIES = [
-    { id: "core", title: "Flowchart Core" },
-    { id: "data", title: "Data & Storage" },
-    { id: "advanced", title: "Advanced Flow" }
+    { id: "core", title: "Flowchart Core", defaultOpen: true },
+    { id: "data", title: "Data & Storage", defaultOpen: false },
+    { id: "advanced", title: "Advanced Flow", defaultOpen: false },
+    { id: "connectors", title: "Arrows & Connectors", defaultOpen: false }
   ];
 
   const FLOWCHART_MODE_PRESETS = [
-    { libraryCategory: "core", label: "Start", type: "input", shape: "circle", icon: "▶", color: "#7fd9a8", subtitle: "Begin", description: "Flow start", fcRole: "start", width: 128, height: 72 },
-    { libraryCategory: "core", label: "Process", type: "process", shape: "rounded", icon: "⚙", color: "#8fb2ff", subtitle: "Step", description: "Action step", fcRole: "process", width: 190, height: 88 },
+    { libraryCategory: "core", label: "Start", type: "input", shape: "capsule", icon: "▶", color: "#7fd9a8", subtitle: "Begin", description: "Flow start / terminator", fcRole: "start", width: 140, height: 72 },
+    { libraryCategory: "core", label: "Process", type: "process", shape: "rect", icon: "▭", color: "#8fb2ff", subtitle: "Step", description: "Process step", fcRole: "process", width: 190, height: 88 },
     { libraryCategory: "core", label: "Decision", type: "decision", shape: "diamond", icon: "◆", color: "#ffd482", subtitle: "Branch", description: "Yes / No branch", fcRole: "decision", width: 130, height: 130 },
-    { libraryCategory: "core", label: "End", type: "output", shape: "circle", icon: "■", color: "#a8b4d4", subtitle: "Finish", description: "Flow end", fcRole: "end", width: 128, height: 72 },
+    { libraryCategory: "core", label: "Preparation", type: "process", shape: "hexagon", icon: "⬡", color: "#c4b5ff", subtitle: "Setup", description: "Preparation step", fcRole: "process", width: 180, height: 96 },
+    { libraryCategory: "core", label: "End", type: "output", shape: "capsule", icon: "■", color: "#a8b4d4", subtitle: "Finish", description: "Flow end / terminator", fcRole: "end", width: 140, height: 72 },
     { libraryCategory: "data", label: "Database", type: "data", shape: "cylinder", icon: "🗄", color: "#8dd7c2", subtitle: "Store", description: "Database storage", fcRole: "process", width: 168, height: 108 },
     { libraryCategory: "data", label: "Document", type: "note", shape: "document", icon: "📄", color: "#b8c8ff", subtitle: "Report", description: "Document / file", fcRole: "process", width: 190, height: 100 },
-    { libraryCategory: "data", label: "Data", type: "data", shape: "parallelogram", icon: "⇄", color: "#9be0cb", subtitle: "I/O", description: "Input / output (parallelogram)", fcRole: "process", width: 200, height: 80 },
+    { libraryCategory: "data", label: "Multi-doc", type: "note", shape: "multidocument", icon: "📑", color: "#a8bcff", subtitle: "Files", description: "Multiple documents", fcRole: "process", width: 190, height: 108 },
+    { libraryCategory: "data", label: "Data", type: "data", shape: "parallelogram", icon: "⇄", color: "#9be0cb", subtitle: "I/O", description: "Input / output data", fcRole: "process", width: 200, height: 80 },
+    { libraryCategory: "data", label: "Internal Storage", type: "data", shape: "internal-storage", icon: "▤", color: "#9ec8e8", subtitle: "Memory", description: "Internal storage", fcRole: "process", width: 190, height: 88 },
     { libraryCategory: "advanced", label: "Subprocess", type: "system", shape: "subprocess", icon: "▣", color: "#a8b4ff", subtitle: "Call", description: "Subprocess reference", fcRole: "process", width: 200, height: 88 },
     { libraryCategory: "advanced", label: "Manual Input", type: "input", shape: "manual-input", icon: "⌨", color: "#9fd4ff", subtitle: "Entry", description: "Manual data entry", fcRole: "process", width: 200, height: 88 },
-    { libraryCategory: "advanced", label: "Internal Storage", type: "data", shape: "internal-storage", icon: "▤", color: "#9ec8e8", subtitle: "Memory", description: "Internal storage", fcRole: "process", width: 190, height: 88 }
+    { libraryCategory: "advanced", label: "Manual Op", type: "process", shape: "manual-operation", icon: "✋", color: "#ffc89a", subtitle: "Task", description: "Manual operation", fcRole: "process", width: 200, height: 88 },
+    { libraryCategory: "advanced", label: "Merge", type: "process", shape: "merge", icon: "▽", color: "#b8a8ff", subtitle: "Join", description: "Merge / extract", fcRole: "process", width: 120, height: 96 },
+    { libraryCategory: "advanced", label: "Summing", type: "process", shape: "summing-junction", icon: "+", color: "#9cb8ff", subtitle: "Sum", description: "Summing junction", fcRole: "process", width: 72, height: 72 },
+    { libraryCategory: "connectors", label: "Connector", type: "custom", shape: "connector", icon: "●", color: "#9cb8ff", subtitle: "Ref", description: "Connector point", fcRole: "process", width: 56, height: 56 },
+    { libraryCategory: "connectors", label: "Arrow →", type: "custom", shape: "arrow-right", icon: "→", color: "#8fb2ff", subtitle: "Right", description: "Block arrow right", fcRole: "process", width: 128, height: 64 },
+    { libraryCategory: "connectors", label: "Arrow ←", type: "custom", shape: "arrow-left", icon: "←", color: "#8fb2ff", subtitle: "Left", description: "Block arrow left", fcRole: "process", width: 128, height: 64 },
+    { libraryCategory: "connectors", label: "Arrow ↕", type: "custom", shape: "arrow-up-down", icon: "↕", color: "#8fb2ff", subtitle: "Up/Down", description: "Block arrow up/down", fcRole: "process", width: 72, height: 128 }
   ];
   const FLOWCHART_STARTER_PROMPTS = {
     invoice: "Invoice submitted → manager approval → finance review → payment issued",
@@ -10876,13 +11013,39 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     renderSavedViewsList();
   }
 
+  function flowchartShapePreviewMarkup(shape) {
+    const s = "stroke=\"currentColor\" stroke-width=\"1.4\" fill=\"none\" vector-effect=\"non-scaling-stroke\"";
+    const previews = {
+      capsule: `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><rect x="3" y="5" width="38" height="18" rx="9" ${s}/></svg>`,
+      rect: `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><rect x="5" y="6" width="34" height="16" rx="2" ${s}/></svg>`,
+      diamond: `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M22 4 38 14 22 24 6 14Z" ${s}/></svg>`,
+      hexagon: `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M14 4h16l10 10-10 10H14L4 14Z" ${s}/></svg>`,
+      cylinder: `<svg class="node-tile__svg" viewBox="0 0 44 32" aria-hidden="true"><ellipse cx="22" cy="8" rx="16" ry="5" ${s}/><path d="M6 8v16c0 3 7 5 16 5s16-2 16-5V8" ${s}/><ellipse cx="22" cy="24" rx="16" ry="5" ${s}/></svg>`,
+      document: `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M6 4h32v14c-3 2-6 4-10 4s-8-2-12-4-6-2-10-4V4z" ${s}/></svg>`,
+      multidocument: `<svg class="node-tile__svg" viewBox="0 0 44 30" aria-hidden="true"><path d="M10 6h28v12c-2 1-5 3-8 3s-7-2-10-3-5-2-10-3V6z" opacity=".45" ${s}/><path d="M6 4h28v12c-2 1-5 3-8 3s-7-2-10-3-5-2-10-3V4z" ${s}/></svg>`,
+      parallelogram: `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M10 6h30l-4 16H6Z" ${s}/></svg>`,
+      "internal-storage": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><rect x="6" y="5" width="32" height="18" rx="2" ${s}/><path d="M16 5v18M6 13h32" ${s}/></svg>`,
+      subprocess: `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><rect x="5" y="6" width="34" height="16" rx="2" ${s}/><path d="M12 6v16M32 6v16" ${s}/></svg>`,
+      "manual-input": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M8 6h28l4 16H4Z" ${s}/></svg>`,
+      "manual-operation": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M10 6h24l4 16H6Z" ${s}/></svg>`,
+      merge: `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M22 24 4 6h36Z" ${s}/></svg>`,
+      "summing-junction": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><circle cx="22" cy="14" r="11" ${s}/><path d="M14 14h16M22 8v12" ${s}/></svg>`,
+      connector: `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><circle cx="22" cy="14" r="9" ${s}/></svg>`,
+      "arrow-right": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M4 10h22l-2-6 16 10-16 10 2-6H4z" ${s}/></svg>`,
+      "arrow-left": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M40 10H18l2-6-16 10 16 10-2-6h22z" ${s}/></svg>`,
+      "arrow-up-down": `<svg class="node-tile__svg" viewBox="0 0 28 44" aria-hidden="true"><path d="M10 4v22l-6-2 10 16 10-16-6 2V4zM18 40V18l6 2-10-16L4 20l6-2v22z" ${s}/></svg>`
+    };
+    return previews[shape] || previews.rect;
+  }
+
   function renderFlowchartNodeTile(preset) {
     const card = document.createElement("button");
     card.type = "button";
     card.className = `node-tile node-tile--shape-${preset.shape}`;
     card.title = preset.description || preset.label;
+    const preview = flowchartShapePreviewMarkup(preset.shape);
     card.innerHTML =
-      `<span class="node-tile__preview node-tile__preview--${preset.shape}" aria-hidden="true"></span>` +
+      `<span class="node-tile__preview node-tile__preview--${preset.shape}" aria-hidden="true">${preview}</span>` +
       `<span class="node-tile__label">${preset.label}</span>`;
     card.addEventListener("click", () => insertPresetNode(preset));
     return card;
@@ -10923,21 +11086,22 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
   function renderNodePicker() {
     nodePicker.innerHTML = "";
     if (isFlowchartMode()) {
-      const root = document.createElement("div");
-      root.className = "node-picker-categories";
+      nodePicker.classList.add("node-picker--flowchart");
       for (const cat of FLOWCHART_LIBRARY_CATEGORIES) {
-        const isOpen = cat.id === "core";
+        const isOpen = !!cat.defaultOpen;
         const block = document.createElement("section");
-        block.className = "node-picker-category" + (isOpen ? "" : " is-collapsed");
+        block.className = "node-picker-accordion" + (isOpen ? " is-open" : " is-collapsed");
         const toggle = document.createElement("button");
         toggle.type = "button";
-        toggle.className = "node-picker-category__toggle";
+        toggle.className = "node-picker-accordion__toggle";
         toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        toggle.setAttribute("aria-controls", "node-picker-grid-" + cat.id);
         toggle.innerHTML =
-          '<span class="node-picker-category__chev" aria-hidden="true">' + (isOpen ? "▼" : "▸") + "</span>" +
-          '<span class="node-picker-category__name">' + cat.title + "</span>";
+          '<span class="node-picker-accordion__chev" aria-hidden="true">' + (isOpen ? "▼" : "▸") + "</span>" +
+          '<span class="node-picker-accordion__name">' + cat.title + "</span>";
         const grid = document.createElement("div");
         grid.className = "node-picker-grid" + (isOpen ? "" : " is-collapsed");
+        grid.id = "node-picker-grid-" + cat.id;
         const items = FLOWCHART_MODE_PRESETS.filter((p) => p.libraryCategory === cat.id);
         for (const preset of items) {
           grid.appendChild(renderFlowchartNodeTile(preset));
@@ -10945,16 +11109,17 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         toggle.addEventListener("click", () => {
           const collapsed = grid.classList.toggle("is-collapsed");
           block.classList.toggle("is-collapsed", collapsed);
+          block.classList.toggle("is-open", !collapsed);
           toggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
-          const chev = toggle.querySelector(".node-picker-category__chev");
+          const chev = toggle.querySelector(".node-picker-accordion__chev");
           if (chev) chev.textContent = collapsed ? "▸" : "▼";
         });
         block.append(toggle, grid);
-        root.appendChild(block);
+        nodePicker.appendChild(block);
       }
-      nodePicker.appendChild(root);
       return;
     }
+    nodePicker.classList.remove("node-picker--flowchart");
     const categories = ["General", "Flowchart", "Advanced"];
     for (const c of categories) {
       const group = document.createElement("div");
@@ -11127,13 +11292,17 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       type: preset.type,
       color: preset.color,
       shape: preset.shape,
-      style: {
-        opacity: 0.88,
-        glow: preset.shape === "connector" ? 18 : 14,
-        shadow: 22,
-        radius: preset.shape === "rounded" ? 16 : preset.shape === "connector" ? 999 : 12,
-        borderColor: "#9cb8ff"
-      }
+      style: (() => {
+        const round = ["circle", "capsule", "connector", "summing-junction"].includes(preset.shape);
+        const arrow = ["arrow-right", "arrow-left", "arrow-up-down"].includes(preset.shape);
+        return {
+          opacity: 0.88,
+          glow: preset.shape === "connector" ? 18 : arrow ? 16 : 14,
+          shadow: 22,
+          radius: round ? 999 : preset.shape === "rounded" ? 16 : 12,
+          borderColor: "#9cb8ff"
+        };
+      })()
     };
     p.nodes.push(n);
 
