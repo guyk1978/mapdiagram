@@ -156,12 +156,99 @@ function syncGenealogyToolbarButtons(doc, globalObj) {
 
 let _toolbarBridgeInstalled = false;
 let _routingBridgeInstalled = false;
+let _toolbarHandlersBound = false;
+
+function getSelectedGenealogyNode(globalObj) {
+  if (typeof globalObj.getNodeById !== "function") return null;
+  const runtime = globalObj.runtime || {};
+  const selectedId =
+    runtime.selectedNodeId ||
+    (runtime.selectedNodeIds && runtime.selectedNodeIds.size ? [...runtime.selectedNodeIds][0] : null);
+  if (!selectedId) return null;
+  const n = globalObj.getNodeById(selectedId);
+  if (!n || !n.genealogyRole) return null;
+  return n;
+}
+
+function getGenealogyPresetByRoleFromSource(globalObj, role) {
+  if (typeof globalObj.getGenealogyPresetByRole === "function") {
+    return globalObj.getGenealogyPresetByRole(role);
+  }
+  return GENEALOGY_WORKSPACE_PRESETS.find((p) => p.genealogyRole === role) || null;
+}
+
+function resolveQuickAddLinkType(globalObj, selectedNode, role) {
+  const selectedRole = String(selectedNode?.genealogyRole || "");
+  const isAdult = selectedRole === "male" || selectedRole === "female";
+  const oppositeAdult =
+    (selectedRole === "male" && role === "female") || (selectedRole === "female" && role === "male");
+  if (isAdult && oppositeAdult && typeof globalObj.findGenealogySpouse === "function") {
+    const spouse = globalObj.findGenealogySpouse(selectedNode.id);
+    if (!spouse) return "spouse";
+  }
+  return "parent-child";
+}
+
+function quickAddGenealogyNode(globalObj, role) {
+  if (typeof globalObj.isGenealogyWorkspaceActive === "function" && !globalObj.isGenealogyWorkspaceActive()) {
+    return;
+  }
+  const selected = getSelectedGenealogyNode(globalObj);
+  if (!selected) return;
+  const preset = getGenealogyPresetByRoleFromSource(globalObj, role);
+  if (!preset) return;
+  const canBuild =
+    typeof globalObj.buildGenealogyNodeFromPreset === "function" &&
+    typeof globalObj.ensureGenealogyEdge === "function" &&
+    typeof globalObj.getProject === "function";
+  if (!canBuild) return;
+
+  if (typeof globalObj.pushHistory === "function") globalObj.pushHistory();
+  const p = globalObj.getProject();
+  const xOffset = role === "female" ? selected.x + selected.width + 100 : selected.x - (preset.width || 160) - 100;
+  const yOffset = selected.y + Math.max(44, Math.round(selected.height * 0.35));
+  const added = globalObj.buildGenealogyNodeFromPreset(preset, xOffset, yOffset);
+  p.nodes.push(added);
+  const linkType = resolveQuickAddLinkType(globalObj, selected, role);
+  globalObj.ensureGenealogyEdge(selected.id, added.id, linkType);
+  if (globalObj.selectionRuntime?.selectNode) globalObj.selectionRuntime.selectNode(added.id);
+  if (typeof globalObj.renderAll === "function") globalObj.renderAll();
+  if (typeof globalObj.elevateSpawnedNode === "function") globalObj.elevateSpawnedNode(added.id);
+  if (typeof globalObj.flashFcNodeEnter === "function") globalObj.flashFcNodeEnter(added.id);
+  if (typeof globalObj.markDirty === "function") globalObj.markDirty();
+}
+
+function bindGenealogyToolbarHandlers(doc, globalObj) {
+  if (_toolbarHandlersBound) return;
+  const spouseBtn = doc?.getElementById?.("geneAddSpouseBtn");
+  const childBtn = doc?.getElementById?.("geneAddChildBtn");
+  if (!spouseBtn || !childBtn) return;
+
+  // Replace to drop any previous listeners and bind deterministic quick-add behavior.
+  const spouseClone = spouseBtn.cloneNode(true);
+  const childClone = childBtn.cloneNode(true);
+  spouseBtn.replaceWith(spouseClone);
+  childBtn.replaceWith(childClone);
+
+  spouseClone.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    quickAddGenealogyNode(globalObj, "female");
+  });
+  childClone.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    quickAddGenealogyNode(globalObj, "male");
+  });
+  _toolbarHandlersBound = true;
+}
 
 function installGenealogyToolbarBridge(globalObj) {
   if (_toolbarBridgeInstalled) return true;
   const doc = globalObj.document;
   if (!doc) return false;
   ensureGenealogyToolbarCss(doc);
+  bindGenealogyToolbarHandlers(doc, globalObj);
   syncGenealogyToolbarButtons(doc, globalObj);
   // Avoid mutation-observer feedback loops by piggybacking on the existing toolbar sync function.
   if (
@@ -171,6 +258,7 @@ function installGenealogyToolbarBridge(globalObj) {
     const original = globalObj.syncQuickToolbarGenealogyVisibility;
     const wrapped = function wrappedSyncQuickToolbarGenealogyVisibility(...args) {
       const out = original.apply(this, args);
+      bindGenealogyToolbarHandlers(doc, globalObj);
       syncGenealogyToolbarButtons(doc, globalObj);
       return out;
     };
