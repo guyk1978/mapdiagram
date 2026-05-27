@@ -2220,6 +2220,21 @@
   .node--ebike-component .node-media-strip {
     display: none !important;
   }
+  .node--ebike-component .node-badges {
+    display: none !important;
+  }
+  .flowchart-mode .node--ebike-component.semantic-input,
+  .flowchart-mode .node--ebike-component.semantic-process,
+  .flowchart-mode .node--ebike-component.semantic-data,
+  .flowchart-mode .node--ebike-component.semantic-output,
+  .flowchart-mode .node--ebike-component.semantic-system,
+  .flowchart-mode .node--ebike-component.semantic-custom,
+  .flowchart-mode .node--ebike-component.fc-node-process,
+  .flowchart-mode .node--ebike-component.fc-node-start,
+  .flowchart-mode .node--ebike-component.fc-node-end,
+  .flowchart-mode .node--ebike-component.fc-node-decision {
+    box-shadow: none;
+  }
   .node.node--svg-shape.shape-diamond > .node-shape-content { padding: 20% 22%; }
   .node.node--svg-shape.shape-diamond .body,
   .node.node--svg-shape.shape-parallelogram .body {
@@ -7338,7 +7353,7 @@
     { libraryCategory: "sensors", label: "PAS Sensor", type: "input", shape: "circle", previewShape: "ebike-pas", tooltip: "pas-sensor", ebikeRole: "pas-sensor", color: "#f9a8d4", width: 96, height: 96 },
     { libraryCategory: "sensors", label: "Throttle", type: "input", shape: "rect", previewShape: "ebike-throttle", tooltip: "throttle", ebikeRole: "throttle", color: "#c4b5fd", width: 110, height: 72 },
     { libraryCategory: "sensors", label: "Brake Lever", type: "input", shape: "rect", previewShape: "ebike-brake", tooltip: "brake-lever", ebikeRole: "brake-lever", color: "#fda4af", width: 110, height: 72 },
-    { libraryCategory: "sensors", label: "Torque Sensor", type: "input", shape: "circle", previewShape: "ebike-torque", tooltip: "torque-sensor", ebikeRole: "pas-sensor", color: "#fdba74", width: 96, height: 96 },
+    { libraryCategory: "sensors", label: "Torque Sensor", type: "input", shape: "circle", previewShape: "ebike-torque", tooltip: "torque-sensor", ebikeRole: "torque-sensor", color: "#fdba74", width: 96, height: 96 },
     { libraryCategory: "sensors", label: "Wire Harness", type: "custom", shape: "connector", previewShape: "ebike-wire", tooltip: "wire-harness", ebikeRole: "wire-harness", color: "#94a3b8", width: 140, height: 56 }
   ];
 
@@ -8356,6 +8371,10 @@ function finalizeFlowGroupDragIfAny() {
 
   function applyFlowchartNodeRoleClass(el, n) {
     if (!isFlowchartMode() || !el || !n) return;
+    if (n.ebikeRole && isEbikeWorkspaceActive()) {
+      el.classList.remove("fc-node-start", "fc-node-process", "fc-node-decision", "fc-node-end");
+      return;
+    }
     el.classList.remove("fc-node-start", "fc-node-process", "fc-node-decision", "fc-node-end");
     ensureNodeExtendedModel(n);
     const fcRole = n.semantic && n.semantic.role ? String(n.semantic.role) : "";
@@ -10675,7 +10694,9 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     if (n.visibility.hidden == null) n.visibility.hidden = false;
     if (!n.semantic || typeof n.semantic !== "object") n.semantic = {};
     const sem = n.semantic;
-    if (!sem.role || !SEMANTIC_ROLES.has(String(sem.role))) {
+    if (n.ebikeRole) {
+      sem.role = "custom";
+    } else if (!sem.role || !SEMANTIC_ROLES.has(String(sem.role))) {
       const t = n.type;
       sem.role = SEMANTIC_ROLES.has(t) ? t : "custom";
     }
@@ -11089,6 +11110,10 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     runtime.semanticTypes = {};
     for (const n of p.nodes) {
       ensureNodeExtendedModel(n);
+      if (n.ebikeRole && isEbikeWorkspaceActive()) {
+        runtime.semanticTypes[n.id] = "custom";
+        continue;
+      }
       const sr = n.semantic && n.semantic.role && SEMANTIC_ROLES.has(String(n.semantic.role)) ? String(n.semantic.role) : null;
       if (sr && sr !== "custom") runtime.semanticTypes[n.id] = sr;
       else runtime.semanticTypes[n.id] = analyzeNodeMeaning(n.text);
@@ -12037,6 +12062,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     for (const el of nodesLayer.querySelectorAll(".node")) {
       const nodeId = el.dataset.nodeId;
       el.classList.remove(...semanticClassNames);
+      const node = getNodeById(nodeId);
+      if (node?.ebikeRole && isEbikeWorkspaceActive()) continue;
       const type = runtime.semanticTypes[nodeId];
       if (type && type !== "unknown") el.classList.add(`semantic-${type}`);
     }
@@ -12572,6 +12599,25 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       el.insertBefore(badges, el.firstChild);
     }
     badges.innerHTML = "";
+    if (n.ebikeRole && isEbikeWorkspaceActive()) {
+      badges.style.display = "none";
+      el.classList.toggle("node-locked-hard", isNodeDragHardLocked(n));
+      let lock = el.querySelector(":scope > .node-locked-icon");
+      if (n.security && n.security.locked) {
+        if (!lock) {
+          lock = document.createElement("div");
+          lock.className = "node-locked-icon";
+          lock.textContent = "🔒";
+          el.appendChild(lock);
+        }
+        lock.style.opacity = n.security.lockMode === "soft" ? "0.52" : "0.95";
+        lock.style.display = "block";
+      } else if (lock) {
+        lock.remove();
+      }
+      return;
+    }
+    badges.style.display = "";
     const role = n.semantic && n.semantic.role ? String(n.semantic.role) : "";
     if (role && role !== "custom") {
       const b = document.createElement("span");
@@ -13144,6 +13190,38 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return { x: nx, y: ny };
   }
 
+  function ebikeEdgeTowardPeer(controller, peer) {
+    const w = getNodeWorldPosition(controller);
+    const cx = w.x + controller.width / 2;
+    const cy = w.y + controller.height / 2;
+    const pc = nodeWorldCenter(peer);
+    const dx = pc.x - cx;
+    const dy = pc.y - cy;
+    if (Math.abs(dx) >= Math.abs(dy)) return dx < 0 ? "left" : "right";
+    return dy < 0 ? "top" : "bottom";
+  }
+
+  function anchorEbikeControllerPort(controller, end, peerNode, connId) {
+    const edge = ebikeEdgeTowardPeer(controller, peerNode);
+    const p = getProject();
+    const sameEdgeConnIds = [];
+    for (const c of p.connections) {
+      if (!isNodeNodeConnection(c)) continue;
+      if (end === "in" && c.to !== controller.id) continue;
+      if (end === "out" && c.from !== controller.id) continue;
+      const otherId = end === "in" ? c.from : c.to;
+      const other = getNodeById(otherId);
+      if (!other) continue;
+      if (ebikeEdgeTowardPeer(controller, other) === edge) sameEdgeConnIds.push(c.id);
+    }
+    sameEdgeConnIds.sort();
+    const idx = connId ? sameEdgeConnIds.indexOf(connId) : -1;
+    const count = sameEdgeConnIds.length;
+    const slot = idx >= 0 ? idx : Math.max(0, count);
+    const t = count <= 1 ? 0.5 : (slot + 1) / (count + 1);
+    return nudgeAnchorOutward(controller, anchorPointOnEdge(controller, edge, t));
+  }
+
   function anchorDistributedPerimeter(n, end, toward, connId) {
     const base = anchorRectPerimeter(n, toward);
     const edge = base.edge || "bottom";
@@ -13179,6 +13257,15 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const tw =
       towardPoint && typeof towardPoint.x === "number" && typeof towardPoint.y === "number" ? towardPoint : null;
     if (tw) {
+      if (connId && n.ebikeRole === "controller" && isEbikeWorkspaceActive()) {
+        const c = getConnById(connId);
+        if (c && isNodeNodeConnection(c)) {
+          const peer = type === "out" ? getNodeById(c.to) : getNodeById(c.from);
+          if (peer) {
+            return anchorEbikeControllerPort(n, type === "out" ? "out" : "in", peer, connId);
+          }
+        }
+      }
       if (connId) return anchorDistributedPerimeter(n, type === "out" ? "out" : "in", tw, connId);
       return nudgeAnchorOutward(n, anchorRectPerimeter(n, tw));
     }
@@ -14136,8 +14223,64 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return list.length ? list[0] : null;
   }
 
+  const EBIKE_INPUT_PERIPHERAL_ROLES = new Set(["throttle", "pas-sensor", "brake-lever", "torque-sensor"]);
+  const EBIKE_ALLOWED_EDGES = new Set([
+    "battery-controller",
+    "battery-fuse",
+    "fuse-controller",
+    "controller-motor",
+    "controller-display",
+    "charger-battery",
+    "throttle-controller",
+    "pas-sensor-controller",
+    "brake-lever-controller",
+    "torque-sensor-controller"
+  ]);
+
+  function validateEbikeConnection(fromId, toId) {
+    const from = getNodeById(fromId);
+    const to = getNodeById(toId);
+    if (!from || !to) return { ok: false, message: "Invalid connection." };
+    const fr = from.ebikeRole;
+    const tr = to.ebikeRole;
+    if (!fr || !tr) {
+      return {
+        ok: false,
+        message: "E-Bike mode only allows wiring between electrical components from the library."
+      };
+    }
+    if (EBIKE_INPUT_PERIPHERAL_ROLES.has(fr) && tr !== "controller") {
+      return { ok: false, message: "Input peripherals must connect to the controller only." };
+    }
+    if (EBIKE_INPUT_PERIPHERAL_ROLES.has(tr)) {
+      return { ok: false, message: "Cannot wire into an input peripheral." };
+    }
+    if (fr === "display") {
+      return { ok: false, message: "Display receives power/data from the controller only." };
+    }
+    if (tr === "display" && fr !== "controller") {
+      return { ok: false, message: "Display must connect from the controller." };
+    }
+    if (tr === "motor" && fr !== "controller") {
+      return { ok: false, message: "Motor must be driven by the controller." };
+    }
+    if (fr === "motor") {
+      return { ok: false, message: "Motor cannot be a connection source." };
+    }
+    const key = `${fr}-${tr}`;
+    if (EBIKE_ALLOWED_EDGES.has(key)) return { ok: true };
+    return {
+      ok: false,
+      message: `Invalid wiring: ${fr.replace(/-/g, " ")} → ${tr.replace(/-/g, " ")} is not permitted.`
+    };
+  }
+
   function ensureNodeNodeEdge(fromId, toId) {
     if (!fromId || !toId || fromId === toId) return null;
+    if (isEbikeWorkspaceActive()) {
+      const check = validateEbikeConnection(fromId, toId);
+      if (!check.ok) return null;
+    }
     const p = getProject();
     const existing = p.connections.find(
       (c) => isNodeNodeConnection(c) && c.from === fromId && c.to === toId
@@ -14148,8 +14291,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const fromNode = getNodeById(fromId);
     const toNode = getNodeById(toId);
     if (fromNode && toNode) {
-      const from = anchor(fromNode, "out", nodeWorldCenter(toNode));
-      const to = anchor(toNode, "in", nodeWorldCenter(fromNode));
+      const from = anchor(fromNode, "out", nodeWorldCenter(toNode), connectionId);
+      const to = anchor(toNode, "in", nodeWorldCenter(fromNode), connectionId);
       const auto = autoCurve(from, to);
       runtime.connectionUi[connectionId] = { cp1: auto.cp1, cp2: auto.cp2, custom: false };
     }
@@ -14188,7 +14331,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const display = firstEbikeNodeByRole("display", id);
     const motor = firstEbikeNodeByRole("motor", id);
     const fuse = firstEbikeNodeByRole("fuse", id);
-    const sensorRoles = new Set(["throttle", "pas-sensor", "brake-lever"]);
+    const sensorRoles = new Set(["throttle", "pas-sensor", "brake-lever", "torque-sensor"]);
 
     if (role === "controller") {
       if (battery && fuse) {
@@ -18646,27 +18789,44 @@ clearFlowGroupSelection();
         const p = getProject();
         const exists = p.connections.some((c) => isNodeNodeConnection(c) && c.from === fromNodeId && c.to === toNodeId);
         if (!exists) {
+          if (isEbikeWorkspaceActive()) {
+            const ebikeCheck = validateEbikeConnection(fromNodeId, toNodeId);
+            if (!ebikeCheck.ok) {
+              showConnectionHint(ebikeCheck.message, true);
+              clearPendingConnectionState();
+              return;
+            }
+          }
           pushHistory();
           const connectionId = uid();
           p.connections.push({ id: connectionId, from: fromNodeId, to: toNodeId });
           const fromNode = getNodeById(fromNodeId);
           const toNode = getNodeById(toNodeId);
           if (fromNode && toNode) {
-            const from = anchor(fromNode, "out", nodeWorldCenter(toNode));
-            const to = anchor(toNode, "in", nodeWorldCenter(fromNode));
+            const from = anchor(fromNode, "out", nodeWorldCenter(toNode), connectionId);
+            const to = anchor(toNode, "in", nodeWorldCenter(fromNode), connectionId);
             const auto = autoCurve(from, to);
             runtime.connectionUi[connectionId] = { cp1: auto.cp1, cp2: auto.cp2, custom: false };
           }
-          const relation = evaluateConnectionSemantics(fromNodeId, toNodeId);
-          if (relation.valid) {
+          if (isEbikeWorkspaceActive()) {
             runtime.connectionFeedbackId = connectionId;
-            showConnectionHint("Connection flow looks coherent.", false);
+            showConnectionHint("Electrical connection accepted.", false);
             setTimeout(() => {
               runtime.connectionFeedbackId = null;
               scheduleRenderConnections();
             }, 620);
           } else {
-            showConnectionHint("Unusual connection direction — are you sure?", true);
+            const relation = evaluateConnectionSemantics(fromNodeId, toNodeId);
+            if (relation.valid) {
+              runtime.connectionFeedbackId = connectionId;
+              showConnectionHint("Connection flow looks coherent.", false);
+              setTimeout(() => {
+                runtime.connectionFeedbackId = null;
+                scheduleRenderConnections();
+              }, 620);
+            } else {
+              showConnectionHint("Unusual connection direction — are you sure?", true);
+            }
           }
           markDirty();
           if (isFlowchartMode()) {
