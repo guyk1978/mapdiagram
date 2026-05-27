@@ -163,10 +163,19 @@ function installGenealogyToolbarBridge(globalObj) {
   if (!doc) return false;
   ensureGenealogyToolbarCss(doc);
   syncGenealogyToolbarButtons(doc, globalObj);
-  const host = doc.getElementById("fcQuickEdit");
-  if (host) {
-    const mo = new MutationObserver(() => syncGenealogyToolbarButtons(doc, globalObj));
-    mo.observe(host, { attributes: true, subtree: true, childList: true });
+  // Avoid mutation-observer feedback loops by piggybacking on the existing toolbar sync function.
+  if (
+    typeof globalObj.syncQuickToolbarGenealogyVisibility === "function" &&
+    !globalObj.syncQuickToolbarGenealogyVisibility.__genealogyToolbarPatched
+  ) {
+    const original = globalObj.syncQuickToolbarGenealogyVisibility;
+    const wrapped = function wrappedSyncQuickToolbarGenealogyVisibility(...args) {
+      const out = original.apply(this, args);
+      syncGenealogyToolbarButtons(doc, globalObj);
+      return out;
+    };
+    wrapped.__genealogyToolbarPatched = true;
+    globalObj.syncQuickToolbarGenealogyVisibility = wrapped;
   }
   _toolbarBridgeInstalled = true;
   return true;

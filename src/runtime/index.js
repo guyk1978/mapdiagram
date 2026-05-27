@@ -67,17 +67,7 @@ export {
 
 if (typeof globalThis !== "undefined" && typeof globalThis.document !== "undefined") {
   const run = () => {
-    const tick = () => {
-      const state = installGenealogyRuntimeBridges(globalThis);
-      if (state.toolbarReady && state.routingReady) return true;
-      return false;
-    };
-    if (tick()) return;
-    let tries = 0;
-    const iv = globalThis.setInterval(() => {
-      tries += 1;
-      if (tick() || tries > 80) globalThis.clearInterval(iv);
-    }, 150);
+    installGenealogyRuntimeBridges(globalThis);
   };
   if (globalThis.document.readyState === "loading") {
     globalThis.document.addEventListener("DOMContentLoaded", run, { once: true });
