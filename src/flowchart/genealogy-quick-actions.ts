@@ -25,9 +25,9 @@ type RuntimeHost = Window & {
 };
 
 const MALE_ICON =
-  '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#ffffff" stroke-width="2" aria-hidden="true" focusable="false" style="display:block;flex-shrink:0"><rect x="2" y="2" width="12" height="12" rx="1" /></svg>';
+  '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#0070f3" stroke-width="2" aria-hidden="true" focusable="false" style="display:block;flex-shrink:0"><rect x="2" y="2" width="12" height="12" rx="1" /></svg>';
 const FEMALE_ICON =
-  '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#ffffff" stroke-width="2" aria-hidden="true" focusable="false" style="display:block;flex-shrink:0"><circle cx="8" cy="8" r="6" /></svg>';
+  '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#ff007f" stroke-width="2" aria-hidden="true" focusable="false" style="display:block;flex-shrink:0"><circle cx="8" cy="8" r="6" /></svg>';
 
 function ensureCss(doc: Document) {
   if (doc.getElementById("genealogyQuickAddFlowchartStyles")) return;
@@ -37,8 +37,8 @@ function ensureCss(doc: Document) {
     .canvas-micro-toolbar__btn--gene.gene-toolbar-action{display:flex;align-items:center;gap:6px;min-width:92px;padding:0 10px}
     .canvas-micro-toolbar__btn--gene.gene-toolbar-action .gene-toolbar-label{font-size:10px;font-weight:600;letter-spacing:.02em;line-height:1}
     .canvas-micro-toolbar__btn--gene.gene-toolbar-action .gene-toolbar-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:6px;flex-shrink:0}
-    .canvas-micro-toolbar__btn--gene.gene-toolbar-action .gene-toolbar-icon--male{background:color-mix(in srgb, #6ea8fe 34%, #1a2744);box-shadow:0 0 8px color-mix(in srgb, #6ea8fe 42%, transparent)}
-    .canvas-micro-toolbar__btn--gene.gene-toolbar-action .gene-toolbar-icon--female{background:color-mix(in srgb, #f472b6 34%, #2a1424);box-shadow:0 0 8px color-mix(in srgb, #f472b6 42%, transparent)}
+    .canvas-micro-toolbar__btn--gene.gene-toolbar-action .gene-toolbar-icon--male{background:color-mix(in srgb, #0070f3 20%, #ffffff);box-shadow:0 0 8px color-mix(in srgb, #0070f3 36%, transparent)}
+    .canvas-micro-toolbar__btn--gene.gene-toolbar-action .gene-toolbar-icon--female{background:color-mix(in srgb, #ff007f 20%, #ffffff);box-shadow:0 0 8px color-mix(in srgb, #ff007f 36%, transparent)}
   `;
   doc.head.appendChild(style);
 }
