@@ -2282,6 +2282,29 @@
   .node--genealogy-profile .node-badges {
     display: none !important;
   }
+  .node--genealogy-union {
+    width: 4px !important;
+    height: 4px !important;
+    min-width: 4px !important;
+    min-height: 4px !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    overflow: visible !important;
+  }
+  .node--genealogy-union .body,
+  .node--genealogy-union .node-shape-mask,
+  .node--genealogy-union .node-shape-content,
+  .node--genealogy-union .node-conn-handles,
+  .node--genealogy-union .node-badges {
+    display: none !important;
+  }
+  .node-picker-grid .node-tile--gene-male .node-tile__svg { color: #6ea8fe; }
+  .node-picker-grid .node-tile--gene-female .node-tile__svg { color: #f472b6; }
+  .node-picker-grid .node-tile--gene-link-h .node-tile__svg { color: #94a3b8; }
   .canvas-micro-toolbar__btn--gene {
     width: auto;
     min-width: 52px;
@@ -5886,6 +5909,20 @@
   function applyConnectionPathMarkers(path, defs, c, strokeHex) {
     if (!path || !c) return;
     normalizeConnectionEdge(c);
+    const linkType = c.genealogyLinkType;
+    const toN = getNodeById(c.to);
+    const fromN = getNodeById(c.from);
+    if (
+      linkType === "spouse" ||
+      linkType === "parent-child" ||
+      linkType === "parent-stub" ||
+      toN?.genealogyRole === "union" ||
+      fromN?.genealogyRole === "union"
+    ) {
+      path.removeAttribute("marker-end");
+      path.removeAttribute("marker-start");
+      return;
+    }
     const ends = c.arrowEnds || "end";
     if (ends === "none") {
       path.removeAttribute("marker-end");
@@ -7441,12 +7478,12 @@
   ];
 
   const GENEALOGY_WORKSPACE_PRESETS = [
-    { libraryCategory: "profiles", label: "Male", type: "person", shape: "rect", previewShape: "gene-male", tooltip: "male-profile", genealogyRole: "male", color: "#93c5fd", width: 160, height: 108 },
-    { libraryCategory: "profiles", label: "Female", type: "person", shape: "rect", previewShape: "gene-female", tooltip: "female-profile", genealogyRole: "female", color: "#f9a8d4", width: 160, height: 108 },
+    { libraryCategory: "profiles", label: "Male", type: "person", shape: "rect", previewShape: "gene-male", tooltip: "male-profile", genealogyRole: "male", color: "#6ea8fe", width: 160, height: 108 },
+    { libraryCategory: "profiles", label: "Female", type: "person", shape: "circle", previewShape: "gene-female", tooltip: "female-profile", genealogyRole: "female", color: "#f472b6", width: 160, height: 108 },
     { libraryCategory: "profiles", label: "Child", type: "person", shape: "capsule", previewShape: "gene-child", tooltip: "child-profile", genealogyRole: "child", color: "#a7f3d0", width: 130, height: 88 },
     { libraryCategory: "connectors", label: "Parent link", type: "custom", shape: "arrow-down", previewShape: "gene-link-v", tooltip: "parent-link", genealogyRole: "link-v", color: "#cbd5e1", width: 72, height: 128 },
-    { libraryCategory: "connectors", label: "Spouse link", type: "custom", shape: "arrow-right", previewShape: "gene-link-h", tooltip: "spouse-link", genealogyRole: "link-h", color: "#cbd5e1", width: 128, height: 64 },
-    { libraryCategory: "connectors", label: "Union node", type: "custom", shape: "connector", previewShape: "gene-union", tooltip: "union-node", genealogyRole: "union", color: "#e2e8f0", width: 28, height: 28 }
+    { libraryCategory: "connectors", label: "Relational connector", type: "custom", shape: "rect", previewShape: "gene-link-h", tooltip: "spouse-link", genealogyRole: "link-h", color: "#94a3b8", width: 128, height: 64 },
+    { libraryCategory: "connectors", label: "Union anchor", type: "custom", shape: "rect", previewShape: "gene-union", tooltip: "union-node", genealogyRole: "union", color: "transparent", width: 4, height: 4 }
   ];
 
   const WORKSPACE_SCHEMAS = {
@@ -8815,7 +8852,9 @@ function finalizeFlowGroupDragIfAny() {
   function getFcQuickEditTargetNodeId() {
     if (runtime.selectedNodeIds.size > 1) return null;
     const id = runtime.selectedNodeId || [...runtime.selectedNodeIds][0] || null;
-    return id && getNodeById(id) ? id : null;
+    const n = id ? getNodeById(id) : null;
+    if (!n || n.genealogyRole === "union") return null;
+    return n.id;
   }
 
   function syncFcQuickEditToolbar() {
@@ -12389,7 +12428,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
   }
 
   function appendNodeConnectHandles(nodeEl, nodeObj) {
-    if (runtime.readOnly || isNodeHiddenCanvas(nodeObj)) return;
+    if (runtime.readOnly || isNodeHiddenCanvas(nodeObj) || isGenealogyUnionNode(nodeObj)) return;
     if (nodeEl.querySelector(":scope > .node-conn-handles")) return;
     const host = document.createElement("div");
     host.className = "node-conn-handles";
@@ -12738,6 +12777,10 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       }
       return;
     }
+    if (isGenealogyUnionNode(n)) {
+      badges.style.display = "none";
+      return;
+    }
     if (n.genealogyRole && isGenealogyWorkspaceActive() && isGenealogyProfileRole(n.genealogyRole)) {
       badges.style.display = "none";
       el.classList.toggle("node-locked-hard", isNodeDragHardLocked(n));
@@ -12991,8 +13034,13 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     body.innerHTML = "";
     const st = ensureNodeStyle(n);
     const isEbikeComponent = !!n.ebikeRole;
+    const isGenealogyUnion = isGenealogyUnionNode(n);
     const isGenealogyProfile =
       !!n.genealogyRole && isGenealogyProfileRole(n.genealogyRole) && isGenealogyWorkspaceActive();
+    if (isGenealogyUnion) {
+      body.innerHTML = "";
+      return;
+    }
     if (st.freeform) {
       body.classList.add("node-body-freeform");
       const title = document.createElement("div");
@@ -13074,6 +13122,17 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
 
   function applyNodeVisualStyles(el, n) {
     ensureNodeExtendedModel(n);
+    if (isGenealogyUnionNode(n)) {
+      el.style.width = "4px";
+      el.style.height = "4px";
+      el.style.minWidth = "4px";
+      el.style.minHeight = "4px";
+      el.style.background = "transparent";
+      el.style.border = "none";
+      el.style.boxShadow = "none";
+      el.style.opacity = "0";
+      return;
+    }
     if (el.classList.contains("node--svg-shape")) {
       applyNodeSvgVisuals(el, n);
       el.style.opacity = String(Math.max(0.2, Math.min(1, Number(ensureNodeStyle(n).opacity) || 0.9)));
@@ -14031,12 +14090,12 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       "ebike-wire": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M6 14h32" ${s}/><circle cx="10" cy="14" r="2" fill="currentColor"/><circle cx="34" cy="14" r="2" fill="currentColor"/></svg>`,
       "ebike-throttle": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><rect x="14" y="6" width="16" height="16" rx="3" ${s}/><path d="M22 10v8M18 14h8" ${s}/></svg>`,
       "ebike-brake": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M10 20c4-8 10-12 22-12" ${s}/><circle cx="30" cy="10" r="4" ${s}/></svg>`,
-      "gene-male": `<svg class="node-tile__svg" viewBox="0 0 44 32" aria-hidden="true"><rect x="8" y="10" width="28" height="16" rx="2" ${s}/><circle cx="22" cy="8" r="5" ${s}/></svg>`,
-      "gene-female": `<svg class="node-tile__svg" viewBox="0 0 44 32" aria-hidden="true"><rect x="10" y="10" width="24" height="16" rx="2" ${s}/><circle cx="22" cy="8" r="5" ${s}/><path d="M14 26h16" ${s}/></svg>`,
-      "gene-child": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><rect x="3" y="6" width="38" height="16" rx="8" ${s}/><circle cx="22" cy="14" r="3" ${s}/></svg>`,
-      "gene-link-v": `<svg class="node-tile__svg" viewBox="0 0 28 44" aria-hidden="true"><path d="M14 4v22l-6-2 10 16 10-16-6 2V4z" ${s}/></svg>`,
-      "gene-link-h": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M4 10h22l-2-6 16 10-16 10 2-6H4z" ${s}/></svg>`,
-      "gene-union": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><circle cx="22" cy="14" r="6" ${s}/><path d="M10 14h24" ${s}/></svg>`
+      "gene-male": `<svg class="node-tile__svg" viewBox="0 0 44 32" aria-hidden="true"><rect x="11" y="9" width="22" height="22" rx="1.5" fill="rgba(110,168,254,0.14)" stroke="#6EA8FE" stroke-width="1.75"/></svg>`,
+      "gene-female": `<svg class="node-tile__svg" viewBox="0 0 44 32" aria-hidden="true"><circle cx="22" cy="20" r="12" fill="rgba(244,114,182,0.14)" stroke="#F472B6" stroke-width="1.75"/></svg>`,
+      "gene-child": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><rect x="4" y="7" width="36" height="14" rx="7" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="22" cy="14" r="2.5" fill="currentColor"/></svg>`,
+      "gene-link-v": `<svg class="node-tile__svg" viewBox="0 0 28 44" aria-hidden="true"><path d="M14 6v28" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><path d="M10 34h8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>`,
+      "gene-link-h": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><circle cx="15" cy="14" r="6.5" fill="none" stroke="#94A3B8" stroke-width="1.5"/><circle cx="29" cy="14" r="6.5" fill="none" stroke="#94A3B8" stroke-width="1.5"/><path d="M21.5 14h1" stroke="#94A3B8" stroke-width="1.4" stroke-linecap="round"/></svg>`,
+      "gene-union": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M6 14h32" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/><path d="M22 14v10" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/><circle cx="22" cy="14" r="2" fill="#94A3B8"/></svg>`
     };
     return previews[shape] || previews.rect;
   }
@@ -14135,7 +14194,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
   function renderFlowchartNodeTile(preset) {
     const card = document.createElement("button");
     card.type = "button";
-    card.className = `node-tile node-tile--shape-${preset.shape}`;
+    const previewKey = preset.previewShape || preset.shape;
+    card.className = `node-tile node-tile--shape-${preset.shape} node-tile--${previewKey}`;
     const tooltip = preset.tooltip || preset.shape || preset.label;
     card.title = tooltip;
     card.setAttribute("data-tooltip", tooltip);
@@ -14551,6 +14611,34 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return role === "male" || role === "female" || role === "child";
   }
 
+  function isGenealogyUnionNode(n) {
+    return !!(n && n.genealogyRole === "union");
+  }
+
+  function getGenealogyCoupleMidpoint(parent, spouse) {
+    const left = parent.x < spouse.x ? parent : spouse;
+    const right = parent.x < spouse.x ? spouse : parent;
+    const midX = (left.x + left.width + right.x) / 2;
+    const lineY = (left.y + left.height / 2 + right.y + right.height / 2) / 2;
+    return { midX, lineY, left, right };
+  }
+
+  function positionGenealogyUnionAnchor(union, parent, spouse) {
+    if (!union || !parent || !spouse) return;
+    const { midX, lineY } = getGenealogyCoupleMidpoint(parent, spouse);
+    union.x = Math.round(midX - union.width / 2);
+    union.y = Math.round(lineY - union.height / 2);
+  }
+
+  function purgeGenealogyParentStubEdges() {
+    const p = getProject();
+    const drop = p.connections.filter((c) => c.genealogyLinkType === "parent-stub");
+    for (const c of drop) {
+      removeConnectionByIdCascade(p, c.id);
+      delete runtime.connectionUi[c.id];
+    }
+  }
+
   function getGenealogyPresetByRole(role) {
     return GENEALOGY_WORKSPACE_PRESETS.find((p) => p.genealogyRole === role) || null;
   }
@@ -14595,34 +14683,47 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
   }
 
   function buildGenealogyNodeStyle(preset) {
+    const isUnion = preset.genealogyRole === "union";
+    if (isUnion) {
+      return {
+        fillColor: "transparent",
+        opacity: 0,
+        glow: 0,
+        shadow: 0,
+        radius: 0,
+        borderColor: "transparent",
+        strokeColor: "transparent",
+        borderWidth: 0
+      };
+    }
     const stroke = normalizeNodeHexColor(preset.color) || "#93C5FD";
     const round = ["circle", "capsule", "connector", "summing-junction"].includes(preset.shape);
-    const isUnion = preset.genealogyRole === "union";
     return {
-      fillColor: isUnion ? "transparent" : hexToRgba(stroke, 0.12),
+      fillColor: hexToRgba(stroke, 0.12),
       opacity: 0.96,
-      glow: isUnion ? 6 : 8,
-      shadow: isUnion ? 8 : 12,
-      radius: round ? 999 : 10,
+      glow: 8,
+      shadow: 12,
+      radius: round ? 999 : preset.genealogyRole === "male" ? 4 : 10,
       borderColor: stroke,
       strokeColor: stroke,
-      borderWidth: isUnion ? 1.5 : 2
+      borderWidth: 2
     };
   }
 
   function buildGenealogyNodeFromPreset(preset, x, y, genealogyData) {
-    const strokeAccent = normalizeNodeHexColor(preset.color) || "#93C5FD";
+    const isUnion = preset.genealogyRole === "union";
+    const strokeAccent = isUnion ? "transparent" : normalizeNodeHexColor(preset.color) || "#93C5FD";
     const n = {
       id: uid(),
       x: Math.round(x),
       y: Math.round(y),
-      width: preset.width || 160,
-      height: preset.height || 108,
-      text: preset.label,
-      title: preset.label,
+      width: isUnion ? 4 : preset.width || 160,
+      height: isUnion ? 4 : preset.height || 108,
+      text: isUnion ? "" : preset.label,
+      title: isUnion ? "" : preset.label,
       type: preset.type || "person",
       color: strokeAccent,
-      shape: preset.shape || "rect",
+      shape: isUnion ? "rect" : preset.shape || "rect",
       genealogyRole: preset.genealogyRole,
       style: buildGenealogyNodeStyle(preset)
     };
@@ -14662,17 +14763,23 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
 
   function findGenealogyUnionForCouple(idA, idB) {
     const p = getProject();
+    const a = getNodeById(idA);
+    const b = getNodeById(idB);
+    if (!a || !b) return null;
+    const { midX, lineY } = getGenealogyCoupleMidpoint(a, b);
+    let best = null;
+    let bestDist = Infinity;
     for (const n of p.nodes) {
       if (n.genealogyRole !== "union") continue;
-      const stubs = p.connections.filter(
-        (c) =>
-          isNodeNodeConnection(c) &&
-          c.to === n.id &&
-          (c.from === idA || c.from === idB)
-      );
-      if (stubs.length >= 2) return n;
+      const ux = n.x + n.width / 2;
+      const uy = n.y + n.height / 2;
+      const d = Math.hypot(ux - midX, uy - lineY);
+      if (d < 64 && d < bestDist) {
+        best = n;
+        bestDist = d;
+      }
     }
-    return null;
+    return best;
   }
 
   function ensureGenealogyEdge(fromId, toId, linkType) {
@@ -14687,13 +14794,14 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     );
     if (existing) return existing.id;
     const connectionId = uid();
-    const routeStyle = linkType === "spouse" || linkType === "parent-stub" ? "straight" : "orthogonal";
+    const routeStyle = "straight";
     p.connections.push({
       id: connectionId,
       from: fromId,
       to: toId,
       genealogyLinkType: linkType,
-      routeStyle
+      routeStyle,
+      arrowEnds: "none"
     });
     const fromNode = getNodeById(fromId);
     const toNode = getNodeById(toId);
@@ -14744,19 +14852,22 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     let cy;
     let sourceId = parent.id;
     if (spouse) {
-      cx = (parent.x + parent.width / 2 + spouse.x + spouse.width / 2) / 2;
-      cy = (parent.y + parent.height / 2 + spouse.y + spouse.height / 2) / 2;
+      purgeGenealogyParentStubEdges();
+      const mid = getGenealogyCoupleMidpoint(parent, spouse);
+      cx = mid.midX;
+      cy = mid.lineY;
       let union = findGenealogyUnionForCouple(parent.id, spouse.id);
       if (!union) {
         const unionPreset = getGenealogyPresetByRole("union");
         if (unionPreset) {
-          union = buildGenealogyNodeFromPreset(unionPreset, cx - unionPreset.width / 2, cy + 18);
+          union = buildGenealogyNodeFromPreset(unionPreset, mid.midX - 2, mid.lineY - 2);
           p.nodes.push(union);
-          ensureGenealogyEdge(parent.id, union.id, "parent-stub");
-          ensureGenealogyEdge(spouse.id, union.id, "parent-stub");
         }
       }
-      if (union) sourceId = union.id;
+      if (union) {
+        positionGenealogyUnionAnchor(union, parent, spouse);
+        sourceId = union.id;
+      }
     } else {
       cx = parent.x + parent.width / 2;
       cy = parent.y + parent.height / 2;
@@ -14871,6 +14982,15 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     if (genealogyRole && isGenealogyProfileRole(genealogyRole)) {
       n.genealogy = defaultGenealogyData();
       syncGenealogyNodeTextFields(n);
+    }
+    if (genealogyRole === "union") {
+      n.width = 4;
+      n.height = 4;
+      n.text = "";
+      n.title = "";
+      n.shape = "rect";
+      n.color = "transparent";
+      n.style = buildGenealogyNodeStyle(getGenealogyPresetByRole("union") || preset);
     }
     normalizeNode(n);
     ensureNodeExtendedModel(n);
@@ -15014,6 +15134,10 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     if (n.genealogyRole && isGenealogyProfileRole(n.genealogyRole)) {
       el.dataset.type = n.genealogyRole;
       el.classList.add("node--genealogy-profile");
+    }
+    if (isGenealogyUnionNode(n)) {
+      el.dataset.type = "union";
+      el.classList.add("node--genealogy-union");
     }
     const body = document.createElement("div");
     body.className = "body";
