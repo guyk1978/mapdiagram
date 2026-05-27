@@ -5803,8 +5803,15 @@
     if (c.strokeWidth != null && !Number.isFinite(Number(c.strokeWidth))) c.strokeWidth = null;
     if (!c.strokeDash || !["solid", "dashed", "dotted"].includes(c.strokeDash)) c.strokeDash = "solid";
     if (c.strokeColor != null && typeof c.strokeColor !== "string") c.strokeColor = null;
-    if (c.routeStyle != null && !["straight", "orthogonal", "curved"].includes(c.routeStyle)) c.routeStyle = null;
-    if (!c.arrowEnds || !["none", "end", "both"].includes(c.arrowEnds)) c.arrowEnds = "end";
+    const genealogyLinkType = resolveGenealogyLinkType(c);
+    if (genealogyLinkType) {
+      if (!c.genealogyLinkType) c.genealogyLinkType = genealogyLinkType;
+      c.routeStyle = "straight";
+      c.arrowEnds = "none";
+    } else {
+      if (c.routeStyle != null && !["straight", "orthogonal", "curved"].includes(c.routeStyle)) c.routeStyle = null;
+      if (!c.arrowEnds || !["none", "end", "both"].includes(c.arrowEnds)) c.arrowEnds = "end";
+    }
     if (c.meta?.isBackEdge && c.strokeDash === "solid") c.strokeDash = "dashed";
   }
 
@@ -13678,19 +13685,18 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const genealogyLinkType = resolveGenealogyLinkType(c);
     if (genealogyLinkType) {
       if (!c.genealogyLinkType) c.genealogyLinkType = genealogyLinkType;
-      if (!c.routeStyle) c.routeStyle = "straight";
-      if (c.arrowEnds == null) c.arrowEnds = "none";
-      const pair = genealogyEdgeAnchorPair({ from: c.from, to: c.to, genealogyLinkType });
-      if (pair) {
-        const from = pair.from;
-        const to = pair.to;
+      c.routeStyle = "straight";
+      c.arrowEnds = "none";
+      const layout = layoutGenealogyEdge(fromNode, toNode, genealogyLinkType);
+      if (layout) {
+        const from = layout.from;
+        const to = layout.to;
         const curve = {
           cp1: { x: from.x, y: (from.y + to.y) / 2 },
           cp2: { x: to.x, y: (from.y + to.y) / 2 },
           custom: true
         };
-        const d = buildGenealogyConnectionPath(from, to, genealogyLinkType);
-        return { fromNode, toNode, from, to, curve, d };
+        return { fromNode, toNode, from, to, curve, d: layout.d };
       }
     }
     const toPre = anchorNodeForConnection(
@@ -14704,12 +14710,39 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return !!(n && n.genealogyRole === "union");
   }
 
+  function getGenealogyMarriageGeometry(a, b) {
+    const male = a.genealogyRole === "male" ? a : b.genealogyRole === "male" ? b : null;
+    const female = a.genealogyRole === "female" ? a : b.genealogyRole === "female" ? b : null;
+    const aw = getNodeWorldPosition(a);
+    const bw = getNodeWorldPosition(b);
+    const aCx = aw.x + a.width / 2;
+    const bCx = bw.x + b.width / 2;
+    const left = aCx <= bCx ? a : b;
+    const right = left === a ? b : a;
+    const lw = getNodeWorldPosition(left);
+    const rw = getNodeWorldPosition(right);
+    const maleNode = male || left;
+    const femaleNode = female || right;
+    const mw = getNodeWorldPosition(maleNode);
+    const fw = getNodeWorldPosition(femaleNode);
+    const unionX = (mw.x + maleNode.width / 2 + fw.x + femaleNode.width / 2) / 2;
+    const unionY = mw.y + maleNode.height / 2;
+    const pad = CONNECTION_ANCHOR_OUTSET;
+    const spouseFrom = { x: lw.x + left.width + pad, y: unionY, edge: "right" };
+    const spouseTo = { x: rw.x - pad, y: unionY, edge: "left" };
+    return { left, right, male: maleNode, female: femaleNode, unionX, unionY, spouseFrom, spouseTo, lineY: unionY };
+  }
+
   function getGenealogyCoupleMidpoint(parent, spouse) {
-    const left = parent.x < spouse.x ? parent : spouse;
-    const right = parent.x < spouse.x ? spouse : parent;
-    const midX = (left.x + left.width + right.x) / 2;
-    const lineY = (left.y + left.height / 2 + right.y + right.height / 2) / 2;
-    return { midX, lineY, left, right };
+    const geo = getGenealogyMarriageGeometry(parent, spouse);
+    return {
+      midX: geo.unionX,
+      lineY: geo.unionY,
+      unionX: geo.unionX,
+      unionY: geo.unionY,
+      left: geo.left,
+      right: geo.right
+    };
   }
 
   function positionGenealogyUnionAnchor(union, parent, spouse) {
@@ -14871,6 +14904,83 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return best;
   }
 
+  function findGenealogyCoupleForUnion(union) {
+    if (!union) return null;
+    const uw = getNodeWorldPosition(union);
+    const ux = uw.x + union.width / 2;
+    const uy = uw.y + union.height / 2;
+    let best = null;
+    let bestDist = Infinity;
+    for (const n of getProject().nodes) {
+      const kind = getGenealogyNodeKind(n);
+      if (kind !== "male" && kind !== "female") continue;
+      const spouse = findGenealogySpouse(n.id);
+      if (!spouse) continue;
+      const geo = getGenealogyMarriageGeometry(n, spouse);
+      const d = Math.hypot(geo.unionX - ux, geo.unionY - uy);
+      if (d < bestDist) {
+        best = { a: n, b: spouse };
+        bestDist = d;
+      }
+    }
+    return best;
+  }
+
+  function layoutGenealogyParentChildEdge(fromNode, toNode) {
+    const child = toNode;
+    const cw = getNodeWorldPosition(child);
+    const pad = CONNECTION_ANCHOR_OUTSET;
+    const childX = cw.x + child.width / 2;
+    const childTopY = cw.y - pad;
+    let unionX;
+    let unionY;
+    let couple = null;
+    if (fromNode.genealogyRole === "union") {
+      couple = findGenealogyCoupleForUnion(fromNode);
+    } else {
+      const spouse = findGenealogySpouse(fromNode.id);
+      if (spouse) couple = { a: fromNode, b: spouse };
+    }
+    if (couple) {
+      const geo = getGenealogyMarriageGeometry(couple.a, couple.b);
+      unionX = geo.unionX;
+      unionY = geo.unionY;
+    } else {
+      const pw = getNodeWorldPosition(fromNode);
+      unionX = pw.x + fromNode.width / 2;
+      unionY = pw.y + fromNode.height + pad;
+    }
+    const midY = unionY + (childTopY - unionY) * 0.5;
+    let d;
+    if (Math.abs(unionX - childX) < 1.5) {
+      d = `M ${unionX} ${unionY} L ${childX} ${childTopY}`;
+    } else {
+      d = `M ${unionX} ${unionY} L ${unionX} ${midY} L ${childX} ${midY} L ${childX} ${childTopY}`;
+    }
+    return {
+      from: { x: unionX, y: unionY, edge: "bottom" },
+      to: { x: childX, y: childTopY, edge: "top" },
+      d
+    };
+  }
+
+  function layoutGenealogySpouseEdge(fromNode, toNode) {
+    const geo = getGenealogyMarriageGeometry(fromNode, toNode);
+    const from = geo.spouseFrom;
+    const to = geo.spouseTo;
+    return {
+      from,
+      to,
+      d: `M ${from.x} ${from.y} L ${to.x} ${to.y}`
+    };
+  }
+
+  function layoutGenealogyEdge(fromNode, toNode, linkType) {
+    if (linkType === "spouse") return layoutGenealogySpouseEdge(fromNode, toNode);
+    if (linkType === "parent-child") return layoutGenealogyParentChildEdge(fromNode, toNode);
+    return null;
+  }
+
   function resolveGenealogyLinkType(c) {
     if (!isGenealogyWorkspaceActive() || !c || !isNodeNodeConnection(c)) return null;
     if (c.genealogyLinkType === "parent-child" || c.genealogyLinkType === "spouse") return c.genealogyLinkType;
@@ -14893,66 +15003,6 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return null;
   }
 
-  function anchorGenealogyBottomCenter(n) {
-    const w = getNodeWorldPosition(n);
-    return nudgeAnchorOutward(n, { x: w.x + n.width / 2, y: w.y + n.height, edge: "bottom", t: 0.5 });
-  }
-
-  function anchorGenealogyTopCenter(n) {
-    const w = getNodeWorldPosition(n);
-    return nudgeAnchorOutward(n, { x: w.x + n.width / 2, y: w.y, edge: "top", t: 0.5 });
-  }
-
-  function anchorGenealogySpouseExit(n, peer) {
-    const w = getNodeWorldPosition(n);
-    const pw = getNodeWorldPosition(peer);
-    const cy = w.y + n.height / 2;
-    const towardRight = pw.x + peer.width / 2 >= w.x + n.width / 2;
-    const pt = towardRight
-      ? { x: w.x + n.width, y: cy, edge: "right", t: 0.5 }
-      : { x: w.x, y: cy, edge: "left", t: 0.5 };
-    return nudgeAnchorOutward(n, pt);
-  }
-
-  function anchorGenealogySpouseEntry(n, peer) {
-    const w = getNodeWorldPosition(n);
-    const pw = getNodeWorldPosition(peer);
-    const cy = w.y + n.height / 2;
-    const peerOnLeft = pw.x + peer.width / 2 < w.x + n.width / 2;
-    const pt = peerOnLeft
-      ? { x: w.x, y: cy, edge: "left", t: 0.5 }
-      : { x: w.x + n.width, y: cy, edge: "right", t: 0.5 };
-    return nudgeAnchorOutward(n, pt);
-  }
-
-  function genealogyEdgeAnchorPair(c) {
-    const fromNode = getNodeById(c.from);
-    const toNode = getNodeById(c.to);
-    if (!fromNode || !toNode || !c.genealogyLinkType) return null;
-    if (c.genealogyLinkType === "parent-child") {
-      return { from: anchorGenealogyBottomCenter(fromNode), to: anchorGenealogyTopCenter(toNode) };
-    }
-    if (c.genealogyLinkType === "spouse") {
-      return {
-        from: anchorGenealogySpouseExit(fromNode, toNode),
-        to: anchorGenealogySpouseEntry(toNode, fromNode)
-      };
-    }
-    return null;
-  }
-
-  function buildGenealogyConnectionPath(from, to, linkType) {
-    if (linkType === "parent-child") {
-      const dy = to.y - from.y;
-      if (dy <= 0 || Math.abs(from.x - to.x) < 1.5) {
-        return `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
-      }
-      const midY = from.y + dy * 0.5;
-      return `M ${from.x} ${from.y} L ${from.x} ${midY} L ${to.x} ${midY} L ${to.x} ${to.y}`;
-    }
-    return `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
-  }
-
   function ensureGenealogyEdge(fromId, toId, linkType) {
     if (!fromId || !toId || fromId === toId) return null;
     const p = getProject();
@@ -14965,22 +15015,25 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     );
     if (existing) return existing.id;
     const connectionId = uid();
-    const routeStyle = "straight";
+    const fromNode = getNodeById(fromId);
+    const toNode = getNodeById(toId);
     p.connections.push({
       id: connectionId,
       from: fromId,
       to: toId,
       genealogyLinkType: linkType,
-      routeStyle,
+      routeStyle: "straight",
       arrowEnds: "none"
     });
-    const pair = genealogyEdgeAnchorPair({ from: fromId, to: toId, genealogyLinkType: linkType });
-    if (pair) {
-      runtime.connectionUi[connectionId] = {
-        cp1: { x: pair.from.x, y: (pair.from.y + pair.to.y) / 2 },
-        cp2: { x: pair.to.x, y: (pair.from.y + pair.to.y) / 2 },
-        custom: true
-      };
+    if (fromNode && toNode) {
+      const layout = layoutGenealogyEdge(fromNode, toNode, linkType);
+      if (layout) {
+        runtime.connectionUi[connectionId] = {
+          cp1: { x: layout.from.x, y: (layout.from.y + layout.to.y) / 2 },
+          cp2: { x: layout.to.x, y: (layout.from.y + layout.to.y) / 2 },
+          custom: true
+        };
+      }
     }
     return connectionId;
   }
