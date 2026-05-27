@@ -2243,6 +2243,14 @@ html[data-theme="light"] #inspector-panel-export .partner-banner {
   gap: 2px;
 }
 
+.global-corner-picker__panel[hidden] {
+  display: none !important;
+}
+
+.global-corner-picker__panel.is-open-panel {
+  display: flex !important;
+}
+
 .global-corner-preset {
   display: flex;
   align-items: center;

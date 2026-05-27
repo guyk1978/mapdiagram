@@ -8828,8 +8828,9 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const centerY = parentPos.y + ph / 2;
     const startAngle = -Math.PI / 2;
     const span = count === 1 ? 0 : Math.min(Math.PI * 1.4, (Math.PI / 5) * (count - 1));
-    const parentFill = getNodeFillColor(from);
-    const parentStroke = getNodeStrokeColor(from);
+    const parentPaint = resolveNodePaintForInheritance(from);
+    const parentFill = parentPaint.fill;
+    const parentStroke = parentPaint.stroke;
     const parentSt = ensureNodeStyle(from);
     const newNodeIds = [];
     const newConnIds = [];
@@ -8839,8 +8840,6 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       const cx = centerX + Math.cos(angle) * radius;
       const cy = centerY + Math.sin(angle) * radius + ph * 0.25;
       const round = ["circle", "capsule", "connector", "summing-junction"].includes(preset.shape);
-      const inheritedFill =
-        parentFill && parentFill !== "transparent" ? parentFill : preset.color || "#8fb2ff";
       const n = normalizeNode({
         id: uid(),
         x: cx - childW / 2,
@@ -8851,7 +8850,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         title: `${preset.label || "Step"} ${i + 1}`,
         type: preset.type || "process",
         shape: preset.shape || shape,
-        color: inheritedFill,
+        color: parentFill,
         style: {
           opacity: parentSt.opacity ?? 0.92,
           glow: parentSt.glow ?? 12,
@@ -8859,9 +8858,14 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
           radius: round ? 999 : preset.shape === "rounded" ? 14 : parentSt.radius ?? 12,
           borderColor: parentStroke,
           strokeColor: parentStroke,
-          fillColor: parentFill && parentFill !== "transparent" ? parentFill : undefined
+          fillColor: parentFill
         }
       });
+      const childSt = ensureNodeStyle(n);
+      childSt.fillColor = parentFill;
+      childSt.strokeColor = parentStroke;
+      childSt.borderColor = parentStroke;
+      n.color = parentFill;
       p.nodes.push(n);
       const connId = uid();
       const c = { id: connId, from: fromId, to: n.id };
@@ -9355,6 +9359,70 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return accent || "#9CB8FF";
   }
 
+  /** Parse any CSS color string to normalized hex (for DOM / theme sampling). */
+  function cssColorToHex(css) {
+    if (css == null) return null;
+    const t = String(css).trim();
+    if (!t || t === "transparent" || t === "none") return null;
+    const direct = normalizeNodeHexColor(t);
+    if (direct) return direct;
+    try {
+      const ctx = document.createElement("canvas").getContext("2d");
+      if (!ctx) return null;
+      ctx.fillStyle = "#000000";
+      ctx.fillStyle = t;
+      return normalizeNodeHexColor(ctx.fillStyle);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /** Resolve fill/stroke as rendered on canvas (model + computed DOM + theme defaults). */
+  function resolveNodePaintForInheritance(n) {
+    if (!n) return { fill: "#121A2A", stroke: "#D6E4FF" };
+    const st = n.style || {};
+    let fill =
+      st.fillColor != null && String(st.fillColor).trim() !== ""
+        ? normalizeNodeHexColor(st.fillColor)
+        : null;
+    if (!fill && n.color) fill = normalizeNodeHexColor(n.color);
+    if (fill === "") fill = null;
+
+    let stroke =
+      st.strokeColor != null && String(st.strokeColor).trim() !== ""
+        ? normalizeNodeHexColor(st.strokeColor)
+        : null;
+    if (!stroke && st.borderColor) stroke = normalizeNodeHexColor(st.borderColor);
+
+    const el = getNodeDomEl(n.id);
+    if (el) {
+      const cs = getComputedStyle(el);
+      const svgFillTop = cs.getPropertyValue("--node-svg-fill-top").trim();
+      if (!fill && svgFillTop) fill = cssColorToHex(svgFillTop);
+      const svgStroke = cs.getPropertyValue("--node-svg-stroke").trim();
+      if (svgStroke) {
+        const parsedStroke = cssColorToHex(svgStroke);
+        if (parsedStroke) stroke = parsedStroke;
+      }
+      const surface = el.querySelector(":scope > .node-shape-mask") || el;
+      const surfaceCs = getComputedStyle(surface);
+      if (!fill) fill = cssColorToHex(surfaceCs.backgroundColor);
+      const borderSource = el.classList.contains("node--svg-shape") ? el : surface;
+      const bc = cssColorToHex(getComputedStyle(borderSource).borderColor);
+      if (bc) stroke = bc;
+    }
+
+    const light = document.documentElement.getAttribute("data-theme") === "light";
+    if (!fill) fill = light ? "#F6F8FC" : "#121A2A";
+    if (!stroke) {
+      const themeBorder = cssColorToHex(
+        getComputedStyle(document.documentElement).getPropertyValue("--node-border")
+      );
+      stroke = themeBorder || (light ? "#28375A" : "#D6E4FF");
+    }
+    return { fill, stroke };
+  }
+
   function setNodeFillColor(n, value) {
     if (!n) return;
     const st = ensureNodeStyle(n);
@@ -9609,6 +9677,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
 
   function disarmGlobalCornerOutsideClose() {
     if (runtime.globalCornerOutsideListener) {
+      document.removeEventListener("click", runtime.globalCornerOutsideListener, true);
       document.removeEventListener("pointerdown", runtime.globalCornerOutsideListener, true);
       runtime.globalCornerOutsideListener = null;
     }
@@ -9621,6 +9690,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       if (e.target.closest("#globalCornerPickerPanel, #globalCornerPickerBtn, #globalCornerPicker")) return;
       closeGlobalCornerPicker();
     };
+    document.addEventListener("click", runtime.globalCornerOutsideListener, true);
     document.addEventListener("pointerdown", runtime.globalCornerOutsideListener, true);
   }
 
@@ -9645,9 +9715,15 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const root = document.getElementById("globalCornerPicker");
     if (panel) {
       panel.hidden = true;
+      panel.style.display = "none";
+      panel.classList.remove("is-open-panel");
       if (root && panel.parentElement === document.body) root.appendChild(panel);
     }
-    if (btn) btn.setAttribute("aria-expanded", "false");
+    if (root) root.classList.remove("is-open");
+    if (btn) {
+      btn.setAttribute("aria-expanded", "false");
+      btn.classList.remove("is-active");
+    }
     runtime.globalCornerPickerOpen = false;
     disarmGlobalCornerOutsideClose();
   }
@@ -9655,11 +9731,16 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
   function openGlobalCornerPicker() {
     const panel = document.getElementById("globalCornerPickerPanel");
     const btn = document.getElementById("globalCornerPickerBtn");
+    const root = document.getElementById("globalCornerPicker");
     if (!panel || !btn || btn.disabled) return;
     syncGlobalCornerPickerFromSelection();
     positionGlobalCornerPickerPanel();
     panel.hidden = false;
+    panel.style.display = "flex";
+    panel.classList.add("is-open-panel");
+    if (root) root.classList.add("is-open");
     btn.setAttribute("aria-expanded", "true");
+    btn.classList.add("is-active");
     runtime.globalCornerPickerOpen = true;
     requestAnimationFrame(() => armGlobalCornerOutsideClose());
   }
@@ -9708,6 +9789,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     if (!root || !btn || !panel || root.dataset.bound) return;
     root.dataset.bound = "1";
     btn.addEventListener("pointerdown", (e) => e.stopPropagation());
+    panel.addEventListener("pointerdown", (e) => e.stopPropagation());
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -9715,13 +9797,13 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       if (runtime.globalCornerPickerOpen) closeGlobalCornerPicker();
       else openGlobalCornerPicker();
     });
-    panel.addEventListener("click", (e) => {
-      const preset = e.target.closest(".global-corner-preset");
-      if (!preset) return;
-      e.preventDefault();
-      e.stopPropagation();
-      applyGlobalCornerRadius(preset.dataset.cornerRadius);
-      closeGlobalCornerPicker();
+    panel.querySelectorAll(".global-corner-preset").forEach((presetBtn) => {
+      presetBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        applyGlobalCornerRadius(presetBtn.dataset.cornerRadius);
+        closeGlobalCornerPicker();
+      });
     });
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && runtime.globalCornerPickerOpen) closeGlobalCornerPicker();
@@ -12741,7 +12823,48 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return dy > 0 ? { x: cx, y: w.y + n.height } : { x: cx, y: w.y };
   }
 
-  const CONNECTION_ANCHOR_OUTSET = 3;
+  const CONNECTION_ANCHOR_OUTSET = 4;
+  const CONNECTION_ROUTE_STUB = 32;
+
+  function connectionObstacleRect(n, pad) {
+    const w = getNodeWorldPosition(n);
+    return { x: w.x - pad, y: w.y - pad, w: n.width + pad * 2, h: n.height + pad * 2 };
+  }
+
+  function buildNodeConnectionObstacles(p, fromNode, toNode) {
+    return p.nodes
+      .filter((n) => !isNodeHiddenCanvas(n))
+      .map((n) => {
+        const isEndpoint = n.id === fromNode.id || n.id === toNode.id;
+        return connectionObstacleRect(n, isEndpoint ? 8 : 12);
+      });
+  }
+
+  function offsetAnchorForRouting(pt, distance) {
+    const edge = pt.edge || "bottom";
+    switch (edge) {
+      case "top":
+        return { x: pt.x, y: pt.y - distance, edge };
+      case "left":
+        return { x: pt.x - distance, y: pt.y, edge };
+      case "right":
+        return { x: pt.x + distance, y: pt.y, edge };
+      default:
+        return { x: pt.x, y: pt.y + distance, edge: "bottom" };
+    }
+  }
+
+  function buildRoutedConnectionPath(from, to, obstacles, curve, routeStyle) {
+    const routeFrom = offsetAnchorForRouting(from, CONNECTION_ROUTE_STUB);
+    const routeTo = offsetAnchorForRouting(to, CONNECTION_ROUTE_STUB);
+    const style = routeStyle || resolveConnectorStyle();
+    const inner = routeConnectionPath(routeFrom, routeTo, obstacles, curve, style);
+    if (style === "straight") {
+      return `M ${from.x} ${from.y} L ${routeFrom.x} ${routeFrom.y} L ${routeTo.x} ${routeTo.y} L ${to.x} ${to.y}`;
+    }
+    const innerBody = inner.replace(/^M\s*[\d.-]+(?:\s+[\d.-]+)+\s*/, "");
+    return `M ${from.x} ${from.y} L ${routeFrom.x} ${routeFrom.y} ${innerBody} L ${to.x} ${to.y}`;
+  }
 
   /** Intersection of ray (center → toward) with axis-aligned node bounds — perimeter attachment. */
   function anchorRectPerimeter(n, toward) {
@@ -12829,12 +12952,22 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       if (end === "out" && c.from === n.id) peerIds.push(c.id);
       else if (end === "in" && c.to === n.id) peerIds.push(c.id);
     }
-    peerIds.sort();
-    const idx = connId ? peerIds.indexOf(connId) : -1;
-    if (idx < 0 || peerIds.length <= 1) {
+    const sameEdgePeers = peerIds
+      .filter((id) => {
+        const c = getConnById(id);
+        if (!c) return false;
+        const otherId = end === "out" ? c.to : c.from;
+        const other = getNodeById(otherId);
+        if (!other) return false;
+        const peerBase = anchorRectPerimeter(n, nodeWorldCenter(other));
+        return (peerBase.edge || edge) === edge;
+      })
+      .sort();
+    const idx = connId ? sameEdgePeers.indexOf(connId) : -1;
+    if (idx < 0 || sameEdgePeers.length <= 1) {
       return nudgeAnchorOutward(n, base);
     }
-    const t = (idx + 1) / (peerIds.length + 1);
+    const t = (idx + 1) / (sameEdgePeers.length + 1);
     const onEdge = anchorPointOnEdge(n, edge, t);
     return nudgeAnchorOutward(n, onEdge);
   }
@@ -13006,14 +13139,9 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const from = anchorNodeForConnection(c.from, "from", toPre, c.id);
     const to = anchorNodeForConnection(c.to, "to", from, c.id);
     const curve = getCurveData(c.id, from, to, c);
-    const obstacles = p.nodes
-      .filter((n) => n.id !== fromNode.id && n.id !== toNode.id)
-      .filter((n) => !isNodeHiddenCanvas(n))
-      .map((n) => {
-        const w = getNodeWorldPosition(n);
-        return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
-      });
-    const d = routeConnectionPath(from, to, obstacles, curve, resolveConnectionRouteStyle(c));
+    const obstacles = buildNodeConnectionObstacles(p, fromNode, toNode);
+    const routeStyle = resolveConnectionRouteStyle(c);
+    const d = buildRoutedConnectionPath(from, to, obstacles, curve, routeStyle);
     return { fromNode, toNode, from, to, curve, d };
   }
 
@@ -14316,14 +14444,9 @@ clearFlowGroupSelection();
       const from = anchorNodeForConnection(c.from, "from", toPre, c.id);
       const to = anchorNodeForConnection(c.to, "to", from, c.id);
       const curve = getCurveData(c.id, from, to, c);
-      const obstacles = p.nodes
-        .filter((n) => n.id !== fromNode.id && n.id !== toNode.id)
-        .filter((n) => !isNodeHiddenCanvas(n))
-        .map((n) => {
-          const w = getNodeWorldPosition(n);
-          return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
-        });
-      const d = routeConnectionPath(from, to, obstacles, curve, resolveConnectionRouteStyle(c));
+      const obstacles = buildNodeConnectionObstacles(p, fromNode, toNode);
+      const routeStyle = resolveConnectionRouteStyle(c);
+      const d = buildRoutedConnectionPath(from, to, obstacles, curve, routeStyle);
       const nnStroke = connectionStrokeColorOrNull(c);
       let gradId = null;
       if (!nnStroke) {
@@ -14480,7 +14603,7 @@ clearFlowGroupSelection();
           const w = getNodeWorldPosition(n);
           return { x: w.x - 12, y: w.y - 12, w: n.width + 24, h: n.height + 24 };
         });
-      const dBr = routeConnectionPath(fromPt, to, obstacles, curve, resolveConnectionRouteStyle(c));
+      const dBr = buildRoutedConnectionPath(fromPt, to, obstacles, curve, resolveConnectionRouteStyle(c));
       const brStroke = connectionStrokeColorOrNull(c);
       let brGradId = null;
       if (!brStroke) {
