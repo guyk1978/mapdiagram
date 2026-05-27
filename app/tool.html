@@ -2326,6 +2326,9 @@
     letter-spacing: 0.02em;
     white-space: nowrap;
   }
+  .canvas-micro-toolbar__btn--gene[hidden] {
+    display: none !important;
+  }
   .node.node--svg-shape.shape-diamond > .node-shape-content { padding: 20% 22%; }
   .node.node--svg-shape.shape-diamond .body,
   .node.node--svg-shape.shape-parallelogram .body {
@@ -8869,6 +8872,26 @@ function finalizeFlowGroupDragIfAny() {
     return n.id;
   }
 
+  function getGenealogyNodeKind(n) {
+    if (!n) return null;
+    if (n.genealogyRole === "male" || n.genealogyRole === "female" || n.genealogyRole === "child") {
+      return n.genealogyRole;
+    }
+    const domType = getNodeDomEl(n.id)?.dataset?.type;
+    if (domType === "male" || domType === "female" || domType === "child") return domType;
+    if (isGenealogyWorkspaceActive() && n.shape === "capsule") return "child";
+    return null;
+  }
+
+  function isGenealogyAdultProfile(n) {
+    const kind = getGenealogyNodeKind(n);
+    return kind === "male" || kind === "female";
+  }
+
+  function isGenealogyChildProfile(n) {
+    return getGenealogyNodeKind(n) === "child";
+  }
+
   function syncFcQuickEditToolbar() {
     const bar = document.getElementById("fcQuickEdit");
     if (!bar || runtime.readOnly) {
@@ -8908,23 +8931,25 @@ function finalizeFlowGroupDragIfAny() {
     const spawnBtn = document.getElementById("bulkSpawnToggleBtn");
     const geneSpouseBtn = document.getElementById("geneAddSpouseBtn");
     const geneChildBtn = document.getElementById("geneAddChildBtn");
-    const isGeneProfile =
-      isGenealogyWorkspaceActive() && n && isGenealogyProfileRole(n.genealogyRole);
-    const isGeneParent = isGeneProfile && n.genealogyRole !== "child";
+    const isGeneAdult = isGenealogyWorkspaceActive() && isGenealogyAdultProfile(n);
+    const isGeneChild = isGenealogyWorkspaceActive() && isGenealogyChildProfile(n);
+    const showGeneChildBtn = isGeneAdult || isGeneChild;
     if (dupBtn) dupBtn.disabled = !canEdit;
     if (fwdBtn) fwdBtn.disabled = !canEdit;
     if (backBtn) backBtn.disabled = !canEdit;
     if (delBtn) delBtn.disabled = !canEdit;
     if (spawnBtn) {
-      spawnBtn.hidden = !!isGeneProfile;
+      spawnBtn.hidden = isGeneAdult || isGeneChild;
       spawnBtn.disabled = !canEdit;
     }
     if (geneSpouseBtn) {
-      geneSpouseBtn.hidden = !isGeneParent;
+      geneSpouseBtn.hidden = !isGeneAdult;
+      geneSpouseBtn.style.display = isGeneAdult ? "" : "none";
       geneSpouseBtn.disabled = !canEdit || !!findGenealogySpouse(n.id);
     }
     if (geneChildBtn) {
-      geneChildBtn.hidden = !isGeneParent;
+      geneChildBtn.hidden = !showGeneChildBtn;
+      geneChildBtn.style.display = showGeneChildBtn ? "" : "none";
       geneChildBtn.disabled = !canEdit;
     }
     bar.hidden = false;
@@ -13650,8 +13675,12 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const fromNode = getNodeById(c.from);
     const toNode = getNodeById(c.to);
     if (!fromNode || !toNode) return null;
-    if (isGenealogyWorkspaceActive() && c.genealogyLinkType) {
-      const pair = genealogyEdgeAnchorPair(c);
+    const genealogyLinkType = resolveGenealogyLinkType(c);
+    if (genealogyLinkType) {
+      if (!c.genealogyLinkType) c.genealogyLinkType = genealogyLinkType;
+      if (!c.routeStyle) c.routeStyle = "straight";
+      if (c.arrowEnds == null) c.arrowEnds = "none";
+      const pair = genealogyEdgeAnchorPair({ from: c.from, to: c.to, genealogyLinkType });
       if (pair) {
         const from = pair.from;
         const to = pair.to;
@@ -13660,7 +13689,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
           cp2: { x: to.x, y: (from.y + to.y) / 2 },
           custom: true
         };
-        const d = buildGenealogyConnectionPath(from, to, c.genealogyLinkType);
+        const d = buildGenealogyConnectionPath(from, to, genealogyLinkType);
         return { fromNode, toNode, from, to, curve, d };
       }
     }
@@ -14219,17 +14248,17 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
 
   const GENEALOGY_SIDEBAR_TILE_SVG = {
     "gene-male":
-      '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="16" rx="1.5" fill="rgba(110,168,254,0.22)" stroke="#6EA8FE" stroke-width="1.75"/></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:18px;height:18px;display:block;flex-shrink:0"><rect x="4" y="3" width="16" height="16" rx="2" fill="rgba(110,168,254,0.25)" stroke="#6EA8FE" stroke-width="1.75"/><circle cx="12" cy="9" r="3" fill="#6EA8FE"/><path d="M7.5 18c.8-2.6 2.4-4 4.5-4s3.7 1.4 4.5 4" fill="none" stroke="#6EA8FE" stroke-width="1.5" stroke-linecap="round"/></svg>',
     "gene-female":
-      '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="13" r="7.5" fill="rgba(244,114,182,0.22)" stroke="#F472B6" stroke-width="1.75"/></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:18px;height:18px;display:block;flex-shrink:0"><circle cx="12" cy="8.5" r="4" fill="rgba(244,114,182,0.25)" stroke="#F472B6" stroke-width="1.75"/><path d="M6.5 20c1-3 2.8-4.5 5.5-4.5S16 17 17 20" fill="none" stroke="#F472B6" stroke-width="1.75" stroke-linecap="round"/></svg>',
     "gene-child":
-      '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="8" width="20" height="8" rx="4" fill="none" stroke="#CBD5E1" stroke-width="1.6"/><circle cx="12" cy="12" r="2" fill="#CBD5E1"/></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:18px;height:18px;display:block;flex-shrink:0"><rect x="2" y="8" width="20" height="8" rx="4" fill="none" stroke="#CBD5E1" stroke-width="1.6"/><circle cx="12" cy="12" r="2" fill="#CBD5E1"/></svg>',
     "gene-link-h":
-      '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="8" cy="12" r="4.5" fill="none" stroke="#94A3B8" stroke-width="1.5"/><circle cx="16" cy="12" r="4.5" fill="none" stroke="#94A3B8" stroke-width="1.5"/><line x1="12.5" y1="12" x2="11.5" y2="12" stroke="#94A3B8" stroke-width="1.4" stroke-linecap="round"/></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:18px;height:18px;display:block;flex-shrink:0"><circle cx="8" cy="12" r="4.5" fill="none" stroke="#94A3B8" stroke-width="1.5"/><circle cx="16" cy="12" r="4.5" fill="none" stroke="#94A3B8" stroke-width="1.5"/><line x1="12.5" y1="12" x2="11.5" y2="12" stroke="#94A3B8" stroke-width="1.4" stroke-linecap="round"/></svg>',
     "gene-link-v":
-      '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><line x1="12" y1="4" x2="12" y2="16" stroke="#94A3B8" stroke-width="1.75" stroke-linecap="round"/><line x1="9" y1="16" x2="15" y2="16" stroke="#94A3B8" stroke-width="1.75" stroke-linecap="round"/></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:18px;height:18px;display:block;flex-shrink:0"><line x1="12" y1="4" x2="12" y2="16" stroke="#94A3B8" stroke-width="1.75" stroke-linecap="round"/><line x1="9" y1="16" x2="15" y2="16" stroke="#94A3B8" stroke-width="1.75" stroke-linecap="round"/></svg>',
     "gene-union":
-      '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><line x1="3" y1="12" x2="21" y2="12" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="20" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="12" r="2" fill="#94A3B8"/></svg>'
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:18px;height:18px;display:block;flex-shrink:0"><line x1="3" y1="12" x2="21" y2="12" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="20" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="12" r="2" fill="#94A3B8"/></svg>'
   };
 
   function genealogySidebarTileSvg(preset) {
@@ -14253,6 +14282,9 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     card.setAttribute("aria-label", preset.label || tooltip);
     if (preset.genealogyRole) {
       card.className = `node-tile node-tile--genealogy node-tile--${previewKey}`;
+      card.style.display = "flex";
+      card.style.alignItems = "center";
+      card.style.justifyContent = "center";
       card.innerHTML = genealogySidebarTileSvg(preset);
     } else {
       card.className = `node-tile node-tile--shape-${preset.shape} node-tile--${previewKey}`;
@@ -14328,7 +14360,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
 
   function renderNodePicker() {
     nodePicker.innerHTML = "";
-    if (isFlowchartMode()) {
+    if (isFlowchartMode() || isGenealogyWorkspaceActive() || isEbikeWorkspaceActive()) {
       renderWorkspaceSchemaSidebar();
       return;
     }
@@ -14839,6 +14871,28 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return best;
   }
 
+  function resolveGenealogyLinkType(c) {
+    if (!isGenealogyWorkspaceActive() || !c || !isNodeNodeConnection(c)) return null;
+    if (c.genealogyLinkType === "parent-child" || c.genealogyLinkType === "spouse") return c.genealogyLinkType;
+    const fromNode = getNodeById(c.from);
+    const toNode = getNodeById(c.to);
+    if (!fromNode || !toNode) return null;
+    const toKind = getGenealogyNodeKind(toNode);
+    const fromKind = getGenealogyNodeKind(fromNode);
+    if (toKind === "child") {
+      if (fromKind === "male" || fromKind === "female" || fromNode.genealogyRole === "union") {
+        return "parent-child";
+      }
+    }
+    if (
+      (fromKind === "male" || fromKind === "female") &&
+      (toKind === "male" || toKind === "female")
+    ) {
+      return "spouse";
+    }
+    return null;
+  }
+
   function anchorGenealogyBottomCenter(n) {
     const w = getNodeWorldPosition(n);
     return nudgeAnchorOutward(n, { x: w.x + n.width / 2, y: w.y + n.height, edge: "bottom", t: 0.5 });
@@ -14933,41 +14987,42 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
 
   function genealogySpawnChildBelowParent(parentId) {
     const parent = getNodeById(parentId);
-    if (
-      !parent?.genealogyRole ||
-      !isGenealogyProfileRole(parent.genealogyRole) ||
-      parent.genealogyRole === "child"
-    ) {
-      return null;
-    }
+    if (!parent) return null;
+    const parentKind = getGenealogyNodeKind(parent);
+    if (parentKind !== "male" && parentKind !== "female" && parentKind !== "child") return null;
     const childPreset = getGenealogyPresetByRole("child");
     if (!childPreset) return null;
     const p = getProject();
-    const spouse = findGenealogySpouse(parentId);
     let sourceId = parent.id;
     let anchorX;
     let anchorBottomY;
     const childGap = 120;
-    if (spouse) {
-      purgeGenealogyParentStubEdges();
-      const mid = getGenealogyCoupleMidpoint(parent, spouse);
-      let union = findGenealogyUnionForCouple(parent.id, spouse.id);
-      if (!union) {
-        const unionPreset = getGenealogyPresetByRole("union");
-        if (unionPreset) {
-          union = buildGenealogyNodeFromPreset(unionPreset, mid.midX - 2, mid.lineY - 2);
-          p.nodes.push(union);
+    if (parentKind === "male" || parentKind === "female") {
+      const spouse = findGenealogySpouse(parentId);
+      if (spouse) {
+        purgeGenealogyParentStubEdges();
+        const mid = getGenealogyCoupleMidpoint(parent, spouse);
+        let union = findGenealogyUnionForCouple(parent.id, spouse.id);
+        if (!union) {
+          const unionPreset = getGenealogyPresetByRole("union");
+          if (unionPreset) {
+            union = buildGenealogyNodeFromPreset(unionPreset, mid.midX - 2, mid.lineY - 2);
+            p.nodes.push(union);
+          }
         }
-      }
-      if (union) {
-        positionGenealogyUnionAnchor(union, parent, spouse);
-        sourceId = union.id;
-        const uw = getNodeWorldPosition(union);
-        anchorX = uw.x + union.width / 2;
-        anchorBottomY = uw.y + union.height;
+        if (union) {
+          positionGenealogyUnionAnchor(union, parent, spouse);
+          sourceId = union.id;
+          const uw = getNodeWorldPosition(union);
+          anchorX = uw.x + union.width / 2;
+          anchorBottomY = uw.y + union.height;
+        } else {
+          anchorX = mid.midX;
+          anchorBottomY = mid.lineY;
+        }
       } else {
-        anchorX = mid.midX;
-        anchorBottomY = mid.lineY;
+        anchorX = parent.x + parent.width / 2;
+        anchorBottomY = parent.y + parent.height;
       }
     } else {
       anchorX = parent.x + parent.width / 2;
@@ -14985,7 +15040,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
 
   function genealogyAddSpouseAction(nodeId) {
     const parent = getNodeById(nodeId);
-    if (!parent?.genealogyRole || !isGenealogyProfileRole(parent.genealogyRole) || parent.genealogyRole === "child") {
+    if (!parent || !isGenealogyAdultProfile(parent)) {
       return;
     }
     if (findGenealogySpouse(nodeId)) {
@@ -15078,7 +15133,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       runtime.selectedNodeId
     ) {
       const sel = getNodeById(runtime.selectedNodeId);
-      if (sel && isGenealogyProfileRole(sel.genealogyRole) && sel.genealogyRole !== "child") {
+      if (sel && (isGenealogyAdultProfile(sel) || isGenealogyChildProfile(sel))) {
         pushHistory();
         const child = genealogySpawnChildBelowParent(sel.id);
         if (child) {
@@ -15721,21 +15776,15 @@ clearFlowGroupSelection();
       }
       if (isBranchFromConnection(c)) continue;
       if (!isNodeNodeConnection(c)) continue;
-      const fromNode = getNodeById(c.from);
-      const toNode = getNodeById(c.to);
-      if (!fromNode || !toNode) continue;
-      const toPre = anchorNodeForConnection(
-        c.to,
-        "to",
-        anchor(fromNode, "out", nodeWorldCenter(toNode), c.id),
-        c.id
-      );
-      const from = anchorNodeForConnection(c.from, "from", toPre, c.id);
-      const to = anchorNodeForConnection(c.to, "to", from, c.id);
-      const curve = getCurveData(c.id, from, to, c);
-      const obstacles = buildNodeConnectionObstacles(p, fromNode, toNode);
-      const routeStyle = resolveConnectionRouteStyle(c);
-      const d = buildRoutedConnectionPath(from, to, obstacles, curve, routeStyle);
+      normalizeConnectionEdge(c);
+      const lay = getNodeNodeEdgeLayout(c, p);
+      if (!lay) continue;
+      const fromNode = lay.fromNode;
+      const toNode = lay.toNode;
+      const from = lay.from;
+      const to = lay.to;
+      const curve = lay.curve;
+      const d = lay.d;
       const nnStroke = connectionStrokeColorOrNull(c);
       let gradId = null;
       if (!nnStroke) {
