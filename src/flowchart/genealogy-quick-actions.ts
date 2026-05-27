@@ -113,6 +113,19 @@ function quickAdd(host: RuntimeHost, role: "male" | "female") {
   host.markDirty?.();
 }
 
+function quickAddFromSelectedNodeId(host: RuntimeHost, selectedNodeId: string | null | undefined, role: "male" | "female") {
+  if (!selectedNodeId || typeof host.getNodeById !== "function") return;
+  const selected = host.getNodeById(selectedNodeId);
+  if (!selected) return;
+  const rt = host.runtime || {};
+  rt.selectedNodeId = selectedNodeId;
+  if (rt.selectedNodeIds && typeof rt.selectedNodeIds.clear === "function" && typeof rt.selectedNodeIds.add === "function") {
+    rt.selectedNodeIds.clear();
+    rt.selectedNodeIds.add(selectedNodeId);
+  }
+  quickAdd(host, role);
+}
+
 function decorateToolbar(host: RuntimeHost) {
   const doc = host.document;
   const spouseBtn = doc.getElementById("geneAddSpouseBtn");
@@ -211,4 +224,14 @@ export function installGenealogyQuickActions(host: RuntimeHost = window as Runti
   if (host.isGenealogyWorkspaceActive?.()) decorateToolbar(host);
   host.__mdGenealogyQuickAddInstalled = true;
   return true;
+}
+
+export function triggerMaleSpawn(host: RuntimeHost = window as RuntimeHost, selectedNodeId?: string) {
+  const id = selectedNodeId || host.runtime?.selectedNodeId || null;
+  quickAddFromSelectedNodeId(host, id, "male");
+}
+
+export function triggerFemaleSpawn(host: RuntimeHost = window as RuntimeHost, selectedNodeId?: string) {
+  const id = selectedNodeId || host.runtime?.selectedNodeId || null;
+  quickAddFromSelectedNodeId(host, id, "female");
 }

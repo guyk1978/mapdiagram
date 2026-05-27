@@ -24,7 +24,7 @@ import {
 } from "./flowchart-retry";
 import { buildRevealPlan, type RevealPlan } from "./flowchart-reveal";
 import { completeOpenAiThroughBillingGateway, BILLING_RESERVE_CREDITS_PER_CALL } from "../ai-service";
-import { installGenealogyQuickActions } from "./genealogy-quick-actions";
+import { installGenealogyQuickActions, triggerFemaleSpawn, triggerMaleSpawn } from "./genealogy-quick-actions";
 
 export type {
   FlowchartSpec,
@@ -68,6 +68,8 @@ export {
   completeOpenAiThroughBillingGateway,
   BILLING_RESERVE_CREDITS_PER_CALL,
   installGenealogyQuickActions,
+  triggerMaleSpawn,
+  triggerFemaleSpawn,
 };
 
 /** Full pipeline: spec → layout → beautify → canvas payload */
@@ -104,18 +106,33 @@ const FlowchartCompiler = {
   completeOpenAiThroughBillingGateway,
   BILLING_RESERVE_CREDITS_PER_CALL,
   installGenealogyQuickActions,
+  triggerMaleSpawn,
+  triggerFemaleSpawn,
 };
 
 declare global {
   interface Window {
     FlowchartCompiler: typeof FlowchartCompiler;
     installGenealogyQuickActions: typeof installGenealogyQuickActions;
+    genealogyAddSpouseAction?: (nodeId?: string) => void;
+    genealogyAddChildAction?: (nodeId?: string) => void;
   }
 }
 
 if (typeof window !== "undefined") {
   window.FlowchartCompiler = FlowchartCompiler;
   (window as any).installGenealogyQuickActions = installGenealogyQuickActions;
+  (window as any).installGenealogyQuickActions.triggerMaleSpawn = (selectedNodeId?: string) =>
+    triggerMaleSpawn(window as any, selectedNodeId);
+  (window as any).installGenealogyQuickActions.triggerFemaleSpawn = (selectedNodeId?: string) =>
+    triggerFemaleSpawn(window as any, selectedNodeId);
+  // Hard override legacy handlers so hardcoded tool.html buttons route to deterministic spawns.
+  (window as any).genealogyAddSpouseAction = (nodeId?: string) => {
+    triggerMaleSpawn(window as any, nodeId);
+  };
+  (window as any).genealogyAddChildAction = (nodeId?: string) => {
+    triggerFemaleSpawn(window as any, nodeId);
+  };
   const tryInstall = (attempt = 0) => {
     if (installGenealogyQuickActions(window)) return;
     if (attempt >= 24) return;
