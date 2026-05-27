@@ -1276,6 +1276,38 @@ html[data-theme="light"] .thickness-input {
   background: rgba(255, 255, 255, 0.92);
 }
 
+.connector-mini-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+}
+
+.connector-mini-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  background: rgba(10, 16, 28, 0.7);
+  border: 1px solid rgba(120, 146, 220, 0.35);
+}
+
+.connector-mini-icon {
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+.insp-segment-group--mini {
+  gap: 2px;
+}
+
+.insp-segment-group--mini .insp-segment-btn {
+  min-height: 22px;
+  padding: 0 5px;
+  font-size: 10px;
+}
+
 .connector-color-swatches {
   flex: 1 1 auto;
   min-width: 0;
@@ -2649,6 +2681,67 @@ html[data-theme="light"] .inspector-group--tight {
   font-size: 11px !important;
   border-radius: 6px !important;
   text-align: center;
+}
+
+.insp-num-chip--opacity input[type="number"] {
+  width: 56px;
+}
+
+.insp-num-chip__suffix,
+.insp-size-chip__suffix {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.insp-inline-row--opacity {
+  justify-content: flex-start;
+}
+
+.insp-mini-icon {
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+.insp-size-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.insp-size-chip input[type="number"] {
+  width: 52px;
+  min-height: 26px;
+  height: 26px;
+  padding: 0 6px;
+  font-size: 11px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.insp-text-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.insp-compact-select--text select {
+  min-width: 90px;
+}
+
+.insp-text-toggle {
+  min-width: 26px;
+  min-height: 26px;
+  border-radius: 6px;
+  padding: 0 6px;
+  font-size: 11px;
+}
+
+.insp-text-toggle strong,
+.insp-text-toggle em {
+  font-style: normal;
+  font-weight: 700;
 }
 
 .insp-range--compact {

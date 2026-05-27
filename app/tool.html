@@ -4188,6 +4188,9 @@
             <button type="button" class="global-corner-preset" data-corner-radius="16">Rounded <span class="global-corner-preset__px">16px</span></button>
           </div>
         </div>
+        <button type="button" id="topbarBulkDeleteBtn" class="icon-btn topbar-bulk-delete-btn" title="Delete selected items" aria-label="Delete selected items">
+          <span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16M10 11v6M14 11v6M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7l1 14a1 1 0 0 0 1 .9h6a1 1 0 0 0 1-.9l1-14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </button>
         <button type="button" id="stickyMultiSelectBtn" class="icon-btn" title="Multi-select mode (M)" aria-label="Multi-select mode" aria-pressed="false"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="7" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.75"/><rect x="9" y="5" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.75" opacity=".85"/><path d="M12 12h4M12 16v-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
         <div id="topbarConnSelActions" class="group" role="toolbar" aria-label="Selected connection" hidden>
           <button type="button" id="topbarDeleteConnBtn" class="icon-btn" title="Delete connection" aria-label="Delete connection"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16M10 11v6M14 11v6M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1v2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7l1 14a1 1 0 0 0 1 .9h6a1 1 0 0 0 1-.9l1-14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
@@ -4377,7 +4380,14 @@
           <h3 id="diagramHeadingCanvas" class="inspector-panel__heading">Canvas</h3>
           <p class="muted inspector-hint inspector-hint--tight">Diagram-wide appearance. Select a node for its properties.</p>
           <div class="inspector-group inspector-group--canvas inspector-group--tight">
-            <label class="insp-range insp-range--compact"><span class="insp-field__label">Page opacity</span><input id="canvasPageBgOpacity" type="range" min="0.15" max="1" step="0.05" value="1" aria-label="Page background opacity"></label>
+            <div class="insp-inline-row insp-inline-row--opacity">
+              <span class="insp-mini-icon" title="Canvas opacity" aria-hidden="true">💧</span>
+              <label class="insp-num-chip insp-num-chip--opacity" title="Page opacity">
+                <span class="insp-num-chip__label">Opacity</span>
+                <input id="canvasPageBgOpacity" type="number" min="15" max="100" step="5" value="100" aria-label="Page background opacity percent">
+                <span class="insp-num-chip__suffix">%</span>
+              </label>
+            </div>
             <div class="insp-inline-row insp-inline-row--colors">
               <label class="insp-color-chip" title="Background color">
                 <span class="insp-color-chip__label">BG</span>
@@ -4488,6 +4498,26 @@
                 </select>
               </label>
             </div>
+            <div id="nodeTextInspector" class="insp-text-row" role="group" aria-label="Text styling">
+              <label class="insp-compact-select insp-compact-select--text">
+                <span class="sr-only">Font family</span>
+                <select id="nodeTextFontFamily" title="Font family" aria-label="Font family">
+                  <option value="inter">Inter</option>
+                  <option value="poppins">Poppins</option>
+                  <option value="system">System</option>
+                  <option value="serif">Serif</option>
+                  <option value="mono">Mono</option>
+                </select>
+              </label>
+              <label class="insp-size-chip" title="Font size">
+                <span class="sr-only">Font size</span>
+                <input id="nodeTextFontSize" type="number" min="10" max="28" step="1" value="14" aria-label="Font size">
+                <span class="insp-size-chip__suffix">px</span>
+              </label>
+              <button type="button" class="insp-text-toggle" data-text-toggle="bold" title="Bold" aria-pressed="false"><strong>B</strong></button>
+              <button type="button" class="insp-text-toggle" data-text-toggle="italic" title="Italic" aria-pressed="false"><em>I</em></button>
+              <input type="color" id="nodeTextColorPicker" value="#EEF3FF" hidden aria-hidden="true" tabindex="-1">
+            </div>
             </div>
           </div>
           <hr class="insp-divider" aria-hidden="true">
@@ -4519,23 +4549,29 @@
           </h3>
           <p id="edgeInspectorCount" class="muted inspector-hint"></p>
           <div class="inspector-group inspector-group--connector inspector-compact">
-            <div class="inspector-group__title">Routing type</div>
-            <div class="insp-segment-group" id="edgeRouteStyleSegments" role="group" aria-label="Connector routing type">
-              <button type="button" class="insp-segment-btn" data-value="straight" aria-pressed="false">Straight</button>
-              <button type="button" class="insp-segment-btn" data-value="orthogonal" aria-pressed="false">Orthogonal</button>
-              <button type="button" class="insp-segment-btn" data-value="curved" aria-pressed="false">Curved</button>
+            <div class="connector-mini-row" role="group" aria-label="Line style, thickness and opacity">
+              <div class="connector-mini-chip connector-mini-chip--route" title="Line style">
+                <span class="connector-mini-icon" aria-hidden="true">↪</span>
+                <div class="insp-segment-group insp-segment-group--mini" id="edgeRouteStyleSegments" role="group" aria-label="Connector routing type">
+                  <button type="button" class="insp-segment-btn" data-value="straight" aria-pressed="false" title="Straight">─</button>
+                  <button type="button" class="insp-segment-btn" data-value="orthogonal" aria-pressed="false" title="Orthogonal">└</button>
+                  <button type="button" class="insp-segment-btn" data-value="curved" aria-pressed="false" title="Curved">⌒</button>
+                </div>
+              </div>
+              <label class="connector-mini-chip connector-mini-chip--thickness" title="Line thickness">
+                <span class="connector-mini-icon" aria-hidden="true">≋</span>
+                <input type="number" id="edgeStrokeWidthInput" class="thickness-input" min="1" max="10" step="0.5" value="2" aria-label="Line thickness in pixels">
+                <span class="thickness-unit">px</span>
+              </label>
+              <label class="connector-mini-chip connector-mini-chip--opacity" title="Line opacity">
+                <span class="connector-mini-icon" aria-hidden="true">💧</span>
+                <input type="number" id="edgeStrokeOpacityInput" class="thickness-input" min="10" max="100" step="5" value="100" aria-label="Line opacity percent">
+                <span class="thickness-unit">%</span>
+              </label>
             </div>
-          </div>
-          <div class="inspector-group inspector-group--connector inspector-compact">
-            <label class="connector-thickness-field">
-              <span class="insp-field__label">Thickness</span>
-              <input type="number" id="edgeStrokeWidthInput" class="thickness-input" min="1" max="10" step="0.5" value="2" aria-label="Line thickness in pixels">
-              <span class="thickness-unit">px</span>
-            </label>
             <input type="color" id="edgeStrokeColorInput" value="#9cb8ff" hidden aria-hidden="true" tabindex="-1">
           </div>
           <div class="inspector-group inspector-group--connector inspector-compact">
-            <div class="inspector-group__title">Line pattern</div>
             <div class="insp-segment-group" id="edgeDashStyleSegments" role="group" aria-label="Line pattern">
               <button type="button" class="insp-segment-btn" data-value="solid" aria-pressed="false">Solid</button>
               <button type="button" class="insp-segment-btn" data-value="dashed" aria-pressed="false">Dashed</button>
@@ -16215,7 +16251,7 @@ clearFlowGroupSelection();
         btn.setAttribute("aria-pressed", on ? "true" : "false");
       });
       const pageOp = document.getElementById("canvasPageBgOpacity");
-      if (pageOp) pageOp.value = String(op);
+      if (pageOp) pageOp.value = String(Math.round(op * 100));
       const gridChk = document.getElementById("inspectorGridToggleChk");
       if (gridChk) gridChk.checked = v.grid !== false;
       const gFont = document.getElementById("canvasGlobalFontSelect");
@@ -16920,6 +16956,20 @@ clearFlowGroupSelection();
   document.getElementById("deleteNodeBtn").onclick = () => {
     deleteSelectedNodesAction();
   };
+  document.getElementById("topbarBulkDeleteBtn")?.addEventListener("click", () => {
+    const { nn, bridges, gcs } = getSelectedConnectionRecords();
+    if (nn.length + bridges.length + gcs.length) {
+      bulkDeleteSelectedEdgesAction();
+      return;
+    }
+    if (primaryNodeSelectionIdList().length) {
+      requestDeleteSelectedNodes();
+      return;
+    }
+    if (runtime.selectedFlowGroupId && isFlowchartMode()) {
+      requestDeleteFlowGroup(runtime.selectedFlowGroupId);
+    }
+  });
   document.getElementById("zoomInBtn").onclick = () => {
     const r = workspace.getBoundingClientRect();
     zoomAt(r.left + r.width / 2, r.top + r.height / 2, getProject().view.zoom + 0.1);
@@ -16991,7 +17041,9 @@ clearFlowGroupSelection();
     if (runtime.isSyncingInspector) return;
     const p = getProject();
     ensureProjectViewDefaults(p);
-    p.view.bgOpacity = parseFloat(e.target.value);
+    const pct = Math.max(15, Math.min(100, Number(e.target.value) || 100));
+    e.target.value = String(pct);
+    p.view.bgOpacity = pct / 100;
     applyWorkspaceViewStyles();
     markDirty();
   });
