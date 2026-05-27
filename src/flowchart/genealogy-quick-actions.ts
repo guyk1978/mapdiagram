@@ -7,6 +7,7 @@ type AnyFn = (...args: any[]) => any;
 
 type RuntimeHost = Window & {
   __mdGenealogyQuickAddInstalled?: boolean;
+  __mdGenealogyDeterministicPatchInstalled?: boolean;
   runtime?: any;
   isGenealogyWorkspaceActive?: AnyFn;
   syncQuickToolbarGenealogyVisibility?: AnyFn & { __mdGenealogyQuickAddPatched?: boolean };
@@ -22,12 +23,42 @@ type RuntimeHost = Window & {
   elevateSpawnedNode?: AnyFn;
   flashFcNodeEnter?: AnyFn;
   selectionRuntime?: { selectNode?: AnyFn };
+  getNodeWorldPosition?: AnyFn;
+  layoutGenealogyParentChildEdge?: AnyFn;
+  genealogySpawnChildBelowParent?: AnyFn;
 };
 
 const MALE_ICON =
   '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#0070f3" stroke-width="2" aria-hidden="true" focusable="false" style="display:block;flex-shrink:0"><rect x="2" y="2" width="12" height="12" rx="1" /></svg>';
 const FEMALE_ICON =
   '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#ff007f" stroke-width="2" aria-hidden="true" focusable="false" style="display:block;flex-shrink:0"><circle cx="8" cy="8" r="6" /></svg>';
+
+const STRICT_GENEALOGY_PRESETS = {
+  male: {
+    libraryCategory: "profiles",
+    label: "Male",
+    type: "person",
+    shape: "rect",
+    previewShape: "gene-male",
+    tooltip: "male-profile",
+    genealogyRole: "male",
+    color: "#6ea8fe",
+    width: 160,
+    height: 108,
+  },
+  female: {
+    libraryCategory: "profiles",
+    label: "Female",
+    type: "person",
+    shape: "circle",
+    previewShape: "gene-female",
+    tooltip: "female-profile",
+    genealogyRole: "female",
+    color: "#f472b6",
+    width: 160,
+    height: 108,
+  },
+} as const;
 
 function ensureCss(doc: Document) {
   if (doc.getElementById("genealogyQuickAddFlowchartStyles")) return;
@@ -58,21 +89,17 @@ function quickAdd(host: RuntimeHost, role: "male" | "female") {
   if (!selected) return;
   if (
     typeof host.getProject !== "function" ||
-    typeof host.getGenealogyPresetByRole !== "function" ||
     typeof host.buildGenealogyNodeFromPreset !== "function" ||
     typeof host.ensureGenealogyEdge !== "function"
   ) {
     return;
   }
 
-  const preset = host.getGenealogyPresetByRole(role);
-  if (!preset) return;
+  const preset = STRICT_GENEALOGY_PRESETS[role];
   if (typeof host.pushHistory === "function") host.pushHistory();
 
   const p = host.getProject();
-  const w = Number(preset.width) || 160;
-  const gap = 80;
-  const x = role === "male" ? selected.x - w - gap : selected.x + selected.width + gap;
+  const x = selected.x + 160;
   const y = selected.y;
   const node = host.buildGenealogyNodeFromPreset(preset, x, y);
   p.nodes.push(node);
@@ -118,10 +145,57 @@ function decorateToolbar(host: RuntimeHost) {
   });
 }
 
+function installDeterministicGenealogyGeometry(host: RuntimeHost) {
+  if (host.__mdGenealogyDeterministicPatchInstalled) return;
+
+  if (
+    typeof host.layoutGenealogyParentChildEdge === "function" &&
+    typeof host.getNodeWorldPosition === "function"
+  ) {
+    host.layoutGenealogyParentChildEdge = function patchedParentChildEdge(fromNode: any, toNode: any) {
+      const pw = host.getNodeWorldPosition!(fromNode);
+      const tw = host.getNodeWorldPosition!(toNode);
+      const sourceX = pw.x + fromNode.width / 2;
+      const sourceY = pw.y + fromNode.height;
+      const targetX = tw.x + toNode.width / 2;
+      const targetY = tw.y;
+      const midY = (sourceY + targetY) / 2;
+      const d = `M ${sourceX} ${sourceY} L ${sourceX} ${midY} L ${targetX} ${midY} L ${targetX} ${targetY}`;
+      return {
+        from: { x: sourceX, y: sourceY, edge: "bottom" },
+        to: { x: targetX, y: targetY, edge: "top" },
+        d,
+      };
+    };
+  }
+
+  if (
+    typeof host.genealogySpawnChildBelowParent === "function" &&
+    typeof host.getNodeById === "function" &&
+    typeof host.buildGenealogyNodeFromPreset === "function" &&
+    typeof host.getProject === "function"
+  ) {
+    host.genealogySpawnChildBelowParent = function patchedSpawnChild(parentId: string) {
+      const parent = host.getNodeById?.(parentId);
+      if (!parent) return null;
+      const child = host.buildGenealogyNodeFromPreset!(STRICT_GENEALOGY_PRESETS.male, parent.x, parent.y + 150);
+      const p = host.getProject!();
+      p.nodes.push(child);
+      if (typeof host.ensureGenealogyEdge === "function") {
+        host.ensureGenealogyEdge(parent.id, child.id, "parent-child");
+      }
+      return child;
+    };
+  }
+
+  host.__mdGenealogyDeterministicPatchInstalled = true;
+}
+
 export function installGenealogyQuickActions(host: RuntimeHost = window as RuntimeHost): boolean {
   if (host.__mdGenealogyQuickAddInstalled) return true;
   if (!host.document || typeof host.syncQuickToolbarGenealogyVisibility !== "function") return false;
   ensureCss(host.document);
+  installDeterministicGenealogyGeometry(host);
   const originalSync = host.syncQuickToolbarGenealogyVisibility;
   if (originalSync.__mdGenealogyQuickAddPatched) {
     host.__mdGenealogyQuickAddInstalled = true;
