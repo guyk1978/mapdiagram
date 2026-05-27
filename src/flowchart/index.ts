@@ -24,6 +24,7 @@ import {
 } from "./flowchart-retry";
 import { buildRevealPlan, type RevealPlan } from "./flowchart-reveal";
 import { completeOpenAiThroughBillingGateway, BILLING_RESERVE_CREDITS_PER_CALL } from "../ai-service";
+import { installGenealogyQuickActions } from "./genealogy-quick-actions";
 
 export type {
   FlowchartSpec,
@@ -66,6 +67,7 @@ export {
   buildRevealPlan,
   completeOpenAiThroughBillingGateway,
   BILLING_RESERVE_CREDITS_PER_CALL,
+  installGenealogyQuickActions,
 };
 
 /** Full pipeline: spec → layout → beautify → canvas payload */
@@ -101,6 +103,7 @@ const FlowchartCompiler = {
   buildRevealPlan,
   completeOpenAiThroughBillingGateway,
   BILLING_RESERVE_CREDITS_PER_CALL,
+  installGenealogyQuickActions,
 };
 
 declare global {
@@ -111,6 +114,16 @@ declare global {
 
 if (typeof window !== "undefined") {
   window.FlowchartCompiler = FlowchartCompiler;
+  const tryInstall = (attempt = 0) => {
+    if (installGenealogyQuickActions(window)) return;
+    if (attempt >= 24) return;
+    window.setTimeout(() => tryInstall(attempt + 1), 200);
+  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => tryInstall(), { once: true });
+  } else {
+    tryInstall();
+  }
 }
 
 export default FlowchartCompiler;
