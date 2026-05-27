@@ -9056,14 +9056,12 @@ function finalizeFlowGroupDragIfAny() {
     });
     document.getElementById("geneAddSpouseBtn")?.addEventListener("click", (e) => {
       runToolbarAction(e, (nodeId) => {
-        if (!nodeId) return;
-        genealogyAddSpouseAction(nodeId);
+        window.genealogyAddSpouseAction?.(nodeId);
       });
     });
     document.getElementById("geneAddChildBtn")?.addEventListener("click", (e) => {
       runToolbarAction(e, (nodeId) => {
-        if (!nodeId) return;
-        genealogyAddChildAction(nodeId);
+        window.genealogyAddChildAction?.(nodeId);
       });
     });
   }
@@ -15149,40 +15147,44 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return child;
   }
 
-  function genealogyAddSpouseAction(nodeId) {
-    const parent = getNodeById(nodeId);
-    if (!parent || !isGenealogyAdultProfile(parent)) {
-      return;
-    }
-    if (findGenealogySpouse(nodeId)) {
-      showConnectionHint("This person already has a spouse linked.", true);
-      return;
-    }
-    const oppositeRole = parent.genealogyRole === "male" ? "female" : "male";
-    const preset = getGenealogyPresetByRole(oppositeRole);
-    if (!preset) return;
+  function spawnDeterministicNode(fromId, role, absoluteX, absoluteY) {
+    const selected = getNodeById(fromId);
+    if (!selected || !isGenealogyWorkspaceActive()) return null;
+    const preset = getGenealogyPresetByRole(role);
+    if (!preset) return null;
     pushHistory();
     const p = getProject();
-    const spouse = buildGenealogyNodeFromPreset(preset, parent.x + parent.width + 100, parent.y);
-    p.nodes.push(spouse);
-    ensureGenealogyEdge(parent.id, spouse.id, "spouse");
-    selectionRuntime.selectNode(spouse.id);
+    const node = buildGenealogyNodeFromPreset(preset, absoluteX, absoluteY);
+    p.nodes.push(node);
+    ensureGenealogyEdge(selected.id, node.id, "spouse");
+    selectionRuntime.selectNode(node.id);
     renderAll();
-    elevateSpawnedNode(spouse.id);
-    flashFcNodeEnter(spouse.id);
+    elevateSpawnedNode(node.id);
+    flashFcNodeEnter(node.id);
     markDirty();
+    return node;
   }
 
-  function genealogyAddChildAction(nodeId) {
-    pushHistory();
-    const child = genealogySpawnChildBelowParent(nodeId);
-    if (!child) return;
-    selectionRuntime.selectNode(child.id);
-    renderAll();
-    elevateSpawnedNode(child.id);
-    flashFcNodeEnter(child.id);
-    markDirty();
+  function genealogyAddSpouseAction(fromId) {
+    fromId = fromId || getFcQuickEditTargetNodeId();
+    const selected = getNodeById(fromId);
+    if (!selected) return;
+    const absoluteX = selected.x + 160;
+    const absoluteY = selected.y;
+    spawnDeterministicNode(fromId, "male", absoluteX, absoluteY);
   }
+
+  function genealogyAddChildAction(fromId) {
+    fromId = fromId || getFcQuickEditTargetNodeId();
+    const selected = getNodeById(fromId);
+    if (!selected) return;
+    const absoluteX = selected.x;
+    const absoluteY = selected.y + 150;
+    spawnDeterministicNode(fromId, "female", absoluteX, absoluteY);
+  }
+
+  window.genealogyAddSpouseAction = genealogyAddSpouseAction;
+  window.genealogyAddChildAction = genealogyAddChildAction;
 
   function syncGenealogyInspectorPanel(selectedNode) {
     const panel = document.getElementById("genealogyInspectorPanel");
