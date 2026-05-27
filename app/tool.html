@@ -15011,23 +15011,19 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
 
   function layoutGenealogySpouseEdge(fromNode, toNode) {
     const geo = getGenealogyMarriageGeometry(fromNode, toNode);
-    const lw = getNodeWorldPosition(geo.left);
-    const rw = getNodeWorldPosition(geo.right);
-    const pad = geo.pad;
-    const lineY = geo.unionY;
-    const startX = lw.x + geo.left.width + pad;
-    const endX = rw.x - pad;
-    const fromCy = geo.leftCy;
-    const toCy = geo.rightCy;
-    let from = { x: startX, y: fromCy, edge: "right" };
-    let to = { x: endX, y: toCy, edge: "left" };
+    const fromIsLeft = fromNode.id === geo.left.id;
+    const leftAnchor = { x: geo.leftEdgeX, y: geo.leftCy, edge: "right" };
+    const rightAnchor = { x: geo.rightEdgeX, y: geo.rightCy, edge: "left" };
+    const from = fromIsLeft ? leftAnchor : rightAnchor;
+    const to = fromIsLeft ? rightAnchor : leftAnchor;
     let d;
-    if (Math.abs(fromCy - toCy) < 2 && Math.abs(fromCy - lineY) < 2 && startX <= endX) {
-      from = { x: startX, y: lineY, edge: "right" };
-      to = { x: endX, y: lineY, edge: "left" };
-      d = `M ${startX} ${lineY} L ${endX} ${lineY}`;
+    if (Math.abs(leftAnchor.y - rightAnchor.y) < 2) {
+      // Aligned horizontally: draw a single straight segment between right-center of left and left-center of right.
+      d = `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
     } else {
-      d = `M ${startX} ${fromCy} L ${startX} ${lineY} L ${endX} ${lineY} L ${endX} ${toCy}`;
+      // Different vertical positions: route as a right-angle polyline between horizontal edge centers.
+      const midY = (from.y + to.y) / 2;
+      d = `M ${from.x} ${from.y} L ${from.x} ${midY} L ${to.x} ${midY} L ${to.x} ${to.y}`;
     }
     return { from, to, d };
   }
