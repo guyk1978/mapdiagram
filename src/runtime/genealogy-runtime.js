@@ -84,3 +84,132 @@ export function layoutGenealogySpouseEdge(fromNode, toNode, getNodeWorldPosition
   }
   return { from, to, d };
 }
+
+export function layoutGenealogyNonSpouseEdge(fromNode, toNode, getNodeWorldPosition) {
+  const fw = getNodeWorldPosition(fromNode);
+  const tw = getNodeWorldPosition(toNode);
+  const fromX = fw.x + fromNode.width / 2;
+  const fromY = fw.y + fromNode.height;
+  const toX = tw.x + toNode.width / 2;
+  const toY = tw.y;
+  const from = { x: fromX, y: fromY, edge: "bottom" };
+  const to = { x: toX, y: toY, edge: "top" };
+  let d;
+  if (Math.abs(fromX - toX) < 1.5) {
+    d = `M ${fromX} ${fromY} L ${toX} ${toY}`;
+  } else {
+    const midY = (fromY + toY) / 2;
+    d = `M ${fromX} ${fromY} L ${fromX} ${midY} L ${toX} ${midY} L ${toX} ${toY}`;
+  }
+  return { from, to, d };
+}
+
+export const GENEALOGY_TOOLBAR_ICON_SVG = {
+  male:
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" stroke="#ffffff" stroke-width="2" fill="none" style="width:14px;height:14px;display:block;flex-shrink:0"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>',
+  female:
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" stroke="#ffffff" stroke-width="2" fill="none" style="width:14px;height:14px;display:block;flex-shrink:0"><circle cx="12" cy="12" r="6"/></svg>',
+};
+
+export function genealogyToolbarActionButtonMarkup(role, label) {
+  const safeRole = role === "female" ? "female" : "male";
+  const tintClass = safeRole === "female" ? "gene-toolbar-icon--female" : "gene-toolbar-icon--male";
+  const icon = GENEALOGY_TOOLBAR_ICON_SVG[safeRole];
+  return `<span class="gene-toolbar-icon ${tintClass}" aria-hidden="true">${icon}</span><span class="gene-toolbar-label">${label}</span>`;
+}
+
+function ensureGenealogyToolbarCss(doc) {
+  if (!doc || doc.getElementById("genealogyToolbarRuntimeStyles")) return;
+  const style = doc.createElement("style");
+  style.id = "genealogyToolbarRuntimeStyles";
+  style.textContent = `
+    .canvas-micro-toolbar__btn--gene.gene-toolbar-action{display:flex;align-items:center;gap:6px;min-width:88px;padding:0 10px}
+    .canvas-micro-toolbar__btn--gene.gene-toolbar-action .gene-toolbar-label{font-size:10px;font-weight:600;letter-spacing:.02em;line-height:1}
+    .canvas-micro-toolbar__btn--gene.gene-toolbar-action .gene-toolbar-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:6px;flex-shrink:0}
+    .canvas-micro-toolbar__btn--gene.gene-toolbar-action .gene-toolbar-icon--male{background:color-mix(in srgb, #6ea8fe 34%, #1a2744);box-shadow:0 0 8px color-mix(in srgb, #6ea8fe 42%, transparent)}
+    .canvas-micro-toolbar__btn--gene.gene-toolbar-action .gene-toolbar-icon--female{background:color-mix(in srgb, #f472b6 34%, #2a1424);box-shadow:0 0 8px color-mix(in srgb, #f472b6 42%, transparent)}
+  `;
+  doc.head?.appendChild(style);
+}
+
+function syncGenealogyToolbarButtons(doc, globalObj) {
+  const spouseBtn = doc?.getElementById?.("geneAddSpouseBtn");
+  const childBtn = doc?.getElementById?.("geneAddChildBtn");
+  if (!spouseBtn || !childBtn) return;
+  const isGenealogy = typeof globalObj.isGenealogyWorkspaceActive === "function" && globalObj.isGenealogyWorkspaceActive();
+  if (!isGenealogy) return;
+
+  spouseBtn.classList.add("gene-toolbar-action");
+  childBtn.classList.add("gene-toolbar-action");
+  spouseBtn.innerHTML = genealogyToolbarActionButtonMarkup("female", "Add Female");
+  childBtn.innerHTML = genealogyToolbarActionButtonMarkup("male", "Add Male");
+  spouseBtn.title = "Add Female";
+  spouseBtn.setAttribute("aria-label", "Add Female");
+  childBtn.title = "Add Male";
+  childBtn.setAttribute("aria-label", "Add Male");
+
+  spouseBtn.hidden = false;
+  childBtn.hidden = false;
+  spouseBtn.style.display = "";
+  childBtn.style.display = "";
+}
+
+let _toolbarBridgeInstalled = false;
+let _routingBridgeInstalled = false;
+
+function installGenealogyToolbarBridge(globalObj) {
+  if (_toolbarBridgeInstalled) return true;
+  const doc = globalObj.document;
+  if (!doc) return false;
+  ensureGenealogyToolbarCss(doc);
+  syncGenealogyToolbarButtons(doc, globalObj);
+  const host = doc.getElementById("fcQuickEdit");
+  if (host) {
+    const mo = new MutationObserver(() => syncGenealogyToolbarButtons(doc, globalObj));
+    mo.observe(host, { attributes: true, subtree: true, childList: true });
+  }
+  _toolbarBridgeInstalled = true;
+  return true;
+}
+
+function installGenealogyRoutingBridge(globalObj) {
+  if (_routingBridgeInstalled) return true;
+  if (
+    typeof globalObj.layoutGenealogyEdge !== "function" ||
+    typeof globalObj.getNodeWorldPosition !== "function"
+  ) {
+    return false;
+  }
+
+  const getNodeWorldPosition = globalObj.getNodeWorldPosition;
+  const originalResolve =
+    typeof globalObj.resolveGenealogyLinkType === "function" ? globalObj.resolveGenealogyLinkType : null;
+
+  globalObj.layoutGenealogyEdge = function patchedLayoutGenealogyEdge(fromNode, toNode, linkType) {
+    if (linkType === "spouse") return layoutGenealogySpouseEdge(fromNode, toNode, getNodeWorldPosition);
+    return layoutGenealogyNonSpouseEdge(fromNode, toNode, getNodeWorldPosition);
+  };
+
+  if (originalResolve) {
+    globalObj.resolveGenealogyLinkType = function patchedResolveGenealogyLinkType(c) {
+      const resolved = originalResolve.call(this, c);
+      if (resolved === "spouse") return resolved;
+      if (!c || typeof globalObj.getNodeById !== "function") return resolved;
+      const fromNode = globalObj.getNodeById(c.from);
+      const toNode = globalObj.getNodeById(c.to);
+      if (!fromNode || !toNode) return resolved;
+      const isGenealogyConnection = !!(fromNode.genealogyRole || toNode.genealogyRole);
+      if (!isGenealogyConnection) return resolved;
+      return resolved || "parent-child";
+    };
+  }
+
+  _routingBridgeInstalled = true;
+  return true;
+}
+
+export function installGenealogyRuntimeBridges(globalObj = globalThis) {
+  const toolbarReady = installGenealogyToolbarBridge(globalObj);
+  const routingReady = installGenealogyRoutingBridge(globalObj);
+  return { toolbarReady, routingReady };
+}

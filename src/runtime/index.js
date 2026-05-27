@@ -12,7 +12,11 @@ import {
   GENEALOGY_SIDEBAR_TILE_SVG,
   genealogySidebarTileSvg,
   genealogySidebarTileMarkup,
+  GENEALOGY_TOOLBAR_ICON_SVG,
+  genealogyToolbarActionButtonMarkup,
   layoutGenealogySpouseEdge,
+  layoutGenealogyNonSpouseEdge,
+  installGenealogyRuntimeBridges,
 } from "./genealogy-runtime.js";
 
 const MapDiagramRuntime = {
@@ -27,9 +31,13 @@ const MapDiagramRuntime = {
   createSupabaseRuntime,
   GENEALOGY_WORKSPACE_PRESETS,
   GENEALOGY_SIDEBAR_TILE_SVG,
+  GENEALOGY_TOOLBAR_ICON_SVG,
   genealogySidebarTileSvg,
   genealogySidebarTileMarkup,
+  genealogyToolbarActionButtonMarkup,
   layoutGenealogySpouseEdge,
+  layoutGenealogyNonSpouseEdge,
+  installGenealogyRuntimeBridges,
 };
 
 if (typeof globalThis !== "undefined") {
@@ -48,7 +56,32 @@ export {
   createSupabaseRuntime,
   GENEALOGY_WORKSPACE_PRESETS,
   GENEALOGY_SIDEBAR_TILE_SVG,
+  GENEALOGY_TOOLBAR_ICON_SVG,
   genealogySidebarTileSvg,
   genealogySidebarTileMarkup,
+  genealogyToolbarActionButtonMarkup,
   layoutGenealogySpouseEdge,
+  layoutGenealogyNonSpouseEdge,
+  installGenealogyRuntimeBridges,
 };
+
+if (typeof globalThis !== "undefined" && typeof globalThis.document !== "undefined") {
+  const run = () => {
+    const tick = () => {
+      const state = installGenealogyRuntimeBridges(globalThis);
+      if (state.toolbarReady && state.routingReady) return true;
+      return false;
+    };
+    if (tick()) return;
+    let tries = 0;
+    const iv = globalThis.setInterval(() => {
+      tries += 1;
+      if (tick() || tries > 80) globalThis.clearInterval(iv);
+    }, 150);
+  };
+  if (globalThis.document.readyState === "loading") {
+    globalThis.document.addEventListener("DOMContentLoaded", run, { once: true });
+  } else {
+    run();
+  }
+}

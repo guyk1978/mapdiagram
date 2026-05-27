@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   GENEALOGY_WORKSPACE_PRESETS,
   genealogySidebarTileMarkup,
+  genealogyToolbarActionButtonMarkup,
+  layoutGenealogyNonSpouseEdge,
   layoutGenealogySpouseEdge,
 } from "../../src/runtime/genealogy-runtime.js";
 
@@ -35,5 +37,27 @@ describe("genealogy-runtime", () => {
     expect(out.from.y).toBe(154);
     expect(out.to.y).toBe(154);
     expect(out.d).toBe("M 260 154 L 420 154");
+  });
+
+  it("routes non-spouse genealogy edges bottom-center to top-center", () => {
+    const fromNode = { id: "from", x: 120, y: 80, width: 160, height: 108 };
+    const toNode = { id: "to", x: 420, y: 320, width: 160, height: 108 };
+    const getNodeWorldPosition = (n: { x: number; y: number }) => ({ x: n.x, y: n.y });
+    const out = layoutGenealogyNonSpouseEdge(fromNode, toNode, getNodeWorldPosition);
+
+    expect(out.from).toEqual({ x: 200, y: 188, edge: "bottom" });
+    expect(out.to).toEqual({ x: 500, y: 320, edge: "top" });
+    expect(out.d).toBe("M 200 188 L 200 254 L 500 254 L 500 320");
+  });
+
+  it("renders toolbar Add Male/Add Female icon markup", () => {
+    const maleMarkup = genealogyToolbarActionButtonMarkup("male", "Add Male");
+    const femaleMarkup = genealogyToolbarActionButtonMarkup("female", "Add Female");
+    expect(maleMarkup).toContain("Add Male");
+    expect(maleMarkup).toContain('stroke="#ffffff"');
+    expect(maleMarkup).toContain('stroke-width="2"');
+    expect(maleMarkup).toContain('fill="none"');
+    expect(femaleMarkup).toContain("Add Female");
+    expect(femaleMarkup).toContain("gene-toolbar-icon--female");
   });
 });
