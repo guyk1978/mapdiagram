@@ -8963,25 +8963,26 @@ function finalizeFlowGroupDragIfAny() {
     const spawnBtn = document.getElementById("bulkSpawnToggleBtn");
     const geneSpouseBtn = document.getElementById("geneAddSpouseBtn");
     const geneChildBtn = document.getElementById("geneAddChildBtn");
-    const isGeneAdult = isGenealogyWorkspaceActive() && isGenealogyAdultProfile(n);
-    const isGeneChild = isGenealogyWorkspaceActive() && isGenealogyChildProfile(n);
-    const showGeneChildBtn = isGeneAdult || isGeneChild;
+    const isGeneNode =
+      isGenealogyWorkspaceActive() &&
+      !!n.genealogyRole &&
+      (isGenealogyAdultProfile(n) || isGenealogyChildProfile(n));
     if (dupBtn) dupBtn.disabled = !canEdit;
     if (fwdBtn) fwdBtn.disabled = !canEdit;
     if (backBtn) backBtn.disabled = !canEdit;
     if (delBtn) delBtn.disabled = !canEdit;
     if (spawnBtn) {
-      spawnBtn.hidden = isGeneAdult || isGeneChild;
+      spawnBtn.hidden = false;
       spawnBtn.disabled = !canEdit;
     }
     if (geneSpouseBtn) {
-      geneSpouseBtn.hidden = !isGeneAdult;
-      geneSpouseBtn.style.display = isGeneAdult ? "" : "none";
-      geneSpouseBtn.disabled = !canEdit || !!findGenealogySpouse(n.id);
+      geneSpouseBtn.hidden = !isGeneNode;
+      geneSpouseBtn.style.display = isGeneNode ? "" : "none";
+      geneSpouseBtn.disabled = !canEdit;
     }
     if (geneChildBtn) {
-      geneChildBtn.hidden = !showGeneChildBtn;
-      geneChildBtn.style.display = showGeneChildBtn ? "" : "none";
+      geneChildBtn.hidden = !isGeneNode;
+      geneChildBtn.style.display = isGeneNode ? "" : "none";
       geneChildBtn.disabled = !canEdit;
     }
     bar.hidden = false;
@@ -14972,38 +14973,22 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
   }
 
   function layoutGenealogyParentChildEdge(fromNode, toNode) {
-    const child = toNode;
-    const cw = getNodeWorldPosition(child);
     const pad = CONNECTION_ANCHOR_OUTSET;
-    const childX = cw.x + child.width / 2;
+    const pw = getNodeWorldPosition(fromNode);
+    const cw = getNodeWorldPosition(toNode);
+    const fromX = pw.x + fromNode.width / 2;
+    const fromY = pw.y + fromNode.height + pad;
+    const childX = cw.x + toNode.width / 2;
     const childTopY = cw.y - pad;
-    let unionX;
-    let unionY;
-    let couple = null;
-    if (fromNode.genealogyRole === "union") {
-      couple = findGenealogyCoupleForUnion(fromNode);
-    } else {
-      const spouse = findGenealogySpouse(fromNode.id);
-      if (spouse) couple = { a: fromNode, b: spouse };
-    }
-    if (couple) {
-      const geo = getGenealogyMarriageGeometry(couple.a, couple.b);
-      unionX = geo.unionX;
-      unionY = geo.unionY;
-    } else {
-      const pw = getNodeWorldPosition(fromNode);
-      unionX = pw.x + fromNode.width / 2;
-      unionY = pw.y + fromNode.height + pad;
-    }
-    const midY = unionY + (childTopY - unionY) * 0.5;
+    const midY = (fromY + childTopY) * 0.5;
     let d;
-    if (Math.abs(unionX - childX) < 1.5) {
-      d = `M ${unionX} ${unionY} L ${childX} ${childTopY}`;
+    if (Math.abs(fromX - childX) < 1.5) {
+      d = `M ${fromX} ${fromY} L ${childX} ${childTopY}`;
     } else {
-      d = `M ${unionX} ${unionY} L ${unionX} ${midY} L ${childX} ${midY} L ${childX} ${childTopY}`;
+      d = `M ${fromX} ${fromY} L ${fromX} ${midY} L ${childX} ${midY} L ${childX} ${childTopY}`;
     }
     return {
-      from: { x: unionX, y: unionY, edge: "bottom" },
+      from: { x: fromX, y: fromY, edge: "bottom" },
       to: { x: childX, y: childTopY, edge: "top" },
       d
     };
