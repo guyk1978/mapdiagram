@@ -2184,6 +2184,42 @@
     box-sizing: border-box;
     overflow: hidden;
   }
+  .node--ebike-component > .body,
+  .node--ebike-component.node--svg-shape > .node-shape-content > .body,
+  .node--ebike-component.node--shape-masked > .node-shape-mask > .body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 10px;
+    background: transparent !important;
+  }
+  .node--ebike-component .node-label-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    flex: 1 1 auto;
+    box-sizing: border-box;
+  }
+  .node--ebike-component .node-title {
+    margin: 0;
+    width: 100%;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    text-align: center;
+  }
+  .node--ebike-component .node-icon,
+  .node--ebike-component .node-subtitle,
+  .node--ebike-component .node-desc,
+  .node--ebike-component .node-media-strip {
+    display: none !important;
+  }
   .node.node--svg-shape.shape-diamond > .node-shape-content { padding: 20% 22%; }
   .node.node--svg-shape.shape-diamond .body,
   .node.node--svg-shape.shape-parallelogram .body {
@@ -7293,15 +7329,17 @@
   ];
 
   const EBIKE_WORKSPACE_PRESETS = [
-    { libraryCategory: "power", label: "Battery Pack", type: "system", shape: "rect", previewShape: "ebike-battery", tooltip: "battery-pack", color: "#6ee7b7", width: 200, height: 100 },
-    { libraryCategory: "power", label: "Charger", type: "system", shape: "rect", previewShape: "ebike-charger", tooltip: "charger", color: "#5eead4", width: 160, height: 88 },
-    { libraryCategory: "power", label: "Fuse / Breaker", type: "process", shape: "rect", previewShape: "ebike-fuse", tooltip: "fuse-breaker", color: "#fcd34d", width: 120, height: 72 },
-    { libraryCategory: "controllers", label: "Controller", type: "system", shape: "rect", previewShape: "ebike-controller", tooltip: "controller", color: "#93c5fd", width: 190, height: 96 },
-    { libraryCategory: "controllers", label: "Display", type: "process", shape: "rect", previewShape: "ebike-display", tooltip: "display", color: "#a5b4fc", width: 150, height: 80 },
-    { libraryCategory: "controllers", label: "Motor", type: "system", shape: "circle", previewShape: "ebike-motor", tooltip: "motor", color: "#fca5a5", width: 120, height: 120 },
-    { libraryCategory: "sensors", label: "PAS Sensor", type: "input", shape: "circle", previewShape: "ebike-pas", tooltip: "pas-sensor", color: "#f9a8d4", width: 96, height: 96 },
-    { libraryCategory: "sensors", label: "Torque Sensor", type: "input", shape: "circle", previewShape: "ebike-torque", tooltip: "torque-sensor", color: "#fdba74", width: 96, height: 96 },
-    { libraryCategory: "sensors", label: "Wire Harness", type: "custom", shape: "connector", previewShape: "ebike-wire", tooltip: "wire-harness", color: "#94a3b8", width: 140, height: 56 }
+    { libraryCategory: "power", label: "Battery Pack", type: "system", shape: "rect", previewShape: "ebike-battery", tooltip: "battery-pack", ebikeRole: "battery", color: "#6ee7b7", width: 200, height: 100 },
+    { libraryCategory: "power", label: "Charger", type: "system", shape: "rect", previewShape: "ebike-charger", tooltip: "charger", ebikeRole: "charger", color: "#5eead4", width: 160, height: 88 },
+    { libraryCategory: "power", label: "Fuse / Breaker", type: "process", shape: "rect", previewShape: "ebike-fuse", tooltip: "fuse-breaker", ebikeRole: "fuse", color: "#fcd34d", width: 120, height: 72 },
+    { libraryCategory: "controllers", label: "Controller", type: "system", shape: "rect", previewShape: "ebike-controller", tooltip: "controller", ebikeRole: "controller", color: "#93c5fd", width: 190, height: 96 },
+    { libraryCategory: "controllers", label: "Display", type: "process", shape: "rect", previewShape: "ebike-display", tooltip: "display", ebikeRole: "display", color: "#a5b4fc", width: 150, height: 80 },
+    { libraryCategory: "controllers", label: "Motor", type: "system", shape: "circle", previewShape: "ebike-motor", tooltip: "motor", ebikeRole: "motor", color: "#fca5a5", width: 120, height: 120 },
+    { libraryCategory: "sensors", label: "PAS Sensor", type: "input", shape: "circle", previewShape: "ebike-pas", tooltip: "pas-sensor", ebikeRole: "pas-sensor", color: "#f9a8d4", width: 96, height: 96 },
+    { libraryCategory: "sensors", label: "Throttle", type: "input", shape: "rect", previewShape: "ebike-throttle", tooltip: "throttle", ebikeRole: "throttle", color: "#c4b5fd", width: 110, height: 72 },
+    { libraryCategory: "sensors", label: "Brake Lever", type: "input", shape: "rect", previewShape: "ebike-brake", tooltip: "brake-lever", ebikeRole: "brake-lever", color: "#fda4af", width: 110, height: 72 },
+    { libraryCategory: "sensors", label: "Torque Sensor", type: "input", shape: "circle", previewShape: "ebike-torque", tooltip: "torque-sensor", ebikeRole: "pas-sensor", color: "#fdba74", width: 96, height: 96 },
+    { libraryCategory: "sensors", label: "Wire Harness", type: "custom", shape: "connector", previewShape: "ebike-wire", tooltip: "wire-harness", ebikeRole: "wire-harness", color: "#94a3b8", width: 140, height: 56 }
   ];
 
   const GENEALOGY_WORKSPACE_PRESETS = [
@@ -10376,9 +10414,12 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     if (n.style.strokeColor == null && n.style.borderColor) {
       n.style.strokeColor = n.style.borderColor;
     }
-    if (n.style.fillColor == null && n.color) {
+    if (n.style.fillColor == null && n.color && !n.ebikeRole) {
       const legacyFill = normalizeNodeHexColor(n.color);
       if (legacyFill) n.style.fillColor = legacyFill;
+    }
+    if (n.ebikeRole && n.style.fillColor == null) {
+      n.style.fillColor = "transparent";
     }
     if (n.style.borderWidth == null || !Number.isFinite(Number(n.style.borderWidth))) n.style.borderWidth = 1.5;
     else n.style.borderWidth = Math.max(0, Math.min(6, Number(n.style.borderWidth)));
@@ -12764,6 +12805,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     ensureNodeExtendedModel(n);
     body.innerHTML = "";
     const st = ensureNodeStyle(n);
+    const isEbikeComponent = !!n.ebikeRole;
     if (st.freeform) {
       body.classList.add("node-body-freeform");
       const title = document.createElement("div");
@@ -12774,6 +12816,18 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       return;
     }
     body.classList.remove("node-body-freeform");
+    if (isEbikeComponent) {
+      const labelWrap = document.createElement("div");
+      labelWrap.className = "node-label-container";
+      const title = document.createElement("div");
+      title.className = "node-title";
+      title.textContent = n.title || n.text || "Component";
+      applyNodeTitleTypography(title, n);
+      labelWrap.appendChild(title);
+      body.appendChild(labelWrap);
+      applyNodeBodyTextStyles(body, n);
+      return;
+    }
     const showStrip = n.media && n.media.imageUrl && n.shape !== "diamond";
     if (showStrip) {
       const wrap = document.createElement("div");
@@ -13728,6 +13782,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       "ebike-pas": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><circle cx="22" cy="14" r="10" ${s}/><path d="M22 6v4M14 18l4-4M30 18l-4-4" ${s}/></svg>`,
       "ebike-torque": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><circle cx="22" cy="14" r="10" ${s}/><path d="M16 14h12M22 8v12" ${s}/></svg>`,
       "ebike-wire": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M6 14h32" ${s}/><circle cx="10" cy="14" r="2" fill="currentColor"/><circle cx="34" cy="14" r="2" fill="currentColor"/></svg>`,
+      "ebike-throttle": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><rect x="14" y="6" width="16" height="16" rx="3" ${s}/><path d="M22 10v8M18 14h8" ${s}/></svg>`,
+      "ebike-brake": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><path d="M10 20c4-8 10-12 22-12" ${s}/><circle cx="30" cy="10" r="4" ${s}/></svg>`,
       "gene-male": `<svg class="node-tile__svg" viewBox="0 0 44 32" aria-hidden="true"><rect x="8" y="10" width="28" height="16" rx="2" ${s}/><circle cx="22" cy="8" r="5" ${s}/></svg>`,
       "gene-female": `<svg class="node-tile__svg" viewBox="0 0 44 32" aria-hidden="true"><rect x="10" y="10" width="24" height="16" rx="2" ${s}/><circle cx="22" cy="8" r="5" ${s}/><path d="M14 26h16" ${s}/></svg>`,
       "gene-child": `<svg class="node-tile__svg" viewBox="0 0 44 28" aria-hidden="true"><rect x="3" y="6" width="38" height="16" rx="8" ${s}/><circle cx="22" cy="14" r="3" ${s}/></svg>`,
@@ -14067,6 +14123,123 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     });
   }
 
+  function isEbikeWorkspaceActive() {
+    return getActiveWorkspaceEnv() === "ebike";
+  }
+
+  function getEbikeNodesByRole(role, exceptId = null) {
+    return getProject().nodes.filter((n) => n.ebikeRole === role && n.id !== exceptId);
+  }
+
+  function firstEbikeNodeByRole(role, exceptId = null) {
+    const list = getEbikeNodesByRole(role, exceptId);
+    return list.length ? list[0] : null;
+  }
+
+  function ensureNodeNodeEdge(fromId, toId) {
+    if (!fromId || !toId || fromId === toId) return null;
+    const p = getProject();
+    const existing = p.connections.find(
+      (c) => isNodeNodeConnection(c) && c.from === fromId && c.to === toId
+    );
+    if (existing) return existing.id;
+    const connectionId = uid();
+    p.connections.push({ id: connectionId, from: fromId, to: toId });
+    const fromNode = getNodeById(fromId);
+    const toNode = getNodeById(toId);
+    if (fromNode && toNode) {
+      const from = anchor(fromNode, "out", nodeWorldCenter(toNode));
+      const to = anchor(toNode, "in", nodeWorldCenter(fromNode));
+      const auto = autoCurve(from, to);
+      runtime.connectionUi[connectionId] = { cp1: auto.cp1, cp2: auto.cp2, custom: false };
+    }
+    return connectionId;
+  }
+
+  function removeNodeNodeEdge(fromId, toId) {
+    const p = getProject();
+    const conn = p.connections.find(
+      (c) => isNodeNodeConnection(c) && c.from === fromId && c.to === toId
+    );
+    if (!conn) return;
+    removeConnectionByIdCascade(p, conn.id);
+    delete runtime.connectionUi[conn.id];
+  }
+
+  function positionEbikeFuseBetween(battery, controller, fuseNode) {
+    const bCx = battery.x + battery.width / 2;
+    const bCy = battery.y + battery.height / 2;
+    const cCx = controller.x + controller.width / 2;
+    const cCy = controller.y + controller.height / 2;
+    fuseNode.x = Math.round((battery.x + battery.width + controller.x) / 2 - fuseNode.width / 2);
+    fuseNode.y = Math.round((bCy + cCy) / 2 - fuseNode.height / 2);
+    const span = Math.abs(cCx - bCx);
+    if (span < fuseNode.width + 24) {
+      fuseNode.x = Math.round(bCx + (cCx - bCx) / 2 - fuseNode.width / 2);
+    }
+  }
+
+  function applyEbikeAutoWiring(newNode) {
+    if (!isEbikeWorkspaceActive() || !newNode?.ebikeRole) return;
+    const role = newNode.ebikeRole;
+    const id = newNode.id;
+    const battery = firstEbikeNodeByRole("battery", id);
+    const controller = firstEbikeNodeByRole("controller", id);
+    const display = firstEbikeNodeByRole("display", id);
+    const motor = firstEbikeNodeByRole("motor", id);
+    const fuse = firstEbikeNodeByRole("fuse", id);
+    const sensorRoles = new Set(["throttle", "pas-sensor", "brake-lever"]);
+
+    if (role === "controller") {
+      if (battery && fuse) {
+        ensureNodeNodeEdge(battery.id, fuse.id);
+        ensureNodeNodeEdge(fuse.id, id);
+      } else if (battery) {
+        ensureNodeNodeEdge(battery.id, id);
+      }
+      if (display) ensureNodeNodeEdge(id, display.id);
+      if (motor) ensureNodeNodeEdge(id, motor.id);
+    } else if (sensorRoles.has(role)) {
+      if (controller) ensureNodeNodeEdge(id, controller.id);
+    } else if (role === "fuse") {
+      if (battery && controller) {
+        positionEbikeFuseBetween(battery, controller, newNode);
+        removeNodeNodeEdge(battery.id, controller.id);
+        ensureNodeNodeEdge(battery.id, id);
+        ensureNodeNodeEdge(id, controller.id);
+      } else if (battery) {
+        ensureNodeNodeEdge(battery.id, id);
+      } else if (controller) {
+        ensureNodeNodeEdge(id, controller.id);
+      }
+    } else if (role === "battery") {
+      if (fuse && controller) {
+        ensureNodeNodeEdge(id, fuse.id);
+      } else if (controller) {
+        ensureNodeNodeEdge(id, controller.id);
+      }
+    } else if (role === "display" && controller) {
+      ensureNodeNodeEdge(controller.id, id);
+    } else if (role === "motor" && controller) {
+      ensureNodeNodeEdge(controller.id, id);
+    }
+  }
+
+  function buildEbikeEngineeringNodeStyle(preset) {
+    const round = ["circle", "capsule", "connector", "summing-junction"].includes(preset.shape);
+    const stroke = normalizeNodeHexColor(preset.color) || "#93C5FD";
+    return {
+      fillColor: "transparent",
+      opacity: 0.98,
+      glow: 10,
+      shadow: 14,
+      radius: round ? 999 : preset.shape === "rounded" ? 16 : 10,
+      borderColor: stroke,
+      strokeColor: stroke,
+      borderWidth: 2
+    };
+  }
+
   function insertPresetNode(preset) {
     pushHistory();
     const p = getProject();
@@ -14076,6 +14249,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const fcDims = isFlowchartMode() && preset.width && preset.height
       ? { width: preset.width, height: preset.height }
       : { width: 210, height: 118 };
+    const ebikeRole = isEbikeWorkspaceActive() ? preset.ebikeRole || preset.tooltip || null : null;
+    const strokeAccent = normalizeNodeHexColor(preset.color) || "#9CB8FF";
     const n = {
       id: uid(),
       x, y,
@@ -14083,25 +14258,29 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       height: fcDims.height,
       text: preset.label,
       title: preset.label,
-      subtitle: preset.subtitle,
-      description: preset.description,
-      icon: preset.icon,
+      subtitle: ebikeRole ? undefined : preset.subtitle,
+      description: ebikeRole ? undefined : preset.description,
+      icon: ebikeRole ? undefined : preset.icon,
       type: preset.type,
-      color: preset.color,
+      color: strokeAccent,
       shape: preset.shape,
-      style: (() => {
-        const round = ["circle", "capsule", "connector", "summing-junction"].includes(preset.shape);
-        const arrow = ["arrow-right", "arrow-left", "arrow-up-down"].includes(preset.shape);
-        return {
-          opacity: 0.88,
-          glow: preset.shape === "connector" ? 18 : arrow ? 16 : 14,
-          shadow: 22,
-          radius: round ? 999 : preset.shape === "rounded" ? 16 : 12,
-          borderColor: "#9cb8ff"
-        };
-      })()
+      ebikeRole: ebikeRole || undefined,
+      style: ebikeRole
+        ? buildEbikeEngineeringNodeStyle(preset)
+        : (() => {
+            const round = ["circle", "capsule", "connector", "summing-junction"].includes(preset.shape);
+            const arrow = ["arrow-right", "arrow-left", "arrow-up-down"].includes(preset.shape);
+            return {
+              opacity: 0.88,
+              glow: preset.shape === "connector" ? 18 : arrow ? 16 : 14,
+              shadow: 22,
+              radius: round ? 999 : preset.shape === "rounded" ? 16 : 12,
+              borderColor: "#9cb8ff"
+            };
+          })()
     };
     p.nodes.push(n);
+    if (ebikeRole) applyEbikeAutoWiring(n);
 
     selectionRuntime.selectNode(n.id);
 
@@ -14233,6 +14412,10 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const el = document.createElement("div");
     el.className = "node";
     el.dataset.nodeId = n.id;
+    if (n.ebikeRole) {
+      el.dataset.type = n.ebikeRole;
+      el.classList.add("node--ebike-component");
+    }
     const body = document.createElement("div");
     body.className = "body";
     renderNodeBody(body, n);
