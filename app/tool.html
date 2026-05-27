@@ -9249,9 +9249,13 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const ph = Number(from.height) || 88;
     const childW = isGenealogySpawn ? pw : (preset.width || 190);
     const childH = isGenealogySpawn ? ph : (preset.height || 88);
-    const radius = Math.max(130, pw * 0.7 + count * 14);
     const centerX = parentPos.x + pw / 2;
     const centerY = parentPos.y + ph / 2;
+    const spacing = 40;
+    const totalWidth = (count * childW) + ((count - 1) * spacing);
+    const startX = centerX - (totalWidth / 2);
+    const fixedY = parentPos.y + ph + 120;
+    const radius = Math.max(130, pw * 0.7 + count * 14);
     const startAngle = -Math.PI / 2;
     const span = count === 1 ? 0 : Math.min(Math.PI * 1.4, (Math.PI / 5) * (count - 1));
     const parentPaint = resolveNodePaintForInheritance(from);
@@ -9260,16 +9264,24 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const parentSt = ensureNodeStyle(from);
     const newNodeIds = [];
     const newConnIds = [];
+    const selectedLooksFemale =
+      String(shape || "").toLowerCase() === "circle" || String(preset.shape || "").toLowerCase() === "circle";
+    const genealogyRole = selectedLooksFemale ? "female" : "male";
+    const genealogyShape = selectedLooksFemale ? "circle" : "rect";
+    const genealogyColor = selectedLooksFemale ? "#f472b6" : "#6ea8fe";
     for (let i = 0; i < count; i++) {
       const t = count === 1 ? 0.5 : i / (count - 1);
       const angle = startAngle - span / 2 + span * t;
-      const cx = centerX + Math.cos(angle) * radius;
-      const cy = centerY + Math.sin(angle) * radius + ph * 0.25;
-      const spawnShape = isGenealogySpawn ? (from.shape || preset.shape || shape) : (preset.shape || shape);
+      const cx = isGenealogySpawn
+        ? startX + (i * (childW + spacing)) + (childW / 2)
+        : centerX + Math.cos(angle) * radius;
+      const cy = isGenealogySpawn
+        ? fixedY + (childH / 2)
+        : centerY + Math.sin(angle) * radius + ph * 0.25;
+      const spawnShape = isGenealogySpawn ? genealogyShape : (preset.shape || shape);
       const spawnType = isGenealogySpawn ? (from.type || (preset.type || "person")) : (preset.type || "process");
-      const parentRole = String(from.genealogyRole || "").toLowerCase();
       const spawnRole = isGenealogySpawn
-        ? (parentRole === "female" ? "female" : "male")
+        ? genealogyRole
         : null;
       const spawnLabel = isGenealogySpawn
         ? (spawnRole === "female" ? "Female" : "Male")
@@ -9286,15 +9298,15 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         title: spawnLabel,
         type: spawnType,
         shape: spawnShape,
-        color: parentFill,
+        color: isGenealogySpawn ? genealogyColor : parentFill,
         style: inheritedStyle || {
           opacity: parentSt.opacity ?? 0.92,
           glow: parentSt.glow ?? 12,
           shadow: parentSt.shadow ?? 18,
           radius: round ? 999 : spawnShape === "rounded" ? 14 : parentSt.radius ?? 12,
-          borderColor: parentStroke,
-          strokeColor: parentStroke,
-          fillColor: parentFill
+          borderColor: isGenealogySpawn ? genealogyColor : parentStroke,
+          strokeColor: isGenealogySpawn ? genealogyColor : parentStroke,
+          fillColor: isGenealogySpawn ? hexToRgba(genealogyColor, 0.12) : parentFill
         },
         genealogyRole: spawnRole || undefined
       });
