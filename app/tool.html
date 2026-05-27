@@ -4177,6 +4177,17 @@
             </label>
           </div>
         </div>
+        <div class="global-corner-picker" id="globalCornerPicker">
+          <button type="button" id="globalCornerPickerBtn" class="global-corner-picker__trigger icon-btn" title="Corner radius" aria-label="Corner radius" aria-haspopup="true" aria-expanded="false">
+            <span class="global-corner-picker__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.75"/></svg></span>
+          </button>
+          <div id="globalCornerPickerPanel" class="global-corner-picker__panel" hidden role="menu" aria-label="Corner radius presets">
+            <button type="button" class="global-corner-preset" data-corner-radius="0">Square <span class="global-corner-preset__px">0px</span></button>
+            <button type="button" class="global-corner-preset" data-corner-radius="4">Subtle <span class="global-corner-preset__px">4px</span></button>
+            <button type="button" class="global-corner-preset" data-corner-radius="8">Medium <span class="global-corner-preset__px">8px</span></button>
+            <button type="button" class="global-corner-preset" data-corner-radius="16">Rounded <span class="global-corner-preset__px">16px</span></button>
+          </div>
+        </div>
         <button type="button" id="stickyMultiSelectBtn" class="icon-btn" title="Multi-select mode (M)" aria-label="Multi-select mode" aria-pressed="false"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="7" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.75"/><rect x="9" y="5" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.75" opacity=".85"/><path d="M12 12h4M12 16v-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
         <div id="topbarConnSelActions" class="group" role="toolbar" aria-label="Selected connection" hidden>
           <button type="button" id="topbarDeleteConnBtn" class="icon-btn" title="Delete connection" aria-label="Delete connection"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 7h16M10 11v6M14 11v6M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1v2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7l1 14a1 1 0 0 0 1 .9h6a1 1 0 0 0 1-.9l1-14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
@@ -5089,6 +5100,8 @@
     styleApplyRaf: 0,
     globalColorInputDebounce: 0,
     bulkSpawnPopoverOpen: false,
+    globalCornerPickerOpen: false,
+    globalCornerOutsideListener: null,
     collisionDebounceTimer: null,
     graphCache: null,
     graphCacheKey: "",
@@ -5563,6 +5576,7 @@
     markDirty();
     syncEdgeInspectorPanel();
     syncGlobalColorPickerFromSelection();
+    syncGlobalCornerPickerFromSelection();
   }
 
   /** Custom edge stroke (hex); null = use theme gradient / bridge colors. */
@@ -8814,6 +8828,9 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const centerY = parentPos.y + ph / 2;
     const startAngle = -Math.PI / 2;
     const span = count === 1 ? 0 : Math.min(Math.PI * 1.4, (Math.PI / 5) * (count - 1));
+    const parentFill = getNodeFillColor(from);
+    const parentStroke = getNodeStrokeColor(from);
+    const parentSt = ensureNodeStyle(from);
     const newNodeIds = [];
     const newConnIds = [];
     for (let i = 0; i < count; i++) {
@@ -8822,6 +8839,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       const cx = centerX + Math.cos(angle) * radius;
       const cy = centerY + Math.sin(angle) * radius + ph * 0.25;
       const round = ["circle", "capsule", "connector", "summing-junction"].includes(preset.shape);
+      const inheritedFill =
+        parentFill && parentFill !== "transparent" ? parentFill : preset.color || "#8fb2ff";
       const n = normalizeNode({
         id: uid(),
         x: cx - childW / 2,
@@ -8832,13 +8851,15 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         title: `${preset.label || "Step"} ${i + 1}`,
         type: preset.type || "process",
         shape: preset.shape || shape,
-        color: preset.color || "#8fb2ff",
+        color: inheritedFill,
         style: {
-          opacity: 0.92,
-          glow: 12,
-          shadow: 18,
-          radius: round ? 999 : preset.shape === "rounded" ? 14 : 12,
-          borderColor: "#9cb8ff"
+          opacity: parentSt.opacity ?? 0.92,
+          glow: parentSt.glow ?? 12,
+          shadow: parentSt.shadow ?? 18,
+          radius: round ? 999 : preset.shape === "rounded" ? 14 : parentSt.radius ?? 12,
+          borderColor: parentStroke,
+          strokeColor: parentStroke,
+          fillColor: parentFill && parentFill !== "transparent" ? parentFill : undefined
         }
       });
       p.nodes.push(n);
@@ -8866,8 +8887,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       const fromNode = getNodeById(fromId);
       const toNode = c ? getNodeById(c.to) : null;
       if (fromNode && toNode) {
-        const fromA = anchor(fromNode, "out", nodeWorldCenter(toNode));
-        const toA = anchor(toNode, "in", nodeWorldCenter(fromNode));
+        const fromA = anchor(fromNode, "out", nodeWorldCenter(toNode), connId);
+        const toA = anchor(toNode, "in", nodeWorldCenter(fromNode), connId);
         const auto = autoCurve(fromA, toA);
         runtime.connectionUi[connId] = { cp1: auto.cp1, cp2: auto.cp2, custom: false };
       }
@@ -9576,6 +9597,138 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         btn.classList.toggle("is-active", sw === norm);
       });
     }
+    syncGlobalCornerPickerFromSelection();
+  }
+
+  const GLOBAL_CORNER_PRESETS = [
+    { value: 0, label: "Square" },
+    { value: 4, label: "Subtle" },
+    { value: 8, label: "Medium" },
+    { value: 16, label: "Rounded" }
+  ];
+
+  function disarmGlobalCornerOutsideClose() {
+    if (runtime.globalCornerOutsideListener) {
+      document.removeEventListener("pointerdown", runtime.globalCornerOutsideListener, true);
+      runtime.globalCornerOutsideListener = null;
+    }
+  }
+
+  function armGlobalCornerOutsideClose() {
+    disarmGlobalCornerOutsideClose();
+    runtime.globalCornerOutsideListener = (e) => {
+      if (!runtime.globalCornerPickerOpen) return;
+      if (e.target.closest("#globalCornerPickerPanel, #globalCornerPickerBtn, #globalCornerPicker")) return;
+      closeGlobalCornerPicker();
+    };
+    document.addEventListener("pointerdown", runtime.globalCornerOutsideListener, true);
+  }
+
+  function positionGlobalCornerPickerPanel() {
+    const panel = document.getElementById("globalCornerPickerPanel");
+    const btn = document.getElementById("globalCornerPickerBtn");
+    if (!panel || !btn) return;
+    if (panel.parentElement !== document.body) document.body.appendChild(panel);
+    panel.style.position = "fixed";
+    panel.style.zIndex = "10050";
+    const r = btn.getBoundingClientRect();
+    const pw = panel.offsetWidth || 160;
+    const left = Math.max(8, Math.min(window.innerWidth - pw - 8, r.left + r.width / 2 - pw / 2));
+    panel.style.left = `${left}px`;
+    panel.style.top = `${r.bottom + 6}px`;
+    panel.style.right = "auto";
+  }
+
+  function closeGlobalCornerPicker() {
+    const panel = document.getElementById("globalCornerPickerPanel");
+    const btn = document.getElementById("globalCornerPickerBtn");
+    const root = document.getElementById("globalCornerPicker");
+    if (panel) {
+      panel.hidden = true;
+      if (root && panel.parentElement === document.body) root.appendChild(panel);
+    }
+    if (btn) btn.setAttribute("aria-expanded", "false");
+    runtime.globalCornerPickerOpen = false;
+    disarmGlobalCornerOutsideClose();
+  }
+
+  function openGlobalCornerPicker() {
+    const panel = document.getElementById("globalCornerPickerPanel");
+    const btn = document.getElementById("globalCornerPickerBtn");
+    if (!panel || !btn || btn.disabled) return;
+    syncGlobalCornerPickerFromSelection();
+    positionGlobalCornerPickerPanel();
+    panel.hidden = false;
+    btn.setAttribute("aria-expanded", "true");
+    runtime.globalCornerPickerOpen = true;
+    requestAnimationFrame(() => armGlobalCornerOutsideClose());
+  }
+
+  function syncGlobalCornerPickerFromSelection() {
+    const panel = document.getElementById("globalCornerPickerPanel");
+    const btn = document.getElementById("globalCornerPickerBtn");
+    if (!panel) return;
+    const edgeSelected = hasSelectedConnections() && !getNodeById(runtime.selectedNodeId);
+    const ids = getInspectorTargetNodeIds();
+    const disabled = edgeSelected || (!ids.length && !runtime.selectedNodeId);
+    if (btn) {
+      btn.disabled = disabled;
+      btn.classList.toggle("is-disabled", disabled);
+    }
+    const radii = [];
+    for (const id of ids.length ? ids : runtime.selectedNodeId ? [runtime.selectedNodeId] : []) {
+      const n = getNodeById(id);
+      if (!n) continue;
+      radii.push(ensureNodeStyle(n).radius ?? 12);
+    }
+    const activeVal =
+      radii.length && radii.every((r) => r === radii[0])
+        ? nearestCornerRadiusStep(radii[0]).value
+        : null;
+    panel.querySelectorAll(".global-corner-preset").forEach((presetBtn) => {
+      const v = Number(presetBtn.dataset.cornerRadius);
+      presetBtn.classList.toggle("is-active", activeVal != null && v === activeVal);
+      presetBtn.setAttribute("aria-checked", activeVal != null && v === activeVal ? "true" : "false");
+    });
+  }
+
+  function applyGlobalCornerRadius(value) {
+    if (runtime.readOnly) return;
+    const num = Number(value);
+    if (!Number.isFinite(num)) return;
+    scheduleNodeStyleApply(() => applyNodeStyleSegmentToSelection("radius", num));
+    syncGlobalCornerPickerFromSelection();
+    syncCanvasCornerPill();
+  }
+
+  function initGlobalCornerPicker() {
+    const root = document.getElementById("globalCornerPicker");
+    const btn = document.getElementById("globalCornerPickerBtn");
+    const panel = document.getElementById("globalCornerPickerPanel");
+    if (!root || !btn || !panel || root.dataset.bound) return;
+    root.dataset.bound = "1";
+    btn.addEventListener("pointerdown", (e) => e.stopPropagation());
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (btn.disabled) return;
+      if (runtime.globalCornerPickerOpen) closeGlobalCornerPicker();
+      else openGlobalCornerPicker();
+    });
+    panel.addEventListener("click", (e) => {
+      const preset = e.target.closest(".global-corner-preset");
+      if (!preset) return;
+      e.preventDefault();
+      e.stopPropagation();
+      applyGlobalCornerRadius(preset.dataset.cornerRadius);
+      closeGlobalCornerPicker();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && runtime.globalCornerPickerOpen) closeGlobalCornerPicker();
+    });
+    window.addEventListener("resize", () => {
+      if (runtime.globalCornerPickerOpen) positionGlobalCornerPickerPanel();
+    });
   }
 
   function initGlobalColorPicker() {
@@ -9820,6 +9973,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     } finally {
       runtime.isSyncingInspector = false;
     }
+    syncGlobalCornerPickerFromSelection();
   }
 
   function syncSegmentGroupActive(groupEl, value) {
@@ -12587,14 +12741,18 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return dy > 0 ? { x: cx, y: w.y + n.height } : { x: cx, y: w.y };
   }
 
-  /** Intersection of ray (center → toward) with axis-aligned node bounds — edge attachment anywhere on the body. */
+  const CONNECTION_ANCHOR_OUTSET = 3;
+
+  /** Intersection of ray (center → toward) with axis-aligned node bounds — perimeter attachment. */
   function anchorRectPerimeter(n, toward) {
     const w = getNodeWorldPosition(n);
     const cx = w.x + n.width / 2;
     const cy = w.y + n.height / 2;
     const dx = toward.x - cx;
     const dy = toward.y - cy;
-    if (dx * dx + dy * dy < 1) return { x: cx, y: cy };
+    if (dx * dx + dy * dy < 1) {
+      return { x: cx, y: w.y + n.height, edge: "bottom", t: 0.5 };
+    }
     const len = Math.hypot(dx, dy);
     const ux = dx / len;
     const uy = dy / len;
@@ -12602,24 +12760,104 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const hh = n.height / 2;
     const tx = ux !== 0 ? hw / Math.abs(ux) : Infinity;
     const ty = uy !== 0 ? hh / Math.abs(uy) : Infinity;
-    const t = Math.min(tx, ty);
-    return { x: cx + ux * t, y: cy + uy * t };
+    let edge = "right";
+    let t = 0.5;
+    if (tx <= ty) {
+      edge = ux > 0 ? "right" : "left";
+      t = (cy + uy * tx - w.y) / Math.max(1, n.height);
+    } else {
+      edge = uy > 0 ? "bottom" : "top";
+      t = (cx + ux * ty - w.x) / Math.max(1, n.width);
+    }
+    const pt = { x: cx + ux * Math.min(tx, ty), y: cy + uy * Math.min(tx, ty), edge, t };
+    return pt;
   }
 
-  function anchor(n, type, towardPoint) {
+  function anchorPointOnEdge(n, edge, t) {
+    const w = getNodeWorldPosition(n);
+    const tt = Math.max(0.06, Math.min(0.94, t));
+    switch (edge) {
+      case "top":
+        return { x: w.x + n.width * tt, y: w.y, edge: "top", t: tt };
+      case "left":
+        return { x: w.x, y: w.y + n.height * tt, edge: "left", t: tt };
+      case "right":
+        return { x: w.x + n.width, y: w.y + n.height * tt, edge: "right", t: tt };
+      default:
+        return { x: w.x + n.width * tt, y: w.y + n.height, edge: "bottom", t: tt };
+    }
+  }
+
+  function nudgeAnchorOutward(n, pt) {
+    const w = getNodeWorldPosition(n);
+    const cx = w.x + n.width / 2;
+    const cy = w.y + n.height / 2;
+    const pad = CONNECTION_ANCHOR_OUTSET;
+    let nx = pt.x;
+    let ny = pt.y;
+    switch (pt.edge) {
+      case "top":
+        ny -= pad;
+        break;
+      case "bottom":
+        ny += pad;
+        break;
+      case "left":
+        nx -= pad;
+        break;
+      case "right":
+        nx += pad;
+        break;
+      default: {
+        const dx = pt.x - cx;
+        const dy = pt.y - cy;
+        const len = Math.hypot(dx, dy) || 1;
+        nx += (dx / len) * pad;
+        ny += (dy / len) * pad;
+      }
+    }
+    return { x: nx, y: ny };
+  }
+
+  function anchorDistributedPerimeter(n, end, toward, connId) {
+    const base = anchorRectPerimeter(n, toward);
+    const edge = base.edge || "bottom";
+    const p = getProject();
+    const peerIds = [];
+    for (const c of p.connections) {
+      if (!isNodeNodeConnection(c)) continue;
+      if (end === "out" && c.from === n.id) peerIds.push(c.id);
+      else if (end === "in" && c.to === n.id) peerIds.push(c.id);
+    }
+    peerIds.sort();
+    const idx = connId ? peerIds.indexOf(connId) : -1;
+    if (idx < 0 || peerIds.length <= 1) {
+      return nudgeAnchorOutward(n, base);
+    }
+    const t = (idx + 1) / (peerIds.length + 1);
+    const onEdge = anchorPointOnEdge(n, edge, t);
+    return nudgeAnchorOutward(n, onEdge);
+  }
+
+  function anchor(n, type, towardPoint, connId) {
     const w = getNodeWorldPosition(n);
     const tw =
       towardPoint && typeof towardPoint.x === "number" && typeof towardPoint.y === "number" ? towardPoint : null;
-    if (tw && isFlowchartMode()) return anchorCardinalMidpoint(n, tw);
-    if (tw) return anchorRectPerimeter(n, tw);
+    if (tw) {
+      if (connId) return anchorDistributedPerimeter(n, type === "out" ? "out" : "in", tw, connId);
+      return nudgeAnchorOutward(n, anchorRectPerimeter(n, tw));
+    }
     const bias =
       type === "out"
         ? { x: w.x + n.width + 50, y: w.y + n.height / 2 }
         : { x: w.x - 50, y: w.y + n.height / 2 };
-    return anchorRectPerimeter(n, bias);
+    const base = anchorRectPerimeter(n, bias);
+    return connId
+      ? anchorDistributedPerimeter(n, type === "out" ? "out" : "in", bias, connId)
+      : nudgeAnchorOutward(n, base);
   }
 
-  function anchorNodeForConnection(nodeId, end, towardPoint) {
+  function anchorNodeForConnection(nodeId, end, towardPoint, connId) {
     const p = getProject();
     const n = getNodeById(nodeId);
     if (!n) return { x: 0, y: 0 };
@@ -12634,7 +12872,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       const box = getUserGroupBox(collapsedGroupId);
       if (box) return groupAnchor(box, end === "to" ? "in" : "out", towardPoint);
     }
-    return anchor(n, end === "to" ? "in" : "out", towardPoint);
+    return anchor(n, end === "to" ? "in" : "out", towardPoint, connId);
   }
 
   function nodesInsideGroupBoxObstacles(groupBox, excludeIds) {
@@ -12759,9 +12997,14 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const fromNode = getNodeById(c.from);
     const toNode = getNodeById(c.to);
     if (!fromNode || !toNode) return null;
-    const toPre = anchorNodeForConnection(c.to, "to", anchor(fromNode, "out", nodeWorldCenter(toNode)));
-    const from = anchorNodeForConnection(c.from, "from", toPre);
-    const to = anchorNodeForConnection(c.to, "to", from);
+    const toPre = anchorNodeForConnection(
+      c.to,
+      "to",
+      anchor(fromNode, "out", nodeWorldCenter(toNode), c.id),
+      c.id
+    );
+    const from = anchorNodeForConnection(c.from, "from", toPre, c.id);
+    const to = anchorNodeForConnection(c.to, "to", from, c.id);
     const curve = getCurveData(c.id, from, to, c);
     const obstacles = p.nodes
       .filter((n) => n.id !== fromNode.id && n.id !== toNode.id)
@@ -13875,7 +14118,7 @@ clearFlowGroupSelection();
         const toBox = getUserGroupBox(c.toGroupId);
         if (!fromNode || !toBox) continue;
         const toCenter = { x: toBox.x + toBox.w / 2, y: toBox.y + toBox.h / 2 };
-        const from = anchorNodeForConnection(c.from, "from", toCenter);
+        const from = anchorNodeForConnection(c.from, "from", toCenter, c.id);
         const to = groupAnchor(toBox, "in", from);
         const auto = autoCurve(from, to);
         const obsRects = p.nodes
@@ -13914,7 +14157,7 @@ clearFlowGroupSelection();
         const fromBox = getUserGroupBox(c.fromGroupId);
         if (!toNode || !fromBox) continue;
         const from = groupAnchor(fromBox, "out", anchor(toNode, "in", { x: fromBox.x + fromBox.w / 2, y: fromBox.y + fromBox.h / 2 }));
-        const to = anchorNodeForConnection(c.to, "to", from);
+        const to = anchorNodeForConnection(c.to, "to", from, c.id);
         const auto = autoCurve(from, to);
         const obsRects = p.nodes
           .filter((n) => n.id !== c.to)
@@ -13952,7 +14195,7 @@ clearFlowGroupSelection();
         const toBox = getFlowGroupBoxForAnchor(c.toFlowGroupId);
         if (!fromNode || !toBox) continue;
         const toCenter = { x: toBox.x + toBox.w / 2, y: toBox.y + toBox.h / 2 };
-        const from = anchorNodeForConnection(c.from, "from", toCenter);
+        const from = anchorNodeForConnection(c.from, "from", toCenter, c.id);
         const to = groupAnchor(toBox, "in", from);
         const auto = autoCurve(from, to);
         const obsRects = p.nodes
@@ -13991,7 +14234,7 @@ clearFlowGroupSelection();
         const fromBox = getFlowGroupBoxForAnchor(c.fromFlowGroupId);
         if (!toNode || !fromBox) continue;
         const from = groupAnchor(fromBox, "out", anchor(toNode, "in", { x: fromBox.x + fromBox.w / 2, y: fromBox.y + fromBox.h / 2 }));
-        const to = anchorNodeForConnection(c.to, "to", from);
+        const to = anchorNodeForConnection(c.to, "to", from, c.id);
         const auto = autoCurve(from, to);
         const obsRects = p.nodes
           .filter((n) => n.id !== c.to)
@@ -14064,9 +14307,14 @@ clearFlowGroupSelection();
       const fromNode = getNodeById(c.from);
       const toNode = getNodeById(c.to);
       if (!fromNode || !toNode) continue;
-      const toPre = anchorNodeForConnection(c.to, "to", anchor(fromNode, "out", nodeWorldCenter(toNode)));
-      const from = anchorNodeForConnection(c.from, "from", toPre);
-      const to = anchorNodeForConnection(c.to, "to", from);
+      const toPre = anchorNodeForConnection(
+        c.to,
+        "to",
+        anchor(fromNode, "out", nodeWorldCenter(toNode), c.id),
+        c.id
+      );
+      const from = anchorNodeForConnection(c.from, "from", toPre, c.id);
+      const to = anchorNodeForConnection(c.to, "to", from, c.id);
       const curve = getCurveData(c.id, from, to, c);
       const obstacles = p.nodes
         .filter((n) => n.id !== fromNode.id && n.id !== toNode.id)
@@ -14223,7 +14471,7 @@ clearFlowGroupSelection();
       const junc = pathWorldPointAtParam(lay.d, c.t ?? 0.5);
       if (!junc) continue;
       const fromPt = junc;
-      const to = anchorNodeForConnection(c.to, "to", fromPt);
+      const to = anchorNodeForConnection(c.to, "to", fromPt, c.id);
       const curve = getCurveData(c.id, fromPt, to, c);
       const obstacles = p.nodes
         .filter((n) => n.id !== toNode.id && n.id !== lay.fromNode.id && n.id !== lay.toNode.id)
@@ -18736,6 +18984,7 @@ clearFlowGroupSelection();
       initConnectionListPanelUi();
       initEdgeInspectorPanelUi();
       initGlobalColorPicker();
+      initGlobalCornerPicker();
       initNodeRotateHandleDelegation();
       bindFcQuickEditToolbar();
       bindFcMultiSelectBar();
