@@ -7,7 +7,7 @@
 
     "build:arch": "vite build --config vite.architecture.config.ts",
 
-    "build:compilers": "npm run build:flowchart && npm run build:arch",
+    "build:compilers": "npm run build:flowchart && npm run build:arch && npm run build:tool-runtime",
 
     "test:flowchart": "vitest run tests/flowchart",
 

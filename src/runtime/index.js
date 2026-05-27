@@ -7,6 +7,13 @@ import { createGroupRuntime } from "./group-runtime.js";
 import { createCommandRuntime } from "./command-runtime.js";
 import { createExportersRuntime } from "./exporters-runtime.js";
 import { createSupabaseRuntime } from "./supabase-runtime.js";
+import {
+  GENEALOGY_WORKSPACE_PRESETS,
+  GENEALOGY_SIDEBAR_TILE_SVG,
+  genealogySidebarTileSvg,
+  genealogySidebarTileMarkup,
+  layoutGenealogySpouseEdge,
+} from "./genealogy-runtime.js";
 
 const MapDiagramRuntime = {
   createRuntimeContext,
@@ -18,6 +25,11 @@ const MapDiagramRuntime = {
   createCommandRuntime,
   createExportersRuntime,
   createSupabaseRuntime,
+  GENEALOGY_WORKSPACE_PRESETS,
+  GENEALOGY_SIDEBAR_TILE_SVG,
+  genealogySidebarTileSvg,
+  genealogySidebarTileMarkup,
+  layoutGenealogySpouseEdge,
 };
 
 if (typeof globalThis !== "undefined") {
@@ -34,4 +46,9 @@ export {
   createCommandRuntime,
   createExportersRuntime,
   createSupabaseRuntime,
+  GENEALOGY_WORKSPACE_PRESETS,
+  GENEALOGY_SIDEBAR_TILE_SVG,
+  genealogySidebarTileSvg,
+  genealogySidebarTileMarkup,
+  layoutGenealogySpouseEdge,
 };
