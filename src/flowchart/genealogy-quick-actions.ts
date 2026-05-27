@@ -25,9 +25,9 @@ type RuntimeHost = Window & {
 };
 
 const MALE_ICON =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" stroke="#ffffff" stroke-width="2" fill="none" style="width:14px;height:14px;display:block;flex-shrink:0"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>';
+  '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#ffffff" stroke-width="2" aria-hidden="true" focusable="false" style="display:block;flex-shrink:0"><rect x="2" y="2" width="12" height="12" rx="1" /></svg>';
 const FEMALE_ICON =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" stroke="#ffffff" stroke-width="2" fill="none" style="width:14px;height:14px;display:block;flex-shrink:0"><circle cx="12" cy="12" r="6"/></svg>';
+  '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#ffffff" stroke-width="2" aria-hidden="true" focusable="false" style="display:block;flex-shrink:0"><circle cx="8" cy="8" r="6" /></svg>';
 
 function ensureCss(doc: Document) {
   if (doc.getElementById("genealogyQuickAddFlowchartStyles")) return;
@@ -144,6 +144,7 @@ export function installGenealogyQuickActions(host: RuntimeHost = window as Runti
   } as AnyFn & { __mdGenealogyQuickAddPatched?: boolean };
   wrapped.__mdGenealogyQuickAddPatched = true;
   host.syncQuickToolbarGenealogyVisibility = wrapped;
+  if (host.isGenealogyWorkspaceActive?.()) decorateToolbar(host);
   host.__mdGenealogyQuickAddInstalled = true;
   return true;
 }

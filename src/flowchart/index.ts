@@ -109,11 +109,13 @@ const FlowchartCompiler = {
 declare global {
   interface Window {
     FlowchartCompiler: typeof FlowchartCompiler;
+    installGenealogyQuickActions: typeof installGenealogyQuickActions;
   }
 }
 
 if (typeof window !== "undefined") {
   window.FlowchartCompiler = FlowchartCompiler;
+  (window as any).installGenealogyQuickActions = installGenealogyQuickActions;
   const tryInstall = (attempt = 0) => {
     if (installGenealogyQuickActions(window)) return;
     if (attempt >= 24) return;
