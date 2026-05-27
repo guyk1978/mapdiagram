@@ -4353,7 +4353,7 @@
         <p class="fc-delete-hint">Enter to confirm · Esc to cancel</p>
       </div>
     </main>
-    <aside id="rightbar" class="rightbar">
+    <aside id="rightbar" class="rightbar rightbar--tactical">
       <div class="rightbar-head">
         <div class="pane-title">Inspector</div>
         <button id="inspectorFullscreenBtn" class="icon-btn insp-fullscreen-btn" type="button" title="Enter fullscreen" aria-label="Enter fullscreen" aria-pressed="false"><span class="icon-svg insp-ico-enter-fs" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="icon-svg insp-ico-exit-fs" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 9V4h5M20 15v5h-5M15 4h5v5M9 20H4v-5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
@@ -4374,65 +4374,56 @@
       </div>
       <section class="section right-section section-critical node-builder active diagram-sub-on" data-tab="diagram" data-diagram-sub="node" id="diagramSectionNode" aria-labelledby="diagramHeadingSelNode diagramHeadingCanvas quickEditInspectorHint">
         <div id="inspectorCanvasState" class="inspector-context-shell">
-          <h3 id="diagramHeadingCanvas" class="section-heading section-heading--compact">
-            <span class="section-heading__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-            <span class="section-heading__text">Style</span>
-          </h3>
-          <p class="muted inspector-hint">Canvas and diagram-wide appearance. Select a node to edit its properties.</p>
-          <div class="inspector-group inspector-group--canvas">
-            <div class="inspector-group__title">Canvas</div>
-            <div class="inspector-form-grid">
-              <label class="insp-range"><span class="insp-field__label">Page background opacity</span><input id="canvasPageBgOpacity" type="range" min="0.15" max="1" step="0.05" value="1" aria-label="Page background opacity"></label>
-              <label class="insp-field insp-field--color">
-                <span class="insp-field__label">Background color</span>
-                <input id="canvasBgColor" type="color" value="#0b0f1a">
+          <h3 id="diagramHeadingCanvas" class="inspector-panel__heading">Canvas</h3>
+          <p class="muted inspector-hint inspector-hint--tight">Diagram-wide appearance. Select a node for its properties.</p>
+          <div class="inspector-group inspector-group--canvas inspector-group--tight">
+            <label class="insp-range insp-range--compact"><span class="insp-field__label">Page opacity</span><input id="canvasPageBgOpacity" type="range" min="0.15" max="1" step="0.05" value="1" aria-label="Page background opacity"></label>
+            <div class="insp-inline-row insp-inline-row--colors">
+              <label class="insp-color-chip" title="Background color">
+                <span class="insp-color-chip__label">BG</span>
+                <input id="canvasBgColor" type="color" value="#0b0f1a" aria-label="Background color">
               </label>
-              <label class="insp-field insp-field--color">
-                <span class="insp-field__label">Accent glow</span>
-                <input id="accentGlowColor" type="color" value="#7aa2ff">
+              <label class="insp-color-chip" title="Accent glow">
+                <span class="insp-color-chip__label">Glow</span>
+                <input id="accentGlowColor" type="color" value="#7aa2ff" aria-label="Accent glow">
               </label>
-              <label class="insp-check insp-check--inline"><input type="checkbox" id="inspectorGridToggleChk" checked><span>Show grid</span></label>
-              <div class="inspector-field-block">
-                <span class="insp-field__label">Grid style</span>
-                <div class="grid-style-picker" role="group" aria-label="Grid style">
-                  <button type="button" class="grid-style-btn active" data-grid-style="dots" title="Dot grid" aria-pressed="true">⋯</button>
-                  <button type="button" class="grid-style-btn" data-grid-style="lines" title="Line grid" aria-pressed="false">☰</button>
-                  <button type="button" class="grid-style-btn" data-grid-style="cross" title="Cross grid" aria-pressed="false">⌖</button>
-                </div>
+            </div>
+            <div class="insp-inline-row insp-inline-row--grid">
+              <label class="insp-toggle-mini" title="Show grid"><input type="checkbox" id="inspectorGridToggleChk" checked><span>Grid</span></label>
+              <div class="grid-style-picker grid-style-picker--compact" role="group" aria-label="Grid style">
+                <button type="button" class="grid-style-btn active" data-grid-style="dots" title="Dot grid" aria-pressed="true">⋯</button>
+                <button type="button" class="grid-style-btn" data-grid-style="lines" title="Line grid" aria-pressed="false">☰</button>
+                <button type="button" class="grid-style-btn" data-grid-style="cross" title="Cross grid" aria-pressed="false">⌖</button>
               </div>
-              <label class="insp-field">
-                <span class="insp-field__label">Global font</span>
+            </div>
+            <div class="insp-inline-row insp-inline-row--split">
+              <label class="insp-compact-select">
+                <span class="insp-compact-select__label">Font</span>
                 <select id="canvasGlobalFontSelect" aria-label="Global diagram font">
                   <option value="ui">UI Sans</option>
                   <option value="serif">Serif</option>
-                  <option value="mono">Monospace</option>
+                  <option value="mono">Mono</option>
                 </select>
               </label>
-              <label class="insp-field">
-                <span class="insp-field__label">Connector style</span>
-                <select id="connectorStyleSelect">
-                  <option value="orthogonal" selected>Orthogonal</option>
-                  <option value="curved">Curved</option>
+              <label class="insp-compact-select">
+                <span class="insp-compact-select__label">Links</span>
+                <select id="connectorStyleSelect" aria-label="Connector style">
+                  <option value="orthogonal" selected>Ortho</option>
+                  <option value="curved">Curve</option>
                 </select>
               </label>
             </div>
           </div>
-          <div id="inspectorCanvasTips" class="inspector-canvas-tips" aria-labelledby="styleTipsHint">
-            <p id="styleTipsHint" class="sr-only">How the canvas adapts to light or dark theme.</p>
-            <p class="inspector-canvas-tips__line muted">Glow accents and subtle depth adapt to the current theme (light or dark).</p>
-            <p class="inspector-canvas-tips__line muted">Use Grid / Fit / Zoom in the top bar for fast navigation.</p>
-          </div>
         </div>
         <div id="inspectorElementState" class="inspector-context-shell" style="display: none;">
-          <h3 id="diagramHeadingSelNode" class="section-heading section-heading--compact">
-            <span class="section-heading__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M9 12h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
-            <span class="section-heading__text" id="inspectorElementHeadingLabel">Action step</span>
+          <h3 id="diagramHeadingSelNode" class="inspector-panel__heading">
+            <span id="inspectorElementHeadingLabel">Action step</span>
           </h3>
           <p id="quickEditInspectorHint" class="sr-only">Structural node metadata. Style and color on the canvas and top bar.</p>
-          <p class="muted inspector-hint inspector-hint--compact" id="quickEditSurfaceHint">Title and type only — use the top color picker and on-canvas handles for styling.</p>
-          <div class="inspector-group inspector-group--element">
-            <div class="inspector-group__title">Node info</div>
-            <div class="inspector-form-grid">
+          <p class="muted inspector-hint inspector-hint--tight" id="quickEditSurfaceHint">Title &amp; type — color &amp; corners on canvas / top bar.</p>
+          <div class="inspector-group inspector-group--element inspector-group--tight">
+            <div class="inspector-group__title">Node</div>
+            <div class="insp-compact-stack">
             <label class="insp-field">
               <span class="insp-field__label">Title</span>
               <textarea id="nodeText" rows="1" placeholder="Double-click node or edit here"></textarea>
@@ -4572,21 +4563,39 @@
       <div id="nodeColorPopover" class="node-color-popover" hidden role="dialog" aria-label="Color palette">
         <div class="node-color-popover__grid" id="nodeColorPopoverGrid"></div>
       </div>
-      <section class="section right-section section-critical active" data-tab="diagram" data-diagram-sub="groups" id="diagramSectionGroups" aria-labelledby="diagramHeadingStatus diagramStatusHint">
-        <h3 id="diagramHeadingStatus">Status</h3>
+      <section class="section right-section section-critical active inspector-panel--dense" data-tab="diagram" data-diagram-sub="groups" id="diagramSectionGroups" aria-labelledby="diagramHeadingStatus diagramStatusHint">
+        <h3 id="diagramHeadingStatus" class="inspector-panel__heading">Groups</h3>
         <p id="diagramStatusHint" class="sr-only">Selection counts, group tools, and layout helpers.</p>
-        <div id="stats" class="muted">0 nodes • 0 connections</div>
-        <div id="mobileHint" class="muted"></div>
-        <div class="selection-tools-row" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;align-items:center">
-          <button type="button" id="duplicateNodesPanelBtn" class="text-btn-sm" title="Duplicate selected nodes (Ctrl+D)">Duplicate</button>
-          <button type="button" id="selectGraphNeighborsBtn" class="text-btn-sm" title="Add nodes linked to current selection">+ Neighbors</button>
-          <button type="button" id="selectSameTypeNodesBtn" class="text-btn-sm" title="Select all nodes with the same type as the primary node">Same type</button>
+        <div id="stats" class="inspector-stat-line muted">0 nodes • 0 connections</div>
+        <div id="mobileHint" class="muted inspector-hint--tight"></div>
+        <div class="inspector-group inspector-group--tight">
+          <div class="inspector-group__title">Selection</div>
+          <div class="insp-action-grid" role="toolbar" aria-label="Selection tools">
+            <button type="button" id="duplicateNodesPanelBtn" class="insp-cube-btn" title="Duplicate selection (Ctrl+D)" aria-label="Duplicate selection">
+              <span class="insp-cube-btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="8" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.75"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span>
+            </button>
+            <button type="button" id="selectGraphNeighborsBtn" class="insp-cube-btn" title="Add linked neighbors" aria-label="Add linked neighbors">
+              <span class="insp-cube-btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="6" cy="12" r="2.5" stroke="currentColor" stroke-width="1.75"/><circle cx="18" cy="6" r="2.5" stroke="currentColor" stroke-width="1.75"/><circle cx="18" cy="18" r="2.5" stroke="currentColor" stroke-width="1.75"/><path d="M8.5 11.2 15.2 7M8.5 12.8l6.7 4.2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span>
+            </button>
+            <button type="button" id="selectSameTypeNodesBtn" class="insp-cube-btn" title="Select same type" aria-label="Select same type">
+              <span class="insp-cube-btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.75"/><rect x="12" y="11" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.75" opacity=".85"/></svg></span>
+            </button>
+          </div>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button id="createGroupBtn">Create Group</button>
-          <button id="ungroupBtn">Ungroup</button>
+        <div class="inspector-group inspector-group--tight">
+          <div class="inspector-group__title">Groups</div>
+          <div class="insp-action-grid" role="toolbar" aria-label="Group actions">
+            <button type="button" id="createGroupBtn" class="insp-cube-btn" title="Create group" aria-label="Create group">
+              <span class="insp-cube-btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.75"/><rect x="10" y="4" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.75" opacity=".85"/></svg></span>
+            </button>
+            <button type="button" id="ungroupBtn" class="insp-cube-btn" title="Ungroup" aria-label="Ungroup">
+              <span class="insp-cube-btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.75"/><path d="M9 12h6M12 9v6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span>
+            </button>
+            <button type="button" id="smartCleanBtn" class="insp-cube-btn" title="Smart clean diagram" aria-label="Smart clean diagram">
+              <span class="insp-cube-btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3l1.4 4.3H18l-3.6 2.6 1.4 4.3L12 11.6 8.2 14.2l1.4-4.3L6 7.3h4.6L12 3z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M5 19h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span>
+            </button>
+          </div>
         </div>
-        <button id="smartCleanBtn">Smart Clean Diagram</button>
         <div id="connHint" class="muted"></div>
         <div id="connectionListPanel" class="connection-list-panel">
           <div class="connection-list-head-row">
@@ -4633,49 +4642,85 @@
       </section>
       </div>
       </div>
-      <section id="inspector-panel-layout" class="section right-section" data-tab="layout" role="tabpanel" aria-labelledby="tabLayout layoutHeading layoutHint" data-inspector-tab-panel="layout" aria-hidden="true">
-        <h3 id="layoutHeading">Layout</h3>
+      <section id="inspector-panel-layout" class="section right-section inspector-panel--dense" data-tab="layout" role="tabpanel" aria-labelledby="tabLayout layoutHeading layoutHint" data-inspector-tab-panel="layout" aria-hidden="true">
+        <h3 id="layoutHeading" class="inspector-panel__heading">Layout</h3>
         <p id="layoutHint" class="sr-only">Systems layout and minimap visibility.</p>
-        <div class="muted" data-flowchart-hide>Use Smart Clean / Auto Layout to apply spacing and structure.</div>
-        <button type="button" id="improveFlowchartLayoutPanelBtn" class="text-btn-sm" style="width:100%;margin-bottom:8px">Improve layout</button>
-        <p class="muted" style="font-size:11px;margin:0 0 10px">Polish spacing locally. Shortcut: Ctrl+L</p>
-        <label class="muted" data-flowchart-hide>Systems layout
-          <select id="hierarchicalLayoutSelect">
-            <option value="classic">Classic (nodes only)</option>
-            <option value="hierarchical">Hierarchical systems</option>
-            <option value="layered">Layered systems</option>
-            <option value="compact">Compact systems</option>
-          </select>
-        </label>
-        <button id="fitViewInPanelBtn">Fit to screen</button>
-        <label class="muted" style="display:flex;align-items:center;gap:8px;margin-top:4px">
-          <input type="checkbox" id="minimapToggle"> Show minimap
-        </label>
+        <div class="inspector-group inspector-group--tight">
+          <div class="inspector-group__title">Actions</div>
+          <div class="insp-action-grid" role="toolbar" aria-label="Layout actions">
+            <button type="button" id="improveFlowchartLayoutPanelBtn" class="insp-cube-btn" title="Improve layout (Ctrl+L)" aria-label="Improve layout">
+              <span class="insp-cube-btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h6v4H4V6zm10 0h6v4h-6V6zM4 14h6v4H4v-4zm10 0h6v4h-6v-4z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" opacity=".55"/></svg></span>
+            </button>
+            <button type="button" id="fitViewInPanelBtn" class="insp-cube-btn" title="Fit to screen" aria-label="Fit to screen">
+              <span class="insp-cube-btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3H5v4M15 3h4v4M3 9V5h4M21 9V5h-4M9 21H5v-4M15 21h4v-4M3 15v4h4M21 15v4h-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </button>
+            <button type="button" id="autoLayoutPanelBtn" class="insp-cube-btn" title="Auto layout" aria-label="Auto layout">
+              <span class="insp-cube-btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 4H5v4h4V4zM19 4h-4v4h4V4zM9 16H5v4h4v-4zM19 16h-4v4h4v-4zM14 9h-4v6h4V9z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span>
+            </button>
+            <button type="button" id="smartCleanPanelBtn" class="insp-cube-btn" title="Smart clean diagram" aria-label="Smart clean diagram">
+              <span class="insp-cube-btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3l1.4 4.3H18l-3.6 2.6 1.4 4.3L12 11.6 8.2 14.2l1.4-4.3L6 7.3h4.6L12 3z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span>
+            </button>
+          </div>
+          <p class="inspector-micro-hint muted" data-flowchart-hide>Polish spacing locally · Ctrl+L</p>
+        </div>
+        <div class="inspector-group inspector-group--tight" data-flowchart-hide>
+          <div class="insp-inline-row insp-inline-row--split">
+            <label class="insp-compact-select">
+              <span class="insp-compact-select__label">Systems</span>
+              <select id="hierarchicalLayoutSelect" aria-label="Systems layout mode">
+                <option value="classic">Classic</option>
+                <option value="hierarchical">Hierarchical</option>
+                <option value="layered">Layered</option>
+                <option value="compact">Compact</option>
+              </select>
+            </label>
+            <label class="insp-toggle-mini" title="Show minimap">
+              <input type="checkbox" id="minimapToggle">
+              <span>Minimap</span>
+            </label>
+          </div>
+        </div>
       </section>
-      <section id="inspector-panel-export" class="section right-section" data-tab="export" role="tabpanel" aria-labelledby="tabExport exportHeading exportHint" data-inspector-tab-panel="export" aria-hidden="true">
-        <h3 id="exportHeading">Export</h3>
+      <section id="inspector-panel-export" class="section right-section inspector-panel--dense" data-tab="export" role="tabpanel" aria-labelledby="tabExport exportHeading exportHint" data-inspector-tab-panel="export" aria-hidden="true">
+        <h3 id="exportHeading" class="inspector-panel__heading">Export</h3>
         <p id="exportHint" class="sr-only">Download diagram as JSON, PNG, or SVG.</p>
-        <button id="exportJsonPanelBtn">Export JSON</button>
-        <button id="exportPngPanelBtn">Export PNG</button>
-        <button id="exportSvgPanelBtn" type="button">Export SVG</button>
-        <label class="muted">PNG padding (px) <input type="number" id="pngExportPad" value="80" min="8" max="400" step="4" style="width:72px"></label>
-        <label class="muted">PNG scale <input type="number" id="pngExportScale" value="1" min="0.5" max="3" step="0.1" style="width:72px"></label>
-        <label class="muted" style="display:flex;align-items:center;gap:8px;margin-top:4px">
-          <input type="checkbox" id="pngExportTransparent"> Transparent PNG background
-        </label>
-        <label class="muted" style="display:flex;align-items:center;gap:8px;margin-top:4px">
-          <input type="checkbox" id="pngExportIncludeHidden"> Include hidden nodes in PNG
-        </label>
-        <aside class="partner-banner partner-banner--joinmypdf partner-banner--compact" aria-label="JoinMyPDF PDF workflow" style="margin-top:12px">
-          <p class="partner-banner__kicker">Export workflow</p>
-          <p class="partner-banner__text">Need a polished, uncompressed PDF packet of your diagram? Merge and optimize it instantly with <strong>JoinMyPDF</strong> (100% local &amp; private).</p>
-          <a class="partner-banner__cta" href="https://joinmypdf.com/" target="_blank" rel="noopener noreferrer">Export workflow as PDF → JoinMyPDF</a>
+        <div class="insp-export-grid" role="toolbar" aria-label="Export formats">
+          <button type="button" id="exportJsonPanelBtn" class="insp-cube-btn insp-cube-btn--labeled" title="Export JSON" aria-label="Export JSON">
+            <span class="insp-cube-btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v12m0 0 4-4m-4 4-4-4M5 20h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="insp-cube-btn__label">JSON</span>
+          </button>
+          <button type="button" id="exportPngPanelBtn" class="insp-cube-btn insp-cube-btn--labeled" title="Export PNG" aria-label="Export PNG">
+            <span class="insp-cube-btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.75"/><circle cx="9" cy="9" r="1.5" fill="currentColor"/><path d="M4 17l5-5 4 4 3-3 4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="insp-cube-btn__label">PNG</span>
+          </button>
+          <button type="button" id="exportSvgPanelBtn" class="insp-cube-btn insp-cube-btn--labeled" title="Export SVG" aria-label="Export SVG">
+            <span class="insp-cube-btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 4h7l4 4v12H7V4z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M14 4v4h4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="insp-cube-btn__label">SVG</span>
+          </button>
+        </div>
+        <div class="inspector-group inspector-group--tight">
+          <div class="inspector-group__title">PNG options</div>
+          <div class="insp-inline-row insp-inline-row--nums">
+            <label class="insp-num-chip"><span class="insp-num-chip__label">Pad</span><input type="number" id="pngExportPad" value="80" min="8" max="400" step="4" aria-label="PNG padding px"></label>
+            <label class="insp-num-chip"><span class="insp-num-chip__label">Scale</span><input type="number" id="pngExportScale" value="1" min="0.5" max="3" step="0.1" aria-label="PNG scale"></label>
+          </div>
+          <div class="insp-inline-row insp-inline-row--checks">
+            <label class="insp-toggle-mini" title="Transparent PNG background"><input type="checkbox" id="pngExportTransparent"><span>Transparent</span></label>
+            <label class="insp-toggle-mini" title="Include hidden nodes in PNG"><input type="checkbox" id="pngExportIncludeHidden"><span>Hidden</span></label>
+          </div>
+        </div>
+        <aside class="partner-banner partner-banner--joinmypdf partner-banner--compact insp-partner-compact" aria-label="JoinMyPDF PDF workflow">
+          <p class="partner-banner__kicker">PDF workflow</p>
+          <p class="partner-banner__text">Polish packets locally with <strong>JoinMyPDF</strong>.</p>
+          <a class="partner-banner__cta" href="https://joinmypdf.com/" target="_blank" rel="noopener noreferrer">Open JoinMyPDF →</a>
         </aside>
-        <div class="saved-views-block" style="margin-top:10px">
-          <div class="muted" style="font-size:12px;margin-bottom:4px">Saved views (camera + snapshot)</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-            <input type="text" id="savedViewNameInput" placeholder="Name" style="max-width:120px" aria-label="Saved view name">
-            <button type="button" id="savedViewSaveBtn" class="text-btn-sm">Save</button>
+        <div class="inspector-group inspector-group--tight saved-views-block">
+          <div class="inspector-group__title">Saved views</div>
+          <div class="insp-inline-row insp-inline-row--saved-view">
+            <input type="text" id="savedViewNameInput" class="insp-compact-input" placeholder="Name" aria-label="Saved view name">
+            <button type="button" id="savedViewSaveBtn" class="insp-cube-btn insp-cube-btn--mini" title="Save view" aria-label="Save view">
+              <span class="insp-cube-btn__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 20h14a1 1 0 0 0 1-1V8l-5-4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M9 4v5h6V4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span>
+            </button>
           </div>
           <ul id="savedViewsList" class="saved-views-list"></ul>
         </div>
@@ -8958,6 +9003,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     document.getElementById("refreshCanvasBtn")?.addEventListener("click", () => refreshCanvasView());
     document.getElementById("improveFlowchartLayoutBtn")?.addEventListener("click", () => improveFlowchartLayoutAction());
     document.getElementById("improveFlowchartLayoutPanelBtn")?.addEventListener("click", () => improveFlowchartLayoutAction());
+    document.getElementById("autoLayoutPanelBtn")?.addEventListener("click", () => document.getElementById("autoLayoutBtn")?.click());
+    document.getElementById("smartCleanPanelBtn")?.addEventListener("click", () => document.getElementById("smartCleanBtn")?.click());
   }
 
   function getFlowchartPromptText() {
