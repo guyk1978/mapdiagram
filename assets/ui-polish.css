@@ -2886,6 +2886,22 @@ html[data-theme="light"] .inspector-group--tight {
   }
 }
 
+.genealogy-inspector-panel .gene-name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.genealogy-inspector-panel .gene-name-row input {
+  min-width: 0;
+}
+
+.rightbar--tactical .genealogy-inspector-panel .insp-field input {
+  min-height: 26px !important;
+  height: 26px !important;
+  font-size: 11px !important;
+}
+
 /* Inspector tab icon cubes + bulk-delete danger */
 .inspector-tab-cube-grid {
   display: flex;

@@ -2235,6 +2235,62 @@
   .flowchart-mode .node--ebike-component.fc-node-decision {
     box-shadow: none;
   }
+  .node--genealogy-profile > .body,
+  .node--genealogy-profile.node--svg-shape > .node-shape-content > .body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .node-genealogy-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    box-sizing: border-box;
+  }
+  .node-genealogy-name {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--node-title);
+    width: 100%;
+    text-align: center;
+  }
+  .node-genealogy-years {
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--node-subtitle);
+    width: 100%;
+    text-align: center;
+  }
+  .node-genealogy-location {
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--node-desc);
+    width: 100%;
+    text-align: center;
+  }
+  .node--genealogy-profile .node-badges {
+    display: none !important;
+  }
+  .canvas-micro-toolbar__btn--gene {
+    width: auto;
+    min-width: 52px;
+    padding: 0 8px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
   .node.node--svg-shape.shape-diamond > .node-shape-content { padding: 20% 22%; }
   .node.node--svg-shape.shape-diamond .body,
   .node.node--svg-shape.shape-parallelogram .body {
@@ -4392,6 +4448,8 @@
         <button type="button" id="bulkSpawnToggleBtn" class="canvas-micro-toolbar__btn" title="Bulk spawn child nodes" aria-label="Bulk spawn child nodes" aria-expanded="false">
           <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 5v6M9 8h6M6 14h12M8 18h8" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
+        <button type="button" id="geneAddSpouseBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--gene" hidden title="Add spouse" aria-label="Add spouse">♥ Spouse</button>
+        <button type="button" id="geneAddChildBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--gene" hidden title="Add child" aria-label="Add child">↓ Child</button>
         <button type="button" id="fcDeleteBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--danger" title="Delete" aria-label="Delete">
           <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1v2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7l1 14a1 1 0 0 0 1 .9h6a1 1 0 0 0 1-.9l1-14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
         </button>
@@ -4492,7 +4550,32 @@
           <p class="muted inspector-hint inspector-hint--tight" id="quickEditSurfaceHint">Title &amp; type — color &amp; corners on canvas / top bar.</p>
           <div class="inspector-group inspector-group--element inspector-group--tight">
             <div class="inspector-group__title">Node</div>
-            <div class="insp-compact-stack">
+            <div id="genealogyInspectorPanel" class="genealogy-inspector-panel" hidden>
+              <div class="insp-compact-stack">
+                <label class="insp-field">
+                  <span class="insp-field__label">First / Last name</span>
+                  <div class="gene-name-row">
+                    <input id="geneFirstName" type="text" placeholder="First name" aria-label="First name">
+                    <input id="geneLastName" type="text" placeholder="Last name" aria-label="Last name">
+                  </div>
+                </label>
+                <div class="mini-row insp-row">
+                  <label class="insp-field">
+                    <span class="insp-field__label">Birth year</span>
+                    <input id="geneBirthYear" type="text" inputmode="numeric" placeholder="1950" aria-label="Birth year">
+                  </label>
+                  <label class="insp-field">
+                    <span class="insp-field__label">Death year</span>
+                    <input id="geneDeathYear" type="text" inputmode="numeric" placeholder="Present" aria-label="Death year">
+                  </label>
+                </div>
+                <label class="insp-field">
+                  <span class="insp-field__label">Birthplace</span>
+                  <input id="geneBirthplace" type="text" placeholder="City, Country" aria-label="Birthplace">
+                </label>
+              </div>
+            </div>
+            <div id="inspectorStandardNodeFields" class="insp-compact-stack">
             <label class="insp-field">
               <span class="insp-field__label">Title</span>
               <textarea id="nodeText" rows="1" placeholder="Double-click node or edit here"></textarea>
@@ -7358,12 +7441,12 @@
   ];
 
   const GENEALOGY_WORKSPACE_PRESETS = [
-    { libraryCategory: "profiles", label: "Male", type: "person", shape: "rect", previewShape: "gene-male", tooltip: "male-profile", color: "#93c5fd", width: 160, height: 100 },
-    { libraryCategory: "profiles", label: "Female", type: "person", shape: "rect", previewShape: "gene-female", tooltip: "female-profile", color: "#f9a8d4", width: 160, height: 100 },
-    { libraryCategory: "profiles", label: "Child", type: "person", shape: "capsule", previewShape: "gene-child", tooltip: "child-profile", color: "#a7f3d0", width: 130, height: 72 },
-    { libraryCategory: "connectors", label: "Parent link", type: "custom", shape: "arrow-down", previewShape: "gene-link-v", tooltip: "parent-link", color: "#cbd5e1", width: 72, height: 128 },
-    { libraryCategory: "connectors", label: "Spouse link", type: "custom", shape: "arrow-right", previewShape: "gene-link-h", tooltip: "spouse-link", color: "#cbd5e1", width: 128, height: 64 },
-    { libraryCategory: "connectors", label: "Union node", type: "custom", shape: "connector", previewShape: "gene-union", tooltip: "union-node", color: "#e2e8f0", width: 56, height: 56 }
+    { libraryCategory: "profiles", label: "Male", type: "person", shape: "rect", previewShape: "gene-male", tooltip: "male-profile", genealogyRole: "male", color: "#93c5fd", width: 160, height: 108 },
+    { libraryCategory: "profiles", label: "Female", type: "person", shape: "rect", previewShape: "gene-female", tooltip: "female-profile", genealogyRole: "female", color: "#f9a8d4", width: 160, height: 108 },
+    { libraryCategory: "profiles", label: "Child", type: "person", shape: "capsule", previewShape: "gene-child", tooltip: "child-profile", genealogyRole: "child", color: "#a7f3d0", width: 130, height: 88 },
+    { libraryCategory: "connectors", label: "Parent link", type: "custom", shape: "arrow-down", previewShape: "gene-link-v", tooltip: "parent-link", genealogyRole: "link-v", color: "#cbd5e1", width: 72, height: 128 },
+    { libraryCategory: "connectors", label: "Spouse link", type: "custom", shape: "arrow-right", previewShape: "gene-link-h", tooltip: "spouse-link", genealogyRole: "link-h", color: "#cbd5e1", width: 128, height: 64 },
+    { libraryCategory: "connectors", label: "Union node", type: "custom", shape: "connector", previewShape: "gene-union", tooltip: "union-node", genealogyRole: "union", color: "#e2e8f0", width: 28, height: 28 }
   ];
 
   const WORKSPACE_SCHEMAS = {
@@ -8375,6 +8458,10 @@ function finalizeFlowGroupDragIfAny() {
       el.classList.remove("fc-node-start", "fc-node-process", "fc-node-decision", "fc-node-end");
       return;
     }
+    if (n.genealogyRole && isGenealogyWorkspaceActive()) {
+      el.classList.remove("fc-node-start", "fc-node-process", "fc-node-decision", "fc-node-end");
+      return;
+    }
     el.classList.remove("fc-node-start", "fc-node-process", "fc-node-decision", "fc-node-end");
     ensureNodeExtendedModel(n);
     const fcRole = n.semantic && n.semantic.role ? String(n.semantic.role) : "";
@@ -8768,11 +8855,27 @@ function finalizeFlowGroupDragIfAny() {
     const backBtn = document.getElementById("canvasSendBackwardBtn");
     const delBtn = document.getElementById("fcDeleteBtn");
     const spawnBtn = document.getElementById("bulkSpawnToggleBtn");
+    const geneSpouseBtn = document.getElementById("geneAddSpouseBtn");
+    const geneChildBtn = document.getElementById("geneAddChildBtn");
+    const isGeneProfile =
+      isGenealogyWorkspaceActive() && n && isGenealogyProfileRole(n.genealogyRole);
+    const isGeneParent = isGeneProfile && n.genealogyRole !== "child";
     if (dupBtn) dupBtn.disabled = !canEdit;
     if (fwdBtn) fwdBtn.disabled = !canEdit;
     if (backBtn) backBtn.disabled = !canEdit;
     if (delBtn) delBtn.disabled = !canEdit;
-    if (spawnBtn) spawnBtn.disabled = !canEdit;
+    if (spawnBtn) {
+      spawnBtn.hidden = !!isGeneProfile;
+      spawnBtn.disabled = !canEdit;
+    }
+    if (geneSpouseBtn) {
+      geneSpouseBtn.hidden = !isGeneParent;
+      geneSpouseBtn.disabled = !canEdit || !!findGenealogySpouse(n.id);
+    }
+    if (geneChildBtn) {
+      geneChildBtn.hidden = !isGeneParent;
+      geneChildBtn.disabled = !canEdit;
+    }
     bar.hidden = false;
     const el = getNodeDomEl(n.id);
     if (!el) return;
@@ -8841,6 +8944,18 @@ function finalizeFlowGroupDragIfAny() {
       runtime.fcToolbarInteracting = true;
       toggleBulkSpawnPopover();
       endFcToolbarInteraction();
+    });
+    document.getElementById("geneAddSpouseBtn")?.addEventListener("click", (e) => {
+      runToolbarAction(e, (nodeId) => {
+        if (!nodeId) return;
+        genealogyAddSpouseAction(nodeId);
+      });
+    });
+    document.getElementById("geneAddChildBtn")?.addEventListener("click", (e) => {
+      runToolbarAction(e, (nodeId) => {
+        if (!nodeId) return;
+        genealogyAddChildAction(nodeId);
+      });
     });
   }
 
@@ -10696,6 +10811,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const sem = n.semantic;
     if (n.ebikeRole) {
       sem.role = "custom";
+    } else if (n.genealogyRole && ["male", "female", "child"].includes(n.genealogyRole)) {
+      sem.role = "custom";
     } else if (!sem.role || !SEMANTIC_ROLES.has(String(sem.role))) {
       const t = n.type;
       sem.role = SEMANTIC_ROLES.has(t) ? t : "custom";
@@ -11111,6 +11228,10 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     for (const n of p.nodes) {
       ensureNodeExtendedModel(n);
       if (n.ebikeRole && isEbikeWorkspaceActive()) {
+        runtime.semanticTypes[n.id] = "custom";
+        continue;
+      }
+      if (n.genealogyRole && isGenealogyWorkspaceActive()) {
         runtime.semanticTypes[n.id] = "custom";
         continue;
       }
@@ -12064,6 +12185,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       el.classList.remove(...semanticClassNames);
       const node = getNodeById(nodeId);
       if (node?.ebikeRole && isEbikeWorkspaceActive()) continue;
+      if (node?.genealogyRole && isGenealogyWorkspaceActive()) continue;
       const type = runtime.semanticTypes[nodeId];
       if (type && type !== "unknown") el.classList.add(`semantic-${type}`);
     }
@@ -12601,6 +12723,23 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     badges.innerHTML = "";
     if (n.ebikeRole && isEbikeWorkspaceActive()) {
       badges.style.display = "none";
+      let lock = el.querySelector(":scope > .node-locked-icon");
+      if (n.security && n.security.locked) {
+        if (!lock) {
+          lock = document.createElement("div");
+          lock.className = "node-locked-icon";
+          lock.textContent = "🔒";
+          el.appendChild(lock);
+        }
+        lock.style.opacity = n.security.lockMode === "soft" ? "0.52" : "0.95";
+        lock.style.display = "block";
+      } else if (lock) {
+        lock.remove();
+      }
+      return;
+    }
+    if (n.genealogyRole && isGenealogyWorkspaceActive() && isGenealogyProfileRole(n.genealogyRole)) {
+      badges.style.display = "none";
       el.classList.toggle("node-locked-hard", isNodeDragHardLocked(n));
       let lock = el.querySelector(":scope > .node-locked-icon");
       if (n.security && n.security.locked) {
@@ -12852,6 +12991,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     body.innerHTML = "";
     const st = ensureNodeStyle(n);
     const isEbikeComponent = !!n.ebikeRole;
+    const isGenealogyProfile =
+      !!n.genealogyRole && isGenealogyProfileRole(n.genealogyRole) && isGenealogyWorkspaceActive();
     if (st.freeform) {
       body.classList.add("node-body-freeform");
       const title = document.createElement("div");
@@ -12871,6 +13012,25 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       applyNodeTitleTypography(title, n);
       labelWrap.appendChild(title);
       body.appendChild(labelWrap);
+      applyNodeBodyTextStyles(body, n);
+      return;
+    }
+    if (isGenealogyProfile) {
+      ensureGenealogyModel(n);
+      const stack = document.createElement("div");
+      stack.className = "node-genealogy-stack";
+      const nameEl = document.createElement("div");
+      nameEl.className = "node-genealogy-name";
+      nameEl.textContent = formatGenealogyDisplayName(n);
+      applyNodeTitleTypography(nameEl, n);
+      const yearsEl = document.createElement("div");
+      yearsEl.className = "node-genealogy-years";
+      yearsEl.textContent = formatGenealogyLifeYears(n) || "—";
+      const locEl = document.createElement("div");
+      locEl.className = "node-genealogy-location";
+      locEl.textContent = String(n.genealogy.birthplace || "").trim() || "—";
+      stack.append(nameEl, yearsEl, locEl);
+      body.appendChild(stack);
       applyNodeBodyTextStyles(body, n);
       return;
     }
@@ -14383,6 +14543,287 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     };
   }
 
+  function isGenealogyWorkspaceActive() {
+    return getActiveWorkspaceEnv() === "genealogy";
+  }
+
+  function isGenealogyProfileRole(role) {
+    return role === "male" || role === "female" || role === "child";
+  }
+
+  function getGenealogyPresetByRole(role) {
+    return GENEALOGY_WORKSPACE_PRESETS.find((p) => p.genealogyRole === role) || null;
+  }
+
+  function defaultGenealogyData() {
+    return { firstName: "", lastName: "", birthYear: "", deathYear: "", birthplace: "" };
+  }
+
+  function ensureGenealogyModel(n) {
+    if (!n.genealogy || typeof n.genealogy !== "object") n.genealogy = defaultGenealogyData();
+    const g = n.genealogy;
+    if (g.firstName == null) g.firstName = "";
+    if (g.lastName == null) g.lastName = "";
+    if (g.birthYear == null) g.birthYear = "";
+    if (g.deathYear == null) g.deathYear = "";
+    if (g.birthplace == null) g.birthplace = "";
+    return g;
+  }
+
+  function formatGenealogyDisplayName(n) {
+    ensureGenealogyModel(n);
+    const g = n.genealogy;
+    const full = [g.firstName, g.lastName].map((s) => String(s || "").trim()).filter(Boolean).join(" ");
+    return full || n.title || n.text || "Unknown";
+  }
+
+  function formatGenealogyLifeYears(n) {
+    ensureGenealogyModel(n);
+    const birth = String(n.genealogy.birthYear || "").trim();
+    const death = String(n.genealogy.deathYear || "").trim();
+    if (!birth && !death) return "";
+    if (!death) return birth ? `${birth} – Present` : "";
+    return `${birth || "?"} – ${death}`;
+  }
+
+  function syncGenealogyNodeTextFields(n) {
+    if (!n || !isGenealogyProfileRole(n.genealogyRole)) return;
+    ensureGenealogyModel(n);
+    const name = formatGenealogyDisplayName(n);
+    n.title = name;
+    n.text = name;
+  }
+
+  function buildGenealogyNodeStyle(preset) {
+    const stroke = normalizeNodeHexColor(preset.color) || "#93C5FD";
+    const round = ["circle", "capsule", "connector", "summing-junction"].includes(preset.shape);
+    const isUnion = preset.genealogyRole === "union";
+    return {
+      fillColor: isUnion ? "transparent" : hexToRgba(stroke, 0.12),
+      opacity: 0.96,
+      glow: isUnion ? 6 : 8,
+      shadow: isUnion ? 8 : 12,
+      radius: round ? 999 : 10,
+      borderColor: stroke,
+      strokeColor: stroke,
+      borderWidth: isUnion ? 1.5 : 2
+    };
+  }
+
+  function buildGenealogyNodeFromPreset(preset, x, y, genealogyData) {
+    const strokeAccent = normalizeNodeHexColor(preset.color) || "#93C5FD";
+    const n = {
+      id: uid(),
+      x: Math.round(x),
+      y: Math.round(y),
+      width: preset.width || 160,
+      height: preset.height || 108,
+      text: preset.label,
+      title: preset.label,
+      type: preset.type || "person",
+      color: strokeAccent,
+      shape: preset.shape || "rect",
+      genealogyRole: preset.genealogyRole,
+      style: buildGenealogyNodeStyle(preset)
+    };
+    if (isGenealogyProfileRole(preset.genealogyRole)) {
+      n.genealogy = Object.assign(defaultGenealogyData(), genealogyData || {});
+      syncGenealogyNodeTextFields(n);
+    }
+    normalizeNode(n);
+    ensureNodeExtendedModel(n);
+    return n;
+  }
+
+  function findGenealogySpouse(nodeId) {
+    const p = getProject();
+    const self = getNodeById(nodeId);
+    if (!self?.genealogyRole || !isGenealogyProfileRole(self.genealogyRole) || self.genealogyRole === "child") {
+      return null;
+    }
+    for (const c of p.connections) {
+      if (!isNodeNodeConnection(c)) continue;
+      const otherId = c.from === nodeId ? c.to : c.to === nodeId ? c.from : null;
+      if (!otherId) continue;
+      const other = getNodeById(otherId);
+      if (!other?.genealogyRole || !isGenealogyProfileRole(other.genealogyRole) || other.genealogyRole === "child") {
+        continue;
+      }
+      if (c.genealogyLinkType === "spouse") return other;
+      if (
+        (self.genealogyRole === "male" && other.genealogyRole === "female") ||
+        (self.genealogyRole === "female" && other.genealogyRole === "male")
+      ) {
+        return other;
+      }
+    }
+    return null;
+  }
+
+  function findGenealogyUnionForCouple(idA, idB) {
+    const p = getProject();
+    for (const n of p.nodes) {
+      if (n.genealogyRole !== "union") continue;
+      const stubs = p.connections.filter(
+        (c) =>
+          isNodeNodeConnection(c) &&
+          c.to === n.id &&
+          (c.from === idA || c.from === idB)
+      );
+      if (stubs.length >= 2) return n;
+    }
+    return null;
+  }
+
+  function ensureGenealogyEdge(fromId, toId, linkType) {
+    if (!fromId || !toId || fromId === toId) return null;
+    const p = getProject();
+    const existing = p.connections.find(
+      (c) =>
+        isNodeNodeConnection(c) &&
+        c.from === fromId &&
+        c.to === toId &&
+        (c.genealogyLinkType === linkType || (!c.genealogyLinkType && linkType === "spouse"))
+    );
+    if (existing) return existing.id;
+    const connectionId = uid();
+    const routeStyle = linkType === "spouse" || linkType === "parent-stub" ? "straight" : "orthogonal";
+    p.connections.push({
+      id: connectionId,
+      from: fromId,
+      to: toId,
+      genealogyLinkType: linkType,
+      routeStyle
+    });
+    const fromNode = getNodeById(fromId);
+    const toNode = getNodeById(toId);
+    if (fromNode && toNode) {
+      const from = anchor(fromNode, "out", nodeWorldCenter(toNode), connectionId);
+      const to = anchor(toNode, "in", nodeWorldCenter(fromNode), connectionId);
+      const auto = autoCurve(from, to);
+      runtime.connectionUi[connectionId] = { cp1: auto.cp1, cp2: auto.cp2, custom: false };
+    }
+    return connectionId;
+  }
+
+  function genealogyAddSpouseAction(nodeId) {
+    const parent = getNodeById(nodeId);
+    if (!parent?.genealogyRole || !isGenealogyProfileRole(parent.genealogyRole) || parent.genealogyRole === "child") {
+      return;
+    }
+    if (findGenealogySpouse(nodeId)) {
+      showConnectionHint("This person already has a spouse linked.", true);
+      return;
+    }
+    const oppositeRole = parent.genealogyRole === "male" ? "female" : "male";
+    const preset = getGenealogyPresetByRole(oppositeRole);
+    if (!preset) return;
+    pushHistory();
+    const p = getProject();
+    const spouse = buildGenealogyNodeFromPreset(preset, parent.x + parent.width + 100, parent.y);
+    p.nodes.push(spouse);
+    ensureGenealogyEdge(parent.id, spouse.id, "spouse");
+    selectionRuntime.selectNode(spouse.id);
+    renderAll();
+    elevateSpawnedNode(spouse.id);
+    flashFcNodeEnter(spouse.id);
+    markDirty();
+  }
+
+  function genealogyAddChildAction(nodeId) {
+    const parent = getNodeById(nodeId);
+    if (!parent?.genealogyRole || !isGenealogyProfileRole(parent.genealogyRole) || parent.genealogyRole === "child") {
+      return;
+    }
+    const childPreset = getGenealogyPresetByRole("child");
+    if (!childPreset) return;
+    pushHistory();
+    const p = getProject();
+    const spouse = findGenealogySpouse(nodeId);
+    let cx;
+    let cy;
+    let sourceId = parent.id;
+    if (spouse) {
+      cx = (parent.x + parent.width / 2 + spouse.x + spouse.width / 2) / 2;
+      cy = (parent.y + parent.height / 2 + spouse.y + spouse.height / 2) / 2;
+      let union = findGenealogyUnionForCouple(parent.id, spouse.id);
+      if (!union) {
+        const unionPreset = getGenealogyPresetByRole("union");
+        if (unionPreset) {
+          union = buildGenealogyNodeFromPreset(unionPreset, cx - unionPreset.width / 2, cy + 18);
+          p.nodes.push(union);
+          ensureGenealogyEdge(parent.id, union.id, "parent-stub");
+          ensureGenealogyEdge(spouse.id, union.id, "parent-stub");
+        }
+      }
+      if (union) sourceId = union.id;
+    } else {
+      cx = parent.x + parent.width / 2;
+      cy = parent.y + parent.height / 2;
+    }
+    const child = buildGenealogyNodeFromPreset(childPreset, cx - childPreset.width / 2, cy + 120);
+    p.nodes.push(child);
+    ensureGenealogyEdge(sourceId, child.id, "parent-child");
+    selectionRuntime.selectNode(child.id);
+    renderAll();
+    elevateSpawnedNode(child.id);
+    flashFcNodeEnter(child.id);
+    markDirty();
+  }
+
+  function syncGenealogyInspectorPanel(selectedNode) {
+    const panel = document.getElementById("genealogyInspectorPanel");
+    const standard = document.getElementById("inspectorStandardNodeFields");
+    const showGene =
+      !!selectedNode &&
+      isGenealogyWorkspaceActive() &&
+      isGenealogyProfileRole(selectedNode.genealogyRole);
+    if (panel) panel.hidden = !showGene;
+    if (standard) standard.hidden = showGene;
+    if (!showGene || runtime.isSyncingInspector) return;
+    ensureGenealogyModel(selectedNode);
+    const g = selectedNode.genealogy;
+    const first = document.getElementById("geneFirstName");
+    const last = document.getElementById("geneLastName");
+    const birth = document.getElementById("geneBirthYear");
+    const death = document.getElementById("geneDeathYear");
+    const place = document.getElementById("geneBirthplace");
+    if (first) first.value = g.firstName || "";
+    if (last) last.value = g.lastName || "";
+    if (birth) birth.value = g.birthYear || "";
+    if (death) death.value = g.deathYear || "";
+    if (place) place.value = g.birthplace || "";
+    const heading = document.getElementById("inspectorElementHeadingLabel");
+    if (heading) heading.textContent = formatGenealogyDisplayName(selectedNode);
+  }
+
+  function applyGenealogyInspectorFieldChange() {
+    if (runtime.isSyncingInspector) return;
+    const n = getNodeById(runtime.selectedNodeId);
+    if (!n || !isGenealogyProfileRole(n.genealogyRole)) return;
+    ensureGenealogyModel(n);
+    const g = n.genealogy;
+    g.firstName = document.getElementById("geneFirstName")?.value || "";
+    g.lastName = document.getElementById("geneLastName")?.value || "";
+    g.birthYear = document.getElementById("geneBirthYear")?.value || "";
+    g.deathYear = document.getElementById("geneDeathYear")?.value || "";
+    g.birthplace = document.getElementById("geneBirthplace")?.value || "";
+    syncGenealogyNodeTextFields(n);
+    refreshNodeTextOnCanvas(n.id);
+    const heading = document.getElementById("inspectorElementHeadingLabel");
+    if (heading) heading.textContent = formatGenealogyDisplayName(n);
+    markDirty();
+  }
+
+  function initGenealogyInspectorControls() {
+    const root = document.getElementById("genealogyInspectorPanel");
+    if (!root || root.dataset.bound === "1") return;
+    root.dataset.bound = "1";
+    for (const id of ["geneFirstName", "geneLastName", "geneBirthYear", "geneDeathYear", "geneBirthplace"]) {
+      document.getElementById(id)?.addEventListener("input", applyGenealogyInspectorFieldChange);
+    }
+  }
+
   function insertPresetNode(preset) {
     pushHistory();
     const p = getProject();
@@ -14393,6 +14834,8 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       ? { width: preset.width, height: preset.height }
       : { width: 210, height: 118 };
     const ebikeRole = isEbikeWorkspaceActive() ? preset.ebikeRole || preset.tooltip || null : null;
+    const genealogyRole =
+      !ebikeRole && isGenealogyWorkspaceActive() ? preset.genealogyRole || null : null;
     const strokeAccent = normalizeNodeHexColor(preset.color) || "#9CB8FF";
     const n = {
       id: uid(),
@@ -14401,16 +14844,19 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       height: fcDims.height,
       text: preset.label,
       title: preset.label,
-      subtitle: ebikeRole ? undefined : preset.subtitle,
-      description: ebikeRole ? undefined : preset.description,
-      icon: ebikeRole ? undefined : preset.icon,
+      subtitle: ebikeRole || (genealogyRole && isGenealogyProfileRole(genealogyRole)) ? undefined : preset.subtitle,
+      description: ebikeRole || (genealogyRole && isGenealogyProfileRole(genealogyRole)) ? undefined : preset.description,
+      icon: ebikeRole || (genealogyRole && isGenealogyProfileRole(genealogyRole)) ? undefined : preset.icon,
       type: preset.type,
       color: strokeAccent,
       shape: preset.shape,
       ebikeRole: ebikeRole || undefined,
+      genealogyRole: genealogyRole || undefined,
       style: ebikeRole
         ? buildEbikeEngineeringNodeStyle(preset)
-        : (() => {
+        : genealogyRole
+          ? buildGenealogyNodeStyle(preset)
+          : (() => {
             const round = ["circle", "capsule", "connector", "summing-junction"].includes(preset.shape);
             const arrow = ["arrow-right", "arrow-left", "arrow-up-down"].includes(preset.shape);
             return {
@@ -14422,6 +14868,12 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
             };
           })()
     };
+    if (genealogyRole && isGenealogyProfileRole(genealogyRole)) {
+      n.genealogy = defaultGenealogyData();
+      syncGenealogyNodeTextFields(n);
+    }
+    normalizeNode(n);
+    ensureNodeExtendedModel(n);
     p.nodes.push(n);
     if (ebikeRole) applyEbikeAutoWiring(n);
 
@@ -14558,6 +15010,10 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     if (n.ebikeRole) {
       el.dataset.type = n.ebikeRole;
       el.classList.add("node--ebike-component");
+    }
+    if (n.genealogyRole && isGenealogyProfileRole(n.genealogyRole)) {
+      el.dataset.type = n.genealogyRole;
+      el.classList.add("node--genealogy-profile");
     }
     const body = document.createElement("div");
     body.className = "body";
@@ -16775,8 +17231,12 @@ clearFlowGroupSelection();
         document.getElementById("rightbar")?.setAttribute("data-inspector-mode", "element");
         const heading = document.getElementById("inspectorElementHeadingLabel");
         if (heading) {
-          const label = (selectedNode.description || selectedNode.text || "Action step").trim();
-          heading.textContent = label.length > 42 ? label.slice(0, 39) + "…" : label || "Action step";
+          if (selectedNode.genealogyRole && isGenealogyProfileRole(selectedNode.genealogyRole) && isGenealogyWorkspaceActive()) {
+            heading.textContent = formatGenealogyDisplayName(selectedNode);
+          } else {
+            const label = (selectedNode.description || selectedNode.text || "Action step").trim();
+            heading.textContent = label.length > 42 ? label.slice(0, 39) + "…" : label || "Action step";
+          }
         }
       }
       if (runtime._inspectorUserFocusPending) {
@@ -16824,6 +17284,7 @@ clearFlowGroupSelection();
       syncNodeColorInspectorFields(selectedNode);
       syncNodeStyleSegmentControls(selectedNode);
       syncNodeTextInspectorControls(selectedNode);
+      syncGenealogyInspectorPanel(selectedNode);
       const nql = document.getElementById("nodeQuickLockChk");
       if (nql) {
         if (selectedNode && !isNodeUnderPinnedGroup(p, selectedNode.id)) {
@@ -18038,6 +18499,7 @@ clearFlowGroupSelection();
   });
   initNodeColorInspectorControls();
   initNodeTextInspectorControls();
+  initGenealogyInspectorControls();
   nodeShape.addEventListener("change", () => {
     if (runtime.isSyncingInspector) return;
     const n = getNodeById(runtime.selectedNodeId);
