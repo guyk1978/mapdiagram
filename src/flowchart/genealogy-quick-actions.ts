@@ -52,18 +52,6 @@ function selectedGenealogyNode(host: RuntimeHost) {
   return node && node.genealogyRole ? node : null;
 }
 
-function resolveLinkType(host: RuntimeHost, selected: any, role: "male" | "female") {
-  const selectedRole = String(selected?.genealogyRole || "");
-  const isAdult = selectedRole === "male" || selectedRole === "female";
-  const opposite =
-    (selectedRole === "male" && role === "female") || (selectedRole === "female" && role === "male");
-  if (isAdult && opposite && typeof host.findGenealogySpouse === "function") {
-    const spouse = host.findGenealogySpouse(selected.id);
-    if (!spouse) return "spouse";
-  }
-  return "parent-child";
-}
-
 function quickAdd(host: RuntimeHost, role: "male" | "female") {
   if (typeof host.isGenealogyWorkspaceActive === "function" && !host.isGenealogyWorkspaceActive()) return;
   const selected = selectedGenealogyNode(host);
@@ -83,11 +71,13 @@ function quickAdd(host: RuntimeHost, role: "male" | "female") {
 
   const p = host.getProject();
   const w = Number(preset.width) || 160;
-  const x = role === "female" ? selected.x + selected.width + 100 : selected.x - w - 100;
-  const y = selected.y + Math.max(44, Math.round(selected.height * 0.35));
+  const gap = 80;
+  const x = role === "male" ? selected.x - w - gap : selected.x + selected.width + gap;
+  const y = selected.y;
   const node = host.buildGenealogyNodeFromPreset(preset, x, y);
   p.nodes.push(node);
-  host.ensureGenealogyEdge(selected.id, node.id, resolveLinkType(host, selected, role));
+  // Always create a direct partner connection; no child/spouse role guessing.
+  host.ensureGenealogyEdge(selected.id, node.id, "spouse");
 
   host.selectionRuntime?.selectNode?.(node.id);
   host.renderAll?.();
@@ -104,12 +94,12 @@ function decorateToolbar(host: RuntimeHost) {
 
   spouseBtn.classList.add("gene-toolbar-action");
   childBtn.classList.add("gene-toolbar-action");
-  spouseBtn.innerHTML = `<span class="gene-toolbar-icon gene-toolbar-icon--female" aria-hidden="true">${FEMALE_ICON}</span><span class="gene-toolbar-label">Add Female</span>`;
-  childBtn.innerHTML = `<span class="gene-toolbar-icon gene-toolbar-icon--male" aria-hidden="true">${MALE_ICON}</span><span class="gene-toolbar-label">Add Male</span>`;
-  spouseBtn.setAttribute("aria-label", "Add Female Node");
-  childBtn.setAttribute("aria-label", "Add Male Node");
-  spouseBtn.setAttribute("title", "Add Female Node");
-  childBtn.setAttribute("title", "Add Male Node");
+  spouseBtn.innerHTML = `<span class="gene-toolbar-icon gene-toolbar-icon--male" aria-hidden="true">${MALE_ICON}</span><span class="gene-toolbar-label">Add Male</span>`;
+  childBtn.innerHTML = `<span class="gene-toolbar-icon gene-toolbar-icon--female" aria-hidden="true">${FEMALE_ICON}</span><span class="gene-toolbar-label">Add Female</span>`;
+  spouseBtn.setAttribute("aria-label", "Add Male (Partner)");
+  childBtn.setAttribute("aria-label", "Add Female (Partner)");
+  spouseBtn.setAttribute("title", "Add Male (Partner)");
+  childBtn.setAttribute("title", "Add Female (Partner)");
 
   const spouseClone = spouseBtn.cloneNode(true) as HTMLButtonElement;
   const childClone = childBtn.cloneNode(true) as HTMLButtonElement;
@@ -119,12 +109,12 @@ function decorateToolbar(host: RuntimeHost) {
   spouseClone.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    quickAdd(host, "female");
+    quickAdd(host, "male");
   });
   childClone.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    quickAdd(host, "male");
+    quickAdd(host, "female");
   });
 }
 
