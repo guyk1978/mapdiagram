@@ -4000,6 +4000,60 @@
     opacity: 0.38;
     cursor: not-allowed;
   }
+  .bulk-spawn-popover {
+    position: absolute;
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 5px;
+    border-radius: 10px;
+    border: 1px solid rgba(122, 162, 255, 0.38);
+    background: rgba(14, 18, 30, 0.94);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(10px);
+    pointer-events: auto;
+  }
+  html[data-theme="light"] .bulk-spawn-popover {
+    background: rgba(255, 255, 255, 0.96);
+  }
+  .bulk-spawn-count {
+    width: 36px;
+    height: 24px;
+    padding: 0 4px;
+    border: 1px solid rgba(122, 162, 255, 0.35);
+    border-radius: 6px;
+    background: rgba(8, 12, 22, 0.5);
+    color: var(--text);
+    font-size: 11px;
+    text-align: center;
+  }
+  .bulk-spawn-shape {
+    height: 24px;
+    max-width: 88px;
+    padding: 0 4px;
+    border: 1px solid rgba(122, 162, 255, 0.35);
+    border-radius: 6px;
+    background: rgba(8, 12, 22, 0.5);
+    color: var(--text);
+    font-size: 10px;
+  }
+  .bulk-spawn-go {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: rgba(0, 162, 232, 0.28);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .bulk-spawn-go:hover {
+    background: rgba(0, 162, 232, 0.45);
+  }
   .canvas-corner-pill {
     position: absolute;
     z-index: 14;
@@ -4149,7 +4203,6 @@
     </div>
     <div id="topbarOffscreenTools" class="topbar-offscreen-tools">
       <div id="savedIndicator" class="saved" aria-live="polite">Saved</div>
-      <span id="userCreditBadge" class="muted" style="margin-left:8px;font-size:11px;display:none" title="AI credits (server)" aria-label="AI credits (server)"></span>
       <div class="topbar-toolbar-cluster">
       <div class="group" role="toolbar" aria-label="Edit">
         <button id="autoLayoutBtn" class="icon-btn" type="button" title="Auto Layout" aria-label="Auto Layout"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 4H5v4h4V4zM19 4h-4v4h4V4zM9 16H5v4h4v-4zM19 16h-4v4h4v-4zM14 9h-4v6h4V9z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span></button>
@@ -4229,7 +4282,6 @@
         </div>
       </div>
       </div>
-      <button id="createAiBtn" class="ai-create-btn" type="button"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M7.05 7.05 5.64 5.64M18.36 18.36l-1.41-1.41M7.05 16.95l-1.41 1.41M18.36 5.64l-1.41 1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="m12 8 1.1 2.6 2.6 1.1-2.6 1.1L12 15.8l-1.1-2.6-2.6-1.1 2.6-1.1L12 8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span> Generate with AI</button>
     </aside>
     <main id="workspace" class="workspace">
       <div id="viewport">
@@ -4247,33 +4299,6 @@
       <div id="minimapHost" class="minimap-host" title="Overview map — click to navigate" aria-label="Diagram overview map. Click to navigate.">
         <canvas id="minimapCanvas" width="200" height="140"></canvas>
       </div>
-            <div id="fcAssistantRoot" class="fc-assistant-root" data-state="collapsed" hidden>
-        <p id="fcCanvasEmptyHint" class="fc-canvas-empty-hint" hidden>Generate a flowchart</p>
-        <div id="fcAssistantBackdrop" class="fc-assistant-backdrop" hidden aria-hidden="true"></div>
-        
-        <div id="fcAssistantShell" class="fc-assistant-shell" aria-hidden="true">
-          <div class="fc-assistant-card" role="document">
-            <div class="fc-assistant-card-head">
-              <h2 id="fcAssistantTitle">Flowchart Assistant</h2>
-              <button type="button" id="fcAssistantCloseBtn" class="fc-assistant-close" aria-label="Close assistant">&times;</button>
-            </div>
-            <p class="fc-assistant-lead">Turn a process into a clean, editable flowchart.</p>
-            <textarea id="flowchartPromptInput" placeholder="Describe your workflow — steps, decisions, and handoffs…" rows="3" aria-label="Describe your workflow"></textarea>
-            <div id="fcStarterChips" class="fc-starter-chips" role="group" aria-label="Starter prompts"></div>
-            <div class="fc-assistant-actions">
-              <button type="button" id="fcTryExampleBtn" class="text-btn-sm">Try example</button>
-              <button type="button" id="fcTemplatesBtn" class="text-btn-sm">Templates</button>
-              <button type="button" id="fcGenerateBtn" class="btn-ai-primary">Generate a clean flowchart</button>
-            </div>
-          </div>
-        </div>
-        <button type="button" id="fcAssistantFab" class="fc-assistant-fab" hidden aria-label="Open flowchart assistant" title="Describe your workflow (Ctrl+K)">
-          <span class="fc-assistant-fab-icon" aria-hidden="true">✦</span>
-          <span class="fc-assistant-fab-label">Assistant</span>
-          <span class="fc-assistant-fab-hint" aria-hidden="true">⌘K</span>
-        </button>
-      </div>
-
       <div id="fcMultiSelectBar" class="fc-multi-select-bar" hidden role="toolbar" aria-label="Multi-selection actions">
         <span id="fcMultiSelectCount" class="fc-multi-count">2 selected</span>
         <button type="button" id="fcMultiGroupBtn" title="Group selection">Group</button>
@@ -4291,9 +4316,23 @@
         <button type="button" id="canvasSendBackwardBtn" class="canvas-micro-toolbar__btn" title="Send to back" aria-label="Send to back">
           <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 20V9M8 16l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="5" y="4" width="14" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/></svg>
         </button>
+        <button type="button" id="bulkSpawnToggleBtn" class="canvas-micro-toolbar__btn" title="Bulk spawn child nodes" aria-label="Bulk spawn child nodes" aria-expanded="false">
+          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 5v6M9 8h6M6 14h12M8 18h8" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
         <button type="button" id="fcDeleteBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--danger" title="Delete" aria-label="Delete">
           <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1v2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7l1 14a1 1 0 0 0 1 .9h6a1 1 0 0 0 1-.9l1-14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
         </button>
+      </div>
+      <div id="bulkSpawnPopover" class="bulk-spawn-popover" hidden role="dialog" aria-label="Bulk spawn nodes">
+        <label class="bulk-spawn-popover__field">
+          <span class="sr-only">Count</span>
+          <input type="number" id="bulkSpawnCount" class="bulk-spawn-count" min="1" max="24" value="5" aria-label="Number of nodes to spawn">
+        </label>
+        <label class="bulk-spawn-popover__field">
+          <span class="sr-only">Shape</span>
+          <select id="bulkSpawnShape" class="bulk-spawn-shape" aria-label="Shape for spawned nodes"></select>
+        </label>
+        <button type="button" id="bulkSpawnGoBtn" class="bulk-spawn-go" title="Spawn and connect" aria-label="Spawn and connect">✓</button>
       </div>
       <div id="canvasCornerPill" class="canvas-corner-pill" hidden>
         <button type="button" id="canvasCornerCycleBtn" class="canvas-corner-pill__btn" title="Cycle corner radius" aria-label="Cycle corner radius">Corners</button>
@@ -4313,7 +4352,6 @@
         <button id="tabDiagram" class="right-tab active" type="button" role="tab" aria-selected="true" aria-controls="inspector-panel-diagram" tabindex="0">Diagram</button>
         <button id="tabLayout" class="right-tab" type="button" role="tab" aria-selected="false" aria-controls="inspector-panel-layout" tabindex="-1">Layout</button>
         <button id="tabExport" class="right-tab" type="button" role="tab" aria-selected="false" aria-controls="inspector-panel-export" tabindex="-1">Export</button>
-        <button id="tabAi" class="right-tab" type="button" title="AI credits &amp; generation" aria-label="AI credits and generation" role="tab" aria-selected="false" aria-controls="inspector-panel-ai" tabindex="-1">AI</button>
       </div>
       </div>
       <div id="inspector-panel-diagram" role="tabpanel" aria-labelledby="tabDiagram" data-inspector-tab-panel="diagram" aria-hidden="false">
@@ -4589,7 +4627,7 @@
         <p id="layoutHint" class="sr-only">Systems layout and minimap visibility.</p>
         <div class="muted" data-flowchart-hide>Use Smart Clean / Auto Layout to apply spacing and structure.</div>
         <button type="button" id="improveFlowchartLayoutPanelBtn" class="text-btn-sm" style="width:100%;margin-bottom:8px">Improve layout</button>
-        <p class="muted" style="font-size:11px;margin:0 0 10px">Polish spacing locally — no AI. Shortcut: Ctrl+L</p>
+        <p class="muted" style="font-size:11px;margin:0 0 10px">Polish spacing locally. Shortcut: Ctrl+L</p>
         <label class="muted" data-flowchart-hide>Systems layout
           <select id="hierarchicalLayoutSelect">
             <option value="classic">Classic (nodes only)</option>
@@ -4631,58 +4669,10 @@
           <ul id="savedViewsList" class="saved-views-list"></ul>
         </div>
       </section>
-      <section id="inspector-panel-ai" class="section right-section section-critical" data-tab="ai" role="tabpanel" aria-labelledby="tabAi aiHeading aiHint" data-inspector-tab-panel="ai" aria-hidden="true">
-        <h3 id="aiHeading">AI credits</h3>
-        <p id="aiHint" class="sr-only">Wallet balance, generation, and credit packs.</p>
-        <div class="ai-wallet-panel">
-          <div id="aiWalletModeLine" class="ai-wallet-sub">Loading…</div>
-          <div id="aiWalletBalanceBig" class="ai-wallet-balance muted-balance">—</div>
-          <div id="aiWalletCostLine" class="ai-wallet-sub"></div>
-          <div id="aiWalletInsufficient" class="ai-wallet-alert" role="status"></div>
-          <button type="button" id="generateAiWalletBtn" class="btn-ai-primary" aria-label="Open AI diagram generation">Generate with AI…</button>
-          <p class="muted" style="margin:0;font-size:11px">Each compile step reserves credits on the server first; unused tokens are refunded. Balance updates after every run.</p>
-        </div>
-        <h3 style="margin-top:14px">Buy credits</h3>
-        <div id="aiWalletMockRow" class="ai-mock-row" style="display:none">
-          <span class="muted" style="font-size:11px">Simulated (dev):</span>
-          <button type="button" id="mockBuy10Btn">+10</button>
-          <button type="button" id="mockBuy50Btn">+50</button>
-          <button type="button" id="mockBuy100Btn">+100</button>
-        </div>
-        <div id="aiWalletStripeRow" class="ai-mock-row" style="margin-top:6px">
-          <span class="muted" style="font-size:11px">Stripe packs:</span>
-          <button type="button" id="walletBuyStarterBtn" class="icon-btn" style="font-size:11px;padding:4px 10px" aria-label="Buy Starter credit pack">Starter</button>
-          <button type="button" id="walletBuyProBtn" class="icon-btn" style="font-size:11px;padding:4px 10px" aria-label="Buy Pro credit pack">Pro</button>
-          <button type="button" id="walletBuyPowerBtn" class="icon-btn" style="font-size:11px;padding:4px 10px" aria-label="Buy Power credit pack">Power</button>
-        </div>
-      </section>
     </aside>
   </div>
 </div>
 <div id="drawerBackdrop" class="drawer-backdrop"></div>
-<div id="aiModalOverlay" class="ai-modal-overlay">
-  <div class="ai-modal" role="dialog" aria-modal="true" aria-labelledby="aiModalTitle">
-    <h3 id="aiModalTitle" style="margin:0">Generate flowchart</h3>
-    <div id="aiModalIntro" class="muted">Describe your process in plain language. The AI returns <strong>logic only</strong> (FlowchartSpec JSON); layout and visuals are compiled locally.</div>
-    <div id="aiCostHint" class="ai-cost-hint" style="display:none"></div>
-    <textarea id="aiPromptInput" placeholder="Example: Employee onboarding from offer letter to first-day setup"></textarea>
-    <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap">
-      <span id="aiModalCostInline" class="muted" style="font-size:11px;display:none"></span>
-      <button id="aiCancelBtn" type="button" aria-label="Cancel AI generation">Cancel</button>
-      <button id="aiGenerateBtn" class="btn-ai-primary" style="width:auto;padding:8px 18px" type="button" aria-label="Generate diagram from prompt">Generate</button>
-    </div>
-    <div id="aiStatus" class="muted"></div>
-    <div id="aiBillingRow" class="muted" style="margin-top:10px;display:none;font-size:12px;line-height:1.45">
-      <div id="aiCreditInline"></div>
-      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <span class="muted">Buy credits:</span>
-        <button type="button" id="buyPackStarterBtn" class="icon-btn" style="font-size:11px;padding:4px 10px" title="500 credits" aria-label="Buy Starter credit pack (500 credits)">Starter</button>
-        <button type="button" id="buyPackProBtn" class="icon-btn" style="font-size:11px;padding:4px 10px" title="5000 credits" aria-label="Buy Pro credit pack (5000 credits)">Pro</button>
-        <button type="button" id="buyPackPowerBtn" class="icon-btn" style="font-size:11px;padding:4px 10px" title="25000 credits" aria-label="Buy Power credit pack (25000 credits)">Power</button>
-      </div>
-    </div>
-  </div>
-</div>
 <input id="fileInput" type="file" accept="application/json">
 <div id="authOverlay" class="auth-modal-overlay">
   <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
@@ -5098,6 +5088,7 @@
     canvasOverlaySyncRaf: 0,
     styleApplyRaf: 0,
     globalColorInputDebounce: 0,
+    bulkSpawnPopoverOpen: false,
     collisionDebounceTimer: null,
     graphCache: null,
     graphCacheKey: "",
@@ -8423,7 +8414,7 @@ function finalizeFlowGroupDragIfAny() {
   }
 
   function syncFlowchartEmptyState() {
-    syncFlowchartAssistantUi();
+    /* AI assistant removed — no empty-state overlay. */
   }
 
   // ─── Flowchart Assistant Events ───
@@ -8535,6 +8526,7 @@ function finalizeFlowGroupDragIfAny() {
     if (hasSelectedConnections() && !getNodeById(runtime.selectedNodeId)) {
       bar.hidden = true;
       bar.classList.remove("is-visible");
+      closeBulkSpawnPopover();
       return;
     }
     if (runtime.selectedFlowGroupId) {
@@ -8549,6 +8541,7 @@ function finalizeFlowGroupDragIfAny() {
       if (!runtime.fcToolbarInteracting) {
         bar.hidden = true;
         bar.classList.remove("is-visible");
+        closeBulkSpawnPopover();
       }
       return;
     }
@@ -8557,10 +8550,12 @@ function finalizeFlowGroupDragIfAny() {
     const fwdBtn = document.getElementById("canvasBringForwardBtn");
     const backBtn = document.getElementById("canvasSendBackwardBtn");
     const delBtn = document.getElementById("fcDeleteBtn");
+    const spawnBtn = document.getElementById("bulkSpawnToggleBtn");
     if (dupBtn) dupBtn.disabled = !canEdit;
     if (fwdBtn) fwdBtn.disabled = !canEdit;
     if (backBtn) backBtn.disabled = !canEdit;
     if (delBtn) delBtn.disabled = !canEdit;
+    if (spawnBtn) spawnBtn.disabled = !canEdit;
     bar.hidden = false;
     const el = getNodeDomEl(n.id);
     if (!el) return;
@@ -8621,6 +8616,14 @@ function finalizeFlowGroupDragIfAny() {
         if (!getFcQuickEditTargetNodeId()) return;
         requestDeleteSelectedNodes();
       });
+    });
+    document.getElementById("bulkSpawnToggleBtn")?.addEventListener("click", (e) => {
+      if (runtime.readOnly) return;
+      e.preventDefault();
+      e.stopPropagation();
+      runtime.fcToolbarInteracting = true;
+      toggleBulkSpawnPopover();
+      endFcToolbarInteraction();
     });
   }
 
@@ -8742,17 +8745,194 @@ scheduleSemanticAnalysis();
 requestAnimationFrame(() => fcStartInlineRename(n.id));
   }
 
+  const BULK_SPAWN_SHAPES = [
+    "rect", "rounded", "circle", "diamond", "capsule", "document", "parallelogram",
+    "hexagon", "cylinder", "subprocess"
+  ];
+
+  function presetForBulkSpawnShape(shape) {
+    const hit = FLOWCHART_MODE_PRESETS.find((p) => p.shape === shape);
+    if (hit) return hit;
+    return FLOWCHART_MODE_PRESETS.find((p) => p.shape === "rect") || FLOWCHART_MODE_PRESETS[0];
+  }
+
+  function closeBulkSpawnPopover() {
+    const pop = document.getElementById("bulkSpawnPopover");
+    const btn = document.getElementById("bulkSpawnToggleBtn");
+    if (pop) pop.hidden = true;
+    if (btn) btn.setAttribute("aria-expanded", "false");
+    runtime.bulkSpawnPopoverOpen = false;
+  }
+
+  function positionBulkSpawnPopover() {
+    const pop = document.getElementById("bulkSpawnPopover");
+    const bar = document.getElementById("fcQuickEdit");
+    if (!pop || !bar || pop.hidden) return;
+    const barR = bar.getBoundingClientRect();
+    const wsR = workspace.getBoundingClientRect();
+    const popW = pop.offsetWidth || 160;
+    const left = barR.right - wsR.left + 6;
+    const top = barR.top - wsR.top + (barR.height - pop.offsetHeight) / 2;
+    pop.style.left = `${Math.max(8, Math.min(wsR.width - popW - 8, left))}px`;
+    pop.style.top = `${Math.max(8, top)}px`;
+  }
+
+  function toggleBulkSpawnPopover() {
+    if (runtime.bulkSpawnPopoverOpen) {
+      closeBulkSpawnPopover();
+      return;
+    }
+    const pop = document.getElementById("bulkSpawnPopover");
+    const btn = document.getElementById("bulkSpawnToggleBtn");
+    if (!pop || !btn) return;
+    pop.hidden = false;
+    btn.setAttribute("aria-expanded", "true");
+    runtime.bulkSpawnPopoverOpen = true;
+    positionBulkSpawnPopover();
+  }
+
+  function bulkSpawnChildNodes(fromId) {
+    fromId = fromId || getFcQuickEditTargetNodeId();
+    const from = getNodeById(fromId);
+    if (!from || !nodeCanWorkspaceTransform(from) || runtime.readOnly) return;
+    const countInp = document.getElementById("bulkSpawnCount");
+    const shapeSel = document.getElementById("bulkSpawnShape");
+    let count = Math.round(Number(countInp?.value) || 5);
+    count = Math.max(1, Math.min(24, count));
+    if (countInp) countInp.value = String(count);
+    const shape = shapeSel?.value || "rect";
+    const preset = presetForBulkSpawnShape(shape);
+    pushHistory();
+    const p = getProject();
+    const parentPos = getNodeWorldPosition(from);
+    const pw = Number(from.width) || 190;
+    const ph = Number(from.height) || 88;
+    const childW = preset.width || 190;
+    const childH = preset.height || 88;
+    const radius = Math.max(130, pw * 0.7 + count * 14);
+    const centerX = parentPos.x + pw / 2;
+    const centerY = parentPos.y + ph / 2;
+    const startAngle = -Math.PI / 2;
+    const span = count === 1 ? 0 : Math.min(Math.PI * 1.4, (Math.PI / 5) * (count - 1));
+    const newNodeIds = [];
+    const newConnIds = [];
+    for (let i = 0; i < count; i++) {
+      const t = count === 1 ? 0.5 : i / (count - 1);
+      const angle = startAngle - span / 2 + span * t;
+      const cx = centerX + Math.cos(angle) * radius;
+      const cy = centerY + Math.sin(angle) * radius + ph * 0.25;
+      const round = ["circle", "capsule", "connector", "summing-junction"].includes(preset.shape);
+      const n = normalizeNode({
+        id: uid(),
+        x: cx - childW / 2,
+        y: cy - childH / 2,
+        width: childW,
+        height: childH,
+        text: `${preset.label || "Step"} ${i + 1}`,
+        title: `${preset.label || "Step"} ${i + 1}`,
+        type: preset.type || "process",
+        shape: preset.shape || shape,
+        color: preset.color || "#8fb2ff",
+        style: {
+          opacity: 0.92,
+          glow: 12,
+          shadow: 18,
+          radius: round ? 999 : preset.shape === "rounded" ? 14 : 12,
+          borderColor: "#9cb8ff"
+        }
+      });
+      p.nodes.push(n);
+      const connId = uid();
+      const c = { id: connId, from: fromId, to: n.id };
+      normalizeConnectionEdge(c);
+      p.connections.push(c);
+      newNodeIds.push(n.id);
+      newConnIds.push(connId);
+    }
+    for (const id of newNodeIds) {
+      const node = getNodeById(id);
+      if (!node) continue;
+      const el = createNodeElement(node);
+      const wpos = getNodeWorldPosition(node);
+      applyNodeWorldTransform(el, wpos.x, wpos.y);
+      el.style.width = `${node.width}px`;
+      el.style.height = `${node.height}px`;
+      nodesLayer.appendChild(el);
+      runtime.nodeElById.set(id, el);
+      elevateSpawnedNode(id);
+    }
+    for (const connId of newConnIds) {
+      const c = getConnById(connId);
+      const fromNode = getNodeById(fromId);
+      const toNode = c ? getNodeById(c.to) : null;
+      if (fromNode && toNode) {
+        const fromA = anchor(fromNode, "out", nodeWorldCenter(toNode));
+        const toA = anchor(toNode, "in", nodeWorldCenter(fromNode));
+        const auto = autoCurve(fromA, toA);
+        runtime.connectionUi[connId] = { cp1: auto.cp1, cp2: auto.cp2, custom: false };
+      }
+    }
+    if (newNodeIds.length) selectionRuntime.selectNode(newNodeIds[newNodeIds.length - 1]);
+    clearAllEdgeSelection();
+    renderConnections();
+    scheduleCanvasOverlaySync();
+    markDirty();
+    scheduleSemanticAnalysis();
+    closeBulkSpawnPopover();
+    for (const id of newNodeIds) flashFcNodeEnter(id);
+    for (const cid of newConnIds) flashFcConnEnter(cid);
+    showToast(`Spawned ${newNodeIds.length} connected node${newNodeIds.length === 1 ? "" : "s"}.`, "info");
+  }
+
+  function initBulkSpawnUi() {
+    const sel = document.getElementById("bulkSpawnShape");
+    if (!sel || sel.dataset.bound) return;
+    sel.dataset.bound = "1";
+    sel.innerHTML = "";
+    const shapes = BULK_SPAWN_SHAPES;
+    for (const shape of shapes) {
+      const preset = presetForBulkSpawnShape(shape);
+      const opt = document.createElement("option");
+      opt.value = shape;
+      opt.textContent = preset.label || shape;
+      sel.appendChild(opt);
+    }
+    sel.value = "rect";
+    document.getElementById("bulkSpawnGoBtn")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      runtime.fcToolbarInteracting = true;
+      bulkSpawnChildNodes();
+      endFcToolbarInteraction();
+    });
+    document.getElementById("bulkSpawnCount")?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        bulkSpawnChildNodes();
+      }
+    });
+    const pop = document.getElementById("bulkSpawnPopover");
+    pop?.addEventListener("pointerdown", (e) => e.stopPropagation(), true);
+    document.addEventListener("pointerdown", (e) => {
+      if (!runtime.bulkSpawnPopoverOpen) return;
+      if (e.target.closest("#bulkSpawnPopover, #bulkSpawnToggleBtn")) return;
+      closeBulkSpawnPopover();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && runtime.bulkSpawnPopoverOpen) closeBulkSpawnPopover();
+    });
+  }
+
   function initFlowchartModeUi() {
     enableFlowchartMode();
     runtime.fcConnEnterIds = new Set();
-    initFlowchartAssistantUi();
     bindFcQuickEditToolbar();
     bindFcMultiSelectBar();
     bindFcGroupQuickEditToolbar();
+    initBulkSpawnUi();
     document.getElementById("refreshCanvasBtn")?.addEventListener("click", () => refreshCanvasView());
     document.getElementById("improveFlowchartLayoutBtn")?.addEventListener("click", () => improveFlowchartLayoutAction());
     document.getElementById("improveFlowchartLayoutPanelBtn")?.addEventListener("click", () => improveFlowchartLayoutAction());
-    createAiBtn?.removeAttribute("data-flowchart-hide");
   }
 
   function getFlowchartPromptText() {
@@ -15063,7 +15243,6 @@ clearFlowGroupSelection();
   /** Phase 3: command palette + shortcut help (single registry). */
   function getWorkspaceCommands() {
     return [
-      { id: "fcAssistant", label: "Flowchart assistant", keys: "Ctrl+K / ⌘K", keywords: "generate ai prompt", run: () => toggleFlowchartAssistant() },
       { id: "palette", label: "Command palette", keys: "Ctrl+Shift+K", keywords: "search actions", run: () => openCommandPalette(true) },
       { id: "shortcuts", label: "Keyboard shortcuts help", keys: "Palette ▸ Shortcuts", keywords: "help keys", run: () => openKeyboardHelpOverlay() },
       { id: "fit", label: "Fit to screen", keys: "", keywords: "zoom view bounds", run: () => fitViewBtn?.click() },
@@ -16318,7 +16497,6 @@ clearFlowGroupSelection();
     scheduleSemanticAnalysis();
     const nDel = ids.size;
     showToast(`${nDel} node${nDel === 1 ? "" : "s"} deleted.`, "danger");
-    if (impacted.length) smartRebalance([...new Set(impacted)]);
   }
 
   document.getElementById("deleteNodeBtn").onclick = () => {
@@ -16539,7 +16717,6 @@ clearFlowGroupSelection();
       ["tabDiagram", "diagram"],
       ["tabLayout", "layout"],
       ["tabExport", "export"],
-      ["tabAi", "ai"],
     ];
     if (tab === "style") tab = "diagram";
     tabPairs.forEach(([btnId, key]) => {
@@ -16575,13 +16752,6 @@ clearFlowGroupSelection();
     setRightTab("export");
     tabExport.focus();
   };
-  if (tabAi) {
-    tabAi.onclick = () => {
-      setRightTab("ai");
-      initMapDiagramRuntimes(); void supabaseRuntime.syncAiWalletFromBackend();
-      tabAi.focus();
-    };
-  }
   document.getElementById("diagramSubTabs")?.addEventListener("click", (e) => {
     const btn = e.target.closest(".diagram-sub-tab");
     if (!btn || !btn.dataset.diagramSubTab) return;
@@ -16619,8 +16789,8 @@ clearFlowGroupSelection();
     scheduleRenderConnections();
     markDirty();
   });
-  const rightTabOrder = ["diagram", "layout", "export", "ai"];
-  const rightTabIds = ["tabDiagram", "tabLayout", "tabExport", "tabAi"];
+  const rightTabOrder = ["diagram", "layout", "export"];
+  const rightTabIds = ["tabDiagram", "tabLayout", "tabExport"];
   document.querySelector(".right-tabs")?.addEventListener("keydown", (e) => {
     const cur = rightTabOrder.indexOf(runtime.activeRightTab || "diagram");
     if (cur < 0) return;
@@ -16632,13 +16802,7 @@ clearFlowGroupSelection();
     else return;
     e.preventDefault();
     const key = rightTabOrder[next];
-    if (key === "ai") {
-      setRightTab("ai");
-      initMapDiagramRuntimes();
-      void supabaseRuntime.syncAiWalletFromBackend();
-    } else {
-      setRightTab(key);
-    }
+    setRightTab(key);
     document.getElementById(rightTabIds[next])?.focus();
   });
   const topbarMoreBtn = document.getElementById("topbarMoreBtn");
@@ -16730,50 +16894,6 @@ clearFlowGroupSelection();
     document.documentElement.style.setProperty("--theme-glow", hexToRgba(accentGlowColor.value, 0.38));
     document.documentElement.style.setProperty("--theme-glow-2", hexToRgba(accentGlowColor.value, 0.22));
   });
-  function closeAiModal() {
-    aiModalOverlay.classList.remove("open");
-    aiGenerateBtn.disabled = false;
-    aiGenerateBtn.textContent = "Generate";
-    initMapDiagramRuntimes();
-    supabaseRuntime.applyAiCreditGatesToUi();
-  }
-  createAiBtn.onclick = () => {
-    const t = getFlowchartPromptText();
-    if (t) setFlowchartPromptText(t);
-    if (isFlowchartMode()) {
-      openFlowchartAssistant();
-      if (isNarrowScreen()) closeDrawers();
-      return;
-    }
-    initMapDiagramRuntimes(); void supabaseRuntime.openAiModalIfAllowed();
-    initMapDiagramRuntimes(); if (supabaseRuntime.isServerAiBillingConfigured() && aiBillingRow) {
-      aiBillingRow.style.display = runtime.authUser ? "block" : "none";
-    } else if (aiBillingRow) {
-      aiBillingRow.style.display = "none";
-    }
-    if (isNarrowScreen()) closeDrawers();
-  };
-  if (generateAiWalletBtn) {
-    generateAiWalletBtn.onclick = () => { initMapDiagramRuntimes(); void supabaseRuntime.openAiModalIfAllowed(); };
-  }
-  aiCancelBtn.onclick = closeAiModal;
-  aiModalOverlay.addEventListener("pointerdown", (e) => {
-    if (e.target === aiModalOverlay) closeAiModal();
-  });
-  if (buyPackStarterBtn) buyPackStarterBtn.onclick = () => { initMapDiagramRuntimes(); void supabaseRuntime.startCreditPackCheckout("starter"); };
-  if (buyPackProBtn) buyPackProBtn.onclick = () => { initMapDiagramRuntimes(); void supabaseRuntime.startCreditPackCheckout("pro"); };
-  if (buyPackPowerBtn) buyPackPowerBtn.onclick = () => { initMapDiagramRuntimes(); void supabaseRuntime.startCreditPackCheckout("power"); };
-  if (walletBuyStarterBtn) walletBuyStarterBtn.onclick = () => { initMapDiagramRuntimes(); void supabaseRuntime.startCreditPackCheckout("starter"); };
-  if (walletBuyProBtn) walletBuyProBtn.onclick = () => { initMapDiagramRuntimes(); void supabaseRuntime.startCreditPackCheckout("pro"); };
-  if (walletBuyPowerBtn) walletBuyPowerBtn.onclick = () => { initMapDiagramRuntimes(); void supabaseRuntime.startCreditPackCheckout("power"); };
-  if (mockBuy10Btn) mockBuy10Btn.onclick = () => { initMapDiagramRuntimes(); void supabaseRuntime.startMockCreditPurchase(10); };
-  if (mockBuy50Btn) mockBuy50Btn.onclick = () => { initMapDiagramRuntimes(); void supabaseRuntime.startMockCreditPurchase(50); };
-  if (mockBuy100Btn) mockBuy100Btn.onclick = () => { initMapDiagramRuntimes(); void supabaseRuntime.startMockCreditPurchase(100); };
-
-  aiGenerateBtn.onclick = async () => {
-    setFlowchartPromptText(aiPromptInput.value.trim());
-    await runFlowchartGeneration(aiPromptInput.value.trim());
-  };
   const DESK_SB_L = "mapdiagram-desktop-left-collapsed";
   const DESK_SB_R = "mapdiagram-desktop-right-collapsed";
 
@@ -17133,7 +17253,7 @@ clearFlowGroupSelection();
     }
     if (runtime.readOnly) return;
     if (runtime.fcToolbarInteracting || runtime.fcMultiBarInteracting) return;
-    if (e.target.closest("#fcQuickEdit, #fcGroupQuickEdit, #fcMultiSelectBar, #canvasCornerPill, .fc-quick-edit, .fc-multi-select-bar, .canvas-corner-pill, #fcDeleteConfirm, .fc-delete-confirm, #fcAssistantRoot, .fc-assistant-root, .fc-flow-group, .fc-flow-group-header, .fc-flow-group-body, .fc-flow-group-handle")) return;
+    if (e.target.closest("#fcQuickEdit, #fcGroupQuickEdit, #fcMultiSelectBar, #bulkSpawnPopover, #canvasCornerPill, .fc-quick-edit, .fc-multi-select-bar, .bulk-spawn-popover, .canvas-corner-pill, #fcDeleteConfirm, .fc-delete-confirm, .fc-flow-group, .fc-flow-group-header, .fc-flow-group-body, .fc-flow-group-handle")) return;
     if (e.target.closest(".node") || e.target.closest(".conn") || e.target.closest(".conn-hit")) return;
     /* Group label/handles live above nodes; ignore canvas clear/pan when interacting with a group frame */
     if (e.target.closest(".group-chrome, .group-chrome-body, .group-drag-surface")) return;
@@ -17635,7 +17755,6 @@ clearFlowGroupSelection();
               runtime.connectionUi[connectionId] = { cp1: auto.cp1, cp2: auto.cp2, custom: false };
             }
             markDirty();
-            smartRebalance([parent.from, parent.to, toNodeId]);
             if (isFlowchartMode()) {
               pulseFcConnectTarget(toNodeId);
               flashFcConnEnter(connectionId);
@@ -17743,7 +17862,6 @@ clearFlowGroupSelection();
             showConnectionHint("Unusual connection direction — are you sure?", true);
           }
           markDirty();
-          smartRebalance([fromNodeId]);
           if (isFlowchartMode()) {
             pulseFcConnectTarget(toNodeId);
             flashFcConnEnter(connectionId);
@@ -17766,7 +17884,6 @@ clearFlowGroupSelection();
           pushHistory();
           p.connections.push({ id: uid(), kind: "node-group", from: fromNodeId, toGroupId: hoverG });
           markDirty();
-          smartRebalance([fromNodeId]);
         }
       }
       clearPendingConnectionState();
@@ -17944,12 +18061,6 @@ clearFlowGroupSelection();
       if (runtime.focusNodeId) return;
       if (cpOv && !cpOv.hidden) closeCommandPalette();
       else openCommandPalette(true);
-      return;
-    }
-    if (!typing && (e.ctrlKey || e.metaKey) && eventKeyLower(e) === "k" && isFlowchartMode()) {
-      e.preventDefault();
-      if (runtime.focusNodeId) return;
-      toggleFlowchartAssistant();
       return;
     }
     if (!typing && (e.ctrlKey || e.metaKey) && eventKeyLower(e) === "k") {

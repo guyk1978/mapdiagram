@@ -2204,3 +2204,44 @@ html[data-theme="light"] #inspector-panel-export .partner-banner {
 .topbar-desktop-quick {
   overflow: visible;
 }
+
+/* —— Bulk spawn popover —— */
+.bulk-spawn-popover {
+  position: absolute;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 5px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--glass-shadow);
+  pointer-events: auto;
+}
+
+.bulk-spawn-count {
+  width: 36px;
+  height: 24px;
+  font-size: 11px;
+  text-align: center;
+}
+
+.bulk-spawn-shape {
+  height: 24px;
+  max-width: 96px;
+  font-size: 10px;
+}
+
+.bulk-spawn-go {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1;
+}
