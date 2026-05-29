@@ -1,0 +1,419 @@
+/**
+ * MapDiagram Workflow Hub — power-tool hub, aligned with landing/blog.
+ */
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+body.workflow-hub-page {
+  font-family: var(--font-display, "Plus Jakarta Sans", var(--font-sans));
+  color: var(--text);
+  background: var(--landing-bg, var(--bg));
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body.workflow-hub-page::before,
+body.workflow-hub-page::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(80px);
+  opacity: 0.5;
+}
+
+body.workflow-hub-page::before {
+  width: min(48vw, 480px);
+  height: min(48vw, 480px);
+  top: -10%;
+  right: -6%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent-blue) 50%, transparent), transparent 68%);
+}
+
+body.workflow-hub-page::after {
+  width: min(40vw, 400px);
+  height: min(40vw, 400px);
+  bottom: 10%;
+  left: -8%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent-green) 35%, transparent), transparent 70%);
+}
+
+html[data-theme="light"] body.workflow-hub-page::before,
+html[data-theme="light"] body.workflow-hub-page::after {
+  opacity: 0.3;
+}
+
+body.workflow-hub-page > header,
+body.workflow-hub-page > main,
+body.workflow-hub-page > footer,
+body.workflow-hub-page > .fab-open-app {
+  position: relative;
+  z-index: 1;
+}
+
+.wrap--workflow {
+  max-width: min(1180px, 100%);
+}
+
+/* —— Hero —— */
+.workflow-hub-hero {
+  margin: 0 0 clamp(2.5rem, 5vw, 3.5rem);
+  padding: clamp(2.5rem, 6vh, 4rem) clamp(1.5rem, 4vw, 2.5rem);
+  border-radius: var(--radius-2xl);
+  text-align: center;
+  max-width: 52rem;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: var(--hero-canvas-bg, var(--secondary));
+  background-image:
+    radial-gradient(circle at center, var(--hero-canvas-dot, rgba(159, 176, 204, 0.2)) 1px, transparent 1px),
+    radial-gradient(100% 80% at 90% 0%, color-mix(in srgb, var(--accent-blue) 18%, transparent), transparent 55%),
+    radial-gradient(80% 60% at 0% 100%, color-mix(in srgb, var(--accent-green) 12%, transparent), transparent 50%);
+  background-size: var(--hero-canvas-dot-size, 14px) var(--hero-canvas-dot-size, 14px), auto, auto;
+  border: 1px solid var(--card-border, var(--line));
+  box-shadow: var(--shadow-sm);
+}
+
+.workflow-hub-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-blue);
+  background: color-mix(in srgb, var(--accent-blue) 12%, var(--glass-bg, var(--panel)));
+  border: 1px solid color-mix(in srgb, var(--accent-blue) 28%, var(--card-border, var(--line)));
+}
+
+.workflow-hub-hero h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(2rem, 1.1rem + 3.2vw, 3.25rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+  background: linear-gradient(
+    120deg,
+    var(--text) 0%,
+    color-mix(in srgb, var(--accent-blue) 80%, var(--text)) 50%,
+    color-mix(in srgb, var(--accent-green) 70%, var(--text)) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+html[data-theme="light"] .workflow-hub-hero h1 {
+  background: linear-gradient(120deg, #0f172a 0%, var(--accent-blue) 48%, #059669 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.workflow-hub-hero .lead {
+  margin: 0 auto;
+  max-width: 40rem;
+  font-size: clamp(1.02rem, 0.95rem + 0.35vw, 1.15rem);
+  line-height: 1.7;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* —— Tool cards grid —— */
+.workflow-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.15rem, 2.5vw, 1.75rem);
+  margin: 0 0 clamp(3rem, 6vw, 4.5rem);
+}
+
+.workflow-tool-card {
+  --tool-accent: var(--accent-blue);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 100%;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--glass-bg, color-mix(in srgb, var(--panel) 88%, transparent));
+  backdrop-filter: blur(var(--glass-blur, 16px)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 16px)) saturate(160%);
+  border: 1px solid color-mix(in srgb, var(--tool-accent) 28%, var(--card-border, var(--line)));
+  box-shadow: var(--shadow-sm), inset 0 1px 0 color-mix(in srgb, var(--tool-accent) 12%, transparent);
+  transition:
+    transform 0.32s var(--ease-out-soft),
+    box-shadow 0.32s var(--ease-out-soft),
+    border-color 0.28s;
+}
+
+.workflow-tool-card:hover {
+  transform: translateY(-8px);
+  border-color: color-mix(in srgb, var(--tool-accent) 55%, var(--card-border, var(--line)));
+  box-shadow:
+    var(--shadow-md),
+    0 0 32px color-mix(in srgb, var(--tool-accent) 18%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--tool-accent) 20%, transparent);
+}
+
+.workflow-tool-card--diagram { --tool-accent: var(--accent-blue); }
+.workflow-tool-card--pdf { --tool-accent: var(--accent-red); }
+.workflow-tool-card--finance { --tool-accent: var(--accent-green); }
+
+.workflow-tool-card__visual {
+  position: relative;
+  min-height: clamp(100px, 14vw, 140px);
+  overflow: hidden;
+  background-color: var(--hero-canvas-bg, var(--secondary));
+  background-image:
+    radial-gradient(circle at center, var(--hero-canvas-dot, rgba(159, 176, 204, 0.2)) 1px, transparent 1px),
+    radial-gradient(100% 90% at 100% 0%, color-mix(in srgb, var(--tool-accent) 20%, transparent), transparent 55%);
+  background-size: var(--hero-canvas-dot-size, 14px) var(--hero-canvas-dot-size, 14px), auto;
+  border-bottom: 1px solid color-mix(in srgb, var(--tool-accent) 15%, var(--card-border, var(--line)));
+}
+
+.workflow-tool-card__visual svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--tool-accent);
+  opacity: 0.88;
+  padding: 1rem;
+}
+
+.workflow-tool-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: clamp(1.25rem, 2.5vw, 1.65rem);
+  flex: 1;
+}
+
+.workflow-tool-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.workflow-tool-card__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  color: var(--tool-accent);
+  background: color-mix(in srgb, var(--tool-accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tool-accent) 32%, var(--card-border, var(--line)));
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--tool-accent) 15%, transparent);
+}
+
+.workflow-tool-card__icon svg {
+  display: block;
+}
+
+.workflow-tool-card__meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.workflow-tool-card .eyebrow {
+  margin: 0 0 0.25rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tool-accent);
+}
+
+.workflow-tool-card h2 {
+  margin: 0;
+  font-size: clamp(1.15rem, 1rem + 0.4vw, 1.35rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+.workflow-tool-card > .workflow-tool-card__body > p,
+.workflow-tool-card__body > p.workflow-tool-card__desc {
+  margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.workflow-tool-card ul {
+  margin: 0;
+  padding-left: 1.15rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.workflow-tool-card li {
+  margin: 0.35rem 0;
+}
+
+.workflow-tool-card li::marker {
+  color: var(--tool-accent);
+}
+
+.workflow-tool-card-actions {
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.workflow-tool-card-actions .btn {
+  width: 100%;
+  min-height: 44px;
+  font-size: 0.92rem;
+}
+
+.workflow-tool-card--diagram .workflow-tool-card-actions .btn {
+  background: linear-gradient(135deg, var(--accent-blue), color-mix(in srgb, var(--accent-blue) 70%, #6366f1));
+  color: #fff;
+  border: none;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent-blue) 35%, transparent);
+}
+
+.workflow-tool-card--pdf .workflow-tool-card-actions .btn {
+  background: linear-gradient(135deg, var(--accent-red), color-mix(in srgb, var(--accent-red) 75%, #f97316));
+  color: #fff;
+  border: none;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent-red) 30%, transparent);
+}
+
+.workflow-tool-card--finance .workflow-tool-card-actions .btn {
+  background: linear-gradient(135deg, var(--accent-green), color-mix(in srgb, var(--accent-green) 70%, #14b8a6));
+  color: #fff;
+  border: none;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent-green) 30%, transparent);
+}
+
+.workflow-tool-card-actions .btn:hover {
+  filter: brightness(1.06);
+  text-decoration: none;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* —— Article / content below —— */
+.workflow-hub-content {
+  padding: clamp(2rem, 4vw, 3rem) 0 clamp(3rem, 6vw, 4rem);
+  border-top: 1px solid var(--card-border, var(--line));
+}
+
+.workflow-hub-content .workflow-article h2 {
+  font-size: clamp(1.25rem, 1rem + 0.6vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  margin: clamp(2rem, 4vw, 2.75rem) 0 1rem;
+}
+
+.workflow-hub-content .workflow-article h2:first-child {
+  margin-top: 0;
+}
+
+.workflow-hub-content .workflow-article p,
+.workflow-hub-content .workflow-article li {
+  color: var(--muted);
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+.workflow-hub-content .workflow-article strong {
+  color: var(--text);
+}
+
+.workflow-divider {
+  display: none;
+}
+
+.workflow-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.workflow-cta-row .btn {
+  min-height: 44px;
+}
+
+.workflow-cta-row .btn:first-child {
+  background: linear-gradient(135deg, var(--accent-blue), color-mix(in srgb, var(--accent-blue) 70%, #6366f1));
+  color: #fff;
+  border: none;
+}
+
+.workflow-hub-content .footer-workflow-integrations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin-top: 2rem;
+  padding-top: 0;
+  border-top: none;
+}
+
+/* —— Light mode —— */
+html[data-theme="light"] body.workflow-hub-page .workflow-hub-hero {
+  background-color: var(--hero-canvas-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-sm);
+}
+
+html[data-theme="light"] body.workflow-hub-page .workflow-tool-card {
+  background: var(--panel);
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 color-mix(in srgb, var(--tool-accent) 10%, transparent);
+}
+
+html[data-theme="light"] body.workflow-hub-page .workflow-tool-card:hover {
+  box-shadow: var(--shadow-md), 0 0 28px color-mix(in srgb, var(--tool-accent) 14%, transparent);
+}
+
+html[data-theme="light"] body.workflow-hub-page .workflow-tool-card__visual {
+  background-color: var(--hero-canvas-bg);
+}
+
+/* —— Responsive —— */
+@media (max-width: 1024px) {
+  .workflow-tools-grid {
+    grid-template-columns: 1fr;
+    max-width: 28rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .workflow-tools-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: none;
+  }
+
+  .workflow-tool-card--finance {
+    grid-column: 1 / -1;
+    max-width: 28rem;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workflow-tool-card:hover,
+  .workflow-tool-card-actions .btn:hover {
+    transform: none;
+  }
+}

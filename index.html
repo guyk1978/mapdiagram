@@ -1,8 +1,9 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script src="/assets/theme-engine.js"></script>
   <script src="/assets/site-analytics.js" defer></script>
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MapDiagram — Turn ideas into diagrams instantly</title>
   <meta name="description" content="Build flowcharts, system designs and workflows in seconds—visually, in your browser. No install. Open the editor and start mapping.">
@@ -20,6 +21,7 @@
   <meta name="twitter:image" content="https://mapdiagram.com/assets/ui-preview.svg">
 
   <link rel="stylesheet" href="/assets/site.css">
+  <link rel="stylesheet" href="/assets/landing.css">
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="manifest" href="/assets/site.webmanifest">
   <script type="application/ld+json">
@@ -42,43 +44,45 @@
   }
   </script>
 </head>
-<body class="home-v3">
-  <header class="nav nav--minimal">
+<body class="home-v4">
+  <header class="nav nav--minimal nav--saas">
   <div class="wrap">
-  <a href="/" class="nav-brand"><strong>MapDiagram</strong><!-- Mini Animated Nodes for MapDiagram Header -->
-<span class="header-nodes-mini" title="MapDiagram Core" aria-hidden="true">
-  <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-    <line x1="4" y1="10" x2="9" y2="4" />
-    <line x1="9" y1="4" x2="14" y2="10" />
-    <line x1="4" y1="10" x2="14" y2="10" />
-    <circle class="header-nodes-mini__node header-nodes-mini__node--a" cx="9" cy="4" r="2" />
-    <circle class="header-nodes-mini__node header-nodes-mini__node--b" cx="4" cy="10" r="2" />
-    <circle class="header-nodes-mini__node header-nodes-mini__node--c" cx="14" cy="10" r="2" />
-  </svg>
-</span></a>
+  <a href="/" class="nav-brand" aria-label="MapDiagram home">
+    <span class="nav-wordmark" aria-label="MapDiagram">
+      <span class="nav-wordmark__map">Map</span><span class="nav-wordmark__diagram">D<span class="nav-wordmark__i" aria-hidden="true">i</span>agram</span>
+    </span>
+  </a>
   <nav class="links nav-links-main" aria-label="Primary">
   <a href="/diagram-builder/">Product</a>
   <a href="/#templates">Templates</a>
   <a href="/workflow-hub/">Workflow</a>
   <a href="/business-financial-mapping/">Finance mapping</a>
   <a href="/blog/">Blog</a>
-  <a class="btn nav-cta" href="/app/">Open editor</a>
+  <button type="button" class="theme-toggle-btn" id="siteThemeToggle" aria-label="Toggle light and dark mode">
+    <svg class="icon-theme-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <svg class="icon-theme-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+  </button>
+  <a class="btn btn--accent-blue nav-cta" href="/app/">Open editor</a>
   </nav>
   </div>
   </header>
-  
+
   <main class="wrap wrap--home">
-    <section class="hero-v3" aria-labelledby="hero-heading">
-      <div class="hero-v3__grid">
-        <div class="hero-v3__copy">
-          <h1 id="hero-heading" class="hero-v3__title">Turn ideas into diagrams instantly</h1>
-          <p class="hero-v3__sub">Build flowcharts, system designs and workflows in seconds — visually, not manually.</p>
-          <div class="hero-v3__actions">
-            <a class="btn hero-v3__cta-primary" href="/app/">Open editor</a>
-            <a class="btn btn-secondary hero-v3__cta-secondary" href="/#templates">View templates</a>
+    <section class="hero-v4" aria-labelledby="hero-heading">
+      <div class="hero-v4__grid">
+        <div class="hero-v4__copy">
+          <ul class="hero-v4__eyebrow" aria-label="Highlights">
+            <li class="hero-v4__pill hero-v4__pill--blue"><span class="hero-v4__pill-dot" aria-hidden="true"></span> Browser-native</li>
+            <li class="hero-v4__pill hero-v4__pill--green"><span class="hero-v4__pill-dot" aria-hidden="true"></span> No install</li>
+          </ul>
+          <h1 id="hero-heading" class="hero-v4__title"><span class="hero-v4__title-gradient">Turn ideas into diagrams instantly</span></h1>
+          <p class="hero-v4__sub">Build flowcharts, system designs, and workflows in seconds — visually, not manually. Your team gets clarity without another heavyweight tool.</p>
+          <div class="hero-v4__actions">
+            <a class="btn btn--accent-blue" href="/app/">Open editor</a>
+            <a class="btn btn-glass" href="/#templates">View templates</a>
           </div>
         </div>
-        <div class="hero-v3__preview">
+        <div class="hero-v4__preview">
           <div class="product-mock" role="img" aria-label="Product preview: diagram editor with canvas, nodes, and connectors">
             <div class="product-mock__window">
               <div class="product-mock__titlebar">
@@ -97,8 +101,8 @@
                 <svg class="product-mock__svg" viewBox="0 0 360 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                   <defs>
                     <linearGradient id="pmGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stop-color="#7aa2ff"/>
-                      <stop offset="100%" stop-color="#7fe3c6"/>
+                      <stop offset="0%" style="stop-color:var(--hero-diagram-line-start)"/>
+                      <stop offset="100%" style="stop-color:var(--hero-diagram-line-end)"/>
                     </linearGradient>
                   </defs>
                   <path class="pm-path pm-path--1" d="M 72 118 C 120 72 168 72 208 88" fill="none" stroke="url(#pmGrad)" stroke-width="2.2" stroke-linecap="round"/>
@@ -116,51 +120,69 @@
       </div>
     </section>
 
-    <section class="template-strip-v3" id="templates" aria-labelledby="templates-heading">
-      <div class="section-v3__head">
-        <h2 id="templates-heading" class="section-v3__title">Templates</h2>
-        <p class="section-v3__lede">Pick a surface—open the editor with one click.</p>
+    <section class="section-v4 template-strip-v4" id="templates" aria-labelledby="templates-heading">
+      <div class="section-v4__head">
+        <span class="section-v4__icon section-v4__icon--blue" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="2"/><path d="M11 7h2M7 11v2M17 13h-2M13 17v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </span>
+        <h2 id="templates-heading" class="section-v4__title">Templates</h2>
+        <p class="section-v4__lede">Pick a surface — open the editor with one click.</p>
       </div>
-      <div class="template-strip-v3__row">
-        <a class="template-card-v3" href="/flowchart-maker/">
-          <div class="template-card-v3__preview" aria-hidden="true">
-            <svg viewBox="0 0 120 72" xmlns="http://www.w3.org/2000/svg"><rect class="tc-bg" width="120" height="72" rx="8"/><rect x="12" y="26" width="44" height="22" rx="6" fill="#151d32" stroke="#7aa2ff" stroke-width="1"/><path d="M56 37h12" stroke="#5a6a8a" stroke-width="1.5"/><polygon points="62,14 72,26 52,26" fill="#1a2540" stroke="#7fe3c6" stroke-width="1"/><rect x="78" y="20" width="32" height="18" rx="5" fill="#151d32" stroke="#7aa2ff" stroke-width="1"/></svg>
+      <div class="template-grid-v4">
+        <a class="template-card-v4 template-card-v4--red" href="/flowchart-maker/">
+          <span class="template-card-v4__badge" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 6h5v5H6V6zm7 7h5v5h-5v-5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M11 8.5h2M8.5 11v2M15.5 13h-2M13 15.5v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </span>
+          <div class="template-card-v4__preview" aria-hidden="true">
+            <svg viewBox="0 0 120 72" xmlns="http://www.w3.org/2000/svg"><rect class="tc-bg" width="120" height="72" rx="8"/><rect x="12" y="26" width="44" height="22" rx="6" fill="#151d32" stroke="#ff5c5c" stroke-width="1"/><path d="M56 37h12" stroke="#5a6a8a" stroke-width="1.5"/><polygon points="62,14 72,26 52,26" fill="#1a2540" stroke="#34d399" stroke-width="1"/><rect x="78" y="20" width="32" height="18" rx="5" fill="#151d32" stroke="#4f8fff" stroke-width="1"/></svg>
           </div>
-          <span class="template-card-v3__name">Flowchart</span>
-          <span class="template-card-v3__hint">Decisions &amp; logic</span>
+          <span class="template-card-v4__name">Flowchart</span>
+          <span class="template-card-v4__hint">Decisions &amp; logic</span>
         </a>
-        <a class="template-card-v3" href="/system-design-tool/">
-          <div class="template-card-v3__preview" aria-hidden="true">
-            <svg viewBox="0 0 120 72" xmlns="http://www.w3.org/2000/svg"><rect class="tc-bg" width="120" height="72" rx="8"/><rect x="10" y="40" width="34" height="20" rx="5" fill="#151d32" stroke="#7aa2ff"/><rect x="78" y="12" width="34" height="20" rx="5" fill="#151d32" stroke="#7aa2ff"/><rect x="44" y="40" width="34" height="20" rx="5" fill="#151d32" stroke="#7fe3c6"/><path d="M44 22v12M61 32h17M95 32v8" stroke="url(#tcg)" stroke-width="1.5" fill="none"/><defs><linearGradient id="tcg" x1="0" x2="1"><stop stop-color="#7aa2ff"/><stop offset="1" stop-color="#7fe3c6"/></linearGradient></defs></svg>
+        <a class="template-card-v4 template-card-v4--blue" href="/system-design-tool/">
+          <span class="template-card-v4__badge" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="14" width="6" height="6" rx="1" stroke="currentColor" stroke-width="2"/><rect x="14" y="4" width="6" height="6" rx="1" stroke="currentColor" stroke-width="2"/><path d="M10 17h4M17 10V7M7 17v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </span>
+          <div class="template-card-v4__preview" aria-hidden="true">
+            <svg viewBox="0 0 120 72" xmlns="http://www.w3.org/2000/svg"><rect class="tc-bg" width="120" height="72" rx="8"/><rect x="10" y="40" width="34" height="20" rx="5" fill="#151d32" stroke="#4f8fff"/><rect x="78" y="12" width="34" height="20" rx="5" fill="#151d32" stroke="#4f8fff"/><rect x="44" y="40" width="34" height="20" rx="5" fill="#151d32" stroke="#34d399"/><path d="M44 22v12M61 32h17M95 32v8" stroke="url(#tcg)" stroke-width="1.5" fill="none"/><defs><linearGradient id="tcg" x1="0" x2="1"><stop style="stop-color:var(--hero-diagram-line-start)"/><stop offset="1" style="stop-color:var(--hero-diagram-line-end)"/></linearGradient></defs></svg>
           </div>
-          <span class="template-card-v3__name">System design</span>
-          <span class="template-card-v3__hint">Services &amp; data flow</span>
+          <span class="template-card-v4__name">System design</span>
+          <span class="template-card-v4__hint">Services &amp; data flow</span>
         </a>
-        <a class="template-card-v3" href="/process-mapping-tool/">
-          <div class="template-card-v3__preview" aria-hidden="true">
-            <svg viewBox="0 0 120 72" xmlns="http://www.w3.org/2000/svg"><rect class="tc-bg" width="120" height="72" rx="8"/><line x1="8" y1="22" x2="112" y2="22" stroke="#26324d"/><line x1="8" y1="46" x2="112" y2="46" stroke="#26324d"/><rect x="14" y="10" width="28" height="16" rx="4" fill="#151d32" stroke="#7aa2ff"/><rect x="52" y="34" width="28" height="16" rx="4" fill="#151d32" stroke="#7aa2ff"/><rect x="90" y="10" width="22" height="16" rx="4" fill="#151d32" stroke="#7fe3c6"/><path d="M42 26h10M80 34h8M52 42H42V26" stroke="#5a6a8a" stroke-width="1.2" fill="none"/></svg>
+        <a class="template-card-v4 template-card-v4--green" href="/process-mapping-tool/">
+          <span class="template-card-v4__badge" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 8h16M4 16h16M8 4v16M16 4v16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </span>
+          <div class="template-card-v4__preview" aria-hidden="true">
+            <svg viewBox="0 0 120 72" xmlns="http://www.w3.org/2000/svg"><rect class="tc-bg" width="120" height="72" rx="8"/><line x1="8" y1="22" x2="112" y2="22" stroke="#26324d"/><line x1="8" y1="46" x2="112" y2="46" stroke="#26324d"/><rect x="14" y="10" width="28" height="16" rx="4" fill="#151d32" stroke="#34d399"/><rect x="52" y="34" width="28" height="16" rx="4" fill="#151d32" stroke="#4f8fff"/><rect x="90" y="10" width="22" height="16" rx="4" fill="#151d32" stroke="#fbbf24"/><path d="M42 26h10M80 34h8M52 42H42V26" stroke="#5a6a8a" stroke-width="1.2" fill="none"/></svg>
           </div>
-          <span class="template-card-v3__name">Workflow</span>
-          <span class="template-card-v3__hint">Handoffs &amp; owners</span>
+          <span class="template-card-v4__name">Workflow</span>
+          <span class="template-card-v4__hint">Handoffs &amp; owners</span>
         </a>
-        <a class="template-card-v3" href="/mind-map-tool/">
-          <div class="template-card-v3__preview" aria-hidden="true">
-            <svg viewBox="0 0 120 72" xmlns="http://www.w3.org/2000/svg"><rect class="tc-bg" width="120" height="72" rx="8"/><rect x="48" y="28" width="26" height="18" rx="6" fill="#151d32" stroke="#7fe3c6" stroke-width="1.2"/><line x1="60" y1="28" x2="60" y2="10" stroke="#7aa2ff" stroke-width="1.5"/><rect x="48" y="2" width="24" height="12" rx="4" fill="#151d32" stroke="#7aa2ff"/><line x1="74" y1="36" x2="98" y2="28" stroke="#7aa2ff"/><rect x="98" y="22" width="18" height="12" rx="4" fill="#151d32" stroke="#7aa2ff"/><line x1="48" y1="36" x2="22" y2="30" stroke="#7aa2ff"/><rect x="4" y="24" width="20" height="12" rx="4" fill="#151d32" stroke="#7aa2ff"/><line x1="60" y1="46" x2="60" y2="62" stroke="#7aa2ff"/><rect x="46" y="62" width="28" height="10" rx="4" fill="#151d32" stroke="#7aa2ff"/></svg>
+        <a class="template-card-v4 template-card-v4--yellow" href="/mind-map-tool/">
+          <span class="template-card-v4__badge" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M12 5V3M12 21v-2M5 12H3M21 12h-2M7.05 7.05 5.64 5.64M18.36 18.36l-1.41-1.41M7.05 16.95l-1.41 1.41M18.36 5.64l-1.41 1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </span>
+          <div class="template-card-v4__preview" aria-hidden="true">
+            <svg viewBox="0 0 120 72" xmlns="http://www.w3.org/2000/svg"><rect class="tc-bg" width="120" height="72" rx="8"/><rect x="48" y="28" width="26" height="18" rx="6" fill="#151d32" stroke="#fbbf24" stroke-width="1.2"/><line x1="60" y1="28" x2="60" y2="10" stroke="#4f8fff" stroke-width="1.5"/><rect x="48" y="2" width="24" height="12" rx="4" fill="#151d32" stroke="#4f8fff"/><line x1="74" y1="36" x2="98" y2="28" stroke="#4f8fff"/><rect x="98" y="22" width="18" height="12" rx="4" fill="#151d32" stroke="#4f8fff"/><line x1="48" y1="36" x2="22" y2="30" stroke="#4f8fff"/><rect x="4" y="24" width="20" height="12" rx="4" fill="#151d32" stroke="#4f8fff"/><line x1="60" y1="46" x2="60" y2="62" stroke="#4f8fff"/><rect x="46" y="62" width="28" height="10" rx="4" fill="#151d32" stroke="#4f8fff"/></svg>
           </div>
-          <span class="template-card-v3__name">Mind map</span>
-          <span class="template-card-v3__hint">Brainstorm fast</span>
+          <span class="template-card-v4__name">Mind map</span>
+          <span class="template-card-v4__hint">Brainstorm fast</span>
         </a>
       </div>
-      <p class="template-strip-v3__more"><a href="/diagram-builder/">Browse all diagram tools →</a></p>
+      <p class="template-strip-v4__more"><a href="/diagram-builder/">Browse all diagram tools →</a></p>
     </section>
 
-    <section class="before-after section-v3" aria-labelledby="ba-heading">
-      <div class="section-v3__head section-v3__head--center">
-        <h2 id="ba-heading" class="section-v3__title">From messy notes to a diagram your team can use</h2>
+    <section class="section-v4 before-after-v4" aria-labelledby="ba-heading">
+      <div class="section-v4__head section-v4__head--center">
+        <span class="section-v4__icon section-v4__icon--green" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h6l3-8 4 16 3-8h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <h2 id="ba-heading" class="section-v4__title">From messy notes to a diagram your team can use</h2>
       </div>
-      <div class="before-after__grid">
-        <div class="before-after__panel before-after__panel--before">
-          <span class="before-after__label">Before</span>
+      <div class="before-after-v4__grid">
+        <div class="before-after-v4__panel before-after-v4__panel--before">
+          <span class="before-after-v4__label">Before</span>
           <div class="before-after__messy" aria-hidden="true">
             <p class="before-line before-line--1">??? onboarding vs auth first</p>
             <p class="before-line before-line--2">Meeting notes FINAL v7 (copy)</p>
@@ -168,197 +190,268 @@
             <p class="before-line before-line--4">edge case: payments + refunds ???</p>
           </div>
         </div>
-        <div class="before-after__panel before-after__panel--after">
-          <span class="before-after__label">After</span>
+        <div class="before-after-v4__panel before-after-v4__panel--after">
+          <span class="before-after-v4__label">After</span>
           <div class="before-after__clean" role="presentation">
             <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <defs><linearGradient id="baG" x1="0" x2="1"><stop stop-color="#7aa2ff"/><stop offset="1" stop-color="#7fe3c6"/></linearGradient></defs>
-              <rect width="280" height="200" rx="12" fill="#0a1020" stroke="#26324d"/>
+              <defs><linearGradient id="baG" x1="0" x2="1"><stop style="stop-color:var(--hero-diagram-line-start)"/><stop offset="1" style="stop-color:var(--hero-diagram-line-end)"/></linearGradient></defs>
+              <rect class="ba-canvas" width="280" height="200" rx="12"/>
               <path d="M48 100h56M104 100V56M104 56h72M176 56V100M176 100h56" stroke="url(#baG)" stroke-width="2" fill="none" stroke-linecap="round"/>
-              <rect x="16" y="88" width="64" height="28" rx="8" fill="#111a2e" stroke="#7aa2ff"/>
-              <text x="48" y="106" text-anchor="middle" fill="#9fb0cc" font-size="10" font-family="system-ui,sans-serif">Start</text>
-              <rect x="104" y="36" width="72" height="36" rx="8" fill="#111a2e" stroke="#7fe3c6"/>
-              <text x="140" y="58" text-anchor="middle" fill="#9fb0cc" font-size="10" font-family="system-ui,sans-serif">Decide</text>
-              <rect x="200" y="88" width="64" height="28" rx="8" fill="#111a2e" stroke="#7aa2ff"/>
-              <text x="232" y="106" text-anchor="middle" fill="#9fb0cc" font-size="10" font-family="system-ui,sans-serif">Ship</text>
+              <rect class="ba-node" x="16" y="88" width="64" height="28" rx="8"/>
+              <text class="ba-label" x="48" y="106" text-anchor="middle" font-size="10" font-family="system-ui,sans-serif">Start</text>
+              <rect class="ba-node ba-node--green" x="104" y="36" width="72" height="36" rx="8"/>
+              <text class="ba-label" x="140" y="58" text-anchor="middle" font-size="10" font-family="system-ui,sans-serif">Decide</text>
+              <rect class="ba-node" x="200" y="88" width="64" height="28" rx="8"/>
+              <text class="ba-label" x="232" y="106" text-anchor="middle" font-size="10" font-family="system-ui,sans-serif">Ship</text>
             </svg>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="why-v3 section-v3" aria-labelledby="why-heading">
-      <div class="section-v3__head">
-        <h2 id="why-heading" class="section-v3__title">Why teams use MapDiagram</h2>
+    <section class="section-v4" aria-labelledby="why-heading">
+      <div class="section-v4__head">
+        <span class="section-v4__icon section-v4__icon--yellow" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7L12 16.8 5.7 21l2.3-7-6-4.6h7.6L12 2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        </span>
+        <h2 id="why-heading" class="section-v4__title">Why teams use MapDiagram</h2>
       </div>
-      <ul class="why-v3__list">
-        <li><span class="why-v3__bullet" aria-hidden="true"></span> Instant visual thinking</li>
-        <li><span class="why-v3__bullet" aria-hidden="true"></span> No setup, no complexity</li>
-        <li><span class="why-v3__bullet" aria-hidden="true"></span> Built for real workflows</li>
+      <div class="features-v4">
+        <article class="feature-card-v4 feature-card-v4--blue">
+          <div class="feature-card-v4__icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 10-14h-7l0-6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Instant visual thinking</h3>
+          <p>Sketch flows and architecture in minutes — no drag-and-drop maze.</p>
+        </article>
+        <article class="feature-card-v4 feature-card-v4--green">
+          <div class="feature-card-v4__icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>No setup, no complexity</h3>
+          <p>Open the browser, start mapping. Nothing to install or configure.</p>
+        </article>
+        <article class="feature-card-v4 feature-card-v4--yellow">
+          <div class="feature-card-v4__icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Built for real workflows</h3>
+          <p>From sprint planning to system design — surfaces that match how you work.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="trust-v4" aria-label="Trust">
+      <p class="trust-v4__line">Used by developers, product teams, educators, and startups</p>
+      <ul class="trust-v4__badges">
+        <li class="trust-v4__badge trust-v4__badge--blue">Developers</li>
+        <li class="trust-v4__badge trust-v4__badge--green">Product teams</li>
+        <li class="trust-v4__badge trust-v4__badge--yellow">Educators</li>
+        <li class="trust-v4__badge trust-v4__badge--red">Startups</li>
       </ul>
     </section>
 
-    <section class="social-proof social-proof--v3" aria-label="Trust">
-      <p class="social-proof--v3__line">Used by developers, product teams, educators, startups</p>
+    <section class="section-v4" id="most-important-tools" aria-labelledby="tools-heading">
+      <div class="section-v4__head">
+        <span class="section-v4__icon section-v4__icon--red" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </span>
+        <h2 id="tools-heading" class="section-v4__title">High-intent starting points</h2>
+        <p class="section-v4__lede">Short paths for common professional searches — open the editor when you are ready.</p>
+      </div>
+      <div class="grid--landing">
+        <a class="card-landing" href="/diagram-tool-for-system-architects/"><h3><span class="card-landing__dot card-landing__dot--blue" aria-hidden="true"></span>System design</h3><p>Architecture mapping for technical leaders.</p></a>
+        <a class="card-landing" href="/diagram-tool-for-product-managers/"><h3><span class="card-landing__dot card-landing__dot--green" aria-hidden="true"></span>Product workflows</h3><p>Dependencies, launches, and ownership.</p></a>
+        <a class="card-landing" href="/diagram-tool-for-startup-founders/"><h3><span class="card-landing__dot card-landing__dot--yellow" aria-hidden="true"></span>Startup planning</h3><p>Strategy to execution maps.</p></a>
+        <a class="card-landing" href="/diagram-tool-for-seo-specialists/"><h3><span class="card-landing__dot card-landing__dot--red" aria-hidden="true"></span>SEO &amp; site structure</h3><p>Topic clusters and internal links.</p></a>
+        <a class="card-landing" href="/diagram-tool-for-software-engineers/"><h3><span class="card-landing__dot card-landing__dot--blue" aria-hidden="true"></span>Software architecture</h3><p>Services, boundaries, and flows.</p></a>
+        <a class="card-landing" href="/diagram-tool-for-startups-workflow/"><h3><span class="card-landing__dot card-landing__dot--green" aria-hidden="true"></span>Startup operations</h3><p>Coordinate execution across teams.</p></a>
+      </div>
     </section>
 
-<section class="section section-v3 section-loose" id="most-important-tools">
-  <div class="section-v3__head">
-    <h2 class="section-v3__title">High-intent starting points</h2>
-    <p class="section-v3__lede">Short paths for common professional searches—open the editor when you are ready.</p>
-  </div>
-  <div class="grid">
-    <a class="card" href="/diagram-tool-for-system-architects/"><h3>System design</h3><p>Architecture mapping for technical leaders.</p></a>
-    <a class="card" href="/diagram-tool-for-product-managers/"><h3>Product workflows</h3><p>Dependencies, launches, and ownership.</p></a>
-    <a class="card" href="/diagram-tool-for-startup-founders/"><h3>Startup planning</h3><p>Strategy to execution maps.</p></a>
-    <a class="card" href="/diagram-tool-for-seo-specialists/"><h3>SEO &amp; site structure</h3><p>Topic clusters and internal links.</p></a>
-    <a class="card" href="/diagram-tool-for-software-engineers/"><h3>Software architecture</h3><p>Services, boundaries, and flows.</p></a>
-    <a class="card" href="/diagram-tool-for-startups-workflow/"><h3>Startup operations</h3><p>Coordinate execution across teams.</p></a>
-  </div>
-</section>
+    <section class="section-v4" aria-labelledby="types-heading">
+      <div class="section-v4__head">
+        <span class="section-v4__icon section-v4__icon--blue" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2"/></svg>
+        </span>
+        <h2 id="types-heading" class="section-v4__title">Popular diagram types</h2>
+        <p class="section-v4__lede">Pick a surface that matches how you think — everything stays in the browser.</p>
+      </div>
+      <div class="grid--landing">
+        <a class="card-landing" href="/business-process-diagram-tool/"><h3><span class="card-landing__dot card-landing__dot--red" aria-hidden="true"></span>Business process</h3><p>Map and improve workflows.</p></a>
+        <a class="card-landing" href="/flowchart-maker/"><h3><span class="card-landing__dot card-landing__dot--blue" aria-hidden="true"></span>Flowchart</h3><p>Clear step-by-step logic.</p></a>
+        <a class="card-landing" href="/mind-map-tool/"><h3><span class="card-landing__dot card-landing__dot--green" aria-hidden="true"></span>Mind map</h3><p>Organize ideas visually.</p></a>
+        <a class="card-landing" href="/family-tree-maker/"><h3><span class="card-landing__dot card-landing__dot--yellow" aria-hidden="true"></span>Family tree</h3><p>Relationships and ancestry.</p></a>
+        <a class="card-landing" href="/process-mapping-tool/"><h3><span class="card-landing__dot card-landing__dot--blue" aria-hidden="true"></span>Process map</h3><p>Document how work really happens.</p></a>
+        <a class="card-landing" href="/workflow-builder/"><h3><span class="card-landing__dot card-landing__dot--green" aria-hidden="true"></span>Workflow builder</h3><p>Systems and handoffs.</p></a>
+        <a class="card-landing" href="/system-design-tool/"><h3><span class="card-landing__dot card-landing__dot--yellow" aria-hidden="true"></span>System design</h3><p>Architecture and components.</p></a>
+        <a class="card-landing" href="/idea-mapping-tool/"><h3><span class="card-landing__dot card-landing__dot--red" aria-hidden="true"></span>Idea mapping</h3><p>Structure messy thinking.</p></a>
+        <a class="card-landing" href="/visual-planning-tool/"><h3><span class="card-landing__dot card-landing__dot--blue" aria-hidden="true"></span>Visual planning</h3><p>Projects without the clutter.</p></a>
+        <a class="card-landing" href="/diagram-builder/"><h3><span class="card-landing__dot card-landing__dot--green" aria-hidden="true"></span>Diagram builder</h3><p>All-in-one entry.</p></a>
+        <a class="card-landing" href="/org-chart-maker/"><h3><span class="card-landing__dot card-landing__dot--yellow" aria-hidden="true"></span>Org chart</h3><p>Teams and reporting lines.</p></a>
+        <a class="card-landing" href="/network-diagram-tool/"><h3><span class="card-landing__dot card-landing__dot--red" aria-hidden="true"></span>Network diagram</h3><p>Infrastructure at a glance.</p></a>
+        <a class="card-landing" href="/uml-diagram-tool/"><h3><span class="card-landing__dot card-landing__dot--blue" aria-hidden="true"></span>UML</h3><p>Software structure.</p></a>
+        <a class="card-landing" href="/decision-tree-maker/"><h3><span class="card-landing__dot card-landing__dot--green" aria-hidden="true"></span>Decision tree</h3><p>Outcomes and branches.</p></a>
+        <a class="card-landing" href="/customer-journey-map/"><h3><span class="card-landing__dot card-landing__dot--yellow" aria-hidden="true"></span>Customer journey</h3><p>Touchpoints to actions.</p></a>
+        <a class="card-landing" href="/data-flow-diagram-tool/"><h3><span class="card-landing__dot card-landing__dot--red" aria-hidden="true"></span>Data flow</h3><p>How data moves.</p></a>
+      </div>
+    </section>
 
-<section class="section section-v3">
-  <div class="section-v3__head">
-    <h2 class="section-v3__title">Popular diagram types</h2>
-    <p class="section-v3__lede">Pick a surface that matches how you think—everything stays in the browser.</p>
-  </div>
-  <div class="grid">
-  <a class="card" href="/business-process-diagram-tool/"><h3>Business process</h3><p>Map and improve workflows.</p></a>
-  <a class="card" href="/flowchart-maker/"><h3>Flowchart</h3><p>Clear step-by-step logic.</p></a>
-  <a class="card" href="/mind-map-tool/"><h3>Mind map</h3><p>Organize ideas visually.</p></a>
-  <a class="card" href="/family-tree-maker/"><h3>Family tree</h3><p>Relationships and ancestry.</p></a>
-  <a class="card" href="/process-mapping-tool/"><h3>Process map</h3><p>Document how work really happens.</p></a>
-  <a class="card" href="/workflow-builder/"><h3>Workflow builder</h3><p>Systems and handoffs.</p></a>
-  <a class="card" href="/system-design-tool/"><h3>System design</h3><p>Architecture and components.</p></a>
-  <a class="card" href="/idea-mapping-tool/"><h3>Idea mapping</h3><p>Structure messy thinking.</p></a>
-  <a class="card" href="/visual-planning-tool/"><h3>Visual planning</h3><p>Projects without the clutter.</p></a>
-  <a class="card" href="/diagram-builder/"><h3>Diagram builder</h3><p>All-in-one entry.</p></a>
-  <a class="card" href="/org-chart-maker/"><h3>Org chart</h3><p>Teams and reporting lines.</p></a>
-  <a class="card" href="/network-diagram-tool/"><h3>Network diagram</h3><p>Infrastructure at a glance.</p></a>
-  <a class="card" href="/uml-diagram-tool/"><h3>UML</h3><p>Software structure.</p></a>
-  <a class="card" href="/decision-tree-maker/"><h3>Decision tree</h3><p>Outcomes and branches.</p></a>
-  <a class="card" href="/customer-journey-map/"><h3>Customer journey</h3><p>Touchpoints to actions.</p></a>
-  <a class="card" href="/data-flow-diagram-tool/"><h3>Data flow</h3><p>How data moves.</p></a>
-  </div>
-</section>
+    <section class="section-v4" id="blog" aria-labelledby="blog-heading">
+      <div class="section-v4__head">
+        <span class="section-v4__icon section-v4__icon--yellow" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M6 4h12v16H6V4z" stroke="currentColor" stroke-width="2"/><path d="M9 8h6M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </span>
+        <h2 id="blog-heading" class="section-v4__title">From the blog</h2>
+        <p class="section-v4__lede">Guides on visual thinking, flowcharts, and team workflows.</p>
+      </div>
+      <div class="blog-strip-v4">
+        <a class="blog-card-v4 blog-card-v4--blue" href="/blog/best-diagram-tools-2026/">
+          <span class="blog-card-v4__tag">Guide</span>
+          <h3>Best Diagram Tools in 2026</h3>
+          <p>A practical buyer's guide for speed, collaboration, and real team workflows.</p>
+          <span class="blog-card-v4__link">Read article →</span>
+        </a>
+        <a class="blog-card-v4 blog-card-v4--green" href="/blog/how-developers-design-systems/">
+          <span class="blog-card-v4__tag">Developers</span>
+          <h3>How Developers Design Systems</h3>
+          <p>Boundaries, interfaces, and review habits without slowing delivery.</p>
+          <span class="blog-card-v4__link">Read article →</span>
+        </a>
+        <a class="blog-card-v4 blog-card-v4--yellow" href="/blog/how-to-create-flowcharts-fast/">
+          <span class="blog-card-v4__tag">Workflow</span>
+          <h3>Create Flowcharts Fast</h3>
+          <p>Ship clear logic without getting lost in formatting details.</p>
+          <span class="blog-card-v4__link">Read article →</span>
+        </a>
+      </div>
+      <p class="template-strip-v4__more"><a href="/blog/">View all articles →</a></p>
+    </section>
   </main>
-  <footer class="footer">
-  <div class="wrap footer-inner">
-    <div class="footer-grid">
-    <div class="footer-col">
-      <h3 class="footer-heading">Site</h3>
-      <ul class="footer-list">
-      <li><a href="/faq/">FAQ</a></li>
-      <li><a href="/about/">About</a></li>
-      <li><a href="/workflow-hub/">Workflow hub</a></li>
-      <li><a href="/business-financial-mapping/">Business &amp; financial mapping</a></li>
-      <li><a href="/auth/">Log in</a></li>
-      <li><a href="/diagram-builder/">All diagram tools</a></li>
-      </ul>
+
+  <footer class="footer footer--saas">
+    <div class="wrap footer-inner">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h3 class="footer-heading">Site</h3>
+          <ul class="footer-list">
+            <li><a href="/faq/">FAQ</a></li>
+            <li><a href="/about/">About</a></li>
+            <li><a href="/workflow-hub/">Workflow hub</a></li>
+            <li><a href="/business-financial-mapping/">Business &amp; financial mapping</a></li>
+            <li><a href="/auth/">Log in</a></li>
+            <li><a href="/diagram-builder/">All diagram tools</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3 class="footer-heading">Developers</h3>
+          <ul class="footer-list">
+            <li><a href="/diagram-tool-for-developers/">Developers</a></li>
+            <li><a href="/diagram-tool-for-software-engineers/">Software Engineers</a></li>
+            <li><a href="/diagram-tool-for-system-architects/">System Architects</a></li>
+            <li><a href="/diagram-tool-for-backend-developers/">Backend Developers</a></li>
+            <li><a href="/diagram-tool-for-devops-engineers/">DevOps Engineers</a></li>
+            <li><a href="/diagram-builder/">Explore all roles →</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3 class="footer-heading">Business</h3>
+          <ul class="footer-list">
+            <li><a href="/diagram-tool-for-product-managers/">Product Managers</a></li>
+            <li><a href="/diagram-tool-for-startup-founders/">Startup Founders</a></li>
+            <li><a href="/diagram-tool-for-project-managers/">Project Managers</a></li>
+            <li><a href="/diagram-tool-for-business-analysts/">Business Analysts</a></li>
+            <li><a href="/diagram-tool-for-operations-teams/">Operations Teams</a></li>
+            <li><a href="/diagram-builder/">Explore all roles →</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3 class="footer-heading">Startups</h3>
+          <ul class="footer-list">
+            <li><a href="/diagram-tool-for-startup-founders/">Startup Founders</a></li>
+            <li><a href="/diagram-tool-for-startups-workflow/">Startups</a></li>
+            <li><a href="/diagram-tool-for-small-business/">Small Business</a></li>
+            <li><a href="/diagram-tool-for-remote-teams/">Remote Teams</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3 class="footer-heading">Education</h3>
+          <ul class="footer-list">
+            <li><a href="/diagram-tool-for-students/">Students</a></li>
+            <li><a href="/diagram-tool-for-teachers/">Teachers</a></li>
+            <li><a href="/diagram-tool-for-universities/">Universities</a></li>
+            <li><a href="/diagram-tool-for-coding-bootcamps/">Coding Bootcamps</a></li>
+            <li><a href="/diagram-tool-for-online-learners/">Online Learners</a></li>
+            <li><a href="/diagram-builder/">Explore all roles →</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3 class="footer-heading">Marketing</h3>
+          <ul class="footer-list">
+            <li><a href="/diagram-tool-for-seo-specialists/">SEO Specialists</a></li>
+            <li><a href="/diagram-tool-for-marketers/">Marketers</a></li>
+            <li><a href="/diagram-tool-for-content-creators/">Content Creators</a></li>
+            <li><a href="/diagram-tool-for-agencies/">Agencies</a></li>
+            <li><a href="/diagram-tool-for-freelancers/">Freelancers</a></li>
+            <li><a href="/diagram-builder/">Explore all roles →</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3 class="footer-heading">Workflow tools</h3>
+          <ul class="footer-list">
+            <li><a href="/diagram-tool-for-startups-workflow/">Startups</a></li>
+            <li><a href="/diagram-tool-for-small-business/">Small Business</a></li>
+            <li><a href="/diagram-tool-for-remote-teams/">Remote Teams</a></li>
+            <li><a href="/diagram-tool-for-productivity-users/">Productivity Users</a></li>
+            <li><a href="/diagram-tool-for-planning-teams/">Planning Teams</a></li>
+            <li><a href="/diagram-tool-for-cross-functional-teams/">Cross-Functional Teams</a></li>
+            <li><a href="/diagram-tool-for-design-teams/">Design Teams</a></li>
+            <li><a href="/diagram-tool-for-legal-teams/">Legal Teams</a></li>
+            <li><a href="/diagram-tool-for-healthcare-teams/">Healthcare Teams</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3 class="footer-heading">Blog</h3>
+          <ul class="footer-list">
+            <li><a href="/blog/best-diagram-tools-2026/">Best Diagram Tools in 2026</a></li>
+            <li><a href="/blog/how-developers-design-systems/">How Developers Design Systems</a></li>
+            <li><a href="/blog/product-managers-workflow-guide/">Product Manager's Workflow Guide</a></li>
+            <li><a href="/blog/how-to-create-flowcharts-fast/">How to Create Flowcharts Fast</a></li>
+            <li><a href="/blog/api-architecture-diagrams-guide/">API Architecture Diagrams Guide</a></li>
+            <li><a href="/blog/">View all articles →</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h3 class="footer-heading">App</h3>
+          <ul class="footer-list">
+            <li><a href="/app/">Open MapDiagram</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-meta">
+        <span class="muted">© MapDiagram</span>
+        <a href="/faq/">FAQ</a>
+        <a href="/about/">About</a>
+        <a href="/workflow-hub/">Workflow hub</a>
+        <a href="/business-financial-mapping/">Business &amp; financial mapping</a>
+        <a href="/auth/">Log in</a>
+        <a href="/privacy-policy/">Privacy Policy</a>
+        <a href="/terms/">Terms</a>
+        <a href="/contact/">Contact</a>
+        <a href="https://joinmypdf.com/" rel="noopener noreferrer" target="_blank">Export workflow as PDF → JoinMyPDF</a>
+        <span class="footer-partner-sep" aria-hidden="true">·</span>
+        <a href="https://calnexapp.com/" rel="noopener noreferrer" target="_blank">Model Loan Repayments → CalnexApp</a>
+        <a href="/">Home</a>
+      </div>
     </div>
-    <div class="footer-col">
-      <h3 class="footer-heading">Developers</h3>
-      <ul class="footer-list">
-      <li><a href="/diagram-tool-for-developers/">Developers</a></li>
-      <li><a href="/diagram-tool-for-software-engineers/">Software Engineers</a></li>
-      <li><a href="/diagram-tool-for-system-architects/">System Architects</a></li>
-      <li><a href="/diagram-tool-for-backend-developers/">Backend Developers</a></li>
-      <li><a href="/diagram-tool-for-devops-engineers/">DevOps Engineers</a></li>
-      <li><a href="/diagram-builder/" style="font-weight: bold; opacity: 0.85;">Explore all roles →</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h3 class="footer-heading">Business</h3>
-      <ul class="footer-list">
-      <li><a href="/diagram-tool-for-product-managers/">Product Managers</a></li>
-      <li><a href="/diagram-tool-for-startup-founders/">Startup Founders</a></li>
-      <li><a href="/diagram-tool-for-project-managers/">Project Managers</a></li>
-      <li><a href="/diagram-tool-for-business-analysts/">Business Analysts</a></li>
-      <li><a href="/diagram-tool-for-operations-teams/">Operations Teams</a></li>
-      <li><a href="/diagram-builder/" style="font-weight: bold; opacity: 0.85;">Explore all roles →</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h3 class="footer-heading">Startups</h3>
-      <ul class="footer-list">
-      <li><a href="/diagram-tool-for-startup-founders/">Startup Founders</a></li>
-      <li><a href="/diagram-tool-for-startups-workflow/">Startups</a></li>
-      <li><a href="/diagram-tool-for-small-business/">Small Business</a></li>
-      <li><a href="/diagram-tool-for-remote-teams/">Remote Teams</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h3 class="footer-heading">Education</h3>
-      <ul class="footer-list">
-      <li><a href="/diagram-tool-for-students/">Students</a></li>
-      <li><a href="/diagram-tool-for-teachers/">Teachers</a></li>
-      <li><a href="/diagram-tool-for-universities/">Universities</a></li>
-      <li><a href="/diagram-tool-for-coding-bootcamps/">Coding Bootcamps</a></li>
-      <li><a href="/diagram-tool-for-online-learners/">Online Learners</a></li>
-      <li><a href="/diagram-builder/" style="font-weight: bold; opacity: 0.85;">Explore all roles →</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h3 class="footer-heading">Marketing</h3>
-      <ul class="footer-list">
-      <li><a href="/diagram-tool-for-seo-specialists/">SEO Specialists</a></li>
-      <li><a href="/diagram-tool-for-marketers/">Marketers</a></li>
-      <li><a href="/diagram-tool-for-content-creators/">Content Creators</a></li>
-      <li><a href="/diagram-tool-for-agencies/">Agencies</a></li>
-      <li><a href="/diagram-tool-for-freelancers/">Freelancers</a></li>
-      <li><a href="/diagram-builder/" style="font-weight: bold; opacity: 0.85;">Explore all roles →</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h3 class="footer-heading">Workflow tools</h3>
-      <ul class="footer-list">
-      <li><a href="/diagram-tool-for-startups-workflow/">Startups</a></li>
-      <li><a href="/diagram-tool-for-small-business/">Small Business</a></li>
-      <li><a href="/diagram-tool-for-remote-teams/">Remote Teams</a></li>
-      <li><a href="/diagram-tool-for-productivity-users/">Productivity Users</a></li>
-      <li><a href="/diagram-tool-for-planning-teams/">Planning Teams</a></li>
-      <li><a href="/diagram-tool-for-cross-functional-teams/">Cross-Functional Teams</a></li>
-      <li><a href="/diagram-tool-for-design-teams/">Design Teams</a></li>
-      <li><a href="/diagram-tool-for-legal-teams/">Legal Teams</a></li>
-      <li><a href="/diagram-tool-for-healthcare-teams/">Healthcare Teams</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h3 class="footer-heading">Blog</h3>
-      <ul class="footer-list">
-      <li><a href="/blog/best-diagram-tools-2026/">Best Diagram Tools in 2026: A Practical Buyer’s Guide</a></li>
-      <li><a href="/blog/how-developers-design-systems/">How Developers Design Systems (Without Losing Speed)</a></li>
-      <li><a href="/blog/product-managers-workflow-guide/">The Product Manager’s Workflow Guide: From Discovery to Delivery</a></li>
-      <li><a href="/blog/how-to-create-flowcharts-fast/">How to Create Flowcharts Fast (Without Getting Lost in Details)</a></li>
-      <li><a href="/blog/api-architecture-diagrams-guide/">API Architecture Diagrams: A Practical Guide for Teams</a></li>
-      <li><a href="/blog/" style="font-weight: bold; color: var(--accent-color, #38bdf8);">View all articles →</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h3 class="footer-heading">App</h3>
-      <ul class="footer-list">
-      <li><a href="/app/">Open MapDiagram</a></li>
-      </ul>
-    </div>
-    </div>
-    <div class="footer-meta">
-      <span class="muted">© MapDiagram</span>
-      <a href="/faq/">FAQ</a>
-      <a href="/about/">About</a>
-      <a href="/workflow-hub/">Workflow hub</a>
-      <a href="/business-financial-mapping/">Business &amp; financial mapping</a>
-      <a href="/auth/">Log in</a>
-      <a href="/privacy-policy/">Privacy Policy</a>
-      <a href="/terms/">Terms</a>
-      <a href="/contact/">Contact</a>
-      <a href="https://joinmypdf.com/" rel="noopener noreferrer" target="_blank">Export workflow as PDF → JoinMyPDF</a>
-      <span class="footer-partner-sep" aria-hidden="true">·</span>
-      <a href="https://calnexapp.com/" rel="noopener noreferrer" target="_blank">Model Loan Repayments → CalnexApp</a>
-      <a href="/">Home</a>
-    </div>
-  </div>
-</footer>
-<a class="fab-open-app" href="/app/" aria-label="Open diagram editor"><span class="fab-open-app__text">Open editor</span></a>
+  </footer>
+
+  <a class="fab-open-app" href="/app/" aria-label="Open diagram editor">
+    <span class="fab-open-app__icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v14H4V5z" stroke="currentColor" stroke-width="2"/><path d="M8 9h8M8 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+    <span class="fab-open-app__text">Open editor</span>
+  </a>
 <script src="/shared/share-dock.js" defer></script>
+<script src="/assets/site-shell.js" defer></script>
+
 </body>
 </html>

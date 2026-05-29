@@ -1,0 +1,359 @@
+/**
+ * Business & Financial Mapping — workflow pipeline experience.
+ */
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+body.financial-mapping-page {
+  font-family: var(--font-display, "Plus Jakarta Sans", var(--font-sans));
+}
+
+body.financial-mapping-page main.wrap {
+  max-width: min(1080px, 100%);
+}
+
+/* —— Pipeline intro —— */
+.finance-pipeline {
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0 clamp(2rem, 5vw, 3rem);
+}
+
+.finance-pipeline__eyebrow {
+  margin: 0 0 0.35rem;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-blue);
+}
+
+.finance-pipeline__title {
+  margin: 0 0 1.5rem;
+  text-align: center;
+  font-size: clamp(1.15rem, 1rem + 0.5vw, 1.35rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.finance-pipeline__track {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0;
+}
+
+.finance-pipeline__connector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(1.25rem, 3vw, 2.5rem);
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.finance-pipeline__connector svg {
+  width: 100%;
+  max-width: 2.5rem;
+  height: 12px;
+  color: var(--accent-blue);
+  opacity: 0.65;
+}
+
+/* —— Step cards (interactive) —— */
+body.financial-mapping-page .finance-step.workflow-card {
+  --step-accent: var(--accent-blue);
+  position: relative;
+  min-height: 100%;
+  padding: clamp(1.15rem, 2.5vw, 1.5rem);
+  border-radius: var(--radius-xl, 16px);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur, 16px)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 16px)) saturate(160%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  cursor: default;
+  transition:
+    transform 0.3s var(--ease-out-soft, ease),
+    box-shadow 0.3s var(--ease-out-soft, ease),
+    border-color 0.28s;
+}
+
+body.financial-mapping-page .finance-step--model {
+  --step-accent: var(--accent-green);
+}
+
+body.financial-mapping-page .finance-step--map {
+  --step-accent: var(--accent-blue);
+}
+
+body.financial-mapping-page .finance-step--publish {
+  --step-accent: var(--accent-yellow);
+}
+
+body.financial-mapping-page .finance-step.workflow-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  border-color: color-mix(in srgb, var(--step-accent) 45%, var(--glass-border));
+  box-shadow:
+    var(--shadow-md),
+    0 0 36px color-mix(in srgb, var(--step-accent) 16%, transparent);
+}
+
+body.financial-mapping-page .finance-step .eyebrow {
+  color: var(--step-accent);
+}
+
+body.financial-mapping-page .finance-step__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-bottom: 0.35rem;
+  border-radius: var(--radius-full, 999px);
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--step-accent);
+  background: color-mix(in srgb, var(--step-accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--step-accent) 32%, transparent);
+}
+
+body.financial-mapping-page .workflow-card-actions .btn {
+  transition:
+    transform 0.22s var(--ease-out-soft, ease),
+    box-shadow 0.22s,
+    filter 0.22s;
+}
+
+body.financial-mapping-page .finance-step.workflow-card:hover .workflow-card-actions .btn.cta {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--step-accent) 35%, transparent);
+  filter: brightness(1.06);
+}
+
+/* —— Must-read callout —— */
+body.financial-mapping-page .finance-callout.partner-banner {
+  margin: clamp(1.75rem, 4vw, 2.5rem) 0;
+  padding: clamp(1.25rem, 3vw, 1.65rem) clamp(1.35rem, 3vw, 1.75rem);
+  border-radius: var(--radius-xl, 16px);
+  border: 1px solid color-mix(in srgb, var(--accent-green) 48%, var(--card-border, var(--line)));
+  background:
+    radial-gradient(120% 80% at 100% 0%, color-mix(in srgb, var(--accent-green) 14%, transparent), transparent 55%),
+    color-mix(in srgb, var(--accent-green) 6%, var(--glass-bg, var(--panel)));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent-green) 12%, transparent),
+    0 12px 40px color-mix(in srgb, var(--accent-green) 18%, transparent),
+    0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+body.financial-mapping-page .finance-callout .partner-banner__kicker {
+  color: var(--accent-green);
+  font-size: 0.72rem;
+}
+
+body.financial-mapping-page .finance-callout .partner-banner__text {
+  font-size: clamp(0.95rem, 0.9rem + 0.2vw, 1.05rem);
+  line-height: 1.65;
+  max-width: 40rem;
+}
+
+body.financial-mapping-page .finance-callout .partner-banner__cta {
+  justify-self: start;
+  padding: 0.65rem 1.15rem;
+  font-size: 0.9rem;
+  border-color: color-mix(in srgb, var(--accent-green) 50%, var(--line));
+  background: color-mix(in srgb, var(--accent-green) 18%, var(--panel));
+}
+
+body.financial-mapping-page .finance-callout .partner-banner__cta:hover {
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent-green) 28%, transparent);
+}
+
+/* —— Use cases grid —— */
+.finance-use-cases {
+  margin: clamp(2rem, 5vw, 3rem) 0;
+}
+
+.finance-use-cases > h2 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.35rem, 1rem + 1vw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--accent-blue);
+}
+
+.finance-use-cases__lede {
+  margin: 0 0 1.5rem;
+  max-width: 38rem;
+  color: var(--muted);
+  font-weight: 500;
+  line-height: 1.65;
+}
+
+.finance-use-cases__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.85rem, 2vw, 1.15rem);
+}
+
+.finance-use-case {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-lg, 12px);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-xs);
+  transition: border-color 0.22s, transform 0.22s var(--ease-out-soft, ease);
+}
+
+.finance-use-case:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--accent-blue) 30%, var(--glass-border));
+}
+
+.finance-use-case__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md, 10px);
+  color: var(--use-icon-color, var(--accent-blue));
+  background: color-mix(in srgb, var(--use-icon-color, var(--accent-blue)) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--use-icon-color, var(--accent-blue)) 28%, transparent);
+}
+
+.finance-use-case--loan { --use-icon-color: var(--accent-green); }
+.finance-use-case--capex { --use-icon-color: var(--accent-blue); }
+.finance-use-case--entity { --use-icon-color: var(--accent-yellow); }
+.finance-use-case--close { --use-icon-color: var(--accent-red); }
+
+.finance-use-case p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* —— Related tools grid —— */
+.finance-resources {
+  margin: clamp(2.5rem, 6vw, 3.5rem) 0 clamp(2rem, 4vw, 3rem);
+  padding-top: clamp(1.5rem, 3vw, 2rem);
+  border-top: 1px solid var(--card-border, var(--line));
+}
+
+.finance-resources > h2 {
+  margin: 0 0 1.25rem;
+  font-size: clamp(1.25rem, 1rem + 0.8vw, 1.55rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.finance-resource-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.85rem, 2vw, 1.15rem);
+}
+
+.finance-resource-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.15rem 1.2rem;
+  border-radius: var(--radius-xl, 16px);
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid var(--card-border, var(--line));
+  background: color-mix(in srgb, var(--resource-tint, var(--accent-blue)) 8%, var(--panel, var(--secondary)));
+  transition:
+    transform 0.25s var(--ease-out-soft, ease),
+    box-shadow 0.25s,
+    border-color 0.22s;
+}
+
+.finance-resource-card:hover {
+  text-decoration: none;
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--resource-tint) 40%, var(--card-border));
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--resource-tint) 12%, transparent);
+}
+
+.finance-resource-card--blue { --resource-tint: var(--accent-blue); }
+.finance-resource-card--green { --resource-tint: var(--accent-green); }
+.finance-resource-card--yellow { --resource-tint: var(--accent-yellow); }
+.finance-resource-card--red { --resource-tint: var(--accent-red); }
+
+.finance-resource-card h3 {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.finance-resource-card p {
+  margin: 0;
+  flex: 1;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.finance-resource-card__link {
+  margin-top: 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--resource-tint, var(--accent-blue));
+}
+
+.finance-resource-card:hover .finance-resource-card__link {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .finance-pipeline__track {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .finance-pipeline__connector {
+    width: auto;
+    height: 1.75rem;
+    padding: 0.25rem 0;
+  }
+
+  .finance-pipeline__connector svg {
+    transform: rotate(90deg);
+    max-width: 1.75rem;
+    height: 2rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .finance-use-cases__grid,
+  .finance-resource-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+html[data-theme="light"] body.financial-mapping-page .finance-step.workflow-card,
+html[data-theme="light"] body.financial-mapping-page .finance-use-case,
+html[data-theme="light"] body.financial-mapping-page .finance-resource-card {
+  background: var(--panel);
+  border-color: var(--card-border);
+  box-shadow: var(--shadow-sm);
+}
+
+html[data-theme="light"] body.financial-mapping-page .finance-callout.partner-banner {
+  background:
+    radial-gradient(120% 80% at 100% 0%, color-mix(in srgb, var(--accent-green) 10%, transparent), transparent 55%),
+    color-mix(in srgb, var(--accent-green) 5%, #f0fdf9);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent-green) 20%, transparent),
+    0 12px 36px color-mix(in srgb, var(--accent-green) 14%, transparent);
+}

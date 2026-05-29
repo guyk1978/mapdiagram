@@ -1,0 +1,234 @@
+/**
+ * Marketing diagram spotlight — light, glass nodes, dot-grid surface.
+ */
+.diagram-spotlight {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto 1.15rem;
+}
+
+.diagram-spotlight--compact {
+  max-width: 520px;
+  margin-bottom: 1rem;
+}
+
+.diagram-spotlight__surface {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  max-height: min(280px, 42vw);
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--accent-blue) 18%, var(--card-border, var(--line)));
+  background-color: color-mix(in srgb, #f8fafc 88%, var(--hero-canvas-bg, var(--secondary)));
+  background-image:
+    radial-gradient(circle at center, var(--hero-canvas-dot, rgba(148, 163, 184, 0.35)) 1px, transparent 1px),
+    radial-gradient(90% 70% at 100% 0%, color-mix(in srgb, var(--accent-blue) 8%, transparent), transparent 55%),
+    radial-gradient(70% 50% at 0% 100%, color-mix(in srgb, var(--accent-green) 6%, transparent), transparent 50%);
+  background-size: var(--hero-canvas-dot-size, 14px) var(--hero-canvas-dot-size, 14px), auto, auto;
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+}
+
+html:not([data-theme="light"]) .diagram-spotlight__surface {
+  background-color: color-mix(in srgb, var(--hero-canvas-bg) 55%, #1a2438);
+  border-color: color-mix(in srgb, var(--accent-blue) 22%, var(--line));
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.2);
+}
+
+.diagram-spotlight__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+.diagram-spotlight__path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+  opacity: 0.9;
+}
+
+.diagram-spotlight__path--a {
+  stroke: var(--accent-blue);
+}
+
+.diagram-spotlight__path--b {
+  stroke: var(--accent-green);
+}
+
+.diagram-spotlight__path--c {
+  stroke: color-mix(in srgb, var(--accent-blue) 70%, var(--accent-green));
+  stroke-width: 1.35;
+  opacity: 0.75;
+}
+
+.diagram-spotlight__node {
+  position: absolute;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.25rem;
+  padding: 0.42rem 0.7rem;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--text);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1.5px solid transparent;
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.35) inset;
+  transition:
+    border-color 0.22s ease,
+    transform 0.22s var(--ease-out-soft, ease),
+    box-shadow 0.22s ease,
+    background 0.22s ease;
+  cursor: default;
+  user-select: none;
+}
+
+.diagram-spotlight__node:hover,
+.diagram-spotlight__node:focus-visible {
+  outline: none;
+  transform: translateY(-3px) scale(1.03);
+}
+
+.diagram-spotlight__node--blue {
+  top: 34%;
+  left: 6%;
+  background: color-mix(in srgb, var(--accent-blue) 14%, rgba(255, 255, 255, 0.55));
+  border-color: color-mix(in srgb, var(--accent-blue) 45%, transparent);
+}
+
+.diagram-spotlight__node--blue:hover,
+.diagram-spotlight__node--blue:focus-visible {
+  border-color: var(--accent-blue);
+  box-shadow:
+    0 8px 22px color-mix(in srgb, var(--accent-blue) 28%, transparent),
+    0 2px 0 rgba(255, 255, 255, 0.4) inset;
+}
+
+.diagram-spotlight__node--green {
+  top: 18%;
+  left: 42%;
+  background: color-mix(in srgb, var(--accent-green) 14%, rgba(255, 255, 255, 0.55));
+  border-color: color-mix(in srgb, var(--accent-green) 42%, transparent);
+}
+
+.diagram-spotlight__node--green:hover,
+.diagram-spotlight__node--green:focus-visible {
+  border-color: var(--accent-green);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--accent-green) 26%, transparent);
+}
+
+.diagram-spotlight__node--yellow {
+  top: 52%;
+  left: 38%;
+  background: color-mix(in srgb, var(--accent-yellow) 16%, rgba(255, 255, 255, 0.55));
+  border-color: color-mix(in srgb, var(--accent-yellow) 45%, transparent);
+}
+
+.diagram-spotlight__node--yellow:hover,
+.diagram-spotlight__node--yellow:focus-visible {
+  border-color: var(--accent-yellow);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--accent-yellow) 28%, transparent);
+}
+
+.diagram-spotlight__node--red {
+  top: 62%;
+  left: 72%;
+  background: color-mix(in srgb, var(--accent-red) 12%, rgba(255, 255, 255, 0.55));
+  border-color: color-mix(in srgb, var(--accent-red) 40%, transparent);
+}
+
+.diagram-spotlight__node--red:hover,
+.diagram-spotlight__node--red:focus-visible {
+  border-color: var(--accent-red);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--accent-red) 24%, transparent);
+}
+
+html:not([data-theme="light"]) .diagram-spotlight__node {
+  background: color-mix(in srgb, var(--panel) 75%, rgba(255, 255, 255, 0.08));
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+}
+
+/* Product shot wrapper */
+.product-shot--diagram {
+  margin: clamp(1rem, 3vw, 1.5rem) auto;
+}
+
+.product-shot--diagram figure {
+  margin: 0;
+}
+
+.product-shot--diagram .diagram-spotlight {
+  max-width: 600px;
+}
+
+.product-shot--diagram figcaption {
+  margin-top: 0.65rem;
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.product-shot--diagram.align-right .diagram-spotlight {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.product-shot--diagram.align-center .diagram-spotlight {
+  margin-inline: auto;
+}
+
+/* Core money page layout */
+.resource-hub__core-layout {
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 1.35rem);
+}
+
+.resource-hub__core .diagram-spotlight--compact {
+  margin-bottom: 0;
+}
+
+.resource-hub__core-copy {
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .resource-hub__core-layout--split {
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 46%);
+    align-items: center;
+  }
+
+  .resource-hub__core-layout--split .diagram-spotlight--compact {
+    margin: 0;
+    max-width: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .diagram-spotlight__node {
+    font-size: 0.62rem;
+    min-width: 2.75rem;
+    padding: 0.35rem 0.5rem;
+  }
+
+  .diagram-spotlight__node--green {
+    left: 40%;
+  }
+
+  .diagram-spotlight__node--red {
+    left: 68%;
+  }
+}

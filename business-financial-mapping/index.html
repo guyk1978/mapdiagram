@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script src="/assets/theme-engine.js"></script>
   <script src="/assets/site-analytics.js" defer></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,96 +20,146 @@
   <meta name="twitter:description" content="Model loan repayments and business structures in CalnexApp, then map approvals and cash-flow workflows in MapDiagram.">
   <meta name="twitter:image" content="https://mapdiagram.com/assets/ui-preview.svg">
   <link rel="stylesheet" href="/assets/site.css">
+  <link rel="stylesheet" href="/assets/content-page.css">
+  <link rel="stylesheet" href="/assets/financial-mapping.css">
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="manifest" href="/assets/site.webmanifest">
 </head>
-<body>
-<header class="nav nav--minimal">
+<body class="content-page financial-mapping-page">
+<header class="nav nav--minimal nav--saas">
   <div class="wrap">
-  <a href="/" class="nav-brand"><strong>MapDiagram</strong><!-- Mini Animated Nodes for MapDiagram Header -->
-<span class="header-nodes-mini" title="MapDiagram Core" aria-hidden="true">
-  <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-    <line x1="4" y1="10" x2="9" y2="4" />
-    <line x1="9" y1="4" x2="14" y2="10" />
-    <line x1="4" y1="10" x2="14" y2="10" />
-    <circle class="header-nodes-mini__node header-nodes-mini__node--a" cx="9" cy="4" r="2" />
-    <circle class="header-nodes-mini__node header-nodes-mini__node--b" cx="4" cy="10" r="2" />
-    <circle class="header-nodes-mini__node header-nodes-mini__node--c" cx="14" cy="10" r="2" />
-  </svg>
-</span></a>
+  <a href="/" class="nav-brand" aria-label="MapDiagram home">
+    <span class="nav-wordmark" aria-label="MapDiagram">
+      <span class="nav-wordmark__map">Map</span><span class="nav-wordmark__diagram">D<span class="nav-wordmark__i" aria-hidden="true">i</span>agram</span>
+    </span>
+  </a>
   <nav class="links nav-links-main" aria-label="Primary">
   <a href="/diagram-builder/">Product</a>
   <a href="/#templates">Templates</a>
   <a href="/workflow-hub/">Workflow</a>
   <a href="/business-financial-mapping/">Finance mapping</a>
   <a href="/blog/">Blog</a>
-  <a class="btn nav-cta" href="/app/">Open editor</a>
+  <button type="button" class="theme-toggle-btn" id="siteThemeToggle" aria-label="Toggle light and dark mode">
+    <svg class="icon-theme-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <svg class="icon-theme-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+  </button>
+  <a class="btn btn--accent-blue nav-cta" href="/app/">Open editor</a>
   </nav>
   </div>
   </header>
   <main class="wrap">
     <section class="hero hero-landing">
-      <p class="hero-kicker">Numbers first, then the process map</p>
+      <p class="hero-kicker">Business intelligence pipeline</p>
       <h1>Business &amp; financial mapping</h1>
-      <p class="lead">Align repayment math with operational workflows. CalnexApp handles the financial model; MapDiagram documents who does what, when cash moves, and where approvals sit.</p>
-      <p class="muted hero-problem-pill"><strong>The gap:</strong> Spreadsheets capture totals, not handoffs. Diagrams capture handoffs, not amortization. Use both.</p>
+      <p class="lead">Model the numbers, map the handoffs, publish the packet. Three tools—one continuous workflow from repayment math to board-ready PDFs.</p>
+      <p class="muted hero-problem-pill"><strong>The gap:</strong> Spreadsheets capture totals, not handoffs. Diagrams capture handoffs, not amortization. This pipeline uses both.</p>
       <div class="hero-actions">
-        <a class="btn cta" href="https://calnexapp.com/" target="_blank" rel="noopener noreferrer">Model in CalnexApp</a>
-        <a class="btn btn-secondary" href="/app/">Map workflow in MapDiagram</a>
+        <a class="btn cta" href="https://calnexapp.com/" target="_blank" rel="noopener noreferrer">Start with CalnexApp</a>
+        <a class="btn btn-secondary" href="/app/">Map in MapDiagram</a>
       </div>
     </section>
 
-    <div class="workflow-pair workflow-pair--triple" style="margin-top:8px">
-      <article class="workflow-card" aria-labelledby="bf-calnex">
-        <p class="eyebrow">Step 1 — Model</p>
-        <h2 id="bf-calnex">CalnexApp</h2>
-        <p>Stress-test loan terms, repayment paths, and simple business-structure scenarios before you socialize a process change.</p>
-        <div class="workflow-card-actions">
-          <a class="btn cta" href="https://calnexapp.com/" target="_blank" rel="noopener noreferrer">Open CalnexApp</a>
+    <section class="finance-pipeline" aria-label="Three-step business intelligence pipeline">
+      <p class="finance-pipeline__eyebrow">Continuous workflow</p>
+      <h2 class="finance-pipeline__title">Model → Map → Publish</h2>
+      <div class="finance-pipeline__track">
+        <article class="workflow-card finance-step finance-step--model" aria-labelledby="bf-calnex">
+          <span class="finance-step__num" aria-hidden="true">1</span>
+          <p class="eyebrow">Step 1 — Model</p>
+          <h2 id="bf-calnex">CalnexApp</h2>
+          <p>Stress-test loan terms, repayment paths, and business-structure scenarios before you socialize a process change.</p>
+          <div class="workflow-card-actions">
+            <a class="btn cta" href="https://calnexapp.com/" target="_blank" rel="noopener noreferrer">Open CalnexApp</a>
+          </div>
+        </article>
+        <div class="finance-pipeline__connector" aria-hidden="true">
+          <svg viewBox="0 0 48 12" xmlns="http://www.w3.org/2000/svg"><path d="M2 6h40M38 2l6 4-6 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 4"/></svg>
         </div>
-      </article>
-      <article class="workflow-card" aria-labelledby="bf-mapdiagram">
-        <p class="eyebrow">Step 2 — Map</p>
-        <h2 id="bf-mapdiagram">MapDiagram</h2>
-        <p>Turn the agreed structure into a living diagram: approvals, treasury handoffs, compliance checks, and system touchpoints.</p>
-        <div class="workflow-card-actions">
-          <a class="btn cta" href="/app/">Open MapDiagram</a>
+        <article class="workflow-card finance-step finance-step--map" aria-labelledby="bf-mapdiagram">
+          <span class="finance-step__num" aria-hidden="true">2</span>
+          <p class="eyebrow">Step 2 — Map</p>
+          <h2 id="bf-mapdiagram">MapDiagram</h2>
+          <p>Turn the agreed structure into a living diagram: approvals, treasury handoffs, compliance checks, and system touchpoints.</p>
+          <div class="workflow-card-actions">
+            <a class="btn cta" href="/app/">Open MapDiagram</a>
+          </div>
+        </article>
+        <div class="finance-pipeline__connector" aria-hidden="true">
+          <svg viewBox="0 0 48 12" xmlns="http://www.w3.org/2000/svg"><path d="M2 6h40M38 2l6 4-6 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 4"/></svg>
         </div>
-      </article>
-      <article class="workflow-card" aria-labelledby="bf-joinmypdf">
-        <p class="eyebrow">Step 3 — Publish</p>
-        <h2 id="bf-joinmypdf">JoinMyPDF</h2>
-        <p>Export stakeholder packets as polished, optimized PDFs for boards, lenders, and internal audit trails.</p>
-        <div class="workflow-card-actions">
-          <a class="btn cta" href="https://joinmypdf.com/" target="_blank" rel="noopener noreferrer">Open JoinMyPDF</a>
-        </div>
-      </article>
-    </div>
+        <article class="workflow-card finance-step finance-step--publish" aria-labelledby="bf-joinmypdf">
+          <span class="finance-step__num" aria-hidden="true">3</span>
+          <p class="eyebrow">Step 3 — Publish</p>
+          <h2 id="bf-joinmypdf">JoinMyPDF</h2>
+          <p>Export stakeholder packets as polished, optimized PDFs for boards, lenders, and internal audit trails.</p>
+          <div class="workflow-card-actions">
+            <a class="btn cta" href="https://joinmypdf.com/" target="_blank" rel="noopener noreferrer">Open JoinMyPDF</a>
+          </div>
+        </article>
+      </div>
+    </section>
 
-    <aside class="partner-banner partner-banner--calnex" aria-label="CalnexApp financial modeling" style="margin:28px 0">
-      <p class="partner-banner__kicker">Business &amp; financial mapping</p>
-      <p class="partner-banner__text">Planning a loan or business structure? Use <strong>CalnexApp</strong> to model your repayments, then map the workflow here.</p>
+    <aside class="partner-banner partner-banner--calnex finance-callout" aria-label="Must-read: CalnexApp financial modeling">
+      <p class="partner-banner__kicker">Must-read tip</p>
+      <p class="partner-banner__text">Planning a loan or business structure? Use <strong>CalnexApp</strong> to model repayments first—then map the operational workflow in MapDiagram so finance and ops share one story.</p>
       <a class="partner-banner__cta" href="https://calnexapp.com/" target="_blank" rel="noopener noreferrer">Model repayments in CalnexApp →</a>
     </aside>
 
-    <section class="section">
-      <h2>When to use this workflow</h2>
-      <ul>
-        <li>Commercial loan or line-of-credit approval paths with treasury funding steps</li>
-        <li>CapEx requests that need finance sign-off and procurement handoffs</li>
-        <li>Entity or ownership changes that affect who approves spend</li>
-        <li>Month-end close maps tied to specific repayment or covenant milestones</li>
-      </ul>
+    <section class="finance-use-cases section" aria-labelledby="finance-use-cases-heading">
+      <h2 id="finance-use-cases-heading">When to use this workflow</h2>
+      <p class="finance-use-cases__lede">Reach for this pipeline when numbers and process must stay in sync—especially where cash, approvals, and accountability cross teams.</p>
+      <div class="finance-use-cases__grid">
+        <div class="finance-use-case finance-use-case--loan">
+          <span class="finance-use-case__icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 10h18M5 10V7l7-3 7 3v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 14h2v6H8zM14 14h2v6h-2z" stroke="currentColor" stroke-width="2"/></svg>
+          </span>
+          <p>Commercial loan or line-of-credit approval paths with treasury funding steps</p>
+        </div>
+        <div class="finance-use-case finance-use-case--capex">
+          <span class="finance-use-case__icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 3v4M16 3v4M4 10h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </span>
+          <p>CapEx requests that need finance sign-off and procurement handoffs</p>
+        </div>
+        <div class="finance-use-case finance-use-case--entity">
+          <span class="finance-use-case__icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 20V8l8-4 8 4v12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 20v-6h6v6" stroke="currentColor" stroke-width="2"/></svg>
+          </span>
+          <p>Entity or ownership changes that affect who approves spend</p>
+        </div>
+        <div class="finance-use-case finance-use-case--close">
+          <span class="finance-use-case__icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 18V6l8-3 8 3v12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 14h8M8 10h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </span>
+          <p>Month-end close maps tied to repayment or covenant milestones</p>
+        </div>
+      </div>
     </section>
 
-    <section class="section related" aria-label="Related pages">
-      <h2>Related tools</h2>
-      <ul>
-        <li><a href="/diagram-tool-for-finance-teams/">Diagram tool for finance teams</a></li>
-        <li><a href="/workflow-hub/">Ideas → PDF workflow hub</a></li>
-        <li><a href="/diagram-tool-for-small-business/">Diagram tool for small business</a></li>
-        <li><a href="/diagram-tool-for-consultants/">Diagram tool for consultants</a></li>
-      </ul>
+    <section class="finance-resources section" aria-labelledby="finance-resources-heading">
+      <h2 id="finance-resources-heading">Related tools</h2>
+      <div class="finance-resource-grid">
+        <a class="finance-resource-card finance-resource-card--green" href="/diagram-tool-for-finance-teams/">
+          <h3>Finance teams</h3>
+          <p>Diagram cash flows, approvals, and control points built for controllers and FP&amp;A.</p>
+          <span class="finance-resource-card__link">Explore →</span>
+        </a>
+        <a class="finance-resource-card finance-resource-card--blue" href="/workflow-hub/">
+          <h3>Workflow hub</h3>
+          <p>See how MapDiagram and JoinMyPDF connect ideas to shareable PDF packets.</p>
+          <span class="finance-resource-card__link">Explore →</span>
+        </a>
+        <a class="finance-resource-card finance-resource-card--yellow" href="/diagram-tool-for-small-business/">
+          <h3>Small business</h3>
+          <p>Lightweight process maps when you are growing fast and wearing many hats.</p>
+          <span class="finance-resource-card__link">Explore →</span>
+        </a>
+        <a class="finance-resource-card finance-resource-card--red" href="/diagram-tool-for-consultants/">
+          <h3>Consultants</h3>
+          <p>Package client workflows with clear visuals and professional exports.</p>
+          <span class="finance-resource-card__link">Explore →</span>
+        </a>
+      </div>
     </section>
   </main>
 <footer class="footer">
@@ -228,5 +279,6 @@
   </div>
 </footer>
 <a class="fab-open-app" href="/app/" aria-label="Open diagram editor"><span class="fab-open-app__text">Open editor</span></a>
+<script src="/assets/site-shell.js" defer></script>
 </body>
 </html>

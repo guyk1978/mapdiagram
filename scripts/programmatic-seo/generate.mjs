@@ -1,6 +1,11 @@
 import { mkdirSync, writeFileSync, readFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
+import {
+  contentHubCta,
+  diagramSpotlightHtml,
+  resourceHubSection,
+} from "../lib/content-page-template.mjs";
 import { GROUPS, relatedSlugs, blogSlugsForLanding } from "./groups.mjs";
 import { LANDINGS_DEVELOPERS } from "./landings-developers.mjs";
 import { LANDINGS_BUSINESS } from "./landings-business.mjs";
@@ -8,6 +13,17 @@ import { LANDINGS_EDUCATION } from "./landings-education.mjs";
 import { LANDINGS_MARKETING } from "./landings-marketing.mjs";
 import { LANDINGS_WORKFLOW } from "./landings-workflow.mjs";
 import { BLOGS } from "./blogs.mjs";
+import {
+  BLOG_POST_META,
+  estimateReadingMinutes,
+  formatBlogDate,
+} from "./blog-meta.mjs";
+import {
+  BLOG_ARTICLE_CSS,
+  blogArticleFooter,
+  blogArticleHero,
+  enhanceBlogBody,
+} from "../lib/blog-article-template.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..", "..");
@@ -204,7 +220,8 @@ const MONEY_PAGE_CONTENT = {
   },
 };
 
-const ANALYTICS = `  <script src="/assets/site-analytics.js" defer></script>`;
+const ANALYTICS = `  <script src="/assets/theme-engine.js"></script>
+  <script src="/assets/site-analytics.js" defer></script>`;
 
 function jsonLdBlocks(objects) {
   return objects
@@ -248,6 +265,8 @@ ${ANALYTICS}
   <meta name="twitter:description" content="${esc(description)}">
   <meta name="twitter:image" content="${esc(image)}">
   <link rel="stylesheet" href="/assets/site.css">
+  <link rel="stylesheet" href="/assets/content-page.css">
+  <link rel="stylesheet" href="/assets/marketing-diagram.css">
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="manifest" href="/assets/site.webmanifest">
 ${ld}
@@ -255,7 +274,8 @@ ${ld}
 }
 
 function shareDockScript() {
-  return `<script src="/shared/share-dock.js" defer></script>`;
+  return `<script src="/shared/share-dock.js" defer></script>
+<script src="/assets/site-shell.js" defer></script>`;
 }
 
 function breadcrumbSchema(items) {
@@ -295,34 +315,32 @@ function footerPartnerMetaLinksHtml() {
       <a href="https://calnexapp.com/" rel="noopener noreferrer" target="_blank">Model Loan Repayments → CalnexApp</a>`;
 }
 
-function headerNodesMini() {
-  return `<!-- Mini Animated Nodes for MapDiagram Header -->
-<span class="header-nodes-mini" title="MapDiagram Core" aria-hidden="true">
-  <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-    <line x1="4" y1="10" x2="9" y2="4" />
-    <line x1="9" y1="4" x2="14" y2="10" />
-    <line x1="4" y1="10" x2="14" y2="10" />
-    <circle class="header-nodes-mini__node header-nodes-mini__node--a" cx="9" cy="4" r="2" />
-    <circle class="header-nodes-mini__node header-nodes-mini__node--b" cx="4" cy="10" r="2" />
-    <circle class="header-nodes-mini__node header-nodes-mini__node--c" cx="14" cy="10" r="2" />
-  </svg>
-</span>`;
-}
-
 function siteHeader() {
-  return `<header class="nav nav--minimal">
+  try {
+    return readFileSync(join(ROOT, "partials", "nav.html"), "utf8").trim();
+  } catch {
+    return `<header class="nav nav--minimal nav--saas">
   <div class="wrap">
-  <a href="/" class="nav-brand"><strong>MapDiagram</strong>${headerNodesMini()}</a>
+  <a href="/" class="nav-brand" aria-label="MapDiagram home">
+    <span class="nav-wordmark" aria-label="MapDiagram">
+      <span class="nav-wordmark__map">Map</span><span class="nav-wordmark__diagram">D<span class="nav-wordmark__i" aria-hidden="true">i</span>agram</span>
+    </span>
+  </a>
   <nav class="links nav-links-main" aria-label="Primary">
   <a href="/diagram-builder/">Product</a>
   <a href="/#templates">Templates</a>
   <a href="/workflow-hub/">Workflow</a>
   <a href="/business-financial-mapping/">Finance mapping</a>
   <a href="/blog/">Blog</a>
-  <a class="btn nav-cta" href="/app/">Open editor</a>
+  <button type="button" class="theme-toggle-btn" id="siteThemeToggle" aria-label="Toggle light and dark mode">
+    <svg class="icon-theme-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <svg class="icon-theme-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+  </button>
+  <a class="btn btn--accent-blue nav-cta" href="/app/">Open editor</a>
   </nav>
   </div>
   </header>`;
+  }
 }
 
 function floatingAppCta() {
@@ -518,7 +536,7 @@ function relatedLandingList(slugs) {
   return slugs
     .map((s) => {
       const L = LANDINGS.find((x) => x.slug === s);
-      return `        <li><a href="/diagram-tool-for-${s}/">${esc(L.label)}</a></li>`;
+      return `        <li><a class="resource-hub__pill" href="/diagram-tool-for-${s}/">${esc(L.label)}</a></li>`;
     })
     .join("\n");
 }
@@ -528,9 +546,30 @@ function blogLinkList(slugs) {
     .map((s) => {
       const b = BLOGS.find((x) => x.slug === s);
       const label = b.title.replace(/\s*\|\s*MapDiagram\s*$/, "");
-      return `        <li><a href="/blog/${s}/">${esc(label)}</a></li>`;
+      return `        <li><a class="resource-hub__pill" href="/blog/${s}/">${esc(label)}</a></li>`;
     })
     .join("\n");
+}
+
+function buildResourceHubBlock({ problemLead, solutionLead, rel, blogs, coreSlug }) {
+  const intros = [];
+  if (problemLead) {
+    intros.push(
+      `      <p class="lead resource-hub__intro"><strong>Problem:</strong> ${esc(problemLead)}</p>`,
+    );
+  }
+  if (solutionLead) {
+    intros.push(
+      `      <p class="lead resource-hub__intro"><strong>Solution:</strong> ${esc(solutionLead)}</p>`,
+    );
+  }
+  const coreNote = `${landingLinkBySlug(coreSlug)} is a priority MapDiagram page for high-intent visitors and product-led conversion paths.`;
+  return resourceHubSection({
+    introHtml: intros.join("\n"),
+    landingsHtml: relatedLandingList(rel),
+    guidesHtml: blogLinkList(blogs),
+    coreHtml: coreNote,
+  });
 }
 
 function landingLinkBySlug(slug, customLabel) {
@@ -596,9 +635,9 @@ function screenshotContextForSlug(slug) {
 
 function screenshotBlock(slug) {
   const c = screenshotContextForSlug(slug);
-  return `<div class="product-shot ${c.align}">
+  return `<div class="product-shot product-shot--diagram ${c.align}">
   <figure>
-    <img src="/assets/ui-preview.svg" alt="${esc(c.title)}" loading="lazy" decoding="async" width="1280" height="720">
+    ${diagramSpotlightHtml()}
     <figcaption>${esc(c.caption)}</figcaption>
   </figure>
 </div>`;
@@ -639,7 +678,7 @@ function landingPageHtml(L) {
       canonicalPath: path,
       jsonLd: landingJsonLd,
     })}
-<body>
+<body class="content-page">
 ${siteHeader()}
   <main class="wrap">
     <section class="hero hero-landing">
@@ -683,21 +722,19 @@ ${siteHeader()}
       ${visualAfterScenarios ? visual : ""}
     </section>
 
-    <section class="section related" aria-label="Related pages">
-      <p class="lead"><strong>Problem:</strong> ${esc(L.problem)}</p>
-      <p class="lead"><strong>Solution:</strong> ${esc(L.solution)}</p>
-      <h2>Related landing pages</h2>
-      <ul>
-${relatedLandingList(rel)}
-      </ul>
-      <h2>Related guides</h2>
-      <ul>
-${blogLinkList(blogs)}
-      </ul>
-      <h2>Core money page</h2>
-      <p class="lead">${landingLinkBySlug(core)} is a priority MapDiagram page for high-intent visitors and product-led conversion paths.</p>
-      <p class="muted related-footer-note">Explore more on the <a href="/blog/">MapDiagram blog</a> or jump straight into the <a href="/app/">editor</a>.</p>
-    </section>
+    ${contentHubCta({
+      title: "Start building in seconds",
+      text: "Open the editor in your browser—no install required. Map your next system, flow, or plan visually.",
+      button: moneyContent.ctaPrimary,
+    })}
+
+    ${buildResourceHubBlock({
+      problemLead: L.problem,
+      solutionLead: L.solution,
+      rel,
+      blogs,
+      coreSlug: core,
+    })}
   </main>
 ${buildCompactFooterHtml()}
 ${floatingAppCta()}
@@ -713,7 +750,7 @@ ${shareDockScript()}
     canonicalPath: path,
     jsonLd: landingJsonLd,
 })}
-<body>
+<body class="content-page">
 ${siteHeader()}
   <main class="wrap">
     <section class="hero hero-landing">
@@ -739,20 +776,18 @@ ${useCases}
       ${landingCompareTable(L)}
     </section>
 
-    <section class="section related" aria-label="Related pages">
-      <p class="lead"><strong>Solution:</strong> ${esc(L.solution)}</p>
-      <h2>Related landing pages</h2>
-      <ul>
-${relatedLandingList(rel)}
-      </ul>
-      <h2>Related guides</h2>
-      <ul>
-${blogLinkList(blogs)}
-      </ul>
-      <h2>Core money page</h2>
-      <p class="lead">${landingLinkBySlug(core)} is a priority MapDiagram page for high-intent visitors and product-led conversion paths.</p>
-      <p class="muted related-footer-note">Explore more on the <a href="/blog/">MapDiagram blog</a> or jump straight into the <a href="/app/">editor</a>.</p>
-    </section>
+    ${contentHubCta({
+      title: "Start building in seconds",
+      text: "Open the editor in your browser and turn your next idea into a clear, shareable diagram.",
+      button: "Start free — open editor",
+    })}
+
+    ${buildResourceHubBlock({
+      solutionLead: L.solution,
+      rel,
+      blogs,
+      coreSlug: core,
+    })}
   </main>
 ${buildFooterHtml()}
 ${floatingAppCta()}
@@ -770,11 +805,22 @@ function wrapFirstCompareTable(html) {
     .replace("</table>", "</table></div>");
 }
 
+function blogHeadExtra() {
+  return `  <link rel="stylesheet" href="/assets/blog-article.css">`;
+}
+
 function blogPageHtml(B) {
   const path = `/blog/${B.slug}/`;
-  const bodyHtml = wrapFirstCompareTable(B.body);
+  const bodyHtml = enhanceBlogBody(wrapFirstCompareTable(B.body));
   const [corePrimary, coreSecondary] = coreMoneyForBlog(B);
   const articleHeadline = B.title.replace(/\s*\|\s*MapDiagram\s*$/, "");
+  const meta = BLOG_POST_META[B.slug] || {
+    category: "Guides",
+    catKey: "workflow",
+    date: "2026-01-15",
+  };
+  const readingMin = estimateReadingMinutes(B.body + B.description);
+  const dateLabel = formatBlogDate(meta.date);
   const pageUrl = `${BASE}${path}`;
   const blogJsonLd = [
     breadcrumbSchema([
@@ -799,27 +845,47 @@ function blogPageHtml(B) {
       mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
     },
   ];
-  return `${head({
+  const headBlock = head({
     title: B.title,
     description: B.description,
     canonicalPath: path,
     ogType: "article",
     jsonLd: blogJsonLd,
-})}
-<body>
+  }).replace(
+    /<link rel="stylesheet" href="\/assets\/content-page\.css">\s*<link rel="stylesheet" href="\/assets\/marketing-diagram\.css">\s*/i,
+    "",
+  ).replace(
+    /<link rel="stylesheet" href="\/assets\/site\.css">/i,
+    `<link rel="stylesheet" href="/assets/site.css">\n${blogHeadExtra()}`,
+  );
+
+  return `${headBlock}
+<body class="blog-article-page">
 ${siteHeader()}
-  <main class="wrap">
-    <article class="article">
-      <h1>${esc(articleHeadline)}</h1>
-      <p class="lead">${esc(B.description)}</p>
+  <main class="wrap wrap--article">
+    <article class="article blog-article">
+      ${blogArticleHero({
+        title: esc(articleHeadline),
+        dek: esc(B.description),
+        category: meta.category,
+        catKey: meta.catKey,
+        dateIso: meta.date,
+        dateLabel,
+        readingMin,
+      })}
+      <div class="article-prose">
       ${bodyHtml}
-      <h2>Most important tools</h2>
-      <ul>
-        <li>${landingLinkBySlug(corePrimary, "System Design Tool for Developers")}</li>
-        <li>${landingLinkBySlug(coreSecondary, "Workflow Tool for Product Managers and Startup Teams")}</li>
-      </ul>
-      <h2>Try MapDiagram</h2>
-      <a class="btn cta" href="/app/">Open editor — free</a>
+      </div>
+      ${blogArticleFooter({
+        corePrimary: landingLinkBySlug(
+          corePrimary,
+          "System Design Tool for Developers",
+        ),
+        coreSecondary: landingLinkBySlug(
+          coreSecondary,
+          "Workflow Tool for Product Managers and Startup Teams",
+        ),
+      })}
     </article>
   </main>
 ${buildFooterHtml()}

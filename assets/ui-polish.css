@@ -507,15 +507,15 @@ html[data-theme="light"] .project-item {
 /* —— Canvas nodes —— */
 .node {
   --node-radius: var(--radius-node);
-  border-radius: var(--radius-node);
+  border-radius: var(--node-radius, var(--radius-node));
 }
 
 .node.shape-rounded {
-  border-radius: 12px;
+  border-radius: var(--node-radius, 12px);
 }
 
 .flowchart-mode .node.fc-node-process {
-  border-radius: var(--radius-node);
+  border-radius: var(--node-radius, var(--radius-node));
 }
 
 /* —— Menus & dropdowns —— */
@@ -2270,6 +2270,15 @@ html[data-theme="light"] #inspector-panel-export .partner-banner {
 }
 
 /* —— Canvas micro-toolbar (icon-only) —— */
+.canvas-micro-toolbar.fc-quick-edit,
+.fc-multi-select-bar {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: none;
+  flex: 0 0 auto;
+}
+
 .canvas-micro-toolbar.fc-quick-edit {
   gap: 2px;
   padding: 3px 5px;
@@ -2380,7 +2389,8 @@ html[data-theme="light"] #inspector-panel-export .partner-banner {
 }
 
 .topbar-minimal-end .global-color-picker,
-.topbar-minimal-end .global-corner-picker {
+.topbar-minimal-end .global-corner-picker,
+.topbar-minimal-end .topbar-bulk-spawn {
   overflow: visible;
 }
 
@@ -2388,45 +2398,121 @@ html[data-theme="light"] #inspector-panel-export .partner-banner {
   overflow: visible;
 }
 
-/* —— Bulk spawn popover —— */
-.bulk-spawn-popover {
-  position: absolute;
-  z-index: 15;
-  display: flex;
+/* —— Top bar bulk spawn (inline) —— */
+.topbar-bulk-spawn {
+  display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 5px;
+  padding: 2px 4px 2px 6px;
+  margin-inline: 2px;
   border-radius: 10px;
-  border: 1px solid var(--glass-border);
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  box-shadow: var(--glass-shadow);
-  pointer-events: auto;
+  border: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+  background: color-mix(in srgb, var(--panel) 58%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text) 6%, transparent);
 }
 
-.bulk-spawn-count {
-  width: 36px;
-  height: 24px;
+.topbar-bulk-spawn[hidden] {
+  display: none !important;
+}
+
+.topbar-bulk-spawn.is-disabled {
+  opacity: 0.48;
+}
+
+.topbar-bulk-spawn__lead {
+  flex: 0 0 auto;
+  color: var(--muted);
+  opacity: 0.9;
+}
+
+.topbar-bulk-spawn__field {
+  display: inline-flex;
+  margin: 0;
+}
+
+.topbar-bulk-spawn__count {
+  width: 34px;
+  height: 28px;
+  padding: 0 4px;
+  border: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--panel) 94%, var(--bg));
+  color: var(--text);
   font-size: 11px;
-  text-align: center;
-}
-
-.bulk-spawn-shape {
-  height: 24px;
-  max-width: 96px;
-  font-size: 10px;
-}
-
-.bulk-spawn-go {
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: none;
-  border-radius: 6px;
-  background: color-mix(in srgb, var(--accent) 35%, transparent);
-  cursor: pointer;
   font-weight: 700;
-  line-height: 1;
+  text-align: center;
+  box-shadow: inset 0 1px 2px color-mix(in srgb, var(--bg) 35%, transparent);
+}
+
+.topbar-bulk-spawn__count:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.topbar-bulk-spawn__shape {
+  height: 28px;
+  min-width: 74px;
+  max-width: 104px;
+  padding: 0 20px 0 7px;
+  border: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--panel) 94%, var(--bg));
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 600;
+  box-shadow: inset 0 1px 2px color-mix(in srgb, var(--bg) 35%, transparent);
+}
+
+.topbar-bulk-spawn__shape:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.topbar-bulk-spawn__go {
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  flex: 0 0 auto;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+  color: var(--text);
+}
+
+.topbar-bulk-spawn__go:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 38%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 58%, transparent);
+}
+
+.topbar-bulk-spawn__go:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+html[data-theme="light"] .topbar-bulk-spawn {
+  background: color-mix(in srgb, var(--panel) 88%, #fff);
+  border-color: color-mix(in srgb, var(--line) 85%, transparent);
+}
+
+html[data-theme="light"] .topbar-bulk-spawn__count,
+html[data-theme="light"] .topbar-bulk-spawn__shape {
+  background: #fff;
+  border-color: color-mix(in srgb, var(--line) 88%, transparent);
+  color: #141a26;
+}
+
+@media (max-width: 900px) {
+  .topbar-bulk-spawn__lead {
+    display: none;
+  }
+
+  .topbar-bulk-spawn__shape {
+    min-width: 64px;
+    max-width: 84px;
+  }
 }
 
 /* —— Tactical inspector: dense sidebar + cube action grids —— */
@@ -2617,7 +2703,24 @@ html[data-theme="light"] .inspector-group--tight {
 }
 
 .insp-inline-row--colors {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  align-items: stretch;
+}
+
+.insp-inline-row--colors .insp-color-chip {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  flex-direction: column;
+  align-items: stretch;
   gap: 4px;
+  padding: 5px 6px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+  box-sizing: border-box;
 }
 
 .insp-inline-row--nums,
@@ -2710,16 +2813,20 @@ html[data-theme="light"] .inspector-group--tight {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
+  text-align: center;
 }
 
 .insp-color-chip input[type="color"] {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   width: 100%;
   min-width: 0;
-  height: 26px !important;
-  min-height: 26px !important;
-  padding: 2px !important;
-  border-radius: 6px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 3px !important;
+  border-radius: 7px !important;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent) !important;
+  box-sizing: border-box;
+  cursor: pointer;
 }
 
 .insp-num-chip {

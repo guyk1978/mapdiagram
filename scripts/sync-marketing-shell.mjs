@@ -1,6 +1,6 @@
 /**
- * One-way sync for static HTML: single analytics entry, unified nav, OG where missing,
- * fix placeholder domains, mega-footer on auth pages, strip share-dock on auth.
+ * One-way sync for static HTML: analytics, theme engine, unified nav with toggle,
+ * site-shell.js, OG where missing, mega-footer on auth pages.
  */
 import { readdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import { join, relative } from "path";
@@ -11,14 +11,29 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const BASE = "https://mapdiagram.com";
 
+const HEAD_SCRIPTS = `<script src="/assets/theme-engine.js"></script>
+  <script src="/assets/site-analytics.js" defer></script>`;
+
 const FAB_SNIPPET = `<a class="fab-open-app" href="/app/" aria-label="Open diagram editor"><span class="fab-open-app__text">Open editor</span></a>`;
+
+const CONTENT_PAGE_CSS = `<link rel="stylesheet" href="/assets/content-page.css">
+<link rel="stylesheet" href="/assets/marketing-diagram.css">`;
+
+const CONTENT_PAGE_SKIP = new Set([
+  "index.html",
+  "workflow-hub/index.html",
+  "app/tool.html",
+  "app/index.html",
+  "partials/nav.html",
+  "partials/footer.html",
+]);
 
 const GTAG_RE =
   /(?:<!--\s*Google tag \(gtag\.js\)\s*-->\s*)?<script async src="https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=G-LDVB4978S7"><\/script>\s*<script>[\s\S]*?<\/script>\s*/g;
 
 function walk(dir, files = []) {
   for (const name of readdirSync(dir)) {
-    if (name === "node_modules" || name === ".git") continue;
+    if (name === "node_modules" || name === ".git" || name === "mapdiagram-main") continue;
     const p = join(dir, name);
     const st = statSync(p);
     if (st.isDirectory()) walk(p, files);
@@ -97,14 +112,44 @@ function stripGtag(html) {
   if (html.includes("site-analytics.js")) {
     return html.replace(GTAG_RE, "");
   }
+  return html.replace(GTAG_RE, `  ${HEAD_SCRIPTS}\n`);
+}
+
+function ensureHeadChrome(html, rel) {
+  if (rel === "app/tool.html") return html;
+  html = stripGtag(html);
+  if (html.includes("theme-engine.js")) return html;
+  if (html.includes("site-analytics.js")) {
+    return html.replace(
+      /<script src="\/assets\/site-analytics\.js" defer><\/script>/i,
+      HEAD_SCRIPTS,
+    );
+  }
+  return html.replace(/<head>/i, `<head>\n  ${HEAD_SCRIPTS}\n`);
+}
+
+function ensureSiteShell(html, rel) {
+  if (rel === "app/tool.html" || rel === "app/index.html") return html;
+  if (html.includes("site-shell.js")) return html;
+  const tag = '<script src="/assets/site-shell.js" defer></script>\n';
+  if (/<script src="\/shared\/share-dock\.js" defer><\/script>/i.test(html)) {
+    return html.replace(
+      /<script src="\/shared\/share-dock\.js" defer><\/script>/i,
+      (m) => `${m}\n${tag}`,
+    );
+  }
+  return html.replace(/<\/body>/i, `${tag}</body>`);
+}
+
+function stripInlineThemeHandlers(html) {
   return html.replace(
-    GTAG_RE,
-    '  <script src="/assets/site-analytics.js" defer></script>\n',
+    /<script>\s*\(function\s*\(\)\s*\{\s*var btn = document\.getElementById\("siteThemeToggle"\);[\s\S]*?\}\)\(\);\s*<\/script>\s*/gi,
+    "",
   );
 }
 
 function applyNav(html, navHtml) {
-  if (!navHtml || !html.includes('<header class="nav">')) return html;
+  if (!navHtml || !html.includes("<header class=\"nav")) return html;
   return html.replace(/<header class="nav[^"]*">[\s\S]*?<\/header>/, navHtml.trim());
 }
 
@@ -142,7 +187,7 @@ function ensureViewportCharset(html) {
   if (html.includes('name="viewport"')) return html;
   if (!html.includes("site-analytics.js")) return html;
   return html.replace(
-    /<script src="\/assets\/site-analytics\.js" defer><\/script>\s*/i,
+    /<script src="\/assets\/theme-engine\.js"><\/script>\s*<script src="\/assets\/site-analytics\.js" defer><\/script>\s*/i,
     `$&<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n`,
   );
 }
@@ -153,14 +198,113 @@ function injectFab(html, rel) {
   if (/<script src="\/shared\/share-dock\.js" defer><\/script>/i.test(html)) {
     return html.replace(
       /<script src="\/shared\/share-dock\.js" defer><\/script>\s*<\/body>/i,
-      `<script src="/shared/share-dock.js" defer></script>\n${FAB_SNIPPET}\n</body>`,
+      (m) => `${m}\n${FAB_SNIPPET}\n`,
     );
   }
   return html.replace(/<\/body>/i, `${FAB_SNIPPET}\n</body>`);
 }
 
 function skipRel(rel) {
-  return rel === "app/tool.html" || rel === "partials/footer.html";
+  return (
+    rel === "app/tool.html" ||
+    rel === "partials/footer.html" ||
+    rel === "partials/nav.html"
+  );
+}
+
+const BLOG_ARTICLE_CSS = `<link rel="stylesheet" href="/assets/blog-article.css">`;
+
+function shouldBlogArticleChrome(rel) {
+  return rel.startsWith("blog/") && rel !== "blog/index.html" && rel.endsWith("/index.html");
+}
+
+function ensureBlogArticleChrome(html, rel) {
+  if (!shouldBlogArticleChrome(rel)) return html;
+  if (!html.includes("blog-article.css")) {
+    html = html.replace(
+      /<link rel="stylesheet" href="\/assets\/site\.css">/i,
+      `<link rel="stylesheet" href="/assets/site.css">\n${BLOG_ARTICLE_CSS}`,
+    );
+  }
+  html = html.replace(
+    /<link rel="stylesheet" href="\/assets\/content-page\.css">\s*/gi,
+    "",
+  );
+  html = html.replace(
+    /<link rel="stylesheet" href="\/assets\/marketing-diagram\.css">\s*/gi,
+    "",
+  );
+  if (!html.includes("blog-article-page")) {
+    if (/<body class="/.test(html)) {
+      html = html.replace(/<body class="([^"]*)">/i, '<body class="$1 blog-article-page">');
+    } else {
+      html = html.replace(/<body>/i, '<body class="blog-article-page">');
+    }
+  }
+  return html;
+}
+
+function shouldContentPageChrome(rel) {
+  if (CONTENT_PAGE_SKIP.has(rel)) return false;
+  if (rel.startsWith("blog/")) return false;
+  if (rel.startsWith("auth/")) return false;
+  if (rel.startsWith("app/")) return false;
+  if (rel.startsWith("templates/")) return false;
+  return (
+    rel.startsWith("diagram-tool-for-") ||
+    rel.includes("-tool/") ||
+    rel.includes("-maker/") ||
+    rel.includes("-builder/") ||
+    rel === "about/index.html" ||
+    rel === "contact/index.html" ||
+    rel === "faq/index.html" ||
+    rel === "business-financial-mapping/index.html"
+  );
+}
+
+const FINANCIAL_MAPPING_CSS = `<link rel="stylesheet" href="/assets/financial-mapping.css">`;
+
+function ensureFinancialMappingChrome(html, rel) {
+  if (rel !== "business-financial-mapping/index.html") return html;
+  if (!html.includes("financial-mapping.css")) {
+    html = html.replace(
+      /<link rel="stylesheet" href="\/assets\/content-page\.css">/i,
+      `<link rel="stylesheet" href="/assets/content-page.css">\n${FINANCIAL_MAPPING_CSS}`,
+    );
+  }
+  if (!html.includes("financial-mapping-page")) {
+    if (/<body class="/.test(html)) {
+      html = html.replace(
+        /<body class="([^"]*)">/i,
+        (m, cls) =>
+          cls.includes("financial-mapping-page")
+            ? m
+            : `<body class="${cls} financial-mapping-page">`,
+      );
+    } else {
+      html = html.replace(/<body>/i, '<body class="financial-mapping-page">');
+    }
+  }
+  return html;
+}
+
+function ensureContentPageChrome(html, rel) {
+  if (!shouldContentPageChrome(rel)) return html;
+  if (!html.includes("content-page.css")) {
+    html = html.replace(
+      /<link rel="stylesheet" href="\/assets\/site\.css">/i,
+      `<link rel="stylesheet" href="/assets/site.css">\n${CONTENT_PAGE_CSS}`,
+    );
+  }
+  if (html.includes('class="content-page"') || html.includes("class='content-page'"))
+    return html;
+  if (/<body class="/.test(html)) {
+    return html.replace(
+      /<body class="([^"]*)">/i,
+      '<body class="$1 content-page">',
+    );
+  }
+  return html.replace(/<body>/i, '<body class="content-page">');
 }
 
 let n = 0;
@@ -169,7 +313,10 @@ for (const full of walk(ROOT)) {
   if (skipRel(rel)) continue;
   let html = readFileSync(full, "utf8");
   const orig = html;
-  html = stripGtag(html);
+  html = ensureHeadChrome(html, rel);
+  html = ensureContentPageChrome(html, rel);
+  html = ensureBlogArticleChrome(html, rel);
+  html = ensureFinancialMappingChrome(html, rel);
   html = ensureViewportCharset(html);
   html = applyNav(html, navHtml);
   html = stripShareDock(html, rel);
@@ -177,6 +324,8 @@ for (const full of walk(ROOT)) {
   html = injectSocial(html, rel);
   html = html.replace(/https:\/\/your-domain\.com\//g, `${BASE}/`);
   html = injectFab(html, rel);
+  html = ensureSiteShell(html, rel);
+  html = stripInlineThemeHandlers(html);
   if (html !== orig) {
     writeFileSync(full, html, "utf8");
     console.log("synced", rel);

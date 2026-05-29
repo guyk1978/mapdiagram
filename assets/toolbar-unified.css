@@ -89,12 +89,13 @@ html:not([data-theme="light"]) .topbar-unified-panel {
 }
 
 .topbar-unified .topbar-minimal-end {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
-  flex: 1 1 auto;
-  min-width: 0;
+  flex: 0 0 auto;
+  width: fit-content;
   max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: thin;
