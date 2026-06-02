@@ -76,9 +76,29 @@
     });
   }
 
+  function enforceStickyHeader() {
+    var header = document.querySelector("header.nav");
+    if (!header) return;
+    header.style.position = "fixed";
+    header.style.top = "0";
+    header.style.left = "0";
+    header.style.right = "0";
+    header.style.width = "100%";
+    header.style.zIndex = "12000";
+
+    var main = header.nextElementSibling;
+    if (main && main.tagName === "MAIN") {
+      var navWrap = header.querySelector(".wrap");
+      var headerHeight = navWrap ? navWrap.offsetHeight : header.offsetHeight;
+      if (headerHeight > 0) main.style.marginTop = headerHeight + "px";
+    }
+  }
+
   function onReady() {
     patchNavWordmark();
     ensureToggle();
+    enforceStickyHeader();
+    window.addEventListener("resize", enforceStickyHeader);
   }
 
   if (document.readyState === "loading") {
