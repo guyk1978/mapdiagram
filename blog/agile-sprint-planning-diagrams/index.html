@@ -67,18 +67,32 @@
       </div>
     </header>
       <div class="article-prose">
-      <p>Sprint planning is not estimating tickets—it is committing to a coherent slice of work. Diagrams expose hidden coupling.</p>
+      <p>Sprint planning is not estimating tickets—it is committing to a coherent slice of work the team can finish together. When planning stays in a flat backlog, dependencies hide inside story descriptions and surface on day seven as blockers. Diagrams make coupling visible before anyone says “we’re done.”</p>
+<p><strong>Why use diagrams in sprint planning?</strong> Velocity and story points answer capacity; they do not answer order. A sprint goal fails when two “small” stories secretly share a database migration, a feature flag, or a design review gate. A lightweight flow or dependency map shows which items must land first, which can run in parallel, and which assumptions (API contract, legal copy, environment access) are still open.</p>
+<p><strong>How to run it in 30 minutes:</strong> Pick one sprint goal, pull only the stories tied to it, sketch nodes for each deliverable, draw arrows for hard dependencies, mark external waits in a different color or label, and agree on a single critical path before assigning owners. Keep the diagram in the sprint wiki or board so daily standups reference the same picture—not fifteen mental models.</p>
 <h2 class="article-h2">Map the critical path inside the sprint</h2>
-<p>Identify the sequence that determines whether the sprint goal is real. Everything else is negotiable.</p>
+<p>The critical path is the shortest sequence of work that determines whether the sprint goal ships on time. Not every backlog item sits on that path; padding and nice-to-haves should be explicit so the team can drop them without debating the goal. Start from the sprint outcome (e.g., “customer can export CSV”) and walk backward: what must exist the day before demo—data model, UI, permissions, docs, monitoring?</p>
+<p>On the diagram, put the sprint goal on the right and dependencies flowing left, or use a top-down swimlane by layer (infra → API → UI → QA). Flag bottlenecks: one engineer on the path, a vendor approval, or a shared staging environment. If the critical path exceeds available days after honest estimates, shrink scope or split the goal—do not hope parallel work absorbs the risk.</p>
+<ul>
+  <li>Time-box mapping to 15 minutes in planning; refine edges after sizing if new dependencies appear.</li>
+  <li>Label each node with owner and “definition of ready” gaps (missing spec, open question, blocked env).</li>
+  <li>Review the path at mid-sprint: one slipped node should trigger a scope conversation, not silent heroics.</li>
+</ul>
 <h3 class="article-h3">Surface cross-team interfaces early</h3>
-<p>If two squads touch the same surface, draw the handoff. Otherwise you get “almost done” for two weeks.</p>
+<p>Most sprint slips are interface problems, not effort problems. Two squads can each hit local velocity while the integration point—shared service, design system component, analytics event schema—stays undefined. Drawing the handoff forces a named contract: who publishes the API, who consumes it, by which day, and what “done” means for integration (merged PR, deployed to staging, signed off by QA).</p>
+<p>Include non-engineering interfaces on the same map: design approval, compliance review, data pipeline ownership, and customer comms for release notes. If squad B cannot start until squad A merges, that arrow belongs on the diagram with a target date, not buried in a comment on ticket #4821.</p>
+<ul>
+  <li>Run a five-minute “interface standup” with partner teams when the map shows a cross-squad edge on the critical path.</li>
+  <li>Document fallback options on the diagram (feature flag off, stub API, reduced scope) so the team knows what to cut without reopening architecture.</li>
+  <li>After the sprint, annotate the map with what actually blocked you—those edges become inputs for the next planning session and for backlog refinement.</li>
+</ul>
 <h2 class="article-h2 article-h2--blue">Comparison: backlog-only vs dependency-aware planning</h2>
 <div class="compare-wrap"><table class="compare" role="table" aria-label="Sprint planning comparison">
   <thead><tr><th>Planning style</th><th>Feels smooth</th><th>Reality check</th></tr></thead>
   <tbody>
-    <tr><td>Velocity-only</td><td>Simple metrics</td><td>Misses coupling</td></tr>
-    <tr><td>Dependency mapping</td><td>More upfront work</td><td>Fewer mid-sprint surprises</td></tr>
-    <tr><td>Hybrid (MapDiagram maps)</td><td>Balanced clarity</td><td>Needs facilitator discipline</td></tr>
+    <tr><td>Velocity-only</td><td>Simple metrics; fast ticket pull</td><td>Misses coupling; mid-sprint re-planning and carryover</td></tr>
+    <tr><td>Dependency mapping</td><td>More upfront discussion</td><td>Fewer surprises; clearer tradeoffs when scope slips</td></tr>
+    <tr><td>Hybrid (MapDiagram maps)</td><td>Balanced clarity for mixed seniority teams</td><td>Needs facilitator discipline and a living diagram per sprint</td></tr>
   </tbody>
 </table></div>
 <div class="article-related"><h3 class="article-related__heading">Related pages</h3><ul class="article-related__list">
