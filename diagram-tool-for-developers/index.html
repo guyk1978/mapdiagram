@@ -53,88 +53,119 @@
   </nav>
   </div>
   </header>
-  <main class="wrap">
-    <section class="hero hero-landing">
-      <p class="hero-kicker">From idea to a clear diagram—in minutes, not meetings.</p>
-      <h1>Diagram tool for developers</h1>
-      <p class="lead">When specs live in chat threads and tickets, a single visual map keeps everyone aligned before you commit code.</p>
-      <div class="links hero-actions">
-        <a class="btn cta" href="/app/">Map your backend architecture</a>
-        <a class="hero-text-cta" href="/app/">Open the developer workspace →</a>
+  <main class="content-hub">
+    <header class="content-hub-hero">
+      <div class="content-hub-hero__inner wrap">
+        <p class="content-hub-hero__eyebrow">Diagram Tool for Developers</p>
+        <h1>Diagram Tool for Developers</h1>
+        <p class="lead">When architecture decisions live in tickets and chat, teams ship assumptions instead of shared understanding. MapDiagram gives developers a fast visual workspace to model services, contracts, queues, and boundaries before changes reach production.</p>
+        <div class="content-hub-hero__actions">
+          <a class="btn btn--accent-blue cta" href="/app/">Map your backend architecture</a>
+        </div>
       </div>
-      <p class="muted hero-trust">Trusted as a shared visual workspace for planning complex systems and cross-functional execution.</p>
-    </section>
+    </header>
 
-    <section class="section card">
-      <h2>Built for backend and platform engineering teams</h2>
-      <p class="lead">MapDiagram helps developers map service boundaries, async workers, and incident paths without maintaining heavyweight diagram files. It works well for teams running REST APIs, GraphQL gateways, and mixed cloud workloads where architecture changes every sprint.</p>
-    </section>
+    <div class="content-hub-body wrap">
+      <section class="content-hub-section content-hub-section--accent-blue">
+        <div class="content-hub-section__prose">
+          <h2>Built for backend and platform engineering teams</h2>
+          <p>MapDiagram is designed for teams working across APIs, event-driven services, data stores, and cloud infrastructure where dependencies change every sprint. It helps engineering leads and ICs keep one shared source of truth for architecture intent, ownership boundaries, and operational risk.</p>
+          <p>Instead of maintaining brittle files in specialized tools, developers can update diagrams quickly as systems evolve. That means cleaner design reviews, faster onboarding, and fewer surprises during release windows or incident response.</p>
+        </div>
+        <div class="content-hub-visual" aria-hidden="true"><svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <rect x="24" y="48" width="56" height="36" rx="8" stroke="currentColor" stroke-width="2"/>
+            <rect x="108" y="28" width="56" height="36" rx="8" stroke="currentColor" stroke-width="2"/>
+            <rect x="128" y="88" width="48" height="32" rx="8" stroke="currentColor" stroke-width="2" opacity=".75"/>
+            <path d="M80 66h28M164 46v50h-12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg></div>
+      </section>
 
-    <section class="section">
-      <h2>Common workflows mapped in MapDiagram</h2>
-      <div class="card">
-        <ul><li>Map microservices dependencies across Docker containers and Kubernetes workloads</li>
-<li>Visualize Kafka event pipelines, retry logic, dead-letter queues, and async workers</li>
-<li>Document Redis cache reads/writes next to PostgreSQL transactional paths</li>
-<li>Share observability runbooks linking traces, metrics, and failure domains</li></ul>
-      </div>
-      <div class="product-shot product-shot--diagram align-right">
-  <figure>
-    <div class="diagram-spotlight" role="img" aria-label="Abstract system flow: API, cache, auth, and client">
-  <div class="diagram-spotlight__surface">
-    <svg class="diagram-spotlight__svg" viewBox="0 0 320 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path class="diagram-spotlight__path diagram-spotlight__path--a" d="M 52 108 C 96 68 132 68 160 80" />
-      <path class="diagram-spotlight__path diagram-spotlight__path--b" d="M 160 80 C 204 96 236 128 260 152" />
-      <path class="diagram-spotlight__path diagram-spotlight__path--c" d="M 160 80 C 172 128 142 158 92 160" />
-    </svg>
-    <div class="diagram-spotlight__node diagram-spotlight__node--blue" tabindex="0" data-spot="1-api"><span>API</span></div>
-    <div class="diagram-spotlight__node diagram-spotlight__node--green" tabindex="0" data-spot="1-cache"><span>Cache</span></div>
-    <div class="diagram-spotlight__node diagram-spotlight__node--yellow" tabindex="0" data-spot="1-auth"><span>Auth</span></div>
-    <div class="diagram-spotlight__node diagram-spotlight__node--red" tabindex="0" data-spot="1-client"><span>Client</span></div>
-  </div>
-</div>
-    <figcaption>System boundaries, APIs, services, and data flows mapped in one visual workspace.</figcaption>
-  </figure>
-</div>
-    </section>
+      <section class="content-hub-section content-hub-section--accent-green content-hub-section--reverse">
+        <div class="content-hub-section__prose">
+          <h2>Common workflows mapped in MapDiagram</h2>
+          <p>Use MapDiagram to turn complex backend workflows into executable visual documentation teams can trust in planning and production:</p>
+          <ul>
+            <li>Map microservice dependencies across containers and Kubernetes workloads before rollout</li>
+            <li>Visualize Kafka and queue pipelines with retry paths, dead-letter flows, and async workers</li>
+            <li>Document Redis cache behavior next to transactional PostgreSQL read and write paths</li>
+            <li>Align observability runbooks by linking metrics, traces, alerts, and ownership domains</li>
+          </ul>
+        </div>
+        <div class="content-hub-visual" aria-hidden="true"><svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <rect x="70" y="18" width="60" height="32" rx="8" stroke="currentColor" stroke-width="2"/>
+            <path d="M100 50v18" stroke="currentColor" stroke-width="2"/>
+            <polygon points="100,68 88,88 112,88" stroke="currentColor" stroke-width="2" fill="none"/>
+            <rect x="40" y="96" width="50" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+            <rect x="110" y="96" width="50" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+            <path d="M94 82L65 96M106 82l29 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg></div>
+      </section>
 
-    <section class="section">
-      <h2>Visualize backend dependencies in minutes</h2>
-      <p class="lead">Open a browser canvas, drop services, queues, and data stores, then share the map in code review or incident response without export friction.</p>
-      
-    </section>
+      <section class="content-hub-section content-hub-section--accent-yellow">
+        <div class="content-hub-section__prose">
+          <h2>Visualize backend dependencies in minutes</h2>
+          <p>Open the browser editor, place services, queues, and data stores, then connect runtime relationships with clear ownership context. In one session you can produce an architecture map ready for RFC discussion, sprint planning, or incident retrospectives.</p>
+          <p>This speed matters: fast visual modeling reduces ambiguity before implementation. Teams catch risky coupling, hidden single points of failure, and unclear API responsibilities earlier, when fixes are cheaper and safer.</p>
+        </div>
+        <div class="content-hub-visual" aria-hidden="true"><svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <circle cx="100" cy="58" r="10" stroke="currentColor" stroke-width="2"/>
+            <circle cx="48" cy="100" r="8" stroke="currentColor" stroke-width="2" opacity=".8"/>
+            <circle cx="152" cy="92" r="8" stroke="currentColor" stroke-width="2" opacity=".8"/>
+            <path d="M100 68v14M100 82H52M100 82h44" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg></div>
+      </section>
 
-    <section class="section">
-      <h2>Why teams switch from traditional diagram tools</h2>
-      <div class="compare-wrap" role="region" aria-label="Why teams switch to MapDiagram">
-<table class="compare">
-  <thead><tr><th>Why teams switch</th><th>Traditional tools</th><th>MapDiagram</th></tr></thead>
-  <tbody>
-    <tr><td>Iteration speed</td><td>Diagram maintenance becomes overhead after each sprint change</td><td>Browser-first editing keeps architecture maps current while requirements move</td></tr>
-    <tr><td>Workflow clarity</td><td>Disconnected files make handoffs and ownership hard to track</td><td>Shared visual workspace connects dependencies, owners, and release decisions</td></tr>
-    <tr><td>Technical detail</td><td>Hard to model queues, async workers, APIs, and observability paths clearly</td><td>Maps complex systems using practical technical language teams already use</td></tr>
-    <tr><td>Collaboration</td><td>Review cycles are slow and file-based</td><td>Fast link sharing supports product, engineering, and operations alignment</td></tr>
-    <tr><td>Trust and adoption</td><td>Diagrams drift and lose credibility quickly</td><td>Used for planning complex systems with low-friction updates and clear ownership</td></tr>
-  </tbody>
-</table>
-</div>
-<p class="muted">Built for Developers teams that need less friction and more execution clarity.</p>
-    </section>
+      <section class="content-hub-section content-hub-section--accent-red content-hub-section--reverse">
+        <div class="content-hub-section__prose">
+          <h2>Why teams switch from traditional diagram tools</h2>
+          <p>Engineering teams adopt MapDiagram when they need speed without losing rigor. Traditional suites often slow down updates and drift out of sync with code; MapDiagram keeps architecture thinking live and collaborative.</p>
+          <div class="compare-wrap" role="region" aria-label="Why teams switch to MapDiagram">
+            <table class="compare">
+              <thead><tr><th>Why teams switch</th><th>Traditional tools</th><th>MapDiagram</th></tr></thead>
+              <tbody>
+                <tr><td>Iteration speed</td><td>Diagram maintenance becomes overhead after each sprint change</td><td>Browser-first editing keeps architecture maps current while requirements move</td></tr>
+                <tr><td>Workflow clarity</td><td>Disconnected files make handoffs and ownership hard to track</td><td>Shared visual workspace connects dependencies, owners, and release decisions</td></tr>
+                <tr><td>Technical detail</td><td>Hard to model queues, async workers, APIs, and observability paths clearly</td><td>Maps complex systems using practical technical language teams already use</td></tr>
+                <tr><td>Collaboration</td><td>Review cycles are slow and file-based</td><td>Fast link sharing supports product, engineering, and operations alignment</td></tr>
+                <tr><td>Trust and adoption</td><td>Diagrams drift and lose credibility quickly</td><td>Used for planning complex systems with low-friction updates and clear ownership</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="muted">Built for developer workflows that need less documentation friction and more execution clarity.</p>
+        </div>
+        <div class="content-hub-visual" aria-hidden="true"><svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <rect x="28" y="40" width="64" height="60" rx="8" stroke="currentColor" stroke-width="2" stroke-dasharray="6 4" opacity=".7"/>
+            <rect x="108" y="40" width="64" height="60" rx="8" stroke="currentColor" stroke-width="2"/>
+            <path d="M92 70h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M108 64l8 6-8 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg></div>
+      </section>
 
-    <section class="section">
-      <h2>Real-world scenarios</h2>
-      <div class="card"><ul><li>When debugging async failures across services and queue consumers</li>
-<li>When onboarding a new engineer to a distributed system</li>
-<li>When aligning API owners before a breaking contract change</li>
-<li>When preparing postmortems with clear timeline and dependency context</li></ul></div>
-      
-    </section>
+      <section class="content-hub-section content-hub-section--accent-blue">
+        <div class="content-hub-section__prose">
+          <h2>Real-world scenarios</h2>
+          <p>Teams rely on these maps in high-pressure moments where context and speed matter most:</p>
+          <ul>
+            <li>Debugging async failures across services and queue consumers during live incidents</li>
+            <li>Onboarding new engineers to distributed systems without weeks of tribal knowledge transfer</li>
+            <li>Aligning API owners before breaking contract changes or version migrations</li>
+            <li>Preparing postmortems with timeline, dependency, and blast-radius clarity</li>
+          </ul>
+        </div>
+        <div class="content-hub-visual" aria-hidden="true"><svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <rect x="30" y="30" width="140" height="80" rx="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M30 70h140M100 30v80" stroke="currentColor" stroke-width="2" opacity=".5"/>
+            <circle cx="65" cy="50" r="6" fill="currentColor" opacity=".6"/>
+            <circle cx="135" cy="90" r="6" fill="currentColor" opacity=".6"/>
+          </svg></div>
+      </section>
+    </div>
 
     <section class="content-hub-cta" aria-label="Call to action">
-  <h2>Start building in seconds</h2>
-  <p>Open the editor in your browser—no install required. Map your next system, flow, or plan visually.</p>
-  <a class="btn btn--accent-blue cta" href="/app/">Map your backend architecture</a>
-</section>
+      <h2>Start building in seconds</h2>
+      <p>Open the editor in your browser and map your next system, flow, or incident path with zero installation overhead.</p>
+      <a class="btn btn--accent-blue cta" href="/app/">Map your backend architecture</a>
+    </section>
 
     <section class="section resource-hub" aria-label="Resource hub">
       <p class="lead resource-hub__intro"><strong>Problem:</strong> Most diagram tools slow you down: stale templates, export friction, and layouts that fight refactors. You need something that matches the pace of iteration.</p>
