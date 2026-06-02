@@ -45,7 +45,11 @@ html[data-theme="light"] body.content-page::after {
   opacity: 0.28;
 }
 
-body.content-page > header,
+body.content-page > header {
+  position: relative;
+  z-index: 30;
+}
+
 body.content-page > main,
 body.content-page > footer,
 body.content-page > .fab-open-app {
@@ -352,7 +356,7 @@ body.content-page > .fab-open-app {
 /* —— Inline CTA band —— */
 .content-hub-cta {
   max-width: min(960px, calc(100% - 2rem));
-  margin: 0 auto;
+  margin: 50px auto 0;
   text-align: center;
   padding: clamp(2rem, 5vw, 2.75rem) clamp(1.5rem, 4vw, 2rem);
   border-radius: var(--radius-2xl, 20px);
