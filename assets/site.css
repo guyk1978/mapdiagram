@@ -50,7 +50,8 @@
 *{box-sizing:border-box}body{margin:0;font-family:var(--font-sans,Inter,Segoe UI,Arial,sans-serif);background:var(--bg);color:var(--text)}
 a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline;color:var(--link-hover)}
 .wrap{max-width:1100px;margin:0 auto;padding:0 20px}
-.nav{position:sticky;top:0;background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur)) saturate(160%);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(160%);border-bottom:1px solid var(--glass-border);z-index:10000;transition:background .35s var(--ease-standard),border-color .35s var(--ease-standard)}
+.nav{position:fixed;top:0;left:0;right:0;width:100%;background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur)) saturate(160%);-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(160%);border-bottom:1px solid var(--glass-border);z-index:12000;transition:background .35s var(--ease-standard),border-color .35s var(--ease-standard)}
+body > header.nav + main{margin-top:68px}
 .nav--saas .wrap{height:68px}
 .nav--saas .links a:not(.btn):not(.nav-cta){font-weight:600;font-size:.9rem;color:var(--muted);text-decoration:none;transition:color .2s}
 .nav--saas .links a:not(.btn):not(.nav-cta):hover{color:var(--text);text-decoration:none}
