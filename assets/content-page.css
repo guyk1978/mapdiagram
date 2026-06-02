@@ -351,6 +351,8 @@ body.content-page > .fab-open-app {
 
 /* —— Inline CTA band —— */
 .content-hub-cta {
+  max-width: min(960px, calc(100% - 2rem));
+  margin: 0 auto;
   text-align: center;
   padding: clamp(2rem, 5vw, 2.75rem) clamp(1.5rem, 4vw, 2rem);
   border-radius: var(--radius-2xl, 20px);
