@@ -492,44 +492,7 @@ ${footerPartnerMetaLinksHtml()}
 }
 
 function buildCompactFooterHtml() {
-  const coreLinks = CORE_MONEY_PAGES.map((slug) => {
-    const L = LANDINGS.find((x) => x.slug === slug);
-    return `<li><a href="/diagram-tool-for-${slug}/">${esc(L.label)}</a></li>`;
-  }).join("\n");
-  const blogLinks = BLOGS.slice(0, 5)
-    .map((b) => `<li><a href="/blog/${b.slug}/">${esc(b.title.replace(/\s*\|\s*MapDiagram\s*$/, ""))}</a></li>`)
-    .join("\n");
-  return `<footer class="footer">
-  <div class="wrap footer-inner">
-    <div class="footer-grid">
-      <div class="footer-col">
-        <h3 class="footer-heading">Core tools</h3>
-        <ul class="footer-list">${coreLinks}</ul>
-      </div>
-      <div class="footer-col">
-        <h3 class="footer-heading">Guides</h3>
-        <ul class="footer-list">${blogLinks}</ul>
-      </div>
-      <div class="footer-col">
-        <h3 class="footer-heading">App</h3>
-        <ul class="footer-list">
-          <li><a href="/app/">Open MapDiagram</a></li>
-          <li><a href="/blog/">Browse blog</a></li>
-          <li><a href="/contact/">Contact</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-meta">
-      <span class="muted">Fast browser-based mapping for technical and business teams.</span>
-      <a href="/faq/">FAQ</a>
-      <a href="/about/">About</a>
-      <a href="/workflow-hub/">Workflow hub</a>
-      <a href="/business-financial-mapping/">Business &amp; financial mapping</a>
-      <a href="/auth/">Log in</a>
-${footerPartnerMetaLinksHtml()}
-    </div>
-  </div>
-</footer>`;
+  return buildFooterHtml();
 }
 
 function relatedLandingList(slugs) {
