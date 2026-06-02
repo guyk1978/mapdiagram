@@ -143,7 +143,7 @@ export function contentHubLinksSection({ title, linksHtml }) {
 }
 
 export function contentHubFaq(faqHtml) {
-  return `<section class="content-hub-faq section faq">${faqHtml}</section>`;
+  return `<section class="content-hub-faq section faq wrap">${faqHtml}</section>`;
 }
 
 /**
