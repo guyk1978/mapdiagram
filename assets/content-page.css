@@ -406,7 +406,7 @@ body.content-page > .fab-open-app {
 
 /* —— FAQ —— */
 .content-hub-faq {
-  margin-top: clamp(1rem, 2.2vw, 1.4rem);
+  margin-top: clamp(1.5rem, 3vw, 2rem);
   padding: clamp(1.5rem, 3vw, 2rem);
   border-radius: var(--radius-xl, 16px);
   background: var(--glass-bg);
@@ -511,7 +511,7 @@ body.content-page .hero.hero-landing .btn.cta:hover {
 }
 
 .resource-hub.wrap {
-  max-width: min(1040px, calc(100% - 2rem));
+  max-width: min(960px, calc(100% - 2rem));
   margin-left: auto;
   margin-right: auto;
 }
