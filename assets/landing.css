@@ -47,7 +47,11 @@ html[data-theme="light"] body.home-v4::after {
   opacity: 0.35;
 }
 
-body.home-v4 > header,
+body.home-v4 > header {
+  position: relative;
+  z-index: 30;
+}
+
 body.home-v4 > main,
 body.home-v4 > footer,
 body.home-v4 > .fab-open-app {
