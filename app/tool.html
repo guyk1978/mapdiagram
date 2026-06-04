@@ -5334,6 +5334,7 @@
     dragEphemeralWorld: null,
     _connectHoverId: null,
     connHandleDelegationReady: false,
+    multiConnectDelegationReady: false,
     resizeHandleDelegationReady: false,
     nodeResizing: null,
     nodeRotating: null,
@@ -7583,6 +7584,7 @@ function isMultiConnectMode() {
 
 function armMultiConnectMode(nodeObj, opts = {}) {
   if (!nodeObj || runtime.readOnly || isNodeHiddenCanvas(nodeObj) || isGenealogyUnionNode(nodeObj)) return;
+  initMapDiagramRuntimes();
   abortGroupConnectionDrag();
   const fromSide =
     opts.fromSide && ["top", "right", "bottom", "left"].includes(opts.fromSide) ? opts.fromSide : null;
@@ -7597,32 +7599,75 @@ function armMultiConnectMode(nodeObj, opts = {}) {
     fromNodeId: nodeObj.id,
     fromSide,
     targetIds: new Set(),
+    historyPushed: false,
     hoverNodeId: null,
     hoverGroupInId: null,
   };
   document.body.classList.add("fc-connecting", "fc-multi-connect");
   workspace.style.cursor = "crosshair";
   markInspectorDiagramTabFocus();
-  selectionRuntime.selectNode(nodeObj.id);
+  if (selectionRuntime) selectionRuntime.selectNode(nodeObj.id);
+  else runtime.selectedNodeId = nodeObj.id;
   clearFlowGroupSelection();
   clearAllEdgeSelection();
   renderSelection();
-  showToast("Shift+click target nodes, then Enter or click the green dot again.", "info");
+  showToast("Shift+click target nodes to link. Esc to cancel.", "info");
+}
+
+function prepareMultiConnectHistory(conn) {
+  if (!conn || conn.historyPushed) return;
+  pushHistory();
+  conn.historyPushed = true;
 }
 
 function toggleMultiConnectTarget(nodeId) {
   const conn = runtime.connecting;
   if (!conn || conn.mode !== "multi" || !conn.fromNodeId || !nodeId) return;
-  if (nodeId === conn.fromNodeId) return;
+  const fromId = conn.fromNodeId;
+  if (nodeId === fromId) return;
   const n = getNodeById(nodeId);
   if (!n || isNodeHiddenCanvas(n) || isGenealogyUnionNode(n)) return;
   if (!conn.targetIds) conn.targetIds = new Set();
-  if (conn.targetIds.has(nodeId)) conn.targetIds.delete(nodeId);
-  else conn.targetIds.add(nodeId);
+  if (conn.targetIds.has(nodeId)) {
+    prepareMultiConnectHistory(conn);
+    conn.targetIds.delete(nodeId);
+    removeNodeNodeEdge(fromId, nodeId);
+    markDirty();
+    scheduleRenderConnections();
+    scheduleSemanticAnalysis();
+    renderSelection();
+    showConnectionHint(
+      conn.targetIds.size ? `${conn.targetIds.size} link${conn.targetIds.size === 1 ? "" : "s"}` : "Shift+click nodes to link",
+      false
+    );
+    return;
+  }
+  if (isEbikeWorkspaceActive()) {
+    const ebikeCheck = validateEbikeConnection(fromId, nodeId);
+    if (!ebikeCheck.ok) {
+      showConnectionHint(ebikeCheck.message, true);
+      return;
+    }
+  }
+  const p = getProject();
+  const exists = p.connections.some((c) => isNodeNodeConnection(c) && c.from === fromId && c.to === nodeId);
+  prepareMultiConnectHistory(conn);
+  const cid = ensureNodeNodeEdge(fromId, nodeId);
+  if (!cid) {
+    showToast("Could not create link.", "warn");
+    return;
+  }
+  conn.targetIds.add(nodeId);
+  markDirty();
+  scheduleRenderConnections();
+  scheduleSemanticAnalysis();
   renderSelection();
-  const nTargets = conn.targetIds.size;
+  if (isFlowchartMode() && !exists) {
+    pulseFcConnectTarget(nodeId);
+    flashFcConnEnter(cid);
+  }
   showConnectionHint(
-    nTargets ? `${nTargets} target${nTargets === 1 ? "" : "s"} — Enter to link` : "Shift+click nodes to add targets",
+    exists ? "Already linked — Shift+click to remove" : `Linked (${conn.targetIds.size}) — Shift+click again to remove`,
     false
   );
 }
@@ -7634,49 +7679,14 @@ function finalizeMultiConnect() {
     return;
   }
   const fromId = conn.fromNodeId;
-  const targets = [...(conn.targetIds || [])].filter((id) => id && id !== fromId);
-  if (!targets.length) {
-    showToast("Shift+click target nodes, then Enter or click the green dot again.", "warn");
-    return;
-  }
-  pushHistory();
-  let created = 0;
-  let skipped = 0;
-  for (const toId of targets) {
-    if (isEbikeWorkspaceActive()) {
-      const ebikeCheck = validateEbikeConnection(fromId, toId);
-      if (!ebikeCheck.ok) {
-        skipped++;
-        continue;
-      }
-    }
-    const cid = ensureNodeNodeEdge(fromId, toId);
-    if (cid) {
-      created++;
-      if (isFlowchartMode()) {
-        pulseFcConnectTarget(toId);
-        flashFcConnEnter(cid);
-      }
-    } else {
-      skipped++;
-    }
-  }
-  markDirty();
+  const nTargets = conn.targetIds?.size || 0;
   clearPendingConnectionState();
   scheduleRenderConnections();
   scheduleSemanticAnalysis();
-  selectionRuntime.selectNode(fromId);
-  if (created) {
-    showToast(
-      skipped
-        ? `Linked to ${created} node${created === 1 ? "" : "s"} (${skipped} skipped).`
-        : `Linked to ${created} node${created === 1 ? "" : "s"}.`,
-      "info"
-    );
-  } else {
-    showToast("No new links created.", "warn");
-  }
+  if (selectionRuntime) selectionRuntime.selectNode(fromId);
+  else runtime.selectedNodeId = fromId;
   renderSelection();
+  if (nTargets) showToast(`Link mode ended (${nTargets} connection${nTargets === 1 ? "" : "s"}).`, "info");
 }
 
 function clearPendingConnectionState() {
@@ -12549,13 +12559,41 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       if (isFlowchartMode() && !fcEditorCanSelect()) return;
       if (isNodeHiddenCanvas(nodeObj)) return;
       const side = handle.dataset.side;
-      markInspectorDiagramTabFocus();
-      selectionRuntime.selectNode(nodeObj.id);
       clearFlowGroupSelection();
       clearAllEdgeSelection();
-      renderSelection();
       armMultiConnectMode(nodeObj, { fromSide: side });
     });
+  }
+
+  function initMultiConnectTargetDelegation() {
+    if (runtime.multiConnectDelegationReady || !nodesLayer) return;
+    runtime.multiConnectDelegationReady = true;
+    nodesLayer.addEventListener(
+      "pointerdown",
+      (e) => {
+        if (!isMultiConnectMode() || e.button !== 0 || !e.shiftKey) return;
+        if (e.target.closest?.(".node-conn-handle, .node-resize-handle, .node-rotate-handle")) return;
+        const nodeEl = e.target.closest?.(".node");
+        if (!nodeEl) return;
+        const nodeId = nodeEl.dataset?.nodeId;
+        if (!nodeId) return;
+        e.stopPropagation();
+        e.preventDefault();
+        if (runtime.bodyConnectPressTimer) {
+          clearTimeout(runtime.bodyConnectPressTimer);
+          runtime.bodyConnectPressTimer = null;
+        }
+        runtime.bodyPressPointerId = null;
+        runtime.bodyPressStart = null;
+        runtime.bodyPressNodeId = null;
+        runtime.dragging = null;
+        runtime.touchDragPending = null;
+        if (runtime.carryDrag) finalizeCarryDragIfAny();
+        releaseStoredNodeBodyPointerCapture();
+        toggleMultiConnectTarget(nodeId);
+      },
+      true
+    );
   }
 
   const NODE_HANDLE_OUTSET = 8;
@@ -15561,17 +15599,6 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       }
       e.stopPropagation();
       const useCarryMove = isFlowchartMode() && e.button === 0 && e.pointerType !== "touch" && !e.shiftKey;
-      if (isMultiConnectMode() && isAdditiveSelection(e) && e.button === 0) {
-        e.stopPropagation();
-        if (runtime.bodyConnectPressTimer) clearTimeout(runtime.bodyConnectPressTimer);
-        runtime.bodyConnectPressTimer = null;
-        runtime.dragging = null;
-        runtime.touchDragPending = null;
-        if (runtime.carryDrag) finalizeCarryDragIfAny();
-        releaseStoredNodeBodyPointerCapture();
-        toggleMultiConnectTarget(n.id);
-        return;
-      }
       let droppedCarryThisClick = false;
       if (useCarryMove && runtime.carryDrag) {
         finalizeCarryDragIfAny();
@@ -19442,6 +19469,7 @@ clearFlowGroupSelection();
   });
 
   initNodeConnectHandleDelegation();
+  initMultiConnectTargetDelegation();
   initNodeResizeHandleDelegation();
 
   document.addEventListener("pointermove", (e) => {
@@ -20161,14 +20189,7 @@ clearFlowGroupSelection();
       toggleStickyMultiSelect();
       return;
     }
-    if (
-      isMultiConnectMode() &&
-      !typing &&
-      e.key === "Enter" &&
-      !e.ctrlKey &&
-      !e.metaKey &&
-      !e.altKey
-    ) {
+    if (isMultiConnectMode() && !typing && e.key === "Enter" && !e.ctrlKey && !e.metaKey && !e.altKey) {
       e.preventDefault();
       finalizeMultiConnect();
       return;
