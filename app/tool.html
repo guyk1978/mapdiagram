@@ -4065,7 +4065,7 @@
   .fc-quick-edit:not([hidden]) {
     pointer-events: auto;
   }
-  /* Link Property Bar — canvas overlay (step 1+: delete; later style/markers/label). */
+  /* Link Property Bar — canvas overlay (delete, width/color; later markers/label). */
   .link-property-bar:not([hidden]) {
     pointer-events: auto;
   }
@@ -4100,6 +4100,61 @@
     opacity: 1;
     transform: translate(-50%, 0);
     pointer-events: auto;
+  }
+  .link-property-bar__sep {
+    width: 1px;
+    height: 18px;
+    margin: 0 2px;
+    background: rgba(122, 162, 255, 0.28);
+    flex: 0 0 auto;
+  }
+  .link-property-bar__widths {
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    flex: 0 0 auto;
+  }
+  .link-property-bar__width-btn {
+    min-width: 24px;
+    height: 24px;
+    padding: 0 5px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text);
+    font: 600 11px/1 var(--font, system-ui, sans-serif);
+    cursor: pointer;
+    flex: 0 0 auto;
+  }
+  .link-property-bar__width-btn:hover:not(:disabled) {
+    background: rgba(122, 162, 255, 0.2);
+  }
+  .link-property-bar__width-btn.is-active {
+    background: rgba(122, 162, 255, 0.32);
+    color: #c8dcff;
+  }
+  .link-property-bar__colors {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    flex: 0 0 auto;
+  }
+  .link-property-bar__color-swatch {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border: 1.5px solid rgba(255, 255, 255, 0.22);
+    border-radius: 50%;
+    background: var(--swatch-color, #9cb8ff);
+    cursor: pointer;
+    flex: 0 0 auto;
+  }
+  .link-property-bar__color-swatch:hover {
+    transform: scale(1.08);
+  }
+  .link-property-bar__color-swatch.is-active {
+    box-shadow: 0 0 0 2px rgba(122, 162, 255, 0.85);
+    border-color: rgba(255, 255, 255, 0.55);
   }
   .fc-quick-edit.canvas-micro-toolbar {
     position: absolute;
@@ -4484,6 +4539,14 @@
         </button>
       </div>
       <div id="linkPropertyBar" class="link-property-bar canvas-micro-toolbar" hidden role="toolbar" aria-label="Link property bar">
+        <div id="linkPropertyWidths" class="link-property-bar__widths" role="group" aria-label="Line thickness">
+          <button type="button" class="link-property-bar__width-btn" data-link-width="2" title="2px line" aria-label="2 pixel line">2</button>
+          <button type="button" class="link-property-bar__width-btn" data-link-width="4" title="4px line" aria-label="4 pixel line">4</button>
+          <button type="button" class="link-property-bar__width-btn" data-link-width="6" title="6px line" aria-label="6 pixel line">6</button>
+        </div>
+        <span class="link-property-bar__sep" aria-hidden="true"></span>
+        <div id="linkPropertyColorSwatches" class="link-property-bar__colors" role="group" aria-label="Line color"></div>
+        <span class="link-property-bar__sep" aria-hidden="true"></span>
         <button type="button" id="linkPropertyDeleteBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--danger" title="Delete link" aria-label="Delete link">
           <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1v2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7l1 14a1 1 0 0 0 1 .9h6a1 1 0 0 0 1-.9l1-14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
         </button>
@@ -9292,6 +9355,80 @@ function finalizeFlowGroupDragIfAny() {
     return null;
   }
 
+  function getLinkPropertyBarRecord(target) {
+    if (!target) return null;
+    try {
+      const p = getProject();
+      if (target.kind === "conn") return p.connections.find((c) => c.id === target.id) || null;
+      return (p.groupConnections || []).find((c) => c.id === target.id) || null;
+    } catch (err) {
+      console.warn("[LinkPropertyBar] record lookup failed:", err);
+      return null;
+    }
+  }
+
+  function linkPropertyBarActiveWidth(c) {
+    if (!c) return null;
+    const w = c.strokeWidth != null ? Number(c.strokeWidth) : NaN;
+    if (Number.isFinite(w) && w > 0) return w;
+    return edgeInspectorStrokeWidthDisplay(c);
+  }
+
+  function applyLinkPropertyBarStyle(mutator) {
+    try {
+      const target = getLinkPropertyBarTarget();
+      const c = getLinkPropertyBarRecord(target);
+      if (!c || runtime.readOnly) return false;
+      pushHistory();
+      mutator(c);
+      normalizeConnectionEdge(c);
+      renderConnections();
+      scheduleConnectionsAfterNodesInDom();
+      requestAnimationFrame(() => {
+        try {
+          refreshConnectionStrokesInDom();
+        } catch (strokeErr) {
+          console.warn("[LinkPropertyBar] stroke refresh failed:", strokeErr);
+        }
+      });
+      markDirty();
+      syncEdgeInspectorPanel();
+      syncLinkPropertyBarStyleUi();
+      return true;
+    } catch (err) {
+      console.warn("[LinkPropertyBar] style apply failed:", err);
+      showToast("Could not update link style.", "warn");
+      return false;
+    }
+  }
+
+  function syncLinkPropertyBarStyleUi() {
+    try {
+      const c = getLinkPropertyBarRecord(getLinkPropertyBarTarget());
+      const widthGroup = document.getElementById("linkPropertyWidths");
+      const swatchHost = document.getElementById("linkPropertyColorSwatches");
+      if (!widthGroup && !swatchHost) return;
+      const activeW = c ? linkPropertyBarActiveWidth(c) : null;
+      widthGroup?.querySelectorAll(".link-property-bar__width-btn").forEach((btn) => {
+        const preset = Number(btn.dataset.linkWidth);
+        const on =
+          c &&
+          Number.isFinite(preset) &&
+          (Number(c.strokeWidth) === preset ||
+            (c.strokeWidth == null && Math.abs(activeW - preset) < 0.12));
+        btn.classList.toggle("is-active", !!on);
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+      const strokeHex = c ? resolveConnectionStrokeHex(c).toLowerCase() : "";
+      swatchHost?.querySelectorAll(".link-property-bar__color-swatch").forEach((btn) => {
+        const hex = (btn.dataset.linkColor || "").toLowerCase();
+        btn.classList.toggle("is-active", !!c && !!hex && hex === strokeHex);
+      });
+    } catch (err) {
+      console.warn("[LinkPropertyBar] style UI sync failed:", err);
+    }
+  }
+
   function getLinkPropertyBarAnchorClientRect(target) {
     if (!target || !connectionsLayer || !workspace) return null;
     try {
@@ -9378,7 +9515,8 @@ function finalizeFlowGroupDragIfAny() {
       const wsR = workspace.getBoundingClientRect();
       bar.hidden = false;
       bar.classList.add("is-visible");
-      const place = () => positionCanvasToolbarBar(bar, anchor, wsR, 10, 48);
+      syncLinkPropertyBarStyleUi();
+      const place = () => positionCanvasToolbarBar(bar, anchor, wsR, 10, 56);
       place();
       if (!bar.offsetWidth) window.requestAnimationFrame(place);
     } else {
@@ -9397,14 +9535,56 @@ function finalizeFlowGroupDragIfAny() {
   function bindLinkPropertyBar() {
     const bar = document.getElementById("linkPropertyBar");
     const delBtn = document.getElementById("linkPropertyDeleteBtn");
+    const widthGroup = document.getElementById("linkPropertyWidths");
+    const swatchHost = document.getElementById("linkPropertyColorSwatches");
     if (!bar || bar.dataset.linkPropertyBarBound) return;
     bar.dataset.linkPropertyBarBound = "1";
+    if (swatchHost && !swatchHost.dataset.linkColorsBuilt) {
+      swatchHost.dataset.linkColorsBuilt = "1";
+      swatchHost.innerHTML = "";
+      for (const hex of LINK_PROPERTY_COLOR_PRESETS) {
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className = "link-property-bar__color-swatch";
+        el.dataset.linkColor = hex;
+        el.style.setProperty("--swatch-color", hex);
+        el.title = hex;
+        el.setAttribute("aria-label", `Line color ${hex}`);
+        swatchHost.appendChild(el);
+      }
+    }
     const shield = (e) => {
       runtime.linkPropertyBarInteracting = true;
       e.stopPropagation();
     };
     bar.addEventListener("pointerdown", shield, true);
     bar.addEventListener("mousedown", shield, true);
+    widthGroup?.addEventListener("click", (e) => {
+      const btn = e.target.closest(".link-property-bar__width-btn");
+      if (!btn || runtime.readOnly) return;
+      const w = Number(btn.dataset.linkWidth);
+      if (!LINK_PROPERTY_WIDTH_PRESETS.includes(w)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      runtime.linkPropertyBarInteracting = true;
+      applyLinkPropertyBarStyle((c) => {
+        c.strokeWidth = w;
+      });
+      endLinkPropertyBarInteraction();
+    });
+    swatchHost?.addEventListener("click", (e) => {
+      const btn = e.target.closest(".link-property-bar__color-swatch");
+      if (!btn || runtime.readOnly) return;
+      const hex = normalizeNodeHexColor(btn.dataset.linkColor);
+      if (!hex || hex === "transparent") return;
+      e.preventDefault();
+      e.stopPropagation();
+      runtime.linkPropertyBarInteracting = true;
+      applyLinkPropertyBarStyle((c) => {
+        c.strokeColor = hex;
+      });
+      endLinkPropertyBarInteraction();
+    });
     delBtn?.addEventListener("click", (e) => {
       if (runtime.readOnly) return;
       e.preventDefault();
@@ -10340,6 +10520,11 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     "#00A2E8", "#10B981", "#F59E0B", "#E11D48", "#8B5CF6", "#9CB8FF",
     "#F8FAFC", "#64748B", "#374151", "#1E293B", "transparent"
   ];
+  /** Link Property Bar — stroke color presets (step 2; no transparent). */
+  const LINK_PROPERTY_COLOR_PRESETS = [
+    "#00A2E8", "#10B981", "#F59E0B", "#E11D48", "#8B5CF6", "#9CB8FF", "#64748B", "#374151"
+  ];
+  const LINK_PROPERTY_WIDTH_PRESETS = [2, 4, 6];
   const CORNER_RADIUS_CYCLE = [
     { value: 0, label: "None" },
     { value: 4, label: "S" },
@@ -19936,7 +20121,7 @@ clearFlowGroupSelection();
     }
     if (runtime.readOnly) return;
     if (runtime.fcToolbarInteracting || runtime.fcMultiBarInteracting || runtime.linkPropertyBarInteracting) return;
-    if (e.target.closest("#fcQuickEdit, #fcGroupQuickEdit, #fcMultiSelectBar, #linkPropertyBar, #topbarBulkSpawn, #canvasCornerPill, #fcConnectBtn, .fc-quick-edit, .fc-multi-select-bar, .link-property-bar, .topbar-bulk-spawn, .canvas-corner-pill, #fcDeleteConfirm, .fc-delete-confirm, #linkPropertyDeleteBtn, .fc-flow-group, .fc-flow-group-header, .fc-flow-group-body, .fc-flow-group-handle")) return;
+    if (e.target.closest("#fcQuickEdit, #fcGroupQuickEdit, #fcMultiSelectBar, #linkPropertyBar, #linkPropertyWidths, #linkPropertyColorSwatches, #topbarBulkSpawn, #canvasCornerPill, #fcConnectBtn, .fc-quick-edit, .fc-multi-select-bar, .link-property-bar, .link-property-bar__width-btn, .link-property-bar__color-swatch, .topbar-bulk-spawn, .canvas-corner-pill, #fcDeleteConfirm, .fc-delete-confirm, #linkPropertyDeleteBtn, .fc-flow-group, .fc-flow-group-header, .fc-flow-group-body, .fc-flow-group-handle")) return;
     if (e.target.closest(".node") || e.target.closest(".conn") || e.target.closest(".conn-hit")) return;
     /* Group label/handles live above nodes; ignore canvas clear/pan when interacting with a group frame */
     if (e.target.closest(".group-chrome, .group-chrome-body, .group-drag-surface")) return;
