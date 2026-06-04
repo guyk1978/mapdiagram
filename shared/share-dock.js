@@ -2,6 +2,9 @@
  * MapDiagram — global floating share dock (one instance per document).
  * Styles: /shared/share-dock.css (injected here if not already loaded, e.g. via @import in site.css).
  * API: window.ShareDock.show | hide | toggle | destroy | copy | native | toast | refresh
+ *
+ * Editor (tool.html): when no published view URL, all actions share a diagram PNG snapshot
+ * via window.MapDiagramShare.shareSnapshot(). After Publish, link mode uses view.html?slug=...
  */
 (function () {
   "use strict";
@@ -112,6 +115,19 @@
     return list;
   }
 
+  /** @returns {{ mode: "link"|"snapshot", url: string, title: string }} */
+  function resolveShareMode() {
+    var hooks = window.MapDiagramShare;
+    var title = document.title || "MapDiagram";
+    if (hooks && typeof hooks.isEditorPage === "function" && hooks.isEditorPage()) {
+      var pub =
+        typeof hooks.getPublishedViewUrl === "function" ? hooks.getPublishedViewUrl() : null;
+      if (pub) return { mode: "link", url: String(pub), title: title };
+      return { mode: "snapshot", url: "", title: title };
+    }
+    return { mode: "link", url: window.location.href, title: title };
+  }
+
   var origPush = null;
   var origReplace = null;
   var historyPatched = false;
@@ -201,21 +217,18 @@
     var meta = buildPlatformMeta();
     for (var i = 0; i < meta.length; i++) {
       var p = meta[i];
-      var isLink = p.external;
-      var btn = document.createElement(isLink ? "a" : "button");
+      var btn = document.createElement("button");
+      btn.type = "button";
       btn.className = "share-dock-btn";
-      if (isLink) btn.classList.add("share-dock-external");
+      if (p.external) {
+        btn.classList.add("share-dock-external");
+        btn.dataset.sharePlatform = p.id;
+      } else {
+        btn.dataset.shareAction = p.id;
+      }
       btn.dataset.tooltip = p.label;
       btn.setAttribute("aria-label", p.label);
       btn.setAttribute("title", p.label);
-      if (isLink) {
-        btn.dataset.sharePlatform = p.id;
-        btn.target = "_blank";
-        btn.rel = "noopener noreferrer";
-      } else {
-        btn.type = "button";
-        btn.dataset.shareAction = p.id;
-      }
       btn.innerHTML = ICONS[p.id] || "";
       dock.appendChild(btn);
     }
@@ -235,24 +248,41 @@
       window.clearTimeout(toastTimer);
       toastTimer = window.setTimeout(function () {
         toast.classList.remove("is-open");
-      }, 1800);
+      }, 2200);
     }
 
-    function updateShareUrls() {
-      var url = window.location.href;
-      var title = document.title || "Check this out";
-      var links = dock.querySelectorAll("a.share-dock-external");
-      for (var j = 0; j < links.length; j++) {
-        var a = links[j];
-        var pid = a.dataset.sharePlatform;
-        if (pid) a.href = externalHref(pid, url, title);
+    function applyShareMode() {
+      var mode = resolveShareMode();
+      dock.dataset.shareMode = mode.mode;
+      var copyBtn = dock.querySelector('[data-share-action="copy"]');
+      var nativeBtn = dock.querySelector('[data-share-action="native"]');
+      if (mode.mode === "snapshot") {
+        if (copyBtn) {
+          copyBtn.setAttribute("title", "Share diagram image");
+          copyBtn.setAttribute("aria-label", "Share diagram image");
+        }
+        if (nativeBtn) {
+          nativeBtn.setAttribute("title", "Share diagram image");
+          nativeBtn.setAttribute("aria-label", "Share diagram image");
+        }
+        dock.setAttribute("aria-label", "Share diagram as image");
+      } else {
+        if (copyBtn) {
+          copyBtn.setAttribute("title", "Copy link");
+          copyBtn.setAttribute("aria-label", "Copy link");
+        }
+        if (nativeBtn) {
+          nativeBtn.setAttribute("title", "Share link");
+          nativeBtn.setAttribute("aria-label", "Share link");
+        }
+        dock.setAttribute("aria-label", "Share this page");
       }
     }
 
-    updateShareUrls();
+    applyShareMode();
 
     function onLocationChange() {
-      updateShareUrls();
+      applyShareMode();
     }
     window.addEventListener("popstate", onLocationChange);
     window.addEventListener("hashchange", onLocationChange);
@@ -266,7 +296,7 @@
     var titleNode = document.querySelector("title");
     if (titleNode && typeof MutationObserver !== "undefined") {
       var titleMo = new MutationObserver(function () {
-        updateShareUrls();
+        applyShareMode();
       });
       titleMo.observe(titleNode, { childList: true, subtree: true, characterData: true });
       addTeardown(function () {
@@ -274,8 +304,8 @@
       });
     }
 
-    async function copyLink() {
-      var url = window.location.href;
+    async function copyLink(url) {
+      url = url || window.location.href;
       var ok = false;
       try {
         if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
@@ -303,22 +333,62 @@
       showToast(ok ? "Link copied" : "Could not copy link");
     }
 
-    async function nativeShare() {
+    async function nativeShareLink(url, title) {
       try {
-        await navigator.share({ title: document.title, url: window.location.href });
+        await navigator.share({ title: title || document.title, url: url || window.location.href });
       } catch (err) {
         if (err && err.name !== "AbortError") showToast("Share unavailable");
       }
     }
 
-    function onDockClick(e) {
-      var btn = e.target.closest("[data-share-action]");
-      if (!btn) return;
-      e.preventDefault();
-      var action = btn.dataset.shareAction;
-      if (action === "copy") copyLink();
-      else if (action === "native") nativeShare();
+    var snapshotBusy = false;
+
+    async function runSnapshotShare(platformId) {
+      var hooks = window.MapDiagramShare;
+      if (!hooks || typeof hooks.shareSnapshot !== "function") {
+        showToast("Share image unavailable");
+        return;
+      }
+      if (snapshotBusy) return;
+      snapshotBusy = true;
+      dock.classList.add("is-sharing");
+      try {
+        await hooks.shareSnapshot({ platform: platformId || "" });
+      } catch (err) {
+        if (err && err.name !== "AbortError") showToast("Could not share image");
+      } finally {
+        snapshotBusy = false;
+        dock.classList.remove("is-sharing");
+      }
     }
+
+    async function onDockClick(e) {
+      var platformBtn = e.target.closest("[data-share-platform]");
+      var actionBtn = e.target.closest("[data-share-action]");
+      if (!platformBtn && !actionBtn) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      var mode = resolveShareMode();
+      var platformId = platformBtn ? platformBtn.dataset.sharePlatform : "";
+      var action = actionBtn ? actionBtn.dataset.shareAction : "";
+
+      if (mode.mode === "snapshot") {
+        await runSnapshotShare(platformId || action);
+        return;
+      }
+
+      if (actionBtn) {
+        if (action === "copy") await copyLink(mode.url);
+        else if (action === "native") await nativeShareLink(mode.url, mode.title);
+        return;
+      }
+      if (platformBtn && platformId) {
+        var href = externalHref(platformId, mode.url, mode.title);
+        window.open(href, "_blank", "noopener,noreferrer");
+      }
+    }
+
     dock.addEventListener("click", onDockClick);
     addTeardown(function () {
       dock.removeEventListener("click", onDockClick);
@@ -381,7 +451,7 @@
       toggle: function () {
         setExpanded(dock.classList.contains("is-collapsed"));
       },
-      refresh: updateShareUrls,
+      refresh: applyShareMode,
       destroy: function () {
         runTeardown();
         dock.remove();
@@ -393,8 +463,16 @@
         delete window.__shareDockMounted;
         delete window.ShareDock;
       },
-      copy: copyLink,
-      native: nativeShare,
+      copy: function () {
+        var m = resolveShareMode();
+        if (m.mode === "snapshot") return runSnapshotShare("copy");
+        return copyLink(m.url);
+      },
+      native: function () {
+        var m = resolveShareMode();
+        if (m.mode === "snapshot") return runSnapshotShare("native");
+        return nativeShareLink(m.url, m.title);
+      },
       toast: showToast
     };
   });

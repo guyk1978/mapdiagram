@@ -132,6 +132,10 @@
 .share-dock-btn:active {
   transform: scale(0.96);
 }
+.share-dock.is-sharing .share-dock-btn {
+  opacity: 0.55;
+  pointer-events: none;
+}
 
 .share-dock-btn svg {
   width: 18px;
