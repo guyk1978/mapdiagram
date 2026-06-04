@@ -1095,6 +1095,54 @@ export async function shareDiagramSnapshot() {
   return { ok: true, method: "download" };
 }
 
+const COPY_IMAGE_CLIPBOARD_TOAST =
+  "הדיאגרמה הועתקה ללוח, עכשיו אפשר להדביק בפייסבוק/וואטסאפ";
+
+/** Snapshot diagram PNG and copy to system clipboard (paste in Facebook, WhatsApp, etc.). */
+export async function copyDiagramImageToClipboard() {
+  const p = bind().ctx.getProject();
+  if (!p?.nodes?.length) {
+    bind().deps.showToast("Add nodes before sharing an image", "warn");
+    return { ok: false, reason: "empty" };
+  }
+  let blob;
+  try {
+    blob = await buildDiagramPngBlob();
+  } catch (err) {
+    if (err?.message === "EMPTY_DIAGRAM") {
+      bind().deps.showToast("Add nodes before sharing an image", "warn");
+      return { ok: false, reason: "empty" };
+    }
+    if (err?.message === "NO_BOUNDS") {
+      bind().deps.showToast(
+        "Nothing to capture. Try “Include hidden nodes in PNG” or add visible nodes.",
+        "warn"
+      );
+      return { ok: false, reason: "bounds" };
+    }
+    bind().deps.showToast("Could not create diagram image", "warn");
+    return { ok: false, reason: "error" };
+  }
+  if (!navigator.clipboard?.write) {
+    bind().deps.showToast("Clipboard is not available in this browser", "warn");
+    return { ok: false, reason: "clipboard" };
+  }
+  const pngBlob = blob.type === "image/png" ? blob : new Blob([blob], { type: "image/png" });
+  try {
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        "image/png": Promise.resolve(pngBlob),
+      }),
+    ]);
+  } catch (_) {
+    bind().deps.showToast("Could not copy image to clipboard", "warn");
+    return { ok: false, reason: "clipboard" };
+  }
+  bind().deps.showToast(COPY_IMAGE_CLIPBOARD_TOAST, "info");
+  if (window.MapDiagramAnalytics) MapDiagramAnalytics.copyDiagramImage?.();
+  return { ok: true };
+}
+
 export async function exportAsPng() {
   const p = bind().ctx.getProject();
   if (!p.nodes.length) return;
@@ -1150,5 +1198,6 @@ const exportersApi = {
   buildDiagramPngBlob,
   downloadDiagramSnapshotBlob,
   shareDiagramSnapshot,
+  copyDiagramImageToClipboard,
   exportAsPng,
 };
