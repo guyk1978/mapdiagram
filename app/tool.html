@@ -1534,6 +1534,10 @@
     overflow: visible;
     z-index: 13;
   }
+  #connections path.conn {
+    animation: none !important;
+    vector-effect: unset;
+  }
   .conn-hit {
     fill: none;
     stroke: rgba(0, 0, 0, 0);
@@ -4395,11 +4399,11 @@
     <main id="workspace" class="workspace">
       <div id="workspaceGrid" class="workspace-grid" aria-hidden="true"></div>
       <div id="viewport">
-        <svg id="connections"></svg>
         <div id="snapGuides" class="snap-guides"></div>
         <div id="canvas-underlays"></div>
         <div id="nodes"></div>
         <div id="semantic-overlays"></div>
+        <svg id="connections" aria-hidden="false"></svg>
       </div>
       <div id="marquee" class="marquee"></div>
       <div id="focusGroupChip" class="focus-group-chip" aria-live="polite">
@@ -5751,6 +5755,10 @@
     if (c.strokeWidth != null && !Number.isFinite(Number(c.strokeWidth))) c.strokeWidth = null;
     if (!c.strokeDash || !["solid", "dashed", "dotted"].includes(c.strokeDash)) c.strokeDash = "solid";
     if (c.strokeColor != null && typeof c.strokeColor !== "string") c.strokeColor = null;
+    if (c.strokeOpacity != null) {
+      const op = Number(c.strokeOpacity);
+      c.strokeOpacity = Number.isFinite(op) ? Math.max(0.12, Math.min(1, op)) : null;
+    }
     const genealogyLinkType = resolveGenealogyLinkType(c);
     if (genealogyLinkType) {
       if (!c.genealogyLinkType) c.genealogyLinkType = genealogyLinkType;
@@ -5772,18 +5780,57 @@
     );
   }
 
+  function getWorkspaceBgHexForLinks() {
+    const v = ensureProjectViewDefaults(getProject());
+    return normalizeInspectorHexColor(v.bgColor, getDefaultWorkspaceBgColor());
+  }
+
+  function hexRelativeLuminance(hex) {
+    const m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex || "");
+    if (!m) return 0;
+    const lin = [m[1], m[2], m[3]].map((h) => {
+      const c = parseInt(h, 16) / 255;
+      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
+  }
+
+  /** Prevent link stroke from matching the workspace fill (common when Accent ≈ background). */
+  function connectionStrokeTooLowContrast(strokeHex, bgHex) {
+    if (!strokeHex || !bgHex) return false;
+    if (strokeHex.toLowerCase() === bgHex.toLowerCase()) return true;
+    const ls = hexRelativeLuminance(strokeHex);
+    const lb = hexRelativeLuminance(bgHex);
+    const ratio = (Math.max(ls, lb) + 0.05) / (Math.min(ls, lb) + 0.05);
+    return ratio < 2.2;
+  }
+
+  function ensureReadableConnectionStroke(hex) {
+    const norm = normalizeInspectorHexColor(hex, getDefaultWorkspaceGlowColor());
+    if (connectionStrokeTooLowContrast(norm, getWorkspaceBgHexForLinks())) return getDefaultWorkspaceGlowColor();
+    return norm;
+  }
+
+  function connectionEdgeOpacityOrDefault(c) {
+    const op = c && c.strokeOpacity != null ? Number(c.strokeOpacity) : NaN;
+    if (Number.isFinite(op)) return Math.max(0.12, Math.min(1, op));
+    return 1;
+  }
+
   function getDefaultConnectionStrokeHex() {
     const css = document.documentElement.style.getPropertyValue("--diagram-link-stroke").trim();
-    if (css && /^#[0-9a-fA-F]{6}$/i.test(css)) return css.toLowerCase();
-    return getProjectViewGlowColor();
+    if (css && /^#[0-9a-fA-F]{6}$/i.test(css)) return ensureReadableConnectionStroke(css.toLowerCase());
+    return ensureReadableConnectionStroke(getProjectViewGlowColor());
   }
 
   function resolveConnectionStrokeHex(c) {
-    return connectionStrokeColorOrNull(c) || getDefaultConnectionStrokeHex();
+    const custom = connectionStrokeColorOrNull(c);
+    if (custom) return ensureReadableConnectionStroke(custom);
+    return getDefaultConnectionStrokeHex();
   }
 
   function applyDiagramLinkStrokeTheme(hex) {
-    const link = normalizeInspectorHexColor(hex, getDefaultWorkspaceGlowColor());
+    const link = ensureReadableConnectionStroke(normalizeInspectorHexColor(hex, getDefaultWorkspaceGlowColor()));
     document.documentElement.style.setProperty("--diagram-link-stroke", link);
     document.documentElement.style.setProperty("--conn-stroke", link);
     document.documentElement.style.setProperty("--conn-stroke-hover", link);
@@ -5838,6 +5885,10 @@
     if (isBranchFromConnection(c)) return 2.05;
     if (isNodeNodeConnection(c)) return 2.25;
     return 2.15;
+  }
+
+  function edgeInspectorStrokeOpacityPercent(c) {
+    return Math.round(connectionEdgeOpacityOrDefault(c) * 100);
   }
 
   function applyConnectionStrokeAttrs(path, c, opts = {}) {
@@ -15967,29 +16018,33 @@ clearFlowGroupSelection();
   /** Force visible SVG stroke on connection paths (no CSS animation/gradient reliance). */
   function enforceConnectionPathVisual(path, opts = {}) {
     if (!path) return;
-    const stroke = opts.stroke || CONN_VISIBLE_STROKE;
-    const width = opts.width != null ? opts.width : CONN_VISIBLE_WIDTH;
+    const stroke = ensureReadableConnectionStroke(opts.stroke || CONN_VISIBLE_STROKE);
+    const width = Math.max(1.5, opts.width != null ? Number(opts.width) : CONN_VISIBLE_WIDTH);
     const dash = opts.dash || null;
+    const opacity = opts.opacity != null ? Math.max(0.12, Math.min(1, Number(opts.opacity))) : 1;
     path.setAttribute("fill", "none");
     path.setAttribute("stroke", stroke);
     path.setAttribute("stroke-width", String(width));
+    path.setAttribute("stroke-opacity", String(opacity));
+    path.setAttribute("opacity", String(opacity));
     path.setAttribute("stroke-linecap", "round");
     path.setAttribute("stroke-linejoin", "round");
     path.setAttribute("data-custom-stroke", "1");
     path.setAttribute("data-custom-width", "1");
+    path.removeAttribute("vector-effect");
     if (dash) {
       path.setAttribute("stroke-dasharray", dash);
     } else {
       path.removeAttribute("stroke-dasharray");
     }
-    path.style.fill = "none";
-    path.style.stroke = stroke;
-    path.style.strokeWidth = String(width);
-    path.style.strokeDasharray = dash || "none";
-    path.style.animation = "none";
-    path.style.opacity = "1";
-    path.style.filter = "drop-shadow(0 0 1px rgba(0, 0, 0, 0.42))";
-    path.setAttribute("vector-effect", "non-scaling-stroke");
+    path.style.setProperty("fill", "none", "important");
+    path.style.setProperty("stroke", stroke, "important");
+    path.style.setProperty("stroke-width", `${width}px`, "important");
+    path.style.setProperty("stroke-opacity", String(opacity), "important");
+    path.style.setProperty("opacity", String(opacity), "important");
+    path.style.setProperty("stroke-dasharray", dash || "none", "important");
+    path.style.setProperty("animation", "none", "important");
+    path.style.removeProperty("filter");
     path.classList.remove("conn-draw-in");
   }
 
@@ -16000,7 +16055,8 @@ clearFlowGroupSelection();
     enforceConnectionPathVisual(path, {
       stroke,
       width: connectionStrokeWidthPx(c, CONN_VISIBLE_WIDTH),
-      dash
+      dash,
+      opacity: connectionEdgeOpacityOrDefault(c)
     });
     applyConnectionPathMarkers(path, defs, c, stroke);
   }
@@ -16433,9 +16489,7 @@ clearFlowGroupSelection();
         "class",
         `conn group-conn${runtime.selectedGroupConnIds.has(gc.id) || runtime.selectedGroupConnId === gc.id ? " selected" : ""}${connListHoverSuffix(null, gc.id)}`
       );
-      const gcCol = connectionStrokeColorOrNull(gc);
-      applyConnectionStrokeAttrs(path, gc, { strokeHex: gcCol, fallbackWidth: 2.15 });
-      applyConnectionPathMarkers(path, defs, gc, gcCol);
+      paintConnectionPathVisual(path, gc, defs);
       path.dataset.gcId = gc.id;
       connectionsLayer.append(hit, path);
       if (gc.label) {
@@ -16850,6 +16904,7 @@ clearFlowGroupSelection();
     const countEl = document.getElementById("edgeInspectorCount");
     const labelInput = document.getElementById("edgeLabelInput");
     const widthInput = document.getElementById("edgeStrokeWidthInput");
+    const opacityInput = document.getElementById("edgeStrokeOpacityInput");
     const colInp = document.getElementById("edgeStrokeColorInput");
     const colHex = document.getElementById("edgeStrokeColorHex");
     const routeGroup = document.getElementById("edgeRouteStyleSegments");
@@ -16902,6 +16957,12 @@ clearFlowGroupSelection();
       const wu = new Set(ws);
       widthInput.value = wu.size === 1 ? ws[0] : "";
       widthInput.placeholder = wu.size > 1 ? "—" : "";
+    }
+    if (opacityInput && fh !== opacityInput) {
+      const ops = strokeRecs.map((c) => String(edgeInspectorStrokeOpacityPercent(c)));
+      const ou = new Set(ops);
+      opacityInput.value = ou.size === 1 ? ops[0] : "";
+      opacityInput.placeholder = ou.size > 1 ? "—" : "";
     }
     if (colInp && fh !== colInp) {
       const cols = strokeRecs.map((c) => resolveConnectionStrokeHex(c));
@@ -16960,6 +17021,7 @@ clearFlowGroupSelection();
     const panel = document.getElementById("inspectorConnectorState");
     const labelInput = document.getElementById("edgeLabelInput");
     const widthInput = document.getElementById("edgeStrokeWidthInput");
+    const opacityInput = document.getElementById("edgeStrokeOpacityInput");
     const colInp = document.getElementById("edgeStrokeColorInput");
     const colHex = document.getElementById("edgeStrokeColorHex");
     const swatches = document.getElementById("edgeStrokeSwatches");
@@ -17012,6 +17074,24 @@ clearFlowGroupSelection();
       if (e.key === "Enter") {
         e.preventDefault();
         applyWidth();
+      }
+    });
+    const applyOpacity = () => {
+      const raw = opacityInput?.value;
+      if (raw === "" || raw == null) return;
+      const n = Number(raw);
+      if (!Number.isFinite(n)) return;
+      const pct = Math.max(10, Math.min(100, n));
+      applyEdgeStyleToSelection((c) => {
+        c.strokeOpacity = pct / 100;
+      });
+    };
+    opacityInput?.addEventListener("input", applyOpacity);
+    opacityInput?.addEventListener("change", applyOpacity);
+    opacityInput?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        applyOpacity();
       }
     });
     const applyEdgeColor = (hex) => {
@@ -18081,7 +18161,8 @@ clearFlowGroupSelection();
       const canvasStateEl = document.getElementById("inspectorCanvasState");
       const elementStateEl = document.getElementById("inspectorElementState");
       const connectorStateEl = document.getElementById("inspectorConnectorState");
-      const edgeSelected = hasSelectedConnections() && !selectedNode;
+      const edgeSelected =
+        hasSelectedConnections() && runtime.selectedNodeIds.size === 0 && !selectedNode;
 
       if (edgeSelected) {
         if (canvasStateEl) canvasStateEl.style.display = "none";
