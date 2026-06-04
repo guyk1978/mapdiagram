@@ -5597,6 +5597,7 @@
     linkPropertyBarInteracting: false,
     linkPropertyWidthFlyoutOpen: false,
     linkPropertyColorFlyoutOpen: false,
+    linkPropertyColorPicking: false,
     linkPropertyFlyoutOutsideListener: null,
     fcCanvasPick: null,
     fcDeleteConfirmOpen: false,
@@ -9552,6 +9553,7 @@ function finalizeFlowGroupDragIfAny() {
     if (cb) cb.setAttribute("aria-expanded", "false");
     runtime.linkPropertyWidthFlyoutOpen = false;
     runtime.linkPropertyColorFlyoutOpen = false;
+    runtime.linkPropertyColorPicking = false;
     if (runtime.linkPropertyFlyoutOutsideListener) {
       document.removeEventListener("pointerdown", runtime.linkPropertyFlyoutOutsideListener, true);
       runtime.linkPropertyFlyoutOutsideListener = null;
@@ -9579,6 +9581,9 @@ function finalizeFlowGroupDragIfAny() {
     if (runtime.linkPropertyFlyoutOutsideListener) return;
     runtime.linkPropertyFlyoutOutsideListener = (e) => {
       if (!runtime.linkPropertyWidthFlyoutOpen && !runtime.linkPropertyColorFlyoutOpen) return;
+      if (runtime.linkPropertyColorPicking) return;
+      const colorCustom = document.getElementById("linkPropertyColorCustom");
+      if (colorCustom && (document.activeElement === colorCustom || e.target === colorCustom)) return;
       if (
         e.target.closest(
           "#linkPropertyBar, #linkPropertyWidthPanel, #linkPropertyColorPanel, #linkPropertyWidthBtn, #linkPropertyColorBtn, #linkPropertyWidthCustom, #linkPropertyColorCustom, #linkPropertyColorThemeBtn"
@@ -9631,17 +9636,58 @@ function finalizeFlowGroupDragIfAny() {
     });
   }
 
+  let linkPropertyColorHistoryPrimed = false;
+
+  function commitLinkPropertyBarColor(normOrNull, usePrimedHistory) {
+    try {
+      const target = getLinkPropertyBarTarget();
+      const c = getLinkPropertyBarRecord(target);
+      if (!c || runtime.readOnly) return false;
+      if (usePrimedHistory) {
+        if (!linkPropertyColorHistoryPrimed) {
+          pushHistory();
+          linkPropertyColorHistoryPrimed = true;
+        }
+      } else {
+        pushHistory();
+      }
+      c.strokeColor = normOrNull;
+      normalizeConnectionEdge(c);
+      renderConnections();
+      scheduleConnectionsAfterNodesInDom();
+      requestAnimationFrame(() => {
+        try {
+          refreshConnectionStrokesInDom();
+        } catch (strokeErr) {
+          console.warn("[LinkPropertyBar] stroke refresh failed:", strokeErr);
+        }
+      });
+      markDirty();
+      syncEdgeInspectorPanel();
+      syncLinkPropertyBarStyleUi();
+      return true;
+    } catch (err) {
+      console.warn("[LinkPropertyBar] color apply failed:", err);
+      showToast("Could not update link color.", "warn");
+      return false;
+    }
+  }
+
   function applyLinkPropertyBarColorHex(hexOrNull) {
     if (hexOrNull == null) {
-      return applyLinkPropertyBarStyle((c) => {
-        c.strokeColor = null;
-      });
+      linkPropertyColorHistoryPrimed = false;
+      return commitLinkPropertyBarColor(null, false);
     }
     const norm = normalizeNodeHexColor(hexOrNull);
     if (!norm || norm === "transparent") return false;
-    return applyLinkPropertyBarStyle((c) => {
-      c.strokeColor = norm;
-    });
+    linkPropertyColorHistoryPrimed = false;
+    return commitLinkPropertyBarColor(norm, false);
+  }
+
+  function applyLinkPropertyBarCustomColor(rawHex) {
+    const norm = normalizeNodeHexColor(rawHex);
+    if (!norm || norm === "transparent") return false;
+    return commitLinkPropertyBarColor(norm, true);
   }
 
   /** Whether end-arrow toggle applies (genealogy / union links never show markers). */
@@ -9749,12 +9795,17 @@ function finalizeFlowGroupDragIfAny() {
         const on = c && Number.isFinite(preset) && Number.isFinite(activeW) && Math.abs(activeW - preset) < 0.06;
         btn.classList.toggle("is-active", !!on);
       });
+      const customHex = c ? connectionStrokeColorOrNull(c) : null;
       const strokeHex = c ? resolveConnectionStrokeHex(c).toLowerCase() : "";
-      if (colorDot) colorDot.style.setProperty("--link-prop-color", strokeHex || "#9cb8ff");
-      if (colorCustom && document.activeElement !== colorCustom) colorCustom.value = strokeHex || "#9cb8ff";
+      const dotHex = (customHex || strokeHex || "#9cb8ff").toLowerCase();
+      if (colorDot) colorDot.style.setProperty("--link-prop-color", dotHex);
+      if (colorCustom && document.activeElement !== colorCustom) {
+        colorCustom.value = hexForColorPicker(customHex || strokeHex, "#9cb8ff");
+      }
+      const activeColorHex = (customHex || strokeHex || "").toLowerCase();
       colorGrid?.querySelectorAll(".link-property-bar__palette-swatch").forEach((btn) => {
         const hex = (btn.dataset.linkColor || "").toLowerCase();
-        btn.classList.toggle("is-active", !!c && !!hex && hex === strokeHex);
+        btn.classList.toggle("is-active", !!c && !!hex && hex === activeColorHex);
       });
       if (arrowBtn) {
         const toggleable = !!(c && linkPropertyBarArrowToggleable(c));
@@ -10002,10 +10053,32 @@ function finalizeFlowGroupDragIfAny() {
       applyLinkPropertyBarColorHex(hex);
       closeLinkPropertyBarFlyouts();
     });
-    colorCustom?.addEventListener("input", () => {
-      if (runtime.readOnly) return;
+    const armLinkPropertyColorPicking = () => {
       runtime.linkPropertyBarInteracting = true;
-      applyLinkPropertyBarColorHex(colorCustom.value);
+      runtime.linkPropertyColorPicking = true;
+    };
+    const disarmLinkPropertyColorPicking = () => {
+      window.setTimeout(() => {
+        if (document.activeElement === colorCustom) return;
+        runtime.linkPropertyColorPicking = false;
+        linkPropertyColorHistoryPrimed = false;
+      }, 120);
+    };
+    colorCustom?.addEventListener("pointerdown", (e) => {
+      armLinkPropertyColorPicking();
+      e.stopPropagation();
+    }, true);
+    colorCustom?.addEventListener("focus", armLinkPropertyColorPicking);
+    colorCustom?.addEventListener("blur", disarmLinkPropertyColorPicking);
+    const applyCustomColorFromPicker = () => {
+      if (runtime.readOnly || !colorCustom) return;
+      armLinkPropertyColorPicking();
+      applyLinkPropertyBarCustomColor(colorCustom.value);
+    };
+    colorCustom?.addEventListener("input", applyCustomColorFromPicker);
+    colorCustom?.addEventListener("change", () => {
+      applyCustomColorFromPicker();
+      disarmLinkPropertyColorPicking();
     });
     colorThemeBtn?.addEventListener("click", (e) => {
       if (runtime.readOnly) return;
@@ -20587,7 +20660,14 @@ clearFlowGroupSelection();
       return;
     }
     if (runtime.readOnly) return;
-    if (runtime.fcToolbarInteracting || runtime.fcMultiBarInteracting || runtime.linkPropertyBarInteracting) return;
+    if (
+      runtime.fcToolbarInteracting ||
+      runtime.fcMultiBarInteracting ||
+      runtime.linkPropertyBarInteracting ||
+      runtime.linkPropertyColorPicking
+    ) {
+      return;
+    }
     if (e.target.closest("#fcQuickEdit, #fcGroupQuickEdit, #fcMultiSelectBar, #linkPropertyBar, #linkPropertyWidthBtn, #linkPropertyColorBtn, #linkPropertyWidthPanel, #linkPropertyColorPanel, #linkPropertyArrowToggle, #linkPropertyLabelInput, #linkPropertyWidthCustom, #linkPropertyColorCustom, #linkPropertyColorThemeBtn, #topbarBulkSpawn, #canvasCornerPill, #fcConnectBtn, .fc-quick-edit, .fc-multi-select-bar, .link-property-bar, .link-property-bar__chip-btn, .link-property-bar__flyout, .link-property-bar__width-preset, .link-property-bar__palette-swatch, .link-property-bar__arrow-toggle, .link-property-bar__label-input, .topbar-bulk-spawn, .canvas-corner-pill, #fcDeleteConfirm, .fc-delete-confirm, #linkPropertyDeleteBtn, .fc-flow-group, .fc-flow-group-header, .fc-flow-group-body, .fc-flow-group-handle")) return;
     if (e.target.closest(".node") || e.target.closest(".conn") || e.target.closest(".conn-hit")) return;
     /* Group label/handles live above nodes; ignore canvas clear/pan when interacting with a group frame */
