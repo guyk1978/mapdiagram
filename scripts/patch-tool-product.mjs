@@ -5,8 +5,8 @@ let html = fs.readFileSync(path, "utf8");
 
 if (!html.includes("flowchart-product.js")) {
   html = html.replace(
-    '<script src="/shared/share-dock.js"></script>',
-    '<script src="/shared/share-dock.js"></script>\n<script src="/assets/product-analytics.js"></script>\n<script src="/assets/flowchart-templates-catalog.js"></script>\n<script src="/assets/flowchart-product.js"></script>',
+    "<!-- flowchart-product scripts -->",
+    '<script src="/assets/product-analytics.js"></script>\n<script src="/assets/flowchart-templates-catalog.js"></script>\n<script src="/assets/flowchart-product.js"></script>',
   );
 }
 
@@ -20,7 +20,6 @@ if (!html.includes("public-view-mode")) {
   body.public-view-mode #fcQuickEdit,
   body.public-view-mode #minimapHost,
   body.public-view-mode .topbar-desktop-quick,
-  body.public-view-mode #toggleShareDockBtn,
   body.public-view-mode #shareBtn { display: none !important; }
   body.public-view-mode #app { grid-template-columns: 1fr !important; }
   body.public-view-mode .topbar-minimal-start .desktop-sidebar-toggles { display: none; }

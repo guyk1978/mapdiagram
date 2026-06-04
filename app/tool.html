@@ -3436,7 +3436,6 @@
   body.public-view-mode #fcDeleteConfirm,
   body.public-view-mode #minimapHost,
   body.public-view-mode .topbar-desktop-quick,
-  body.public-view-mode #toggleShareDockBtn,
   body.public-view-mode #shareBtn { display: none !important; }
   body.public-view-mode #app { grid-template-columns: 1fr !important; }
   body.public-view-mode .topbar-minimal-start .desktop-sidebar-toggles { display: none; }
@@ -4431,7 +4430,6 @@
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="themeToggleBtn">Toggle theme</button>
         <div class="topbar-menu-sep" role="separator" aria-hidden="true"></div>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="autoLayoutBtn">Auto layout</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="toggleShareDockBtn">Share panel</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="publishFlowchartBtn">Publish flowchart</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="exportBtn">Export JSON</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="exportPngBtn">Export PNG</button>
@@ -4551,7 +4549,6 @@
         <button type="button" id="distributeNodesVBtn" class="icon-btn" title="Distribute vertically" aria-label="Distribute selection vertically"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 6h14M5 12h14M5 18h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
       </div>
       <div class="group topbar-collapse-1024" role="toolbar" aria-label="Share and export">
-        <button type="button" id="toggleShareDockBtn" class="text-btn-sm" title="Expand or minimize share panel (icons stay available)" aria-label="Expand or minimize share panel (icons stay available)">Share</button>
         <button id="publishFlowchartBtn" class="icon-btn" type="button" title="Publish flowchart" aria-label="Publish flowchart"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 13a5 5 0 0 1 0-7l1-1a5 5 0 0 1 7 7l-1 1M14 11a5 5 0 0 1 0 7l-1 1a5 5 0 0 1-7-7l1-1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span></button>
         <button id="exportBtn" class="icon-btn" type="button" title="Export JSON" aria-label="Export JSON"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v12m0 0 4-4m-4 4-4-4M5 20h14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         <button id="exportPngBtn" class="icon-btn" type="button" title="Export PNG" aria-label="Export PNG"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.75"/><path d="m8 12 2.5 2.5 3-4 3.5 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
@@ -5382,7 +5379,6 @@
 <script src="/assets/ai-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
 <!-- flowchart-compiler.js lazy-loaded on first Generate -->
-<script src="/shared/share-dock.js"></script>
 <script src="/assets/product-analytics.js"></script>
 <script src="/assets/flowchart-templates-catalog.js"></script>
 <script src="/assets/flowchart-product.js"></script>
@@ -19515,7 +19511,6 @@ clearFlowGroupSelection();
       );
       const url = result.url || (location.origin + "/app/view.html?slug=" + result.slug);
       runtime.lastPublishedViewUrl = url;
-      if (window.ShareDock && typeof window.ShareDock.refresh === "function") window.ShareDock.refresh();
       await navigator.clipboard.writeText(url);
       savedIndicator.textContent = "Public link ready";
       showToast("Public link ready — copied to clipboard", "info");
@@ -19680,7 +19675,6 @@ clearFlowGroupSelection();
   if (_pubBtn) _pubBtn.onclick = () => void publishFlowchart();
 
   const themeToggleBtn = document.getElementById("themeToggleBtn");
-  const toggleShareDockBtn = document.getElementById("toggleShareDockBtn");
   function applyTheme(mode) {
     const m = mode === "light" ? "light" : "dark";
     if (window.MapDiagramTheme && typeof window.MapDiagramTheme.set === "function") {
@@ -19728,55 +19722,6 @@ clearFlowGroupSelection();
       applyTheme(document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light");
     });
   }
-  function isMobileShareLayout() {
-    return window.matchMedia("(max-width: 760px)").matches;
-  }
-  const SHARE_DOCK_VISIBLE_KEY = "mapdiagram-share-dock-visible";
-  function readShareDockVisiblePref() {
-    try {
-      const v = localStorage.getItem(SHARE_DOCK_VISIBLE_KEY);
-      if (v === "1") return true;
-      if (v === "0") return false;
-    } catch (_) {}
-    return null;
-  }
-  function applyShareDockFromStorage() {
-    if (!window.ShareDock) return;
-    const pref = readShareDockVisiblePref();
-    const wantVisible = pref === null ? !isMobileShareLayout() : pref;
-    if (wantVisible) window.ShareDock.show();
-    else window.ShareDock.hide();
-  }
-  function scheduleApplyShareDockFromStorage() {
-    let tries = 0;
-    const tick = () => {
-      if (window.ShareDock) {
-        applyShareDockFromStorage();
-        return;
-      }
-      if (tries++ < 60) window.setTimeout(tick, 80);
-    };
-    window.setTimeout(tick, 0);
-  }
-  (function bindShareDockToolbar() {
-    const btn = toggleShareDockBtn;
-    if (!btn) return;
-    let tries = 0;
-    const tryBind = () => {
-      if (window.ShareDock) {
-        if (btn.dataset.shareDockBound === "1") return;
-        btn.dataset.shareDockBound = "1";
-        btn.addEventListener("click", () => {
-          if (!window.ShareDock) return;
-          window.ShareDock.toggle();
-        });
-        return;
-      }
-      if (++tries < 150) window.setTimeout(tryBind, 40);
-    };
-    tryBind();
-  })();
-  window.addEventListener("load", scheduleApplyShareDockFromStorage);
   document.getElementById("undoBtn").onclick = () => restoreSnapshot(runtime.undo, runtime.redo);
   document.getElementById("redoBtn").onclick = () => restoreSnapshot(runtime.redo, runtime.undo);
   /**
@@ -21598,7 +21543,6 @@ clearFlowGroupSelection();
       mdWindowResizeDebounced = null;
       mobileHint.textContent = "Touch: one finger drag/pan, two fingers pinch zoom.";
       if (!isNarrowScreen()) closeDrawers();
-      applyShareDockFromStorage();
       syncFcQuickEditToolbar();
       syncFcMultiSelectBar();
       if (window.innerWidth <= 768) fitToScreen();
