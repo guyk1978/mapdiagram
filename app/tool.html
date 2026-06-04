@@ -824,7 +824,32 @@
   }
   html[data-theme="light"] .fc-delete-confirm{background:rgba(255,252,252,.98)}
   .fc-delete-confirm p{margin:0 0 8px;font-size:14px;font-weight:600}
-  .fc-delete-confirm .fc-delete-hint{margin:0;font-size:12px;color:var(--muted);font-weight:500}
+  .fc-delete-confirm .fc-delete-hint{margin:0 0 12px;font-size:12px;color:var(--muted);font-weight:500}
+  .fc-delete-confirm-actions{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .fc-delete-confirm-actions button{
+    min-width:96px;
+    padding:8px 14px;
+    border-radius:10px;
+    border:1px solid rgba(97,121,171,.45);
+    background:rgba(8,12,22,.35);
+    color:var(--text);
+    font:inherit;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .fc-delete-confirm-actions button:hover{background:rgba(122,162,255,.16)}
+  .fc-delete-confirm-actions .fc-delete-confirm-ok{
+    border-color:rgba(239,91,91,.45);
+    background:rgba(239,91,91,.18);
+    color:#ffb4b4;
+  }
+  .fc-delete-confirm-actions .fc-delete-confirm-ok:hover{background:rgba(239,91,91,.28)}
   /* User group frame drawn UNDER nodes so new nodes are never visually “inside” or blocked. */
   #canvas-underlays{
     position:absolute;
@@ -4716,6 +4741,10 @@
       <div id="fcDeleteConfirm" class="fc-delete-confirm" hidden role="alertdialog" aria-labelledby="fcDeleteConfirmText" aria-modal="true">
         <p id="fcDeleteConfirmText">Delete selected steps?</p>
         <p class="fc-delete-hint">Enter to confirm · Esc to cancel</p>
+        <div class="fc-delete-confirm-actions">
+          <button type="button" id="fcDeleteConfirmCancelBtn" class="fc-delete-confirm-cancel">Cancel</button>
+          <button type="button" id="fcDeleteConfirmOkBtn" class="fc-delete-confirm-ok">Delete</button>
+        </div>
       </div>
     </main>
     <aside id="rightbar" class="rightbar rightbar--tactical">
@@ -8672,7 +8701,8 @@ function finalizeFlowGroupDragIfAny() {
   function shouldConfirmFlowchartDelete(count) {
     const total = getProject()?.nodes?.length || 0;
     if (!count || !total) return false;
-    return count > 5 || count / total > 0.4;
+    // Small multi-select (e.g. 2 nodes) deletes immediately; bulk / large fraction needs confirm.
+    return count > 5 || (count >= 3 && count / total > 0.4);
   }
 
   function showFcDeleteConfirm(count) {
@@ -8696,6 +8726,24 @@ function finalizeFlowGroupDragIfAny() {
   function confirmFcDeletePending() {
     hideFcDeleteConfirm();
     deleteSelectedNodesAction();
+  }
+
+  function bindFcDeleteConfirm() {
+    const el = document.getElementById("fcDeleteConfirm");
+    if (!el || el.dataset.fcDeleteBound) return;
+    el.dataset.fcDeleteBound = "1";
+    el.addEventListener("pointerdown", (e) => e.stopPropagation(), true);
+    el.addEventListener("mousedown", (e) => e.stopPropagation(), true);
+    document.getElementById("fcDeleteConfirmOkBtn")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      confirmFcDeletePending();
+    });
+    document.getElementById("fcDeleteConfirmCancelBtn")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      hideFcDeleteConfirm();
+    });
   }
 
   function requestDeleteSelectedNodes() {
@@ -10509,6 +10557,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     bindFcQuickEditToolbar();
     bindLinkPropertyBar();
     bindFcMultiSelectBar();
+    bindFcDeleteConfirm();
     bindFcGroupQuickEditToolbar();
     initBulkSpawnUi();
     document.getElementById("refreshCanvasBtn")?.addEventListener("click", () => refreshCanvasView());
@@ -19805,7 +19854,12 @@ clearFlowGroupSelection();
     });
     for (const rid of removedConnIds) delete runtime.connectionUi[rid];
     pruneInvalidBranchConnections(p);
-    selectionRuntime.clearSelection();
+    initMapDiagramRuntimes();
+    if (selectionRuntime) selectionRuntime.clearSelection();
+    else {
+      runtime.selectedNodeId = null;
+      runtime.selectedNodeIds.clear();
+    }
     runtime.selectedGroupId = null;
     runtime.selectedGroupIds.clear();
     clearAllEdgeSelection();
@@ -19823,12 +19877,17 @@ clearFlowGroupSelection();
     deleteSelectedNodesAction();
   };
   document.getElementById("topbarBulkDeleteBtn")?.addEventListener("click", () => {
+    const nodeSel = primaryNodeSelectionIdList();
+    if (nodeSel.length >= 2) {
+      requestDeleteSelectedNodes();
+      return;
+    }
     const { nn, bridges, gcs } = getSelectedConnectionRecords();
     if (nn.length + bridges.length + gcs.length) {
       bulkDeleteSelectedEdgesAction();
       return;
     }
-    if (primaryNodeSelectionIdList().length) {
+    if (nodeSel.length) {
       requestDeleteSelectedNodes();
       return;
     }
@@ -21539,13 +21598,19 @@ clearFlowGroupSelection();
     }
     if (e.key === "Delete" || e.key === "Backspace") {
       if (typing) return;
+      const nodeSel = primaryNodeSelectionIdList();
+      if (nodeSel.length >= 2) {
+        e.preventDefault();
+        requestDeleteSelectedNodes();
+        return;
+      }
       const { nn, bridges, gcs } = getSelectedConnectionRecords();
       if (nn.length + bridges.length + gcs.length) {
         e.preventDefault();
         bulkDeleteSelectedEdgesAction();
         return;
       }
-      if (primaryNodeSelectionIdList().length) {
+      if (nodeSel.length) {
         e.preventDefault();
         requestDeleteSelectedNodes();
         return;
@@ -22230,6 +22295,7 @@ clearFlowGroupSelection();
       bindFcQuickEditToolbar();
       bindLinkPropertyBar();
       bindFcMultiSelectBar();
+      bindFcDeleteConfirm();
       const cornerPill = document.getElementById("canvasCornerPill");
       cornerPill?.addEventListener("pointerdown", (e) => e.stopPropagation(), true);
       document.getElementById("canvasCornerCycleBtn")?.addEventListener("click", (e) => {
