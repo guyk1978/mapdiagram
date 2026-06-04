@@ -4077,8 +4077,8 @@
     width: fit-content;
     max-width: none;
     flex: 0 0 auto;
-    gap: 2px;
-    padding: 3px 6px;
+    gap: 1px;
+    padding: 2px 4px;
     border-radius: 999px;
     border: 1px solid rgba(122, 162, 255, 0.35);
     background: rgba(14, 18, 30, 0.94);
@@ -4101,76 +4101,182 @@
     transform: translate(-50%, 0);
     pointer-events: auto;
   }
+  .link-property-bar .canvas-micro-toolbar__btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+  }
+  .link-property-bar .canvas-micro-toolbar__btn svg {
+    width: 12px;
+    height: 12px;
+  }
   .link-property-bar__sep {
     width: 1px;
-    height: 18px;
-    margin: 0 2px;
+    height: 14px;
+    margin: 0 1px;
     background: rgba(122, 162, 255, 0.28);
     flex: 0 0 auto;
   }
-  .link-property-bar__widths {
+  .link-property-bar__menu-wrap {
+    position: relative;
     display: inline-flex;
-    align-items: center;
-    gap: 1px;
     flex: 0 0 auto;
   }
-  .link-property-bar__width-btn {
-    min-width: 24px;
-    height: 24px;
+  .link-property-bar__chip-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 20px;
+    min-width: 26px;
     padding: 0 5px;
-    border: none;
-    border-radius: 7px;
-    background: transparent;
+    border: 1px solid rgba(122, 162, 255, 0.3);
+    border-radius: 6px;
+    background: rgba(8, 12, 22, 0.45);
     color: var(--text);
-    font: 600 11px/1 var(--font, system-ui, sans-serif);
+    font: 600 10px/1 var(--font, system-ui, sans-serif);
     cursor: pointer;
     flex: 0 0 auto;
   }
-  .link-property-bar__width-btn:hover:not(:disabled) {
+  .link-property-bar__chip-btn:hover:not(:disabled) {
     background: rgba(122, 162, 255, 0.2);
   }
-  .link-property-bar__width-btn.is-active {
+  .link-property-bar__chip-btn[aria-expanded="true"] {
     background: rgba(122, 162, 255, 0.32);
-    color: #c8dcff;
+    border-color: rgba(122, 162, 255, 0.55);
   }
-  .link-property-bar__colors {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
+  .link-property-bar__color-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: var(--link-prop-color, #9cb8ff);
     flex: 0 0 auto;
   }
-  .link-property-bar__color-swatch {
-    width: 16px;
-    height: 16px;
+  .link-property-bar__flyout {
+    position: fixed;
+    z-index: 10060;
+    min-width: 108px;
+    padding: 6px;
+    border-radius: 10px;
+    border: 1px solid rgba(122, 162, 255, 0.38);
+    background: rgba(14, 18, 30, 0.97);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(10px);
+    pointer-events: auto;
+  }
+  html[data-theme="light"] .link-property-bar__flyout {
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 10px 28px rgba(30, 50, 90, 0.16);
+  }
+  .link-property-bar__flyout--color {
+    min-width: 148px;
+  }
+  .link-property-bar__width-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-bottom: 5px;
+  }
+  .link-property-bar__width-preset {
+    min-width: 30px;
+    height: 22px;
+    padding: 0 5px;
+    border: none;
+    border-radius: 5px;
+    background: rgba(122, 162, 255, 0.12);
+    color: var(--text);
+    font: 600 10px/1 var(--font, system-ui, sans-serif);
+    cursor: pointer;
+  }
+  .link-property-bar__width-preset:hover {
+    background: rgba(122, 162, 255, 0.24);
+  }
+  .link-property-bar__width-preset.is-active {
+    background: rgba(122, 162, 255, 0.38);
+    color: #c8dcff;
+  }
+  .link-property-bar__flyout-custom {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    color: rgba(200, 210, 230, 0.75);
+  }
+  .link-property-bar__flyout-custom input[type="number"] {
+    width: 44px;
+    height: 20px;
+    padding: 0 4px;
+    border: 1px solid rgba(122, 162, 255, 0.35);
+    border-radius: 5px;
+    background: rgba(8, 12, 22, 0.55);
+    color: var(--text);
+    font: 600 10px/1 var(--font, system-ui, sans-serif);
+  }
+  .link-property-bar__color-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 14px);
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  .link-property-bar__color-grid .link-property-bar__palette-swatch {
+    width: 14px;
+    height: 14px;
     padding: 0;
-    border: 1.5px solid rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 50%;
     background: var(--swatch-color, #9cb8ff);
     cursor: pointer;
-    flex: 0 0 auto;
   }
-  .link-property-bar__color-swatch:hover {
-    transform: scale(1.08);
-  }
-  .link-property-bar__color-swatch.is-active {
+  .link-property-bar__color-grid .link-property-bar__palette-swatch.is-active {
     box-shadow: 0 0 0 2px rgba(122, 162, 255, 0.85);
-    border-color: rgba(255, 255, 255, 0.55);
+  }
+  .link-property-bar__flyout-custom-color {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+    font-size: 10px;
+    color: rgba(200, 210, 230, 0.75);
+  }
+  .link-property-bar__flyout-custom-color input[type="color"] {
+    width: 28px;
+    height: 20px;
+    padding: 0;
+    border: 1px solid rgba(122, 162, 255, 0.35);
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+  }
+  .link-property-bar__theme-btn {
+    width: 100%;
+    height: 20px;
+    margin-top: 2px;
+    border: none;
+    border-radius: 5px;
+    background: rgba(122, 162, 255, 0.14);
+    color: var(--text);
+    font: 600 10px/1 var(--font, system-ui, sans-serif);
+    cursor: pointer;
+  }
+  .link-property-bar__theme-btn:hover {
+    background: rgba(122, 162, 255, 0.26);
   }
   .link-property-bar__arrow-toggle.is-active {
     background: rgba(122, 162, 255, 0.32);
     color: #c8dcff;
   }
   .link-property-bar__label-input {
-    width: 96px;
-    max-width: 140px;
-    height: 24px;
+    width: 72px;
+    max-width: 100px;
+    height: 20px;
     margin: 0 1px;
-    padding: 0 8px;
+    padding: 0 6px;
     border: 1px solid rgba(122, 162, 255, 0.35);
     border-radius: 7px;
     background: rgba(8, 12, 22, 0.55);
     color: var(--text);
-    font: 12px/1.2 var(--font, system-ui, sans-serif);
+    font: 11px/1.2 var(--font, system-ui, sans-serif);
     flex: 0 1 auto;
   }
   .link-property-bar__label-input::placeholder {
@@ -4566,23 +4672,41 @@
         </button>
       </div>
       <div id="linkPropertyBar" class="link-property-bar canvas-micro-toolbar" hidden role="toolbar" aria-label="Link property bar">
-        <div id="linkPropertyWidths" class="link-property-bar__widths" role="group" aria-label="Line thickness">
-          <button type="button" class="link-property-bar__width-btn" data-link-width="2" title="2px line" aria-label="2 pixel line">2</button>
-          <button type="button" class="link-property-bar__width-btn" data-link-width="4" title="4px line" aria-label="4 pixel line">4</button>
-          <button type="button" class="link-property-bar__width-btn" data-link-width="6" title="6px line" aria-label="6 pixel line">6</button>
+        <div class="link-property-bar__menu-wrap">
+          <button type="button" id="linkPropertyWidthBtn" class="link-property-bar__chip-btn" title="Line thickness" aria-label="Line thickness" aria-haspopup="true" aria-expanded="false">2px</button>
         </div>
         <span class="link-property-bar__sep" aria-hidden="true"></span>
-        <div id="linkPropertyColorSwatches" class="link-property-bar__colors" role="group" aria-label="Line color"></div>
+        <div class="link-property-bar__menu-wrap">
+          <button type="button" id="linkPropertyColorBtn" class="link-property-bar__chip-btn link-property-bar__color-trigger" title="Line color" aria-label="Line color" aria-haspopup="true" aria-expanded="false">
+            <span id="linkPropertyColorDot" class="link-property-bar__color-dot" aria-hidden="true"></span>
+          </button>
+        </div>
         <span class="link-property-bar__sep" aria-hidden="true"></span>
         <button type="button" id="linkPropertyArrowToggle" class="canvas-micro-toolbar__btn link-property-bar__arrow-toggle" title="Arrow at end" aria-label="Arrow at end" aria-pressed="false">
-          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M5 12h11M14 8l5 4-5 4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M5 12h11M14 8l5 4-5 4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <span class="link-property-bar__sep" aria-hidden="true"></span>
         <input type="text" id="linkPropertyLabelInput" class="link-property-bar__label-input" placeholder="Label" autocomplete="off" spellcheck="false" maxlength="120" aria-label="Link label">
         <span class="link-property-bar__sep" aria-hidden="true"></span>
         <button type="button" id="linkPropertyDeleteBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--danger" title="Delete link" aria-label="Delete link">
-          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1v2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7l1 14a1 1 0 0 0 1 .9h6a1 1 0 0 0 1-.9l1-14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+          <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1v2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7l1 14a1 1 0 0 0 1 .9h6a1 1 0 0 0 1-.9l1-14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
         </button>
+      </div>
+      <div id="linkPropertyWidthPanel" class="link-property-bar__flyout" hidden role="dialog" aria-label="Line thickness">
+        <div id="linkPropertyWidthPresets" class="link-property-bar__width-presets" role="listbox" aria-label="Thickness presets"></div>
+        <label class="link-property-bar__flyout-custom">
+          <span>Custom</span>
+          <input type="number" id="linkPropertyWidthCustom" min="1" max="10" step="0.5" value="2" aria-label="Custom thickness in pixels">
+          <span>px</span>
+        </label>
+      </div>
+      <div id="linkPropertyColorPanel" class="link-property-bar__flyout link-property-bar__flyout--color" hidden role="dialog" aria-label="Line color">
+        <div id="linkPropertyColorGrid" class="link-property-bar__color-grid" role="listbox" aria-label="Color presets"></div>
+        <label class="link-property-bar__flyout-custom-color">
+          <span>Any color</span>
+          <input type="color" id="linkPropertyColorCustom" value="#9cb8ff" aria-label="Custom line color">
+        </label>
+        <button type="button" id="linkPropertyColorThemeBtn" class="link-property-bar__theme-btn">Theme color</button>
       </div>
       <div id="canvasCornerPill" class="canvas-corner-pill" hidden>
         <button type="button" id="canvasCornerCycleBtn" class="canvas-corner-pill__btn" title="Cycle corner radius" aria-label="Cycle corner radius">Corners</button>
@@ -5471,6 +5595,9 @@
     fcToolbarInteracting: false,
     fcMultiBarInteracting: false,
     linkPropertyBarInteracting: false,
+    linkPropertyWidthFlyoutOpen: false,
+    linkPropertyColorFlyoutOpen: false,
+    linkPropertyFlyoutOutsideListener: null,
     fcCanvasPick: null,
     fcDeleteConfirmOpen: false,
     spaceKeyHeld: false,
@@ -8376,6 +8503,7 @@ function finalizeFlowGroupDragIfAny() {
     runtime.fcToolbarInteracting = false;
     runtime.fcMultiBarInteracting = false;
     runtime.linkPropertyBarInteracting = false;
+    closeLinkPropertyBarFlyouts();
   }
 
   function clearFlowchartNodeSelection() {
@@ -9407,6 +9535,115 @@ function finalizeFlowGroupDragIfAny() {
     return edgeInspectorStrokeWidthDisplay(c);
   }
 
+  function formatLinkPropertyWidthLabel(w) {
+    if (!Number.isFinite(w)) return "—";
+    const rounded = Math.round(w * 10) / 10;
+    return `${rounded}px`;
+  }
+
+  function closeLinkPropertyBarFlyouts() {
+    const wp = document.getElementById("linkPropertyWidthPanel");
+    const cp = document.getElementById("linkPropertyColorPanel");
+    const wb = document.getElementById("linkPropertyWidthBtn");
+    const cb = document.getElementById("linkPropertyColorBtn");
+    if (wp) wp.hidden = true;
+    if (cp) cp.hidden = true;
+    if (wb) wb.setAttribute("aria-expanded", "false");
+    if (cb) cb.setAttribute("aria-expanded", "false");
+    runtime.linkPropertyWidthFlyoutOpen = false;
+    runtime.linkPropertyColorFlyoutOpen = false;
+    if (runtime.linkPropertyFlyoutOutsideListener) {
+      document.removeEventListener("pointerdown", runtime.linkPropertyFlyoutOutsideListener, true);
+      runtime.linkPropertyFlyoutOutsideListener = null;
+    }
+  }
+
+  function positionLinkPropertyFlyout(panel, anchorBtn) {
+    if (!panel || !anchorBtn) return;
+    try {
+      if (panel.parentElement !== document.body) document.body.appendChild(panel);
+      panel.style.position = "fixed";
+      panel.style.zIndex = "10060";
+      const r = anchorBtn.getBoundingClientRect();
+      const pw = panel.offsetWidth || 120;
+      const left = Math.max(8, Math.min(window.innerWidth - pw - 8, r.left + r.width / 2 - pw / 2));
+      panel.style.left = `${left}px`;
+      panel.style.top = `${r.bottom + 4}px`;
+      panel.style.right = "auto";
+    } catch (err) {
+      console.warn("[LinkPropertyBar] flyout position failed:", err);
+    }
+  }
+
+  function armLinkPropertyFlyoutOutsideClose() {
+    if (runtime.linkPropertyFlyoutOutsideListener) return;
+    runtime.linkPropertyFlyoutOutsideListener = (e) => {
+      if (!runtime.linkPropertyWidthFlyoutOpen && !runtime.linkPropertyColorFlyoutOpen) return;
+      if (
+        e.target.closest(
+          "#linkPropertyBar, #linkPropertyWidthPanel, #linkPropertyColorPanel, #linkPropertyWidthBtn, #linkPropertyColorBtn, #linkPropertyWidthCustom, #linkPropertyColorCustom, #linkPropertyColorThemeBtn"
+        )
+      ) {
+        return;
+      }
+      closeLinkPropertyBarFlyouts();
+    };
+    document.addEventListener("pointerdown", runtime.linkPropertyFlyoutOutsideListener, true);
+  }
+
+  function toggleLinkPropertyWidthFlyout() {
+    const panel = document.getElementById("linkPropertyWidthPanel");
+    const btn = document.getElementById("linkPropertyWidthBtn");
+    if (!panel || !btn) return;
+    if (runtime.linkPropertyWidthFlyoutOpen) {
+      closeLinkPropertyBarFlyouts();
+      return;
+    }
+    closeLinkPropertyBarFlyouts();
+    panel.hidden = false;
+    btn.setAttribute("aria-expanded", "true");
+    runtime.linkPropertyWidthFlyoutOpen = true;
+    positionLinkPropertyFlyout(panel, btn);
+    armLinkPropertyFlyoutOutsideClose();
+  }
+
+  function toggleLinkPropertyColorFlyout() {
+    const panel = document.getElementById("linkPropertyColorPanel");
+    const btn = document.getElementById("linkPropertyColorBtn");
+    if (!panel || !btn) return;
+    if (runtime.linkPropertyColorFlyoutOpen) {
+      closeLinkPropertyBarFlyouts();
+      return;
+    }
+    closeLinkPropertyBarFlyouts();
+    panel.hidden = false;
+    btn.setAttribute("aria-expanded", "true");
+    runtime.linkPropertyColorFlyoutOpen = true;
+    positionLinkPropertyFlyout(panel, btn);
+    armLinkPropertyFlyoutOutsideClose();
+  }
+
+  function applyLinkPropertyBarWidthPx(w) {
+    const n = Number(w);
+    if (!Number.isFinite(n) || n < 1 || n > 10) return false;
+    return applyLinkPropertyBarStyle((c) => {
+      c.strokeWidth = Math.round(n * 10) / 10;
+    });
+  }
+
+  function applyLinkPropertyBarColorHex(hexOrNull) {
+    if (hexOrNull == null) {
+      return applyLinkPropertyBarStyle((c) => {
+        c.strokeColor = null;
+      });
+    }
+    const norm = normalizeNodeHexColor(hexOrNull);
+    if (!norm || norm === "transparent") return false;
+    return applyLinkPropertyBarStyle((c) => {
+      c.strokeColor = norm;
+    });
+  }
+
   /** Whether end-arrow toggle applies (genealogy / union links never show markers). */
   function linkPropertyBarArrowToggleable(c) {
     if (!c) return false;
@@ -9493,24 +9730,29 @@ function finalizeFlowGroupDragIfAny() {
   function syncLinkPropertyBarStyleUi() {
     try {
       const c = getLinkPropertyBarRecord(getLinkPropertyBarTarget());
-      const widthGroup = document.getElementById("linkPropertyWidths");
-      const swatchHost = document.getElementById("linkPropertyColorSwatches");
+      const widthBtn = document.getElementById("linkPropertyWidthBtn");
+      const widthCustom = document.getElementById("linkPropertyWidthCustom");
+      const widthPresets = document.getElementById("linkPropertyWidthPresets");
+      const colorDot = document.getElementById("linkPropertyColorDot");
+      const colorGrid = document.getElementById("linkPropertyColorGrid");
+      const colorCustom = document.getElementById("linkPropertyColorCustom");
       const arrowBtn = document.getElementById("linkPropertyArrowToggle");
       const labelInput = document.getElementById("linkPropertyLabelInput");
-      if (!widthGroup && !swatchHost && !arrowBtn && !labelInput) return;
+      if (!widthBtn && !colorDot && !arrowBtn && !labelInput) return;
       const activeW = c ? linkPropertyBarActiveWidth(c) : null;
-      widthGroup?.querySelectorAll(".link-property-bar__width-btn").forEach((btn) => {
+      if (widthBtn) widthBtn.textContent = formatLinkPropertyWidthLabel(activeW);
+      if (widthCustom && document.activeElement !== widthCustom) {
+        widthCustom.value = Number.isFinite(activeW) ? String(activeW) : "2";
+      }
+      widthPresets?.querySelectorAll(".link-property-bar__width-preset").forEach((btn) => {
         const preset = Number(btn.dataset.linkWidth);
-        const on =
-          c &&
-          Number.isFinite(preset) &&
-          (Number(c.strokeWidth) === preset ||
-            (c.strokeWidth == null && Math.abs(activeW - preset) < 0.12));
+        const on = c && Number.isFinite(preset) && Number.isFinite(activeW) && Math.abs(activeW - preset) < 0.06;
         btn.classList.toggle("is-active", !!on);
-        btn.setAttribute("aria-pressed", on ? "true" : "false");
       });
       const strokeHex = c ? resolveConnectionStrokeHex(c).toLowerCase() : "";
-      swatchHost?.querySelectorAll(".link-property-bar__color-swatch").forEach((btn) => {
+      if (colorDot) colorDot.style.setProperty("--link-prop-color", strokeHex || "#9cb8ff");
+      if (colorCustom && document.activeElement !== colorCustom) colorCustom.value = strokeHex || "#9cb8ff";
+      colorGrid?.querySelectorAll(".link-property-bar__palette-swatch").forEach((btn) => {
         const hex = (btn.dataset.linkColor || "").toLowerCase();
         btn.classList.toggle("is-active", !!c && !!hex && hex === strokeHex);
       });
@@ -9607,6 +9849,7 @@ function finalizeFlowGroupDragIfAny() {
   function syncLinkPropertyBar() {
     const bar = document.getElementById("linkPropertyBar");
     if (!bar || runtime.readOnly) {
+      closeLinkPropertyBarFlyouts();
       if (bar) {
         bar.hidden = true;
         bar.classList.remove("is-visible");
@@ -9616,12 +9859,14 @@ function finalizeFlowGroupDragIfAny() {
     if (!runtime.linkPropertyBarInteracting) {
       const target = getLinkPropertyBarTarget();
       if (!target) {
+        closeLinkPropertyBarFlyouts();
         bar.hidden = true;
         bar.classList.remove("is-visible");
         return;
       }
       const anchor = getLinkPropertyBarAnchorClientRect(target);
       if (!anchor || !workspace) {
+        closeLinkPropertyBarFlyouts();
         bar.hidden = true;
         bar.classList.remove("is-visible");
         return;
@@ -9630,7 +9875,19 @@ function finalizeFlowGroupDragIfAny() {
       bar.hidden = false;
       bar.classList.add("is-visible");
       syncLinkPropertyBarStyleUi();
-      const place = () => positionCanvasToolbarBar(bar, anchor, wsR, 10, 60);
+      const place = () => {
+        positionCanvasToolbarBar(bar, anchor, wsR, 10, 52);
+        if (runtime.linkPropertyWidthFlyoutOpen) {
+          const wp = document.getElementById("linkPropertyWidthPanel");
+          const wb = document.getElementById("linkPropertyWidthBtn");
+          if (wp && wb) positionLinkPropertyFlyout(wp, wb);
+        }
+        if (runtime.linkPropertyColorFlyoutOpen) {
+          const cp = document.getElementById("linkPropertyColorPanel");
+          const cb = document.getElementById("linkPropertyColorBtn");
+          if (cp && cb) positionLinkPropertyFlyout(cp, cb);
+        }
+      };
       place();
       if (!bar.offsetWidth) window.requestAnimationFrame(place);
     } else {
@@ -9651,22 +9908,41 @@ function finalizeFlowGroupDragIfAny() {
     const delBtn = document.getElementById("linkPropertyDeleteBtn");
     const arrowBtn = document.getElementById("linkPropertyArrowToggle");
     const labelInput = document.getElementById("linkPropertyLabelInput");
-    const widthGroup = document.getElementById("linkPropertyWidths");
-    const swatchHost = document.getElementById("linkPropertyColorSwatches");
+    const widthBtn = document.getElementById("linkPropertyWidthBtn");
+    const colorBtn = document.getElementById("linkPropertyColorBtn");
+    const widthPresets = document.getElementById("linkPropertyWidthPresets");
+    const colorGrid = document.getElementById("linkPropertyColorGrid");
+    const widthCustom = document.getElementById("linkPropertyWidthCustom");
+    const colorCustom = document.getElementById("linkPropertyColorCustom");
+    const colorThemeBtn = document.getElementById("linkPropertyColorThemeBtn");
     if (!bar || bar.dataset.linkPropertyBarBound) return;
     bar.dataset.linkPropertyBarBound = "1";
-    if (swatchHost && !swatchHost.dataset.linkColorsBuilt) {
-      swatchHost.dataset.linkColorsBuilt = "1";
-      swatchHost.innerHTML = "";
+    if (widthPresets && !widthPresets.dataset.built) {
+      widthPresets.dataset.built = "1";
+      widthPresets.innerHTML = "";
+      for (const w of LINK_PROPERTY_WIDTH_PRESETS) {
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className = "link-property-bar__width-preset";
+        el.dataset.linkWidth = String(w);
+        el.textContent = formatLinkPropertyWidthLabel(w);
+        el.title = `${w}px line`;
+        el.setAttribute("aria-label", `${w} pixel line`);
+        widthPresets.appendChild(el);
+      }
+    }
+    if (colorGrid && !colorGrid.dataset.built) {
+      colorGrid.dataset.built = "1";
+      colorGrid.innerHTML = "";
       for (const hex of LINK_PROPERTY_COLOR_PRESETS) {
         const el = document.createElement("button");
         el.type = "button";
-        el.className = "link-property-bar__color-swatch";
+        el.className = "link-property-bar__palette-swatch";
         el.dataset.linkColor = hex;
         el.style.setProperty("--swatch-color", hex);
         el.title = hex;
         el.setAttribute("aria-label", `Line color ${hex}`);
-        swatchHost.appendChild(el);
+        colorGrid.appendChild(el);
       }
     }
     const shield = (e) => {
@@ -9675,32 +9951,78 @@ function finalizeFlowGroupDragIfAny() {
     };
     bar.addEventListener("pointerdown", shield, true);
     bar.addEventListener("mousedown", shield, true);
-    widthGroup?.addEventListener("click", (e) => {
-      const btn = e.target.closest(".link-property-bar__width-btn");
+    ["linkPropertyWidthPanel", "linkPropertyColorPanel"].forEach((id) => {
+      document.getElementById(id)?.addEventListener("pointerdown", shield, true);
+    });
+    widthBtn?.addEventListener("click", (e) => {
+      if (runtime.readOnly) return;
+      e.preventDefault();
+      e.stopPropagation();
+      runtime.linkPropertyBarInteracting = true;
+      toggleLinkPropertyWidthFlyout();
+    });
+    colorBtn?.addEventListener("click", (e) => {
+      if (runtime.readOnly) return;
+      e.preventDefault();
+      e.stopPropagation();
+      runtime.linkPropertyBarInteracting = true;
+      toggleLinkPropertyColorFlyout();
+    });
+    widthPresets?.addEventListener("click", (e) => {
+      const btn = e.target.closest(".link-property-bar__width-preset");
       if (!btn || runtime.readOnly) return;
       const w = Number(btn.dataset.linkWidth);
       if (!LINK_PROPERTY_WIDTH_PRESETS.includes(w)) return;
       e.preventDefault();
       e.stopPropagation();
       runtime.linkPropertyBarInteracting = true;
-      applyLinkPropertyBarStyle((c) => {
-        c.strokeWidth = w;
-      });
-      endLinkPropertyBarInteraction();
+      applyLinkPropertyBarWidthPx(w);
+      closeLinkPropertyBarFlyouts();
     });
-    swatchHost?.addEventListener("click", (e) => {
-      const btn = e.target.closest(".link-property-bar__color-swatch");
+    const applyCustomWidth = () => {
+      if (runtime.readOnly || !widthCustom) return;
+      applyLinkPropertyBarWidthPx(widthCustom.value);
+    };
+    widthCustom?.addEventListener("change", applyCustomWidth);
+    widthCustom?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        applyCustomWidth();
+        closeLinkPropertyBarFlyouts();
+      }
+    });
+    colorGrid?.addEventListener("click", (e) => {
+      const btn = e.target.closest(".link-property-bar__palette-swatch");
       if (!btn || runtime.readOnly) return;
       const hex = normalizeNodeHexColor(btn.dataset.linkColor);
       if (!hex || hex === "transparent") return;
       e.preventDefault();
       e.stopPropagation();
       runtime.linkPropertyBarInteracting = true;
-      applyLinkPropertyBarStyle((c) => {
-        c.strokeColor = hex;
-      });
-      endLinkPropertyBarInteraction();
+      applyLinkPropertyBarColorHex(hex);
+      closeLinkPropertyBarFlyouts();
     });
+    colorCustom?.addEventListener("input", () => {
+      if (runtime.readOnly) return;
+      runtime.linkPropertyBarInteracting = true;
+      applyLinkPropertyBarColorHex(colorCustom.value);
+    });
+    colorThemeBtn?.addEventListener("click", (e) => {
+      if (runtime.readOnly) return;
+      e.preventDefault();
+      e.stopPropagation();
+      runtime.linkPropertyBarInteracting = true;
+      applyLinkPropertyBarColorHex(null);
+      closeLinkPropertyBarFlyouts();
+    });
+    if (!bar.dataset.linkPropertyEscBound) {
+      bar.dataset.linkPropertyEscBound = "1";
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Escape") return;
+        if (!runtime.linkPropertyWidthFlyoutOpen && !runtime.linkPropertyColorFlyoutOpen) return;
+        closeLinkPropertyBarFlyouts();
+      });
+    }
     arrowBtn?.addEventListener("click", (e) => {
       if (runtime.readOnly || arrowBtn.disabled) return;
       e.preventDefault();
@@ -10666,9 +10988,10 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
   ];
   /** Link Property Bar — stroke color presets (step 2; no transparent). */
   const LINK_PROPERTY_COLOR_PRESETS = [
-    "#00A2E8", "#10B981", "#F59E0B", "#E11D48", "#8B5CF6", "#9CB8FF", "#64748B", "#374151"
+    "#00A2E8", "#10B981", "#F59E0B", "#E11D48", "#8B5CF6", "#9CB8FF",
+    "#F8FAFC", "#64748B", "#374151", "#1E293B"
   ];
-  const LINK_PROPERTY_WIDTH_PRESETS = [2, 4, 6];
+  const LINK_PROPERTY_WIDTH_PRESETS = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
   const CORNER_RADIUS_CYCLE = [
     { value: 0, label: "None" },
     { value: 4, label: "S" },
@@ -20265,7 +20588,7 @@ clearFlowGroupSelection();
     }
     if (runtime.readOnly) return;
     if (runtime.fcToolbarInteracting || runtime.fcMultiBarInteracting || runtime.linkPropertyBarInteracting) return;
-    if (e.target.closest("#fcQuickEdit, #fcGroupQuickEdit, #fcMultiSelectBar, #linkPropertyBar, #linkPropertyWidths, #linkPropertyColorSwatches, #linkPropertyArrowToggle, #linkPropertyLabelInput, #topbarBulkSpawn, #canvasCornerPill, #fcConnectBtn, .fc-quick-edit, .fc-multi-select-bar, .link-property-bar, .link-property-bar__width-btn, .link-property-bar__color-swatch, .link-property-bar__arrow-toggle, .link-property-bar__label-input, .topbar-bulk-spawn, .canvas-corner-pill, #fcDeleteConfirm, .fc-delete-confirm, #linkPropertyDeleteBtn, .fc-flow-group, .fc-flow-group-header, .fc-flow-group-body, .fc-flow-group-handle")) return;
+    if (e.target.closest("#fcQuickEdit, #fcGroupQuickEdit, #fcMultiSelectBar, #linkPropertyBar, #linkPropertyWidthBtn, #linkPropertyColorBtn, #linkPropertyWidthPanel, #linkPropertyColorPanel, #linkPropertyArrowToggle, #linkPropertyLabelInput, #linkPropertyWidthCustom, #linkPropertyColorCustom, #linkPropertyColorThemeBtn, #topbarBulkSpawn, #canvasCornerPill, #fcConnectBtn, .fc-quick-edit, .fc-multi-select-bar, .link-property-bar, .link-property-bar__chip-btn, .link-property-bar__flyout, .link-property-bar__width-preset, .link-property-bar__palette-swatch, .link-property-bar__arrow-toggle, .link-property-bar__label-input, .topbar-bulk-spawn, .canvas-corner-pill, #fcDeleteConfirm, .fc-delete-confirm, #linkPropertyDeleteBtn, .fc-flow-group, .fc-flow-group-header, .fc-flow-group-body, .fc-flow-group-handle")) return;
     if (e.target.closest(".node") || e.target.closest(".conn") || e.target.closest(".conn-hit")) return;
     /* Group label/handles live above nodes; ignore canvas clear/pan when interacting with a group frame */
     if (e.target.closest(".group-chrome, .group-chrome-body, .group-drag-surface")) return;
