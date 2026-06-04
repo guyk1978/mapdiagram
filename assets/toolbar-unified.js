@@ -28,6 +28,7 @@
     topbarDeleteConnBtn: svg(`<path d="M4 7h16M10 11v6M14 11v6M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1v2" ${STROKE}/><path d="M8 7l1 14a1 1 0 0 0 1 .9h6a1 1 0 0 0 1-.9l1-14" ${STROKE}/>`),
     topbarBranchConnBtn: svg(`<path d="M6 6v12M6 12h8a3 3 0 0 1 3 3v3M14 12h4a2 2 0 0 1 2 2v4" ${STROKE}/><path d="M18 6v4M16 8h4" ${STROKE}/>`),
     fitViewBtn: svg(`<path d="M9 3H5v4M15 3h4v4M3 9V5h4M21 9V5h-4M9 21H5v-4M15 21h4v-4M3 15v4h4M21 15v4h-4" ${STROKE}/>`),
+    shareBtn: svg(`<path d="M12 4v12" ${STROKE}/><path d="M7 9l5-5 5 5" ${STROKE}/><path d="M5 14v3.5A2.5 2.5 0 0 0 7.5 20h9A2.5 2.5 0 0 0 19 17.5V14" ${STROKE}/>`),
     refreshCanvasBtn: svg(`<path d="M20 12a8 8 0 1 1-2.34-5.66" ${STROKE}/><path d="M20 4v6h-6" ${STROKE}/>`),
     improveFlowchartLayoutBtn: svg(`<path d="M4 6h6v4H4V6zm10 0h6v4h-6V6zM4 14h6v4H4v-4zm10 0h6v4h-6v-4z" ${STROKE}/>`),
     topbarInsertBtn: svgOnAccent(`<path d="M12 5v14M5 12h14" ${STROKE}/>`),

@@ -4423,6 +4423,7 @@
           <div id="topbarMoreMenu" class="topbar-more-menu" role="menu" hidden>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="addNodeBtn">Add node</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="fitViewBtn">Fit to screen</button>
+        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="shareBtn">Share diagram</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="undoBtn">Undo</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="redoBtn">Redo</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="duplicateNodesToolbarBtn">Duplicate selection</button>
@@ -4524,6 +4525,7 @@
         </div>
         <button type="button" id="themeToggleBtn" class="icon-btn theme-toggle-btn" title="Toggle light / dark theme" aria-label="Toggle light / dark theme"><span class="icon-svg icon-theme-sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg></span><span class="icon-svg icon-theme-moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 6.5 6.5 0 1 0 21 14.5Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/></svg></span></button>
         <button id="fitViewBtn" class="icon-btn" type="button" title="Fit to screen" aria-label="Fit to screen"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3H5v4M15 3h4v4M3 9V5h4M21 9V5h-4M9 21H5v-4M15 21h4v-4M3 15v4h4M21 15v4h-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
+        <button id="shareBtn" class="icon-btn" type="button" title="Share diagram image" aria-label="Share diagram image"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v12" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 9l5-5 5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 14v3.5A2.5 2.5 0 0 0 7.5 20h9A2.5 2.5 0 0 0 19 17.5V14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         <button id="refreshCanvasBtn" class="icon-btn" type="button" title="Refresh layout and canvas rendering (Shift+R)" aria-label="Refresh canvas"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/><path d="M20 4v6h-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
         <button id="improveFlowchartLayoutBtn" class="icon-btn" type="button" title="Improve layout (Ctrl+L)" aria-label="Improve flowchart layout"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h6v4H4V6zm10 0h6v4h-6V6zM4 14h6v4H4v-4zm10 0h6v4h-6v-4z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" opacity=".55"/></svg></span></button>
         </div>
@@ -18457,7 +18459,8 @@ clearFlowGroupSelection();
       { id: "expandG", label: "Expand selection to graph neighbors", keys: "", keywords: "connected", run: () => expandSelectionToGraphNeighbors() },
       { id: "expandT", label: "Expand selection to same node type", keys: "", keywords: "", run: () => expandSelectionToSameType() },
       { id: "theme", label: "Toggle light / dark theme", keys: "", keywords: "color appearance", run: () => document.getElementById("themeToggleBtn")?.click() },
-      { id: "share", label: "Publish flowchart", keys: "", keywords: "public url share", run: () => document.getElementById("publishFlowchartBtn")?.click() },
+      { id: "shareImage", label: "Share diagram image", keys: "", keywords: "share png snapshot native navigator", run: () => document.getElementById("shareBtn")?.click() },
+      { id: "share", label: "Publish flowchart", keys: "", keywords: "public url publish", run: () => document.getElementById("publishFlowchartBtn")?.click() },
       { id: "delEdge", label: "Delete selected links", keys: "Delete", keywords: "edges connections remove", run: () => bulkDeleteSelectedEdgesAction() },
       { id: "delNode", label: "Delete selected node(s)", keys: "", keywords: "remove", run: () => document.getElementById("deleteNodeBtn")?.click() }
     ];
@@ -20429,6 +20432,12 @@ clearFlowGroupSelection();
       }
     },
   };
+  const shareBtn = document.getElementById("shareBtn");
+  if (shareBtn) {
+    shareBtn.addEventListener("click", () => {
+      void window.MapDiagramShare.shareSnapshot();
+    });
+  }
   document.getElementById("importBtn").onclick = () => openJsonImportPicker();
   fileInput.addEventListener("change", () => {
     if (!fileInput.files.length) return;
