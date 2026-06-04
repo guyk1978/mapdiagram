@@ -1532,7 +1532,7 @@
     height: 100%;
     pointer-events: none;
     overflow: visible;
-    z-index: var(--z-canvas-base, 1);
+    z-index: 9;
   }
   .conn-hit {
     fill: none;
@@ -4462,7 +4462,7 @@
         <button type="button" id="canvasSendBackwardBtn" class="canvas-micro-toolbar__btn" title="Send to back" aria-label="Send to back">
           <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 20V9M8 16l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="5" y="4" width="14" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/></svg>
         </button>
-        <button type="button" id="fcConnectBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--connect" title="Link to nodes: click, then Shift+click targets, Enter to finish" aria-label="Link to multiple nodes">
+        <button type="button" id="fcConnectBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--connect" title="Link: click button, then Shift+click each target node" aria-label="Link to multiple nodes">
           <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="6" cy="6" r="2.5" fill="currentColor"/><circle cx="18" cy="18" r="2.5" fill="currentColor"/><path d="M8.5 8.5 15.5 15.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
         </button>
         <button type="button" id="geneAddSpouseBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--gene" hidden title="Add Male (Partner)" aria-label="Add Male (Partner)"><div style="width:12px; height:12px; background:#0070f3; display:inline-block; border-radius:2px;" aria-hidden="true"></div></button>
@@ -7585,6 +7585,16 @@ function isMultiConnectMode() {
 function armMultiConnectMode(nodeObj, opts = {}) {
   if (!nodeObj || runtime.readOnly || isNodeHiddenCanvas(nodeObj) || isGenealogyUnionNode(nodeObj)) return;
   initMapDiagramRuntimes();
+  if (isEbikeWorkspaceActive()) {
+    const role = nodeObj.ebikeRole;
+    if (role === "display" || role === "motor") {
+      showToast("Display and Motor are outputs — use the Controller (or Battery) green dot.", "warn");
+      return;
+    }
+    if (EBIKE_INPUT_PERIPHERAL_ROLES.has(role)) {
+      showToast(`Shift+click the Controller to wire ${role.replace(/-/g, " ")}.`, "info");
+    }
+  }
   abortGroupConnectionDrag();
   const fromSide =
     opts.fromSide && ["top", "right", "bottom", "left"].includes(opts.fromSide) ? opts.fromSide : null;
@@ -7631,9 +7641,13 @@ function toggleMultiConnectTarget(nodeId) {
   if (conn.targetIds.has(nodeId)) {
     prepareMultiConnectHistory(conn);
     conn.targetIds.delete(nodeId);
-    removeNodeNodeEdge(fromId, nodeId);
+    const pair = getNodeNodeEdgePair(fromId, nodeId);
+    if (pair) {
+      removeConnectionByIdCascade(getProject(), pair.id);
+      delete runtime.connectionUi[pair.id];
+    }
     markDirty();
-    scheduleRenderConnections();
+    renderConnections();
     scheduleSemanticAnalysis();
     renderSelection();
     showConnectionHint(
@@ -7642,24 +7656,31 @@ function toggleMultiConnectTarget(nodeId) {
     );
     return;
   }
-  if (isEbikeWorkspaceActive()) {
-    const ebikeCheck = validateEbikeConnection(fromId, nodeId);
-    if (!ebikeCheck.ok) {
-      showConnectionHint(ebikeCheck.message, true);
-      return;
+  const ends = resolveConnectionEndpoints(fromId, nodeId);
+  if (!ends) {
+    if (isEbikeWorkspaceActive()) {
+      const armed = getNodeById(fromId);
+      const clicked = getNodeById(nodeId);
+      const msg =
+        armed?.ebikeRole && clicked?.ebikeRole
+          ? `Invalid wiring: ${armed.ebikeRole.replace(/-/g, " ")} ↔ ${clicked.ebikeRole.replace(/-/g, " ")}`
+          : "E-Bike wiring requires library components only.";
+      showConnectionHint(msg, true);
+    } else {
+      showToast("Could not create link.", "warn");
     }
+    return;
   }
-  const p = getProject();
-  const exists = p.connections.some((c) => isNodeNodeConnection(c) && c.from === fromId && c.to === nodeId);
+  const exists = hasNodeNodeEdgePair(fromId, nodeId);
   prepareMultiConnectHistory(conn);
-  const cid = ensureNodeNodeEdge(fromId, nodeId);
+  const cid = ensureNodeNodeEdge(ends.from, ends.to);
   if (!cid) {
     showToast("Could not create link.", "warn");
     return;
   }
   conn.targetIds.add(nodeId);
   markDirty();
-  scheduleRenderConnections();
+  renderConnections();
   scheduleSemanticAnalysis();
   renderSelection();
   if (isFlowchartMode() && !exists) {
@@ -14718,7 +14739,59 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     "torque-sensor-controller"
   ]);
 
+  /** Resolve directed node-node endpoints (E-Bike wiring is role-pair based, not click order). */
+  function resolveConnectionEndpoints(armedId, clickedId) {
+    if (!armedId || !clickedId || armedId === clickedId) return null;
+    if (!isEbikeWorkspaceActive()) return { from: armedId, to: clickedId };
+    const armed = getNodeById(armedId);
+    const clicked = getNodeById(clickedId);
+    if (!armed?.ebikeRole || !clicked?.ebikeRole) return null;
+    const forward = `${armed.ebikeRole}-${clicked.ebikeRole}`;
+    if (EBIKE_ALLOWED_EDGES.has(forward)) return { from: armedId, to: clickedId };
+    const reverse = `${clicked.ebikeRole}-${armed.ebikeRole}`;
+    if (EBIKE_ALLOWED_EDGES.has(reverse)) return { from: clickedId, to: armedId };
+    return null;
+  }
+
+  function getNodeNodeEdgePair(a, b) {
+    if (!a || !b || a === b) return null;
+    const p = getProject();
+    return (
+      p.connections.find(
+        (c) =>
+          isNodeNodeConnection(c) &&
+          ((c.from === a && c.to === b) || (c.from === b && c.to === a))
+      ) || null
+    );
+  }
+
+  function hasNodeNodeEdgePair(a, b) {
+    return !!getNodeNodeEdgePair(a, b);
+  }
+
   function validateEbikeConnection(fromId, toId) {
+    const ends = resolveConnectionEndpoints(fromId, toId);
+    if (!ends) {
+      const from = getNodeById(fromId);
+      const to = getNodeById(toId);
+      if (!from || !to) return { ok: false, message: "Invalid connection." };
+      const fr = from.ebikeRole;
+      const tr = to.ebikeRole;
+      if (!fr || !tr) {
+        return {
+          ok: false,
+          message: "E-Bike mode only allows wiring between electrical components from the library."
+        };
+      }
+      return {
+        ok: false,
+        message: `Invalid wiring: ${fr.replace(/-/g, " ")} ↔ ${tr.replace(/-/g, " ")} is not permitted.`
+      };
+    }
+    return validateEbikeConnectionDirected(ends.from, ends.to);
+  }
+
+  function validateEbikeConnectionDirected(fromId, toId) {
     const from = getNodeById(fromId);
     const to = getNodeById(toId);
     if (!from || !to) return { ok: false, message: "Invalid connection." };
@@ -14756,10 +14829,20 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     };
   }
 
+  function ensureNodeNodeEdgeBetween(armedId, clickedId) {
+    const ends = resolveConnectionEndpoints(armedId, clickedId);
+    if (!ends) return null;
+    if (isEbikeWorkspaceActive()) {
+      const check = validateEbikeConnectionDirected(ends.from, ends.to);
+      if (!check.ok) return null;
+    }
+    return ensureNodeNodeEdge(ends.from, ends.to);
+  }
+
   function ensureNodeNodeEdge(fromId, toId) {
     if (!fromId || !toId || fromId === toId) return null;
     if (isEbikeWorkspaceActive()) {
-      const check = validateEbikeConnection(fromId, toId);
+      const check = validateEbikeConnectionDirected(fromId, toId);
       if (!check.ok) return null;
     }
     const p = getProject();
@@ -19973,8 +20056,7 @@ clearFlowGroupSelection();
             findFlowGroupTargetFromPoint(point, fromNodeId)
           : null;
       if (toNodeId && fromNodeId && toNodeId !== fromNodeId) {
-        const p = getProject();
-        const exists = p.connections.some((c) => isNodeNodeConnection(c) && c.from === fromNodeId && c.to === toNodeId);
+        const exists = hasNodeNodeEdgePair(fromNodeId, toNodeId);
         if (!exists) {
           if (isEbikeWorkspaceActive()) {
             const ebikeCheck = validateEbikeConnection(fromNodeId, toNodeId);
@@ -19985,15 +20067,10 @@ clearFlowGroupSelection();
             }
           }
           pushHistory();
-          const connectionId = uid();
-          p.connections.push({ id: connectionId, from: fromNodeId, to: toNodeId });
-          const fromNode = getNodeById(fromNodeId);
-          const toNode = getNodeById(toNodeId);
-          if (fromNode && toNode) {
-            const from = anchor(fromNode, "out", nodeWorldCenter(toNode), connectionId);
-            const to = anchor(toNode, "in", nodeWorldCenter(fromNode), connectionId);
-            const auto = autoCurve(from, to);
-            runtime.connectionUi[connectionId] = { cp1: auto.cp1, cp2: auto.cp2, custom: false };
+          const connectionId = ensureNodeNodeEdgeBetween(fromNodeId, toNodeId);
+          if (!connectionId) {
+            clearPendingConnectionState();
+            return;
           }
           if (isEbikeWorkspaceActive()) {
             runtime.connectionFeedbackId = connectionId;
