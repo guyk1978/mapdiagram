@@ -2672,8 +2672,8 @@
     line-height: 1;
   }
   @keyframes drawIn {
-    from { opacity: 0.2; stroke-dasharray: 3 24; }
-    to { opacity: 1; stroke-dasharray: 0 0; }
+    from { opacity: 0.25; }
+    to { opacity: 0.96; }
   }
   @keyframes previewFlow {
     from { stroke-dashoffset: 26; }
@@ -7853,7 +7853,16 @@ function scheduleRenderConnections() {
     });
   }
   initMapDiagramRuntimes();
-  if (renderRuntime) renderRuntime.scheduleRenderConnections();
+  if (renderRuntime) {
+    renderRuntime.scheduleRenderConnections();
+    return;
+  }
+  if (runtime.renderConnectionsRaf) cancelAnimationFrame(runtime.renderConnectionsRaf);
+  runtime.renderConnectionsRaf = requestAnimationFrame(() => {
+    runtime.renderConnectionsRaf = null;
+    renderConnections();
+    renderSelection();
+  });
 }
 
 function startFlowGroupDrag(fg, frame, e) {
@@ -15946,6 +15955,7 @@ clearFlowGroupSelection();
   }
 
   function renderConnections() {
+    if (!connectionsLayer) return;
     const _gcDbgConn = mdGcShouldLog();
     const p0 = getProject();
     const gcCountIn = (p0.groupConnections || []).length;
@@ -16199,29 +16209,7 @@ clearFlowGroupSelection();
       const to = lay.to;
       const curve = lay.curve;
       const d = lay.d;
-      const nnStroke = connectionStrokeColorOrNull(c);
-      let gradId = null;
-      if (!nnStroke) {
-        gradId = `grad-${c.id}`;
-        const grad = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
-        grad.id = gradId;
-        grad.setAttribute("gradientUnits", "userSpaceOnUse");
-        grad.setAttribute("x1", String(from.x));
-        grad.setAttribute("y1", String(from.y));
-        grad.setAttribute("x2", String(to.x));
-        grad.setAttribute("y2", String(to.y));
-        const s1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
-        s1.setAttribute("offset", "0%");
-        s1.setAttribute("stop-color", "rgba(126, 154, 230, 0.7)");
-        const s2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
-        s2.setAttribute("offset", "55%");
-        s2.setAttribute("stop-color", "rgba(184, 206, 255, 0.9)");
-        const s3 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
-        s3.setAttribute("offset", "100%");
-        s3.setAttribute("stop-color", "rgba(126, 154, 230, 0.7)");
-        grad.append(s1, s2, s3);
-        defs.appendChild(grad);
-      }
+      const nnStroke = connectionStrokeColorOrNull(c) || "rgba(169, 195, 255, 0.9)";
 
       const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
       hit.setAttribute("d", d);
@@ -16245,27 +16233,11 @@ clearFlowGroupSelection();
         "class",
         `conn${c.meta?.isBackEdge ? " fc-conn-back" : ""}${nnSel ? " selected" : ""}${runtime.connectionFeedbackId === c.id ? " confirm" : ""}${connListHoverSuffix(c.id, null)}`
       );
-      if (nnStroke) {
-        applyConnectionStrokeAttrs(path, c, { strokeHex: nnStroke, fallbackWidth: 2.25 });
-      } else {
-        applyConnectionStrokeAttrs(path, c, {
-          skipStroke: true,
-          strokePaint: `url(#${gradId})`,
-          fallbackWidth: 2.25
-        });
-      }
+      applyConnectionStrokeAttrs(path, c, { strokeHex: nnStroke, fallbackWidth: 2.25 });
       applyConnectionPathMarkers(path, defs, c, nnStroke);
       path.dataset.connId = c.id;
       if (runtime.fcConnEnterIds?.has(c.id)) {
-        try {
-          const len = path.getTotalLength();
-          path.style.setProperty("--conn-len", String(len));
-          path.style.strokeDasharray = String(len);
-          path.style.strokeDashoffset = String(len);
-          path.classList.add("conn-draw-in");
-        } catch (_) {
-          path.classList.add("conn-draw-in");
-        }
+        path.classList.add("conn-draw-in");
       }
       connectionsLayer.appendChild(hit);
       connectionsLayer.appendChild(path);
