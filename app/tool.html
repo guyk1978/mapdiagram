@@ -1545,11 +1545,14 @@
     fill: none;
     stroke: var(--conn-stroke);
     stroke-width: 2.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
     pointer-events: auto;
     cursor: pointer;
     transition: stroke 0.24s ease, stroke-width 0.24s ease, filter 0.24s ease, opacity 0.24s ease;
     filter: drop-shadow(0 1px 2px var(--conn-shadow));
     opacity: 0.96;
+    animation: none !important;
   }
   .conn.branch-from-conn {
     stroke-width: 2.05;
@@ -1586,17 +1589,6 @@
   .conn:not(.selected) {
     pointer-events: none;
   }
-  .conn.selected[stroke-dasharray]:not([data-custom-width]) {
-    animation: none;
-    stroke-width: 3.15;
-  }
-  .conn[stroke-dasharray]:not([data-custom-stroke]) {
-    stroke: rgba(169, 195, 255, 0.88);
-    stroke-width: 2.1;
-    stroke-linecap: round;
-    animation: previewFlow 0.95s linear infinite;
-    filter: drop-shadow(0 0 4px rgba(122, 162, 255, 0.35));
-  }
   .conn.preview-valid{stroke:rgba(116,232,162,.94)!important;opacity:.98;filter:drop-shadow(0 0 8px rgba(116,232,162,.42))}
   .conn.preview-invalid{stroke:rgba(255,129,129,.88)!important;opacity:.72;filter:drop-shadow(0 0 5px rgba(255,129,129,.28))}
   .conn.preview-neutral{stroke:rgba(143,192,255,.88)!important;opacity:.82}
@@ -1606,10 +1598,6 @@
   .conn.fc-preview-out{
     opacity:0!important;
     transition:opacity var(--fc-dur-micro) var(--fc-ease)!important;
-  }
-  .conn:not([stroke-dasharray]) {
-    stroke-linecap: round;
-    animation: drawIn 0.22s ease-out;
   }
   .cp-guide {
     stroke: rgba(143, 167, 219, 0.55);
@@ -2671,14 +2659,6 @@
     font-size: 20px;
     line-height: 1;
   }
-  @keyframes drawIn {
-    from { opacity: 0.25; }
-    to { opacity: 0.96; }
-  }
-  @keyframes previewFlow {
-    from { stroke-dashoffset: 26; }
-    to { stroke-dashoffset: 0; }
-  }
   @keyframes collisionFlash {
     from { box-shadow: 0 0 0 2px rgba(239, 91, 91, 0.5); }
     to { box-shadow: none; }
@@ -3220,9 +3200,6 @@
         rgba(220, 230, 245, 0.55) 100%
       ),
       linear-gradient(25deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 55%);
-  }
-  html[data-theme="light"] .conn[stroke-dasharray] {
-    stroke: rgba(90, 120, 190, 0.65);
   }
   html[data-theme="light"] .focus-modal {
     color: var(--text);
@@ -4023,20 +4000,7 @@
     caret-color: var(--accent);
   }
   .flowchart-mode .conn {
-    transition: stroke 0.22s ease, stroke-width 0.22s ease, filter 0.22s ease, opacity 0.22s ease;
-  }
-  .flowchart-mode .conn.conn-draw-in {
-    animation: fcConnDraw 0.46s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  }
-  @keyframes fcConnDraw {
-    from {
-      stroke-dashoffset: var(--conn-len, 280);
-      opacity: 0.35;
-    }
-    to {
-      stroke-dashoffset: 0;
-      opacity: 1;
-    }
+    animation: none !important;
   }
   .flowchart-mode .conn-hit {
     transition: stroke 0.18s ease;
@@ -6075,7 +6039,7 @@
       try {
         syncNodeSizes();
         runtime.groupBoxCache = null;
-        scheduleRenderConnections();
+        scheduleConnectionsAfterNodesInDom();
         renderSemanticOverlays();
         paintMinimap();
       } finally {
@@ -7857,11 +7821,17 @@ function scheduleRenderConnections() {
     renderRuntime.scheduleRenderConnections();
     return;
   }
+  scheduleConnectionsAfterNodesInDom();
+}
+
+/** Re-render links after nodes are in the DOM (layout + measured sizes). */
+function scheduleConnectionsAfterNodesInDom() {
   if (runtime.renderConnectionsRaf) cancelAnimationFrame(runtime.renderConnectionsRaf);
   runtime.renderConnectionsRaf = requestAnimationFrame(() => {
     runtime.renderConnectionsRaf = null;
-    renderConnections();
-    renderSelection();
+    if (typeof syncNodeSizes === "function") syncNodeSizes();
+    if (typeof renderConnections === "function") renderConnections();
+    if (typeof renderSelection === "function") renderSelection();
   });
 }
 
@@ -14017,6 +13987,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const obstacles = buildNodeConnectionObstacles(p, fromNode, toNode);
     const routeStyle = resolveConnectionRouteStyle(c);
     const d = buildRoutedConnectionPath(from, to, obstacles, curve, routeStyle);
+    if (!connectionPointFinite(from) || !connectionPointFinite(to) || !isValidConnectionPathD(d)) return null;
     return { fromNode, toNode, from, to, curve, d };
   }
 
@@ -15954,6 +15925,47 @@ clearFlowGroupSelection();
     renderSelection();
   }
 
+  const CONN_VISIBLE_STROKE = "#8eb4ff";
+  const CONN_VISIBLE_WIDTH = 3;
+
+  function connectionPointFinite(pt) {
+    return !!(pt && Number.isFinite(pt.x) && Number.isFinite(pt.y));
+  }
+
+  function isValidConnectionPathD(d) {
+    if (!d || typeof d !== "string") return false;
+    if (/NaN|Infinity/i.test(d)) return false;
+    const s = d.trim();
+    return s.length > 4 && /[MLCQAZ]/i.test(s);
+  }
+
+  /** Force visible SVG stroke on connection paths (no CSS animation/gradient reliance). */
+  function enforceConnectionPathVisual(path, opts = {}) {
+    if (!path) return;
+    const stroke = opts.stroke || CONN_VISIBLE_STROKE;
+    const width = opts.width != null ? opts.width : CONN_VISIBLE_WIDTH;
+    const dash = opts.dash || null;
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke", stroke);
+    path.setAttribute("stroke-width", String(width));
+    path.setAttribute("stroke-linecap", "round");
+    path.setAttribute("stroke-linejoin", "round");
+    path.setAttribute("data-custom-stroke", "1");
+    path.setAttribute("data-custom-width", "1");
+    if (dash) {
+      path.setAttribute("stroke-dasharray", dash);
+    } else {
+      path.removeAttribute("stroke-dasharray");
+    }
+    path.style.fill = "none";
+    path.style.stroke = stroke;
+    path.style.strokeWidth = String(width);
+    path.style.strokeDasharray = dash || "none";
+    path.style.animation = "none";
+    path.style.opacity = "1";
+    path.classList.remove("conn-draw-in");
+  }
+
   function renderConnections() {
     if (!connectionsLayer) return;
     const _gcDbgConn = mdGcShouldLog();
@@ -16202,14 +16214,15 @@ clearFlowGroupSelection();
       if (!isNodeNodeConnection(c)) continue;
       normalizeConnectionEdge(c);
       const lay = getNodeNodeEdgeLayout(c, p);
-      if (!lay) continue;
+      if (!lay || !isValidConnectionPathD(lay.d)) continue;
       const fromNode = lay.fromNode;
       const toNode = lay.toNode;
       const from = lay.from;
       const to = lay.to;
-      const curve = lay.curve;
       const d = lay.d;
-      const nnStroke = connectionStrokeColorOrNull(c) || "rgba(169, 195, 255, 0.9)";
+      const nnStroke = connectionStrokeColorOrNull(c) || CONN_VISIBLE_STROKE;
+      const nnDash =
+        c.strokeDash === "dashed" ? "6 4" : c.strokeDash === "dotted" ? "2 4" : null;
 
       const hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
       hit.setAttribute("d", d);
@@ -16233,12 +16246,13 @@ clearFlowGroupSelection();
         "class",
         `conn${c.meta?.isBackEdge ? " fc-conn-back" : ""}${nnSel ? " selected" : ""}${runtime.connectionFeedbackId === c.id ? " confirm" : ""}${connListHoverSuffix(c.id, null)}`
       );
-      applyConnectionStrokeAttrs(path, c, { strokeHex: nnStroke, fallbackWidth: 2.25 });
+      enforceConnectionPathVisual(path, {
+        stroke: nnStroke,
+        width: connectionStrokeWidthPx(c, CONN_VISIBLE_WIDTH),
+        dash: nnDash
+      });
       applyConnectionPathMarkers(path, defs, c, nnStroke);
       path.dataset.connId = c.id;
-      if (runtime.fcConnEnterIds?.has(c.id)) {
-        path.classList.add("conn-draw-in");
-      }
       connectionsLayer.appendChild(hit);
       connectionsLayer.appendChild(path);
 
@@ -18234,7 +18248,9 @@ clearFlowGroupSelection();
     ensureProjectExtras(getProject());
     updateViewport();
     renderNodes();
+    syncNodeSizes();
     renderConnections();
+    scheduleConnectionsAfterNodesInDom();
     renderSemanticOverlays();
     renderFlowGroupOverlays();
     renderSelection();
@@ -20837,6 +20853,7 @@ clearFlowGroupSelection();
       },
     });
     renderRuntime = MDRT.createRenderRuntime(mdCtx, {
+      syncNodeSizes,
       renderConnections,
       renderSelection,
       scheduleFullRender: () => renderAll(),
@@ -21061,6 +21078,7 @@ clearFlowGroupSelection();
       }
       setRightTab("diagram");
       renderAll();
+      scheduleConnectionsAfterNodesInDom();
       applyWorkspaceViewStyles();
       if (window.innerWidth <= 768) {
         setTimeout(() => fitToScreen(), 120);

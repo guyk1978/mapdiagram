@@ -24,6 +24,7 @@ export function createRenderRuntime(ctx, deps) {
     if (runtime.renderConnectionsRaf) cancelAnimationFrame(runtime.renderConnectionsRaf);
     runtime.renderConnectionsRaf = requestAnimationFrame(() => {
       runtime.renderConnectionsRaf = null;
+      deps.syncNodeSizes?.();
       deps.renderConnections?.();
       deps.renderSelection?.();
     });
