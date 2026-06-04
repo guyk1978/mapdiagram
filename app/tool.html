@@ -2075,21 +2075,21 @@
   .flowchart-mode .node.selected {
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
   }
-  /* Connection anchors — 4 midpoints, offset outside bounding box. */
+  /* Connection anchors — 4 midpoints, outside resize handles (green = link, blue = resize). */
   .node-conn-handles {
     position: absolute;
-    inset: -8px;
-    z-index: 8;
+    inset: -14px;
+    z-index: 11;
     pointer-events: none;
   }
   .node-conn-handle {
     position: absolute;
-    width: 8px !important;
-    height: 8px !important;
-    min-width: 8px;
-    max-width: 8px;
-    min-height: 8px;
-    max-height: 8px;
+    width: 10px !important;
+    height: 10px !important;
+    min-width: 10px;
+    max-width: 10px;
+    min-height: 10px;
+    max-height: 10px;
     aspect-ratio: 1 / 1;
     flex: 0 0 auto;
     margin: 0;
@@ -2097,8 +2097,8 @@
     box-sizing: border-box;
     border: 1.5px solid #fff;
     border-radius: 50% !important;
-    background: #00a2e8;
-    box-shadow: 0 1px 5px rgba(0, 24, 48, 0.35);
+    background: #4fd087;
+    box-shadow: 0 1px 6px rgba(0, 48, 32, 0.35);
     pointer-events: auto;
     cursor: crosshair;
     opacity: 0;
@@ -2110,12 +2110,12 @@
     touch-action: none;
   }
   html[data-theme="light"] .node-conn-handle {
-    box-shadow: 0 1px 4px rgba(30, 50, 90, 0.2);
+    box-shadow: 0 1px 4px rgba(30, 80, 55, 0.22);
   }
   .node-conn-handle:hover,
   .node-conn-handle:focus-visible {
     transform: translate(-50%, -50%) scale(1.12);
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 10px rgba(0, 162, 232, 0.45);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 10px rgba(79, 208, 135, 0.55);
   }
   .node:hover .node-conn-handle,
   .node:focus-within .node-conn-handle,
@@ -2134,6 +2134,10 @@
   .node-conn-handle[data-side="right"] { left: 100%; top: 50%; }
   .node-conn-handle[data-side="bottom"] { left: 50%; top: 100%; }
   .node-conn-handle[data-side="left"] { left: 0; top: 50%; }
+  .node.shape-circle .node-conn-handle[data-side="top"] { top: 4%; }
+  .node.shape-circle .node-conn-handle[data-side="bottom"] { top: 96%; }
+  .node.shape-circle .node-conn-handle[data-side="left"] { left: 4%; }
+  .node.shape-circle .node-conn-handle[data-side="right"] { left: 96%; }
   .node.shape-parallelogram .node-conn-handle,
   .node.shape-parallelogram .node-resize-handle {
     transform: translate(-50%, -50%) skewX(14deg);
@@ -3880,6 +3884,13 @@
     background: rgba(239, 91, 91, 0.2);
     color: #ffb4b4;
   }
+  .fc-quick-edit .canvas-micro-toolbar__btn--connect {
+    color: #74e8a2;
+  }
+  .fc-quick-edit .canvas-micro-toolbar__btn--connect:hover:not(:disabled) {
+    background: rgba(79, 208, 135, 0.22);
+    color: #9ef0be;
+  }
   .flowchart-mode #projects-sidebar .node-picker {
     max-height: none;
     overflow-y: auto;
@@ -4440,6 +4451,9 @@
         </button>
         <button type="button" id="canvasSendBackwardBtn" class="canvas-micro-toolbar__btn" title="Send to back" aria-label="Send to back">
           <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 20V9M8 16l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="5" y="4" width="14" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/></svg>
+        </button>
+        <button type="button" id="fcConnectBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--connect" title="Connect to another node (drag green dots or Shift+click node)" aria-label="Connect to another node">
+          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="6" cy="6" r="2.5" fill="currentColor"/><circle cx="18" cy="18" r="2.5" fill="currentColor"/><path d="M8.5 8.5 15.5 15.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
         </button>
         <button type="button" id="geneAddSpouseBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--gene" hidden title="Add Male (Partner)" aria-label="Add Male (Partner)"><div style="width:12px; height:12px; background:#0070f3; display:inline-block; border-radius:2px;" aria-hidden="true"></div></button>
         <button type="button" id="geneAddChildBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--gene" hidden title="Add Female (Partner)" aria-label="Add Female (Partner)"><div style="width:12px; height:12px; background:#ff007f; display:inline-block; border-radius:50%;" aria-hidden="true"></div></button>
@@ -8908,6 +8922,7 @@ function finalizeFlowGroupDragIfAny() {
     const fwdBtn = document.getElementById("canvasBringForwardBtn");
     const backBtn = document.getElementById("canvasSendBackwardBtn");
     const delBtn = document.getElementById("fcDeleteBtn");
+    const connectBtn = document.getElementById("fcConnectBtn");
     const geneSpouseBtn = document.getElementById("geneAddSpouseBtn");
     const geneChildBtn = document.getElementById("geneAddChildBtn");
     const isGeneNode =
@@ -8918,6 +8933,11 @@ function finalizeFlowGroupDragIfAny() {
     if (fwdBtn) fwdBtn.disabled = !canEdit;
     if (backBtn) backBtn.disabled = !canEdit;
     if (delBtn) delBtn.disabled = !canEdit;
+    if (connectBtn) {
+      connectBtn.hidden = isGenealogyUnionNode(n);
+      connectBtn.style.display = connectBtn.hidden ? "none" : "";
+      connectBtn.disabled = !canEdit;
+    }
     if (geneSpouseBtn) {
       geneSpouseBtn.hidden = !isGeneNode;
       geneSpouseBtn.style.display = isGeneNode ? "" : "none";
@@ -8979,6 +8999,14 @@ function finalizeFlowGroupDragIfAny() {
     });
     document.getElementById("canvasSendBackwardBtn")?.addEventListener("click", (e) => {
       runToolbarAction(e, () => reorderSelectedNodesLayer(false));
+    });
+    document.getElementById("fcConnectBtn")?.addEventListener("click", (e) => {
+      runToolbarAction(e, (nodeId) => {
+        const nodeObj = nodeId ? getNodeById(nodeId) : null;
+        if (!nodeObj || isNodeHiddenCanvas(nodeObj) || isGenealogyUnionNode(nodeObj)) return;
+        startConnectionDrag(nodeObj, e);
+        showToast("Drag to another node to connect.", "info");
+      });
     });
     document.getElementById("fcDeleteBtn")?.addEventListener("click", (e) => {
       runToolbarAction(e, () => {
@@ -15421,7 +15449,22 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
         return;
       }
       e.stopPropagation();
-      const useCarryMove = isFlowchartMode() && e.button === 0 && e.pointerType !== "touch";
+      const useCarryMove = isFlowchartMode() && e.button === 0 && e.pointerType !== "touch" && !e.shiftKey;
+      if (e.button === 0 && e.shiftKey && !runtime.readOnly && !isNodeHiddenCanvas(n) && !isGenealogyUnionNode(n)) {
+        e.stopPropagation();
+        if (runtime.bodyConnectPressTimer) clearTimeout(runtime.bodyConnectPressTimer);
+        runtime.bodyConnectPressTimer = null;
+        runtime.dragging = null;
+        runtime.touchDragPending = null;
+        if (runtime.carryDrag) finalizeCarryDragIfAny();
+        markInspectorDiagramTabFocus();
+        selectionRuntime.selectNode(n.id);
+        clearFlowGroupSelection();
+        clearAllEdgeSelection();
+        renderSelection();
+        startConnectionDrag(n, e);
+        return;
+      }
       let droppedCarryThisClick = false;
       if (useCarryMove && runtime.carryDrag) {
         finalizeCarryDragIfAny();
@@ -19206,7 +19249,7 @@ clearFlowGroupSelection();
     }
     if (runtime.readOnly) return;
     if (runtime.fcToolbarInteracting || runtime.fcMultiBarInteracting) return;
-    if (e.target.closest("#fcQuickEdit, #fcGroupQuickEdit, #fcMultiSelectBar, #topbarBulkSpawn, #canvasCornerPill, .fc-quick-edit, .fc-multi-select-bar, .topbar-bulk-spawn, .canvas-corner-pill, #fcDeleteConfirm, .fc-delete-confirm, .fc-flow-group, .fc-flow-group-header, .fc-flow-group-body, .fc-flow-group-handle")) return;
+    if (e.target.closest("#fcQuickEdit, #fcGroupQuickEdit, #fcMultiSelectBar, #topbarBulkSpawn, #canvasCornerPill, #fcConnectBtn, .fc-quick-edit, .fc-multi-select-bar, .topbar-bulk-spawn, .canvas-corner-pill, #fcDeleteConfirm, .fc-delete-confirm, .fc-flow-group, .fc-flow-group-header, .fc-flow-group-body, .fc-flow-group-handle")) return;
     if (e.target.closest(".node") || e.target.closest(".conn") || e.target.closest(".conn-hit")) return;
     /* Group label/handles live above nodes; ignore canvas clear/pan when interacting with a group frame */
     if (e.target.closest(".group-chrome, .group-chrome-body, .group-drag-surface")) return;

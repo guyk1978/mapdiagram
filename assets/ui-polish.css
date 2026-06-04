@@ -2099,8 +2099,7 @@ html[data-theme="light"] #inspector-panel-export .partner-banner {
   border-color: rgba(0, 162, 232, 0.65);
 }
 
-.flowchart-mode .node-resize-handle,
-.flowchart-mode .node-conn-handle {
+.flowchart-mode .node-resize-handle {
   width: 8px !important;
   height: 8px !important;
   min-width: 8px !important;
@@ -2117,9 +2116,29 @@ html[data-theme="light"] #inspector-panel-export .partner-banner {
   padding: 0 !important;
 }
 
-.flowchart-mode .node-conn-handles,
+.flowchart-mode .node-conn-handle {
+  width: 10px !important;
+  height: 10px !important;
+  min-width: 10px !important;
+  max-width: 10px !important;
+  min-height: 10px !important;
+  max-height: 10px !important;
+  aspect-ratio: 1 / 1 !important;
+  flex: 0 0 auto !important;
+  box-sizing: border-box !important;
+  border-radius: 50% !important;
+  border: 1.5px solid #fff;
+  background: #4fd087;
+  transform: translate(-50%, -50%);
+  padding: 0 !important;
+}
+
 .flowchart-mode .node-resize-handles {
   inset: -8px;
+}
+
+.flowchart-mode .node-conn-handles {
+  inset: -14px;
 }
 
 .flowchart-mode .node:hover .node-conn-handle,
