@@ -1519,19 +1519,24 @@
   #viewport {
     position: absolute;
     inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
     z-index: 1;
     transform-origin: 0 0;
     will-change: transform;
     isolation: isolate;
     background: transparent;
+    overflow: visible;
   }
   #connections {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    min-width: 100%;
-    min-height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
     display: block;
     pointer-events: none;
     overflow: visible;
@@ -14412,9 +14417,34 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     autoLayoutGraph("horizontal", subset, { semanticMode: runtime.semanticLayoutMode });
   }
 
+  /** Workspace-sized canvas layers (fixes SVG #connections height:0 → invisible links). */
+  function syncDiagramCanvasLayerGeometry() {
+    const ws = workspace;
+    if (!ws) return;
+    const cw = Math.max(1, ws.clientWidth || 0);
+    const ch = Math.max(1, ws.clientHeight || 0);
+    if (viewport) {
+      viewport.style.width = "100%";
+      viewport.style.height = "100%";
+      viewport.style.minHeight = "100%";
+    }
+    for (const el of [nodesLayer, connectionsLayer, semanticOverlays, canvasUnderlays, snapGuides]) {
+      if (!el) continue;
+      el.style.width = `${cw}px`;
+      el.style.height = `${ch}px`;
+    }
+    if (connectionsLayer) {
+      connectionsLayer.setAttribute("width", String(cw));
+      connectionsLayer.setAttribute("height", String(ch));
+      connectionsLayer.removeAttribute("viewBox");
+      connectionsLayer.setAttribute("preserveAspectRatio", "none");
+    }
+  }
+
   function updateViewport() {
     initMapDiagramRuntimes();
     if (viewportRuntime) viewportRuntime.updateViewport();
+    syncDiagramCanvasLayerGeometry();
     applyWorkspaceGridLayer();
   }
 
@@ -16130,6 +16160,7 @@ clearFlowGroupSelection();
 
   function renderConnections() {
     if (!connectionsLayer) return;
+    syncDiagramCanvasLayerGeometry();
     const _gcDbgConn = mdGcShouldLog();
     const p0 = getProject();
     const gcCountIn = (p0.groupConnections || []).length;
@@ -20618,6 +20649,8 @@ clearFlowGroupSelection();
       syncFcMultiSelectBar();
       if (window.innerWidth <= 768) fitToScreen();
       applyDesktopSidebarCollapse();
+      syncDiagramCanvasLayerGeometry();
+      scheduleRenderConnections();
     }, 100);
   });
 
