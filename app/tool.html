@@ -3969,6 +3969,16 @@
   body.flowchart-mode.fc-connecting .workspace {
     cursor: crosshair;
   }
+  body.fc-multi-connect .node.multi-connect-target {
+    box-shadow:
+      0 0 0 2px rgba(79, 208, 135, 0.72),
+      0 0 18px rgba(79, 208, 135, 0.38),
+      0 14px 34px rgba(0, 0, 0, 0.22);
+  }
+  body.fc-multi-connect .node.is-connect-from .node-conn-handle {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
   .flowchart-mode .node.fc-node-start {
     opacity: 0.94;
     filter: saturate(0.92);
@@ -4452,7 +4462,7 @@
         <button type="button" id="canvasSendBackwardBtn" class="canvas-micro-toolbar__btn" title="Send to back" aria-label="Send to back">
           <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 20V9M8 16l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="5" y="4" width="14" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/></svg>
         </button>
-        <button type="button" id="fcConnectBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--connect" title="Connect to another node (drag green dots or Shift+click node)" aria-label="Connect to another node">
+        <button type="button" id="fcConnectBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--connect" title="Link to nodes: click, then Shift+click targets, Enter to finish" aria-label="Link to multiple nodes">
           <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="6" cy="6" r="2.5" fill="currentColor"/><circle cx="18" cy="18" r="2.5" fill="currentColor"/><path d="M8.5 8.5 15.5 15.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
         </button>
         <button type="button" id="geneAddSpouseBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--gene" hidden title="Add Male (Partner)" aria-label="Add Male (Partner)"><div style="width:12px; height:12px; background:#0070f3; display:inline-block; border-radius:2px;" aria-hidden="true"></div></button>
@@ -7567,11 +7577,113 @@ function abortGroupConnectionDrag(reason) {
   runtime.groupConnecting = null;
 }
 
+function isMultiConnectMode() {
+  return !!(runtime.connecting && runtime.connecting.mode === "multi" && runtime.connecting.fromNodeId);
+}
+
+function armMultiConnectMode(nodeObj, opts = {}) {
+  if (!nodeObj || runtime.readOnly || isNodeHiddenCanvas(nodeObj) || isGenealogyUnionNode(nodeObj)) return;
+  abortGroupConnectionDrag();
+  const fromSide =
+    opts.fromSide && ["top", "right", "bottom", "left"].includes(opts.fromSide) ? opts.fromSide : null;
+  const prev = runtime.connecting;
+  if (prev?.mode === "multi" && prev.fromNodeId === nodeObj.id) {
+    finalizeMultiConnect();
+    return;
+  }
+  clearPendingConnectionState();
+  runtime.connecting = {
+    mode: "multi",
+    fromNodeId: nodeObj.id,
+    fromSide,
+    targetIds: new Set(),
+    hoverNodeId: null,
+    hoverGroupInId: null,
+  };
+  document.body.classList.add("fc-connecting", "fc-multi-connect");
+  workspace.style.cursor = "crosshair";
+  markInspectorDiagramTabFocus();
+  selectionRuntime.selectNode(nodeObj.id);
+  clearFlowGroupSelection();
+  clearAllEdgeSelection();
+  renderSelection();
+  showToast("Shift+click target nodes, then Enter or click the green dot again.", "info");
+}
+
+function toggleMultiConnectTarget(nodeId) {
+  const conn = runtime.connecting;
+  if (!conn || conn.mode !== "multi" || !conn.fromNodeId || !nodeId) return;
+  if (nodeId === conn.fromNodeId) return;
+  const n = getNodeById(nodeId);
+  if (!n || isNodeHiddenCanvas(n) || isGenealogyUnionNode(n)) return;
+  if (!conn.targetIds) conn.targetIds = new Set();
+  if (conn.targetIds.has(nodeId)) conn.targetIds.delete(nodeId);
+  else conn.targetIds.add(nodeId);
+  renderSelection();
+  const nTargets = conn.targetIds.size;
+  showConnectionHint(
+    nTargets ? `${nTargets} target${nTargets === 1 ? "" : "s"} — Enter to link` : "Shift+click nodes to add targets",
+    false
+  );
+}
+
+function finalizeMultiConnect() {
+  const conn = runtime.connecting;
+  if (!conn || conn.mode !== "multi" || !conn.fromNodeId) {
+    clearPendingConnectionState();
+    return;
+  }
+  const fromId = conn.fromNodeId;
+  const targets = [...(conn.targetIds || [])].filter((id) => id && id !== fromId);
+  if (!targets.length) {
+    showToast("Shift+click target nodes, then Enter or click the green dot again.", "warn");
+    return;
+  }
+  pushHistory();
+  let created = 0;
+  let skipped = 0;
+  for (const toId of targets) {
+    if (isEbikeWorkspaceActive()) {
+      const ebikeCheck = validateEbikeConnection(fromId, toId);
+      if (!ebikeCheck.ok) {
+        skipped++;
+        continue;
+      }
+    }
+    const cid = ensureNodeNodeEdge(fromId, toId);
+    if (cid) {
+      created++;
+      if (isFlowchartMode()) {
+        pulseFcConnectTarget(toId);
+        flashFcConnEnter(cid);
+      }
+    } else {
+      skipped++;
+    }
+  }
+  markDirty();
+  clearPendingConnectionState();
+  scheduleRenderConnections();
+  scheduleSemanticAnalysis();
+  selectionRuntime.selectNode(fromId);
+  if (created) {
+    showToast(
+      skipped
+        ? `Linked to ${created} node${created === 1 ? "" : "s"} (${skipped} skipped).`
+        : `Linked to ${created} node${created === 1 ? "" : "s"}.`,
+      "info"
+    );
+  } else {
+    showToast("No new links created.", "warn");
+  }
+  renderSelection();
+}
+
 function clearPendingConnectionState() {
   runtime.connecting = null;
   runtime.previewFrom = null;
   clearConnectTargetHighlight();
-  document.body.classList.remove("fc-connecting");
+  document.body.classList.remove("fc-connecting", "fc-multi-connect");
   if (runtime.previewPath) {
     const path = runtime.previewPath;
     runtime.previewPath = null;
@@ -9004,8 +9116,7 @@ function finalizeFlowGroupDragIfAny() {
       runToolbarAction(e, (nodeId) => {
         const nodeObj = nodeId ? getNodeById(nodeId) : null;
         if (!nodeObj || isNodeHiddenCanvas(nodeObj) || isGenealogyUnionNode(nodeObj)) return;
-        startConnectionDrag(nodeObj, e);
-        showToast("Drag to another node to connect.", "info");
+        armMultiConnectMode(nodeObj);
       });
     });
     document.getElementById("fcDeleteBtn")?.addEventListener("click", (e) => {
@@ -12443,7 +12554,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       clearFlowGroupSelection();
       clearAllEdgeSelection();
       renderSelection();
-      startConnectionDrag(nodeObj, e, { fromSide: side });
+      armMultiConnectMode(nodeObj, { fromSide: side });
     });
   }
 
@@ -15450,19 +15561,15 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       }
       e.stopPropagation();
       const useCarryMove = isFlowchartMode() && e.button === 0 && e.pointerType !== "touch" && !e.shiftKey;
-      if (e.button === 0 && e.shiftKey && !runtime.readOnly && !isNodeHiddenCanvas(n) && !isGenealogyUnionNode(n)) {
+      if (isMultiConnectMode() && isAdditiveSelection(e) && e.button === 0) {
         e.stopPropagation();
         if (runtime.bodyConnectPressTimer) clearTimeout(runtime.bodyConnectPressTimer);
         runtime.bodyConnectPressTimer = null;
         runtime.dragging = null;
         runtime.touchDragPending = null;
         if (runtime.carryDrag) finalizeCarryDragIfAny();
-        markInspectorDiagramTabFocus();
-        selectionRuntime.selectNode(n.id);
-        clearFlowGroupSelection();
-        clearAllEdgeSelection();
-        renderSelection();
-        startConnectionDrag(n, e);
+        releaseStoredNodeBodyPointerCapture();
+        toggleMultiConnectTarget(n.id);
         return;
       }
       let droppedCarryThisClick = false;
@@ -17820,6 +17927,10 @@ clearFlowGroupSelection();
         "is-connect-from",
         !!(runtime.connecting && runtime.connecting.fromNodeId === id)
       );
+      el.classList.toggle(
+        "multi-connect-target",
+        !!(isMultiConnectMode() && runtime.connecting.targetIds && runtime.connecting.targetIds.has(id))
+      );
     }
     for (const c of connectionsLayer.querySelectorAll(".conn")) {
       const cid = c.dataset.connId;
@@ -19494,6 +19605,7 @@ clearFlowGroupSelection();
       zoomAt(pinchMeta.centerX, pinchMeta.centerY, nextZoom);
       return;
     }
+    if (isMultiConnectMode()) return;
     if (runtime.connecting && runtime.previewPath) {
       const rawPoint = world(e.clientX, e.clientY);
       if (runtime.connecting.fromFlowGroupId) {
@@ -19720,6 +19832,7 @@ clearFlowGroupSelection();
       saveCanvasState();
     }
     if (runtime.connecting) {
+      if (runtime.connecting.mode === "multi") return;
       const branchParentId = runtime.connecting.branchFromParentId;
       if (branchParentId) {
         const p = getProject();
@@ -20048,6 +20161,18 @@ clearFlowGroupSelection();
       toggleStickyMultiSelect();
       return;
     }
+    if (
+      isMultiConnectMode() &&
+      !typing &&
+      e.key === "Enter" &&
+      !e.ctrlKey &&
+      !e.metaKey &&
+      !e.altKey
+    ) {
+      e.preventDefault();
+      finalizeMultiConnect();
+      return;
+    }
     if (fcEditorCanSelect() && e.key === "Escape" && !typing && !runtime.editingNodeId) {
       if (runtime.carryDrag) {
         e.preventDefault();
@@ -20058,6 +20183,7 @@ clearFlowGroupSelection();
         e.preventDefault();
         clearPendingConnectionState();
         scheduleRenderConnections();
+        renderSelection();
         return;
       }
       if (runtime.flowGroupDragging) {
