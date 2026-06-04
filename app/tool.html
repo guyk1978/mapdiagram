@@ -20422,13 +20422,13 @@ clearFlowGroupSelection();
       return getPublishedViewUrl();
     },
     async shareSnapshot() {
-      initMapDiagramRuntimes();
-      if (!exportersRuntime?.shareDiagramSnapshot) {
+      const exp = ensureExportersRuntime();
+      if (!exp?.shareDiagramSnapshot) {
         showToast("Share image is not available", "warn");
         return { ok: false };
       }
       try {
-        return await exportersRuntime.shareDiagramSnapshot();
+        return await exp.shareDiagramSnapshot();
       } catch (err) {
         console.warn("[ShareSnapshot]", err);
         showToast("Could not share diagram image", "warn");
@@ -20436,18 +20436,17 @@ clearFlowGroupSelection();
       }
     },
     async copyImageToClipboard() {
-      initMapDiagramRuntimes();
-      if (!exportersRuntime?.copyDiagramImageToClipboard) {
-        showToast("Copy image is not available", "warn");
-        return { ok: false };
+      const exp = ensureExportersRuntime();
+      if (exp?.copyDiagramImageToClipboard) {
+        try {
+          return await exp.copyDiagramImageToClipboard();
+        } catch (err) {
+          console.warn("[CopyDiagramImage]", err);
+          showToast("Could not copy diagram image", "warn");
+          return { ok: false };
+        }
       }
-      try {
-        return await exportersRuntime.copyDiagramImageToClipboard();
-      } catch (err) {
-        console.warn("[CopyDiagramImage]", err);
-        showToast("Could not copy diagram image", "warn");
-        return { ok: false };
-      }
+      return copyDiagramImageToClipboardInline();
     },
   };
   const shareBtn = document.getElementById("shareBtn");
@@ -21941,6 +21940,112 @@ clearFlowGroupSelection();
     supa().scheduleSoftLockPrompt();
   }
 
+  const COPY_DIAGRAM_CLIPBOARD_TOAST =
+    "הדיאגרמה הועתקה ללוח, עכשיו אפשר להדביק בפייסבוק/וואטסאפ";
+
+  function getMdExporterDeps() {
+    return {
+      showToast,
+      renderConnections,
+      isFlowchartMode,
+      isNodeHiddenCanvas,
+      getUserGroupBox,
+      getNodeWorldPosition,
+      groupColorVars,
+      isGroupOutsideFocus,
+      normalizeConnectionEdge,
+      smartGroupAnchors,
+      nodesInsideGroupBoxObstacles,
+      autoCurve,
+      orthogonalPath,
+      curvePath,
+      connectionStrokeColorOrNull,
+      connectionStrokeWidthPx,
+      connectionDashArray,
+      getNodeById,
+      anchorNodeForConnection,
+      groupAnchor,
+      anchor,
+      isBranchFromConnection,
+      isNodeNodeConnection,
+      getCurveData,
+      getNodeNodeEdgeLayout,
+      pathWorldPointAtParam,
+      nodeWorldCenter,
+      normalizeNode,
+      ensureNodeStyle,
+      nodeTitleFontStackCss,
+      getFlowGroupBox,
+    };
+  }
+
+  function ensureExportersRuntime() {
+    initMapDiagramRuntimes();
+    const MDRT = globalThis.MapDiagramRuntime;
+    if (!MDRT || !mdCtx) return null;
+    if (
+      exportersRuntime &&
+      typeof exportersRuntime.copyDiagramImageToClipboard === "function" &&
+      typeof exportersRuntime.shareDiagramSnapshot === "function"
+    ) {
+      return exportersRuntime;
+    }
+    exportersRuntime = MDRT.createExportersRuntime(mdCtx, getMdExporterDeps());
+    return exportersRuntime;
+  }
+
+  async function copyDiagramImageToClipboardInline() {
+    const exp = ensureExportersRuntime();
+    if (!exp?.buildDiagramPngBlob) {
+      showToast("Copy image is not available", "warn");
+      return { ok: false };
+    }
+    const p = getProject();
+    if (!p?.nodes?.length) {
+      showToast("Add nodes before sharing an image", "warn");
+      return { ok: false, reason: "empty" };
+    }
+    let blob;
+    try {
+      blob = await exp.buildDiagramPngBlob();
+    } catch (err) {
+      if (err?.message === "EMPTY_DIAGRAM") {
+        showToast("Add nodes before sharing an image", "warn");
+        return { ok: false, reason: "empty" };
+      }
+      if (err?.message === "NO_BOUNDS") {
+        showToast(
+          "Nothing to capture. Try “Include hidden nodes in PNG” or add visible nodes.",
+          "warn"
+        );
+        return { ok: false, reason: "bounds" };
+      }
+      showToast("Could not create diagram image", "warn");
+      return { ok: false, reason: "error" };
+    }
+    if (!navigator.clipboard?.write) {
+      showToast("Clipboard is not available in this browser", "warn");
+      return { ok: false, reason: "clipboard" };
+    }
+    const pngBlob = blob.type === "image/png" ? blob : new Blob([blob], { type: "image/png" });
+    const payloads = [
+      () => navigator.clipboard.write([new ClipboardItem({ "image/png": pngBlob })]),
+      () =>
+        navigator.clipboard.write([
+          new ClipboardItem({ "image/png": Promise.resolve(pngBlob) }),
+        ]),
+    ];
+    for (const attempt of payloads) {
+      try {
+        await attempt();
+        showToast(COPY_DIAGRAM_CLIPBOARD_TOAST, "info");
+        return { ok: true };
+      } catch (_) {}
+    }
+    showToast("Could not copy image to clipboard", "warn");
+    return { ok: false, reason: "clipboard" };
+  }
+
   function initMapDiagramRuntimes() {
     if (mdCtx) return;
     const MDRT = globalThis.MapDiagramRuntime;
@@ -22095,39 +22200,7 @@ clearFlowGroupSelection();
       showToast,
       setRightTab,
     });
-    exportersRuntime = MDRT.createExportersRuntime(mdCtx, {
-      showToast,
-      renderConnections,
-      isFlowchartMode,
-      isNodeHiddenCanvas,
-      getUserGroupBox,
-      getNodeWorldPosition,
-      groupColorVars,
-      isGroupOutsideFocus,
-      normalizeConnectionEdge,
-      smartGroupAnchors,
-      nodesInsideGroupBoxObstacles,
-      autoCurve,
-      orthogonalPath,
-      curvePath,
-      connectionStrokeColorOrNull,
-      connectionStrokeWidthPx,
-      connectionDashArray,
-      getNodeById,
-      anchorNodeForConnection,
-      groupAnchor,
-      anchor,
-      isBranchFromConnection,
-      isNodeNodeConnection,
-      getCurveData,
-      getNodeNodeEdgeLayout,
-      pathWorldPointAtParam,
-      nodeWorldCenter,
-      normalizeNode,
-      ensureNodeStyle,
-      nodeTitleFontStackCss,
-      getFlowGroupBox,
-    });
+    exportersRuntime = MDRT.createExportersRuntime(mdCtx, getMdExporterDeps());
     commandRuntime.registerCommand("duplicateGroup", {
       describe: "Duplicate user group subtree",
       execute: ({ rootId }) => groupRuntime.duplicateUserGroup(rootId),
@@ -22142,6 +22215,7 @@ clearFlowGroupSelection();
       initSidebarPanelTabs();
       initFlowchartProductUi();
       initMapDiagramRuntimes();
+      ensureExportersRuntime();
       restoreCanvasStateFromStorage();
       tryOpenSharedProject();
       for (const project of runtime.db.projects) {

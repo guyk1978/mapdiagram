@@ -1128,13 +1128,22 @@ export async function copyDiagramImageToClipboard() {
     return { ok: false, reason: "clipboard" };
   }
   const pngBlob = blob.type === "image/png" ? blob : new Blob([blob], { type: "image/png" });
-  try {
-    await navigator.clipboard.write([
-      new ClipboardItem({
-        "image/png": Promise.resolve(pngBlob),
-      }),
-    ]);
-  } catch (_) {
+  const clipAttempts = [
+    () => navigator.clipboard.write([new ClipboardItem({ "image/png": pngBlob })]),
+    () =>
+      navigator.clipboard.write([
+        new ClipboardItem({ "image/png": Promise.resolve(pngBlob) }),
+      ]),
+  ];
+  let copied = false;
+  for (const attempt of clipAttempts) {
+    try {
+      await attempt();
+      copied = true;
+      break;
+    } catch (_) {}
+  }
+  if (!copied) {
     bind().deps.showToast("Could not copy image to clipboard", "warn");
     return { ok: false, reason: "clipboard" };
   }
