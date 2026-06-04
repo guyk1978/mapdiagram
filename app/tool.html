@@ -1530,6 +1530,9 @@
     inset: 0;
     width: 100%;
     height: 100%;
+    min-width: 100%;
+    min-height: 100%;
+    display: block;
     pointer-events: none;
     overflow: visible;
     z-index: 13;
@@ -4403,7 +4406,7 @@
         <div id="canvas-underlays"></div>
         <div id="nodes"></div>
         <div id="semantic-overlays"></div>
-        <svg id="connections" aria-hidden="false"></svg>
+        <svg id="connections" xmlns="http://www.w3.org/2000/svg" aria-hidden="false"></svg>
       </div>
       <div id="marquee" class="marquee"></div>
       <div id="focusGroupChip" class="focus-group-chip" aria-live="polite">
@@ -5860,6 +5863,8 @@
       normalizeConnectionEdge(c);
     }
     renderConnections();
+    scheduleConnectionsAfterNodesInDom();
+    requestAnimationFrame(() => refreshConnectionStrokesInDom());
     markDirty();
     syncEdgeInspectorPanel();
     syncGlobalColorPickerFromSelection();
@@ -10231,9 +10236,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
   function applyGlobalColor(value) {
     if (runtime.readOnly) return;
     scheduleNodeStyleApply(() => {
-      const edgeSelected =
-        hasSelectedConnections() && runtime.selectedNodeIds.size === 0 && !runtime.selectedNodeId;
-      if (edgeSelected) {
+      if (isGlobalColorEdgeTarget()) {
         const norm = normalizeNodeHexColor(value);
         if (norm === null) return;
         applyEdgeStyleToSelection((c) => {
@@ -10255,8 +10258,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     const toggle = document.getElementById("globalColorTargetToggle");
     const swatches = document.getElementById("globalColorSwatches");
     if (!preview) return;
-    const edgeSelected =
-      hasSelectedConnections() && runtime.selectedNodeIds.size === 0 && !runtime.selectedNodeId;
+    const edgeSelected = isGlobalColorEdgeTarget();
     if (toggle) {
       toggle.hidden = edgeSelected;
       toggle.style.display = edgeSelected ? "none" : "";
@@ -14067,6 +14069,47 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     return { fromNode, toNode, from, to, curve, d };
   }
 
+  /** Routed layout when possible; otherwise a straight perimeter link so the edge is always drawable. */
+  function getNodeNodeEdgeLayoutWithFallback(c, p) {
+    const lay = getNodeNodeEdgeLayout(c, p);
+    if (lay && isValidConnectionPathD(lay.d)) return lay;
+    const fromNode = getNodeById(c?.from);
+    const toNode = getNodeById(c?.to);
+    if (!fromNode || !toNode || isNodeHiddenCanvas(fromNode) || isNodeHiddenCanvas(toNode)) return null;
+    const toCenter = nodeWorldCenter(toNode);
+    const fromCenter = nodeWorldCenter(fromNode);
+    const toPre = anchorNodeForConnection(c.to, "to", anchor(fromNode, "out", toCenter, c.id), c.id);
+    const from = anchorNodeForConnection(c.from, "from", toPre, c.id);
+    const to = anchorNodeForConnection(c.to, "to", from, c.id);
+    if (!connectionPointFinite(from) || !connectionPointFinite(to)) {
+      const d = `M ${fromCenter.x} ${fromCenter.y} L ${toCenter.x} ${toCenter.y}`;
+      if (!isValidConnectionPathD(d)) return null;
+      const curve = {
+        cp1: { x: (fromCenter.x + toCenter.x) / 2, y: fromCenter.y },
+        cp2: { x: (fromCenter.x + toCenter.x) / 2, y: toCenter.y },
+        custom: false
+      };
+      return { fromNode, toNode, from: fromCenter, to: toCenter, curve, d, fallback: true };
+    }
+    const d = `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
+    if (!isValidConnectionPathD(d)) return null;
+    const curve = getCurveData(c.id, from, to, c);
+    return { fromNode, toNode, from, to, curve, d, fallback: true };
+  }
+
+  function isConnectorInspectorActive() {
+    const el = document.getElementById("inspectorConnectorState");
+    return !!(el && el.style.display !== "none");
+  }
+
+  function isGlobalColorEdgeTarget() {
+    return (
+      hasSelectedConnections() &&
+      (isConnectorInspectorActive() ||
+        (runtime.selectedNodeIds.size === 0 && !runtime.selectedNodeId))
+    );
+  }
+
   /** Sample a point along an SVG path `d` (0–1 of path length). Requires `connectionsLayer` in DOM. */
   function pathWorldPointAtParam(d, t01) {
     if (!d || !connectionsLayer) return null;
@@ -16049,16 +16092,40 @@ clearFlowGroupSelection();
   }
 
   function paintConnectionPathVisual(path, c, defs) {
-    const stroke = resolveConnectionStrokeHex(c);
+    const connId = c && (c.id || path?.dataset?.connId);
+    const selected =
+      !!connId &&
+      (runtime.selectedConnectionIds.has(connId) || runtime.selectedConnectionId === connId);
+    let stroke = resolveConnectionStrokeHex(c);
+    if (selected && !connectionStrokeColorOrNull(c)) stroke = "#4fd087";
     const dash =
       c.strokeDash === "dashed" ? "6 4" : c.strokeDash === "dotted" ? "2 4" : null;
+    let width = connectionStrokeWidthPx(c, CONN_VISIBLE_WIDTH);
+    if (selected) width = Math.max(width, 3.2);
     enforceConnectionPathVisual(path, {
       stroke,
-      width: connectionStrokeWidthPx(c, CONN_VISIBLE_WIDTH),
+      width,
       dash,
       opacity: connectionEdgeOpacityOrDefault(c)
     });
     applyConnectionPathMarkers(path, defs, c, stroke);
+  }
+
+  function refreshConnectionStrokesInDom() {
+    if (!connectionsLayer) return;
+    const p = getProject();
+    const defs = connectionsLayer.querySelector("defs");
+    if (!defs) return;
+    for (const path of connectionsLayer.querySelectorAll("path.conn[data-conn-id]")) {
+      const id = path.dataset.connId;
+      const c = p.connections.find((x) => x.id === id);
+      if (c) paintConnectionPathVisual(path, c, defs);
+    }
+    for (const path of connectionsLayer.querySelectorAll("path.conn[data-gc-id]")) {
+      const id = path.dataset.gcId;
+      const gc = (p.groupConnections || []).find((x) => x.id === id);
+      if (gc) paintConnectionPathVisual(path, gc, defs);
+    }
   }
 
   function renderConnections() {
@@ -16298,7 +16365,7 @@ clearFlowGroupSelection();
       if (isBranchFromConnection(c)) continue;
       if (!isNodeNodeConnection(c)) continue;
       normalizeConnectionEdge(c);
-      const lay = getNodeNodeEdgeLayout(c, p);
+      const lay = getNodeNodeEdgeLayoutWithFallback(c, p);
       if (!lay || !isValidConnectionPathD(lay.d)) continue;
       const fromNode = lay.fromNode;
       const toNode = lay.toNode;
