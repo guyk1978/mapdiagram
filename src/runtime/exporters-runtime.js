@@ -960,47 +960,156 @@ export function exportAsSvg() {
   bind().deps.showToast("SVG export complete (vector nodes, systems, and links).", "info");
 }
 
-export function exportAsPng() {
+function diagramSnapshotBaseName(p) {
+  const raw = (p?.title || p?.name || "diagram").trim() || "diagram";
+  return raw.replace(/\s+/g, "-").toLowerCase() || "diagram";
+}
+
+/** Read-only PNG rasterization (SVG links painted via canvas paths). Does not mutate project state. */
+export function buildDiagramPngBlob() {
+  return new Promise((resolve, reject) => {
+    try {
+      const p = bind().ctx.getProject();
+      if (!p?.nodes?.length) {
+        reject(new Error("EMPTY_DIAGRAM"));
+        return;
+      }
+      const padEl = document.getElementById("pngExportPad");
+      const scaleEl = document.getElementById("pngExportScale");
+      const basePad = Math.max(8, Math.min(400, Math.round(Number(padEl?.value) || 80)));
+      const pad = bind().deps.isFlowchartMode() ? Math.max(basePad, 96) : basePad;
+      const sc = Math.max(0.5, Math.min(3, Number(scaleEl?.value) || 1));
+      const transparent = !!document.getElementById("pngExportTransparent")?.checked;
+      const wb = getDiagramWorldBoundsForPngExport(p);
+      if (!wb) {
+        reject(new Error("NO_BOUNDS"));
+        return;
+      }
+      const { minX, minY, maxX, maxY } = wb;
+      const width = Math.ceil(maxX - minX + pad * 2);
+      const height = Math.ceil(maxY - minY + pad * 2);
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.ceil(width * sc));
+      canvas.height = Math.max(1, Math.ceil(height * sc));
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        reject(new Error("NO_CANVAS"));
+        return;
+      }
+      ctx.scale(sc, sc);
+      if (transparent) {
+        ctx.clearRect(0, 0, width, height);
+      } else {
+        const bg = document.getElementById("canvasBgColor")?.value || "#0b0f1a";
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, width, height);
+      }
+      const tx = pad - minX;
+      const ty = pad - minY;
+      ctx.save();
+      ctx.translate(tx, ty);
+      paintDiagramToPngContext(ctx, p);
+      paintPngWatermark(ctx, width, height);
+      ctx.restore();
+      canvas.toBlob(
+        (blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error("PNG_ENCODE_FAILED"));
+        },
+        "image/png",
+        1
+      );
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+export function downloadDiagramSnapshotBlob(blob, filename) {
+  if (!blob) return;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename || "diagram.png";
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function canSharePngFile(file) {
+  if (!file || typeof navigator === "undefined" || typeof navigator.share !== "function") return false;
+  try {
+    if (typeof navigator.canShare === "function") return navigator.canShare({ files: [file] });
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+/** Share diagram as PNG via native share sheet; download if unsupported. Read-only snapshot. */
+export async function shareDiagramSnapshot() {
+  const p = bind().ctx.getProject();
+  if (!p?.nodes?.length) {
+    bind().deps.showToast("Add nodes before sharing an image", "warn");
+    return { ok: false, reason: "empty" };
+  }
+  let blob;
+  try {
+    blob = await buildDiagramPngBlob();
+  } catch (err) {
+    if (err?.message === "EMPTY_DIAGRAM") {
+      bind().deps.showToast("Add nodes before sharing an image", "warn");
+      return { ok: false, reason: "empty" };
+    }
+    if (err?.message === "NO_BOUNDS") {
+      bind().deps.showToast(
+        "Nothing to capture. Try “Include hidden nodes in PNG” or add visible nodes.",
+        "warn"
+      );
+      return { ok: false, reason: "bounds" };
+    }
+    bind().deps.showToast("Could not create diagram image", "warn");
+    return { ok: false, reason: "error" };
+  }
+  const filename = `${diagramSnapshotBaseName(p)}.png`;
+  const file = new File([blob], filename, { type: "image/png" });
+  if (canSharePngFile(file)) {
+    try {
+      await navigator.share({
+        files: [file],
+        title: p.title || p.name || "Diagram",
+        text: "Diagram snapshot from MapDiagram",
+      });
+      bind().deps.showToast("Diagram image shared", "info");
+      if (window.MapDiagramAnalytics) MapDiagramAnalytics.shareDiagramSnapshot?.({ method: "native" });
+      return { ok: true, method: "share" };
+    } catch (err) {
+      if (err?.name === "AbortError") return { ok: false, reason: "abort" };
+    }
+  }
+  downloadDiagramSnapshotBlob(blob, filename);
+  bind().deps.showToast("Share unavailable — image downloaded", "info");
+  if (window.MapDiagramAnalytics) MapDiagramAnalytics.shareDiagramSnapshot?.({ method: "download" });
+  return { ok: true, method: "download" };
+}
+
+export async function exportAsPng() {
   const p = bind().ctx.getProject();
   if (!p.nodes.length) return;
-  const padEl = document.getElementById("pngExportPad");
-  const scaleEl = document.getElementById("pngExportScale");
-  const basePad = Math.max(8, Math.min(400, Math.round(Number(padEl?.value) || 80)));
-  const pad = bind().deps.isFlowchartMode() ? Math.max(basePad, 96) : basePad;
-  const sc = Math.max(0.5, Math.min(3, Number(scaleEl?.value) || 1));
-  const transparent = !!document.getElementById("pngExportTransparent")?.checked;
-  const wb = getDiagramWorldBoundsForPngExport(p);
-  if (!wb) {
-    bind().deps.showToast("Nothing to export in the current bounds. Try “Include hidden nodes in PNG” or add visible nodes.", "warn");
+  let blob;
+  try {
+    blob = await buildDiagramPngBlob();
+  } catch (err) {
+    if (err?.message === "NO_BOUNDS") {
+      bind().deps.showToast("Nothing to export in the current bounds. Try “Include hidden nodes in PNG” or add visible nodes.", "warn");
+      return;
+    }
+    bind().deps.showToast("PNG export failed", "warn");
     return;
   }
-  const { minX, minY, maxX, maxY } = wb;
-  const width = Math.ceil(maxX - minX + pad * 2);
-  const height = Math.ceil(maxY - minY + pad * 2);
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, Math.ceil(width * sc));
-  canvas.height = Math.max(1, Math.ceil(height * sc));
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-  ctx.scale(sc, sc);
-  if (transparent) {
-    ctx.clearRect(0, 0, width, height);
-  } else {
-    const bg = document.getElementById("canvasBgColor")?.value || "#0b0f1a";
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, width, height);
-  }
-  const tx = pad - minX;
-  const ty = pad - minY;
-  ctx.save();
-  ctx.translate(tx, ty);
-  paintDiagramToPngContext(ctx, p);
-  paintPngWatermark(ctx, width, height);
-  ctx.restore();
-  const a = document.createElement("a");
-  a.href = canvas.toDataURL("image/png");
-  a.download = `${(p.name || "diagram").replace(/\s+/g, "-").toLowerCase() || "diagram"}.png`;
-  a.click();
+  downloadDiagramSnapshotBlob(blob, `${diagramSnapshotBaseName(p)}.png`);
   bind().deps.showToast("PNG export complete (nodes, systems, and all link types).", "info");
   if (window.MapDiagramAnalytics) MapDiagramAnalytics.exportPng({ flowchart: bind().deps.isFlowchartMode() });
   if (bind().deps.isFlowchartMode()) {
@@ -1038,5 +1147,8 @@ const exportersApi = {
   svgExportResolveCanvasBg,
   buildDiagramSvgExportString,
   exportAsSvg,
+  buildDiagramPngBlob,
+  downloadDiagramSnapshotBlob,
+  shareDiagramSnapshot,
   exportAsPng,
 };
