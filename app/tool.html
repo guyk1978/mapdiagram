@@ -4462,7 +4462,7 @@
         <button type="button" id="canvasSendBackwardBtn" class="canvas-micro-toolbar__btn" title="Send to back" aria-label="Send to back">
           <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 20V9M8 16l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="5" y="4" width="14" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75"/></svg>
         </button>
-        <button type="button" id="fcConnectBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--connect" title="Link: click button, then Shift+click each target node" aria-label="Link to multiple nodes">
+        <button type="button" id="fcConnectBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--connect" title="Link: drag from green dot to target, or click green dot then target. Shift = link to many." aria-label="Link nodes">
           <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><circle cx="6" cy="6" r="2.5" fill="currentColor"/><circle cx="18" cy="18" r="2.5" fill="currentColor"/><path d="M8.5 8.5 15.5 15.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
         </button>
         <button type="button" id="geneAddSpouseBtn" class="canvas-micro-toolbar__btn canvas-micro-toolbar__btn--gene" hidden title="Add Male (Partner)" aria-label="Add Male (Partner)"><div style="width:12px; height:12px; background:#0070f3; display:inline-block; border-radius:2px;" aria-hidden="true"></div></button>
@@ -5334,6 +5334,7 @@
     dragEphemeralWorld: null,
     _connectHoverId: null,
     connHandleDelegationReady: false,
+    singleConnectDelegationReady: false,
     multiConnectDelegationReady: false,
     resizeHandleDelegationReady: false,
     nodeResizing: null,
@@ -7606,6 +7607,43 @@ function resolveEbikeMultiConnectHub(nodeObj) {
   return nodeObj;
 }
 
+/** One-to-one link (drag green dot to target, or click green → click target). */
+function finishSimpleNodeConnection(fromId, toId) {
+  if (!fromId || !toId || fromId === toId) {
+    clearPendingConnectionState();
+    renderSelection();
+    return;
+  }
+  if (!hasNodeNodeEdgePair(fromId, toId)) {
+    if (isEbikeWorkspaceActive()) {
+      const ebikeCheck = validateEbikeConnection(fromId, toId);
+      if (!ebikeCheck.ok) {
+        showConnectionHint(ebikeCheck.message, true);
+        clearPendingConnectionState();
+        renderSelection();
+        return;
+      }
+    }
+    pushHistory();
+    const connectionId = ensureNodeNodeEdgeBetween(fromId, toId);
+    if (!connectionId) {
+      showToast("Could not create link.", "warn");
+      clearPendingConnectionState();
+      renderSelection();
+      return;
+    }
+    markDirty();
+    renderConnections();
+    scheduleSemanticAnalysis();
+    if (isFlowchartMode()) {
+      pulseFcConnectTarget(toId);
+      flashFcConnEnter(connectionId);
+    }
+  }
+  clearPendingConnectionState();
+  renderSelection();
+}
+
 function armMultiConnectMode(nodeObj, opts = {}) {
   if (!nodeObj || runtime.readOnly || isNodeHiddenCanvas(nodeObj) || isGenealogyUnionNode(nodeObj)) return;
   initMapDiagramRuntimes();
@@ -9169,7 +9207,8 @@ function finalizeFlowGroupDragIfAny() {
       runToolbarAction(e, (nodeId) => {
         const nodeObj = nodeId ? getNodeById(nodeId) : null;
         if (!nodeObj || isNodeHiddenCanvas(nodeObj) || isGenealogyUnionNode(nodeObj)) return;
-        armMultiConnectMode(nodeObj);
+        if (e.shiftKey) armMultiConnectMode(nodeObj);
+        else startConnectionDrag(nodeObj, null);
       });
     });
     document.getElementById("fcDeleteBtn")?.addEventListener("click", (e) => {
@@ -12553,7 +12592,15 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
   }
 
   function startConnectionDrag(nodeObj, pointerEvent, opts = {}) {
+    if (!nodeObj || runtime.readOnly || isNodeHiddenCanvas(nodeObj) || isGenealogyUnionNode(nodeObj)) return;
+    initMapDiagramRuntimes();
+    if (isEbikeWorkspaceActive()) {
+      const hub = resolveEbikeMultiConnectHub(nodeObj);
+      if (!hub) return;
+      nodeObj = hub;
+    }
     abortGroupConnectionDrag();
+    clearPendingConnectionState();
     const fromSide = opts.fromSide && ["top", "right", "bottom", "left"].includes(opts.fromSide) ? opts.fromSide : null;
     runtime.connecting = { fromNodeId: nodeObj.id, hoverNodeId: null, hoverGroupInId: null, fromSide };
     if (isFlowchartMode()) document.body.classList.add("fc-connecting");
@@ -12604,8 +12651,57 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       const side = handle.dataset.side;
       clearFlowGroupSelection();
       clearAllEdgeSelection();
-      armMultiConnectMode(nodeObj, { fromSide: side });
+      if (e.shiftKey) {
+        armMultiConnectMode(nodeObj, { fromSide: side });
+        return;
+      }
+      if (runtime.connecting && runtime.connecting.mode !== "multi" && runtime.connecting.fromNodeId) {
+        const fromId = runtime.connecting.fromNodeId;
+        if (fromId === nodeObj.id) {
+          clearPendingConnectionState();
+          scheduleRenderConnections();
+          renderSelection();
+          return;
+        }
+        finishSimpleNodeConnection(fromId, nodeObj.id);
+        return;
+      }
+      startConnectionDrag(nodeObj, e, { fromSide: side });
     });
+  }
+
+  function initSingleConnectTargetDelegation() {
+    if (runtime.singleConnectDelegationReady || !nodesLayer) return;
+    runtime.singleConnectDelegationReady = true;
+    nodesLayer.addEventListener(
+      "pointerdown",
+      (e) => {
+        if (e.button !== 0 || e.shiftKey) return;
+        if (!runtime.connecting || runtime.connecting.mode === "multi") return;
+        if (!runtime.connecting.fromNodeId) return;
+        if (e.target.closest?.(".node-conn-handle, .node-resize-handle, .node-rotate-handle")) return;
+        const nodeEl = e.target.closest?.(".node");
+        if (!nodeEl) return;
+        const toId = nodeEl.dataset?.nodeId;
+        const fromId = runtime.connecting.fromNodeId;
+        if (!toId || toId === fromId) return;
+        e.stopPropagation();
+        e.preventDefault();
+        if (runtime.bodyConnectPressTimer) {
+          clearTimeout(runtime.bodyConnectPressTimer);
+          runtime.bodyConnectPressTimer = null;
+        }
+        runtime.bodyPressPointerId = null;
+        runtime.bodyPressStart = null;
+        runtime.bodyPressNodeId = null;
+        runtime.dragging = null;
+        runtime.touchDragPending = null;
+        if (runtime.carryDrag) finalizeCarryDragIfAny();
+        releaseStoredNodeBodyPointerCapture();
+        finishSimpleNodeConnection(fromId, toId);
+      },
+      true
+    );
   }
 
   function initMultiConnectTargetDelegation() {
@@ -19574,6 +19670,7 @@ clearFlowGroupSelection();
   });
 
   initNodeConnectHandleDelegation();
+  initSingleConnectTargetDelegation();
   initMultiConnectTargetDelegation();
   initNodeResizeHandleDelegation();
 
@@ -20078,48 +20175,8 @@ clearFlowGroupSelection();
             findFlowGroupTargetFromPoint(point, fromNodeId)
           : null;
       if (toNodeId && fromNodeId && toNodeId !== fromNodeId) {
-        const exists = hasNodeNodeEdgePair(fromNodeId, toNodeId);
-        if (!exists) {
-          if (isEbikeWorkspaceActive()) {
-            const ebikeCheck = validateEbikeConnection(fromNodeId, toNodeId);
-            if (!ebikeCheck.ok) {
-              showConnectionHint(ebikeCheck.message, true);
-              clearPendingConnectionState();
-              return;
-            }
-          }
-          pushHistory();
-          const connectionId = ensureNodeNodeEdgeBetween(fromNodeId, toNodeId);
-          if (!connectionId) {
-            clearPendingConnectionState();
-            return;
-          }
-          if (isEbikeWorkspaceActive()) {
-            runtime.connectionFeedbackId = connectionId;
-            showConnectionHint("Electrical connection accepted.", false);
-            setTimeout(() => {
-              runtime.connectionFeedbackId = null;
-              scheduleRenderConnections();
-            }, 620);
-          } else {
-            const relation = evaluateConnectionSemantics(fromNodeId, toNodeId);
-            if (relation.valid) {
-              runtime.connectionFeedbackId = connectionId;
-              showConnectionHint("Connection flow looks coherent.", false);
-              setTimeout(() => {
-                runtime.connectionFeedbackId = null;
-                scheduleRenderConnections();
-              }, 620);
-            } else {
-              showConnectionHint("Unusual connection direction — are you sure?", true);
-            }
-          }
-          markDirty();
-          if (isFlowchartMode()) {
-            pulseFcConnectTarget(toNodeId);
-            flashFcConnEnter(connectionId);
-          }
-        }
+        finishSimpleNodeConnection(fromNodeId, toNodeId);
+        return;
       } else if (hoverFg && fromNodeId && isFlowchartMode()) {
         const p = getProject();
         const exists = p.connections.some(
