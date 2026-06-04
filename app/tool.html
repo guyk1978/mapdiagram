@@ -1532,7 +1532,7 @@
     height: 100%;
     pointer-events: none;
     overflow: visible;
-    z-index: 9;
+    z-index: 11;
   }
   .conn-hit {
     fill: none;
@@ -7582,18 +7582,37 @@ function isMultiConnectMode() {
   return !!(runtime.connecting && runtime.connecting.mode === "multi" && runtime.connecting.fromNodeId);
 }
 
+/** E-Bike wiring is hub-based; redirect Display/Motor/sensors to Controller when user arms the wrong node. */
+function resolveEbikeMultiConnectHub(nodeObj) {
+  if (!nodeObj || !isEbikeWorkspaceActive() || !nodeObj.ebikeRole) return nodeObj;
+  const role = nodeObj.ebikeRole;
+  if (role === "controller" || role === "battery" || role === "fuse" || role === "charger") return nodeObj;
+  const controller = firstEbikeNodeByRole("controller");
+  if (!controller) {
+    showToast("Add a Controller from the library to wire components.", "warn");
+    return null;
+  }
+  if (role === "display" || role === "motor") {
+    showToast("Wiring from Controller — Shift+click Display, Motor, and sensors.", "info");
+    return controller;
+  }
+  if (EBIKE_INPUT_PERIPHERAL_ROLES.has(role)) {
+    showToast(
+      `Wiring from Controller — Shift+click ${role.replace(/-/g, " ")} and other targets.`,
+      "info"
+    );
+    return controller;
+  }
+  return nodeObj;
+}
+
 function armMultiConnectMode(nodeObj, opts = {}) {
   if (!nodeObj || runtime.readOnly || isNodeHiddenCanvas(nodeObj) || isGenealogyUnionNode(nodeObj)) return;
   initMapDiagramRuntimes();
   if (isEbikeWorkspaceActive()) {
-    const role = nodeObj.ebikeRole;
-    if (role === "display" || role === "motor") {
-      showToast("Display and Motor are outputs — use the Controller (or Battery) green dot.", "warn");
-      return;
-    }
-    if (EBIKE_INPUT_PERIPHERAL_ROLES.has(role)) {
-      showToast(`Shift+click the Controller to wire ${role.replace(/-/g, " ")}.`, "info");
-    }
+    const hub = resolveEbikeMultiConnectHub(nodeObj);
+    if (!hub) return;
+    nodeObj = hub;
   }
   abortGroupConnectionDrag();
   const fromSide =
@@ -7621,7 +7640,10 @@ function armMultiConnectMode(nodeObj, opts = {}) {
   clearFlowGroupSelection();
   clearAllEdgeSelection();
   renderSelection();
-  showToast("Shift+click target nodes to link. Esc to cancel.", "info");
+  const hubHint = isEbikeWorkspaceActive()
+    ? " Shift+click Display, Motor, PAS, Brake, etc."
+    : "";
+  showToast(`Shift+click target nodes to link.${hubHint} Esc to cancel.`, "info");
 }
 
 function prepareMultiConnectHistory(conn) {
@@ -7702,7 +7724,7 @@ function finalizeMultiConnect() {
   const fromId = conn.fromNodeId;
   const nTargets = conn.targetIds?.size || 0;
   clearPendingConnectionState();
-  scheduleRenderConnections();
+  renderConnections();
   scheduleSemanticAnalysis();
   if (selectionRuntime) selectionRuntime.selectNode(fromId);
   else runtime.selectedNodeId = fromId;
