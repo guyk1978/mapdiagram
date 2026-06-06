@@ -3085,3 +3085,38 @@ html[data-theme="light"] .inspector-group--tight {
 .topbar-bulk-delete-btn.danger .icon-svg svg {
   stroke: #ff6b6b;
 }
+
+/* —— Mobile/tablet: safe-area, minimap spacing, inspector tab scroll —— */
+@media (max-width: 1024px) {
+  .topbar,
+  .topbar-unified-panel {
+    padding-top: max(var(--space-1, 4px), env(safe-area-inset-top, 0px));
+    padding-left: max(var(--space-2, 8px), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--space-2, 8px), env(safe-area-inset-right, 0px));
+  }
+
+  .sidebar,
+  .rightbar {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+@media (max-width: 760px) {
+  .minimap-host.visible {
+    width: 96px !important;
+    height: 64px !important;
+    right: 8px;
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    opacity: 0.88;
+  }
+
+  .right-tabs-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .right-tabs-wrap::-webkit-scrollbar {
+    display: none;
+  }
+}

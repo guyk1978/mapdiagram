@@ -225,13 +225,14 @@ html[data-theme="light"] .share-dock-toast {
 }
 
 @media (max-width: 760px) {
+  /* Phone layout — matches --bp-mobile in design-tokens.css */
   .share-dock {
     flex-direction: row;
     right: auto;
     top: auto;
     transform: none;
     left: 50%;
-    bottom: 72px;
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
     translate: -50% 0;
     padding: 6px;
     border-radius: 16px;
@@ -272,7 +273,7 @@ html[data-theme="light"] .share-dock-toast {
   }
 
   .share-dock-toast {
-    bottom: 132px;
+    bottom: calc(132px + env(safe-area-inset-bottom, 0px));
   }
   .share-dock-close {
     width: 38px;

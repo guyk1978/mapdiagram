@@ -90,9 +90,20 @@
   /* —— Site shell (marketing pages use site.css aliases) —— */
   --z-page-header: 30;
 
-  /* —— Breakpoints (reference in JS via matchMedia; document for designers) —— */
+  /*
+   * —— Breakpoints (single source; mirror in JS as MD_BP and in @media queries) ——
+   * Phone:  max-width: 760px  (--bp-mobile)  — compact toolbar, touch-first chrome
+   * Tablet: max-width: 1024px (--bp-tablet)  — drawer sidebars, touch mode
+   * Desktop: min-width: 1025px               — 3-column grid; do not alter existing rules
+   */
   --bp-tablet: 1024px;
   --bp-mobile: 760px;
+  --bp-desktop: 1025px;
+
+  /* Runtime layout vars (JS updates on resize / visualViewport / topbar measure) */
+  --topbar-height: 56px;
+  --vv-height: 100dvh;
+  --vv-offset-top: 0px;
 
   /* Destructive buttons: tool sets --danger; see .danger in tool.html */
   --text-on-danger: #fff7f8;

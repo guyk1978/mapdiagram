@@ -338,9 +338,13 @@ html[data-theme="light"] .topbar-unified .theme-toggle-btn .icon-svg.icon-theme-
 }
 
 @media (max-width: 760px) {
+  /* Phone layout — matches --bp-mobile in design-tokens.css */
   .topbar.topbar-unified {
     position: relative;
     top: auto;
+    padding-top: max(4px, env(safe-area-inset-top, 0px));
+    padding-left: max(6px, env(safe-area-inset-left, 0px));
+    padding-right: max(6px, env(safe-area-inset-right, 0px));
   }
   .topbar-unified-panel {
     padding: 4px 6px;
