@@ -1068,6 +1068,15 @@
     }
     .topbar-more-menu.open {
       z-index: calc(var(--z-sticky-topbar) + 120);
+      box-sizing: border-box;
+      max-height: min(80vh, 80dvh);
+      max-width: calc(100vw - 20px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      padding-left: max(var(--space-2, 8px), env(safe-area-inset-left, 0px));
+      padding-right: max(var(--space-2, 8px), env(safe-area-inset-right, 0px));
+      padding-bottom: max(var(--space-2, 8px), env(safe-area-inset-bottom, 0px));
     }
     .rightbar.drawer-open {
       overflow-y: auto;
@@ -2902,9 +2911,7 @@
       display: none !important;
     }
     .topbar-more-menu {
-      left: 0;
-      right: auto;
-      max-width: min(92vw, 300px);
+      max-width: calc(100vw - 20px);
     }
     .topbar-more-menu .topbar-menu-item {
       min-height: 44px;
@@ -20361,9 +20368,28 @@ clearFlowGroupSelection();
     if (!topbarMoreMenu) return;
     topbarMoreMenu.style.position = "";
     topbarMoreMenu.style.top = "";
+    topbarMoreMenu.style.bottom = "";
     topbarMoreMenu.style.left = "";
     topbarMoreMenu.style.right = "";
     topbarMoreMenu.style.maxWidth = "";
+    topbarMoreMenu.style.maxHeight = "";
+    topbarMoreMenu.style.overflowY = "";
+  }
+  function getTopbarMenuViewportBounds() {
+    const margin = 10;
+    const vv = window.visualViewport;
+    const viewTop = (vv ? vv.offsetTop : 0) + margin;
+    const viewLeft = (vv ? vv.offsetLeft : 0) + margin;
+    const viewRight = (vv ? vv.offsetLeft + vv.width : window.innerWidth) - margin;
+    const viewBottom = (vv ? vv.offsetTop + vv.height : window.innerHeight) - margin;
+    return {
+      top: viewTop,
+      left: viewLeft,
+      right: viewRight,
+      bottom: viewBottom,
+      width: Math.max(160, viewRight - viewLeft),
+      height: Math.max(120, viewBottom - viewTop),
+    };
   }
   function positionTopbarMoreMenu() {
     if (!topbarMoreBtn || !topbarMoreMenu || !topbarMoreMenu.classList.contains("open")) {
@@ -20374,12 +20400,36 @@ clearFlowGroupSelection();
       resetTopbarMoreMenuPosition();
       return;
     }
-    const r = topbarMoreBtn.getBoundingClientRect();
+    const gap = 6;
+    const bounds = getTopbarMenuViewportBounds();
+    const btn = topbarMoreBtn.getBoundingClientRect();
+    const maxMenuHeight = Math.min(window.innerHeight * 0.8, bounds.height);
+
     topbarMoreMenu.style.position = "fixed";
-    topbarMoreMenu.style.top = `${Math.round(r.bottom + 6)}px`;
-    topbarMoreMenu.style.left = `${Math.max(8, Math.round(r.left))}px`;
     topbarMoreMenu.style.right = "auto";
-    topbarMoreMenu.style.maxWidth = "min(92vw, 300px)";
+    topbarMoreMenu.style.bottom = "auto";
+    topbarMoreMenu.style.maxWidth = `${Math.floor(bounds.width)}px`;
+    topbarMoreMenu.style.maxHeight = `${Math.floor(maxMenuHeight)}px`;
+    topbarMoreMenu.style.overflowY = "auto";
+
+    let left = Math.max(bounds.left, Math.min(btn.left, bounds.right - bounds.width));
+    topbarMoreMenu.style.left = `${Math.round(left)}px`;
+    topbarMoreMenu.style.top = `${Math.round(btn.bottom + gap)}px`;
+
+    const menuWidth = topbarMoreMenu.offsetWidth;
+    left = Math.max(bounds.left, Math.min(left, bounds.right - menuWidth));
+    topbarMoreMenu.style.left = `${Math.round(left)}px`;
+
+    const menuHeight = Math.min(topbarMoreMenu.scrollHeight, maxMenuHeight);
+    let top = btn.bottom + gap;
+    if (top + menuHeight > bounds.bottom) {
+      top = btn.top - gap - menuHeight;
+      if (top < bounds.top) {
+        top = bounds.top;
+        topbarMoreMenu.style.maxHeight = `${Math.floor(bounds.bottom - bounds.top)}px`;
+      }
+    }
+    topbarMoreMenu.style.top = `${Math.round(Math.max(bounds.top, top))}px`;
   }
   function closeTopbarMenu() {
     if (!topbarMoreMenu || !topbarMoreBtn) return;
@@ -20398,8 +20448,12 @@ clearFlowGroupSelection();
     topbarMoreMenu.classList.toggle("open", open);
     topbarMoreMenu.hidden = !open;
     topbarMoreBtn.setAttribute("aria-expanded", open ? "true" : "false");
-    if (open) requestAnimationFrame(() => positionTopbarMoreMenu());
-    else resetTopbarMoreMenuPosition();
+    if (open) {
+      requestAnimationFrame(() => {
+        positionTopbarMoreMenu();
+        requestAnimationFrame(() => positionTopbarMoreMenu());
+      });
+    } else resetTopbarMoreMenuPosition();
   }
   topbarMoreBtn?.addEventListener("pointerdown", (e) => {
     e.stopPropagation();
