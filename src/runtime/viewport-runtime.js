@@ -2,6 +2,22 @@
  * Viewport transform state (Phase 6).
  */
 
+function readZoomLimits() {
+  if (typeof document === "undefined") return { min: 0.2, max: 2.2 };
+  const style = getComputedStyle(document.documentElement);
+  const min = parseFloat(style.getPropertyValue("--zoom-min"));
+  const max = parseFloat(style.getPropertyValue("--zoom-max"));
+  return {
+    min: Number.isFinite(min) ? min : 0.2,
+    max: Number.isFinite(max) ? max : 2.2,
+  };
+}
+
+function clampZoom(z) {
+  const { min, max } = readZoomLimits();
+  return Math.max(min, Math.min(max, z));
+}
+
 export function createViewportRuntime(ctx, deps) {
   const { runtime, dom, markDirty } = ctx;
 
@@ -41,7 +57,7 @@ export function createViewportRuntime(ctx, deps) {
     const workspace = dom.workspace;
     if (!workspace) return;
     const prev = p.view.zoom;
-    const z = Math.max(0.2, Math.min(2.2, nextZoom));
+    const z = clampZoom(nextZoom);
     if (z === prev) return;
     const r = workspace.getBoundingClientRect();
     const px = clientX - r.left;
@@ -74,7 +90,7 @@ export function createViewportRuntime(ctx, deps) {
     const contentW = Math.max(100, maxX - minX + 120);
     const contentH = Math.max(100, maxY - minY + 120);
     const r = workspace.getBoundingClientRect();
-    const zoom = Math.max(0.2, Math.min(2.2, Math.min(r.width / contentW, r.height / contentH)));
+    const zoom = clampZoom(Math.min(r.width / contentW, r.height / contentH));
     p.view.zoom = zoom;
     p.view.x = (r.width - contentW * zoom) / 2 - (minX - 60) * zoom;
     p.view.y = (r.height - contentH * zoom) / 2 - (minY - 60) * zoom;

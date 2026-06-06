@@ -105,6 +105,10 @@
   --vv-height: 100dvh;
   --vv-offset-top: 0px;
 
+  /* Canvas zoom limits (desktop defaults; widened on tablet/phone — see @media below) */
+  --zoom-min: 0.2;
+  --zoom-max: 2.2;
+
   /* Destructive buttons: tool sets --danger; see .danger in tool.html */
   --text-on-danger: #fff7f8;
   --danger-border: color-mix(in srgb, var(--danger, #ef5b5b) 58%, #1a0a0c);
@@ -137,4 +141,12 @@ html[data-contrast="high"][data-theme="light"] :where(button, a, input, select, 
 html[data-contrast="high"]:not([data-theme="light"]) :where(button, a, input, select, textarea):focus-visible {
   outline: var(--outline-focus);
   outline-offset: 2px;
+}
+
+/* Tablet/phone: 2× desktop max zoom for pinch on complex diagrams */
+@media (max-width: 1024px) {
+  :root {
+    --zoom-min: 0.15;
+    --zoom-max: 4.4;
+  }
 }

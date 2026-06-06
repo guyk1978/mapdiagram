@@ -1591,6 +1591,13 @@
     background: transparent;
     overflow: visible;
   }
+  /* Tablet/phone: GPU-friendly viewport during pinch/pan (transform-only updates). */
+  @media (max-width: 1024px) {
+    body.md-touch-mode #viewport {
+      will-change: transform;
+      contain: layout style;
+    }
+  }
   #connections {
     position: absolute;
     top: 0;
@@ -7326,7 +7333,8 @@
     const pad = 40;
     const contentW = Math.max(120, box.w + pad * 2);
     const contentH = Math.max(120, box.h + pad * 2);
-    const zoom = Math.max(0.35, Math.min(2.2, Math.min(r.width / contentW, r.height / contentH)));
+    const { max: zoomMax } = getZoomLimits();
+    const zoom = Math.max(0.35, Math.min(zoomMax, Math.min(r.width / contentW, r.height / contentH)));
     p.view.zoom = zoom;
     p.view.x = (r.width - (box.x + box.w / 2) * zoom) / 2;
     p.view.y = (r.height - (box.y + box.h / 2) * zoom) / 2;
@@ -17920,7 +17928,8 @@ clearFlowGroupSelection();
     const { minX, minY, maxX, maxY } = bounds;
     const contentW = Math.max(80, maxX - minX + pad * 2);
     const contentH = Math.max(80, maxY - minY + pad * 2);
-    const zoom = Math.max(0.35, Math.min(2.2, Math.min(r.width / contentW, r.height / contentH) * 0.92));
+    const { max: zoomMax } = getZoomLimits();
+    const zoom = Math.max(0.35, Math.min(zoomMax, Math.min(r.width / contentW, r.height / contentH) * 0.92));
     const midX = (minX + maxX) / 2;
     const midY = (minY + maxY) / 2;
     p.view.zoom = zoom;
@@ -19642,9 +19651,66 @@ clearFlowGroupSelection();
 
   window.MapDiagramSpawnNode = newNodeAtCenter;
 
-  function zoomAt(clientX, clientY, nextZoom) {
+  function getZoomLimits() {
+    const style = getComputedStyle(document.documentElement);
+    const min = parseFloat(style.getPropertyValue("--zoom-min"));
+    const max = parseFloat(style.getPropertyValue("--zoom-max"));
+    return {
+      min: Number.isFinite(min) ? min : 0.2,
+      max: Number.isFinite(max) ? max : 2.2,
+    };
+  }
+
+  function applyViewTransformOnly() {
+    const v = getProject().view;
+    if (viewport) {
+      viewport.style.transform = `translate(${v.x}px, ${v.y}px) scale(${v.zoom})`;
+    }
+    const zoomResetBtn = document.getElementById("zoomResetBtn");
+    if (zoomResetBtn) zoomResetBtn.textContent = `${Math.round(v.zoom * 100)}%`;
+  }
+
+  function flushViewportGestureIfDirty() {
+    if (!runtime._viewportDirtyDuringGesture) return;
+    runtime._viewportDirtyDuringGesture = false;
+    updateViewport();
+    markDirty();
+  }
+
+  function schedulePinchZoom(centerX, centerY, nextZoom) {
+    runtime._pinchZoomPending = { centerX, centerY, nextZoom };
+    if (runtime._pinchZoomRaf) return;
+    runtime._pinchZoomRaf = requestAnimationFrame(() => {
+      runtime._pinchZoomRaf = 0;
+      const pending = runtime._pinchZoomPending;
+      runtime._pinchZoomPending = null;
+      if (!pending || !runtime.pinch) return;
+      zoomAt(pending.centerX, pending.centerY, pending.nextZoom, { lightweight: true });
+    });
+  }
+
+  function zoomAt(clientX, clientY, nextZoom, opts = {}) {
     initMapDiagramRuntimes();
-    if (viewportRuntime) viewportRuntime.zoomAt(clientX, clientY, nextZoom);
+    const p = getProject();
+    if (!workspace) return;
+    const { min, max } = getZoomLimits();
+    const prev = p.view.zoom;
+    const z = Math.max(min, Math.min(max, nextZoom));
+    if (z === prev) return;
+    const r = workspace.getBoundingClientRect();
+    const px = clientX - r.left;
+    const py = clientY - r.top;
+    p.view.x = px - (px - p.view.x) * (z / prev);
+    p.view.y = py - (py - p.view.y) * (z / prev);
+    p.view.zoom = z;
+    const lightweight = !!(opts.lightweight || (mqTablet() && runtime.pinch));
+    if (lightweight) {
+      applyViewTransformOnly();
+      runtime._viewportDirtyDuringGesture = true;
+      return;
+    }
+    updateViewport();
+    markDirty();
   }
 
   function fitToScreen() {
@@ -21223,14 +21289,23 @@ clearFlowGroupSelection();
       if (runtime.pointers.size >= 2) return;
       p.view.x = runtime.panning.vx + (e.clientX - runtime.panning.x);
       p.view.y = runtime.panning.vy + (e.clientY - runtime.panning.y);
-      updateViewport();
+      if (mqTablet()) {
+        applyViewTransformOnly();
+        runtime._viewportDirtyDuringGesture = true;
+      } else {
+        updateViewport();
+      }
       return;
     }
     if (runtime.pinch && runtime.pointers.size >= 2) {
       const pinchMeta = getPointerCenterAndDistance();
       if (!pinchMeta) return;
-      const nextZoom = Math.max(0.2, Math.min(2.8, runtime.pinch.startZoom * (pinchMeta.distance / runtime.pinch.startDistance)));
-      zoomAt(pinchMeta.centerX, pinchMeta.centerY, nextZoom);
+      const { min, max } = getZoomLimits();
+      const nextZoom = Math.max(
+        min,
+        Math.min(max, runtime.pinch.startZoom * (pinchMeta.distance / runtime.pinch.startDistance))
+      );
+      schedulePinchZoom(pinchMeta.centerX, pinchMeta.centerY, nextZoom);
       return;
     }
     if (isMultiConnectMode()) return;
@@ -21374,7 +21449,15 @@ clearFlowGroupSelection();
       runtime.bodyConnectPressTimer = null;
     }
     runtime.touchDragPending = null;
-    if (runtime.pointers.size < 2) runtime.pinch = null;
+    if (runtime.pointers.size < 2) {
+      if (runtime.pinch) flushViewportGestureIfDirty();
+      runtime.pinch = null;
+      if (runtime._pinchZoomRaf) {
+        cancelAnimationFrame(runtime._pinchZoomRaf);
+        runtime._pinchZoomRaf = 0;
+      }
+      runtime._pinchZoomPending = null;
+    }
     releaseStoredNodeBodyPointerCaptureIfMatches(e.pointerId);
     if (runtime.bodyPressPointerId === e.pointerId) {
       runtime.bodyPressPointerId = null;
@@ -21457,6 +21540,7 @@ clearFlowGroupSelection();
     if (runtime.panning) {
       runtime.panning = null;
       workspace.classList.remove("panning");
+      flushViewportGestureIfDirty();
       saveCanvasState();
     }
     if (runtime.connecting) {
@@ -21900,35 +21984,6 @@ clearFlowGroupSelection();
       syncLinkPropertyBar();
     }, 100);
   });
-
-  function shouldPreventWorkspaceTouch() {
-    return !!(
-      runtime.panning ||
-      runtime.dragging ||
-      runtime.pinch ||
-      runtime.carryDrag ||
-      runtime.connecting ||
-      runtime.nodeResizing ||
-      runtime.nodeRotating ||
-      runtime.flowGroupDragging ||
-      runtime.touchDragPending
-    );
-  }
-
-  workspace.addEventListener("touchstart", (e) => {
-    if (e.touches.length >= 2 || shouldPreventWorkspaceTouch()) {
-      e.preventDefault();
-    }
-  }, { passive: false });
-  workspace.addEventListener("touchmove", (e) => {
-    if (
-      e.touches.length >= 2 ||
-      shouldPreventWorkspaceTouch() ||
-      (runtime.pointers && runtime.pointers.size > 0)
-    ) {
-      e.preventDefault();
-    }
-  }, { passive: false });
 
   focusCloseBtn?.addEventListener("click", closeFocusModal);
   focusOverlay?.addEventListener("pointerdown", (e) => {
