@@ -337,8 +337,32 @@ html[data-theme="light"] .topbar-unified .theme-toggle-btn .icon-svg.icon-theme-
   }
 }
 
+@media (max-width: 1024px) {
+  .topbar-unified .topbar-share-host {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .topbar-unified .topbar-share-host .share-header-btn {
+    min-width: 44px;
+    min-height: 44px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .topbar-unified .topbar-overflow-leading-wrap {
+    gap: 4px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .topbar-unified .topbar-share-host {
+    display: none !important;
+  }
+}
+
 @media (max-width: 760px) {
-  /* Phone layout — matches --bp-mobile in design-tokens.css */
   .topbar.topbar-unified {
     position: relative;
     top: auto;

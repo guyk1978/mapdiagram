@@ -158,6 +158,26 @@
     origReplace = null;
   }
 
+  var MOBILE_MQ = window.matchMedia("(max-width: 1024px)");
+
+  function isEditorPage() {
+    var hooks = window.MapDiagramShare;
+    if (hooks && typeof hooks.isEditorPage === "function" && hooks.isEditorPage()) return true;
+    return /\/app\/tool\.html/i.test(location.pathname);
+  }
+
+  function isMobileShareLayout() {
+    return MOBILE_MQ.matches;
+  }
+
+  function findHeaderShareAnchor() {
+    var editorAnchor = document.getElementById("topbarShareHost");
+    if (editorAnchor) return { el: editorAnchor, kind: "editor" };
+    var navActions = document.querySelector("header.nav .nav-mobile-actions");
+    if (navActions) return { el: navActions, kind: "site" };
+    return null;
+  }
+
   onReady(function mount() {
     ensureShareDockStyles();
     if (document.getElementById("shareDock")) return;
@@ -277,9 +297,267 @@
         }
         dock.setAttribute("aria-label", "Share this page");
       }
+      rebuildHeaderShareMenu();
     }
 
     applyShareMode();
+
+    /* —— Mobile header share (≤1024px): editor topbar or marketing site nav —— */
+    var headerHost = null;
+    var headerBtn = null;
+    var headerMenu = null;
+
+    function closeHeaderShareMenu() {
+      if (!headerMenu || !headerBtn) return;
+      headerMenu.classList.remove("open");
+      headerMenu.hidden = true;
+      headerBtn.setAttribute("aria-expanded", "false");
+      resetHeaderShareMenuPosition();
+    }
+
+    function resetHeaderShareMenuPosition() {
+      if (!headerMenu) return;
+      headerMenu.style.position = "";
+      headerMenu.style.top = "";
+      headerMenu.style.bottom = "";
+      headerMenu.style.left = "";
+      headerMenu.style.right = "";
+      headerMenu.style.maxWidth = "";
+      headerMenu.style.maxHeight = "";
+      headerMenu.style.overflowY = "";
+    }
+
+    function getShareMenuViewportBounds() {
+      var margin = 10;
+      var vv = window.visualViewport;
+      var viewTop = (vv ? vv.offsetTop : 0) + margin;
+      var viewLeft = (vv ? vv.offsetLeft : 0) + margin;
+      var viewRight = (vv ? vv.offsetLeft + vv.width : window.innerWidth) - margin;
+      var viewBottom = (vv ? vv.offsetTop + vv.height : window.innerHeight) - margin;
+      return {
+        top: viewTop,
+        left: viewLeft,
+        right: viewRight,
+        bottom: viewBottom,
+        width: Math.max(160, viewRight - viewLeft),
+        height: Math.max(120, viewBottom - viewTop),
+      };
+    }
+
+    function positionHeaderShareMenu() {
+      if (!headerBtn || !headerMenu || !headerMenu.classList.contains("open")) {
+        resetHeaderShareMenuPosition();
+        return;
+      }
+      if (!isMobileShareLayout()) {
+        resetHeaderShareMenuPosition();
+        return;
+      }
+      var gap = 6;
+      var bounds = getShareMenuViewportBounds();
+      var btn = headerBtn.getBoundingClientRect();
+      var maxMenuHeight = Math.min(window.innerHeight * 0.8, bounds.height);
+
+      headerMenu.style.position = "fixed";
+      headerMenu.style.right = "auto";
+      headerMenu.style.bottom = "auto";
+      headerMenu.style.maxWidth = Math.floor(bounds.width) + "px";
+      headerMenu.style.maxHeight = Math.floor(maxMenuHeight) + "px";
+      headerMenu.style.overflowY = "auto";
+
+      var left = Math.max(bounds.left, Math.min(btn.left, bounds.right - bounds.width));
+      headerMenu.style.left = Math.round(left) + "px";
+      headerMenu.style.top = Math.round(btn.bottom + gap) + "px";
+
+      var menuWidth = headerMenu.offsetWidth;
+      left = Math.max(bounds.left, Math.min(left, bounds.right - menuWidth));
+      headerMenu.style.left = Math.round(left) + "px";
+
+      var menuHeight = Math.min(headerMenu.scrollHeight, maxMenuHeight);
+      var top = btn.bottom + gap;
+      if (top + menuHeight > bounds.bottom) {
+        top = btn.top - gap - menuHeight;
+        if (top < bounds.top) {
+          top = bounds.top;
+          headerMenu.style.maxHeight = Math.floor(bounds.bottom - bounds.top) + "px";
+        }
+      }
+      headerMenu.style.top = Math.round(Math.max(bounds.top, top)) + "px";
+    }
+
+    function appendHeaderMenuItem(label, attrs) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "share-header-menu-item topbar-menu-item";
+      btn.setAttribute("role", "menuitem");
+      btn.textContent = label;
+      Object.keys(attrs).forEach(function (key) {
+        btn.dataset[key] = attrs[key];
+      });
+      headerMenu.appendChild(btn);
+      return btn;
+    }
+
+    function rebuildHeaderShareMenu() {
+      if (!headerMenu) return;
+      headerMenu.innerHTML = "";
+      var mode = resolveShareMode();
+      if (mode.mode === "snapshot" && isEditorPage()) {
+        appendHeaderMenuItem("Share diagram image", { editorShareAction: "snapshot" });
+        appendHeaderMenuItem("Copy diagram image", { editorShareAction: "copy-image" });
+      } else {
+        var meta = buildPlatformMeta();
+        for (var i = 0; i < meta.length; i++) {
+          var p = meta[i];
+          if (p.external) appendHeaderMenuItem(p.label, { sharePlatform: p.id });
+          else appendHeaderMenuItem(p.label, { shareAction: p.id });
+        }
+      }
+      var sep = document.createElement("div");
+      sep.className = "topbar-menu-sep";
+      sep.setAttribute("role", "separator");
+      sep.setAttribute("aria-hidden", "true");
+      headerMenu.appendChild(sep);
+      appendHeaderMenuItem("Close", { shareHeaderClose: "1" });
+    }
+
+    function ensureHeaderShare() {
+      if (headerHost) return headerHost;
+      var anchorInfo = findHeaderShareAnchor();
+      if (!anchorInfo) return null;
+
+      headerHost = document.createElement("div");
+      headerHost.className = "share-header-host";
+      headerHost.id = "shareHeaderHost";
+
+      headerBtn = document.createElement("button");
+      headerBtn.type = "button";
+      headerBtn.id = "shareHeaderBtn";
+      headerBtn.className = "share-header-btn icon-btn";
+      headerBtn.setAttribute("aria-label", "Share");
+      headerBtn.setAttribute("title", "Share");
+      headerBtn.setAttribute("aria-haspopup", "menu");
+      headerBtn.setAttribute("aria-expanded", "false");
+      headerBtn.setAttribute("aria-controls", "shareHeaderMenu");
+      headerBtn.innerHTML =
+        '<span class="icon-svg" aria-hidden="true">' + (ICONS.native || "") + "</span>";
+
+      headerMenu = document.createElement("div");
+      headerMenu.id = "shareHeaderMenu";
+      headerMenu.className = "share-header-menu topbar-more-menu";
+      headerMenu.setAttribute("role", "menu");
+      headerMenu.hidden = true;
+      rebuildHeaderShareMenu();
+
+      headerHost.appendChild(headerBtn);
+      headerHost.appendChild(headerMenu);
+
+      if (anchorInfo.kind === "editor") {
+        anchorInfo.el.appendChild(headerHost);
+        anchorInfo.el.hidden = false;
+      } else {
+        var toggle = anchorInfo.el.querySelector(".nav-menu-toggle");
+        if (toggle) anchorInfo.el.insertBefore(headerHost, toggle);
+        else anchorInfo.el.appendChild(headerHost);
+      }
+
+      headerBtn.addEventListener("pointerdown", function (e) {
+        e.stopPropagation();
+      });
+      headerBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var open = !headerMenu.classList.contains("open");
+        if (open) {
+          var topbarMenu = document.getElementById("topbarMoreMenu");
+          if (topbarMenu && topbarMenu.classList.contains("open")) {
+            topbarMenu.classList.remove("open");
+            topbarMenu.hidden = true;
+            var moreBtn = document.getElementById("topbarMoreBtn");
+            if (moreBtn) moreBtn.setAttribute("aria-expanded", "false");
+          }
+          headerMenu.classList.add("open");
+          headerMenu.hidden = false;
+          headerBtn.setAttribute("aria-expanded", "true");
+          requestAnimationFrame(function () {
+            positionHeaderShareMenu();
+            requestAnimationFrame(positionHeaderShareMenu);
+          });
+        } else {
+          closeHeaderShareMenu();
+        }
+      });
+
+      headerMenu.addEventListener("click", onHeaderShareMenuClick);
+
+      document.addEventListener("pointerdown", function (e) {
+        if (!headerMenu.classList.contains("open")) return;
+        if (e.target.closest("#shareHeaderBtn") || e.target.closest("#shareHeaderMenu")) return;
+        closeHeaderShareMenu();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && headerMenu.classList.contains("open")) closeHeaderShareMenu();
+      });
+      MOBILE_MQ.addEventListener("change", syncShareLayout);
+      window.addEventListener("resize", positionHeaderShareMenu);
+      addTeardown(function () {
+        MOBILE_MQ.removeEventListener("change", syncShareLayout);
+        window.removeEventListener("resize", positionHeaderShareMenu);
+      });
+
+      return headerHost;
+    }
+
+    async function onHeaderShareMenuClick(e) {
+      var closeItem = e.target.closest("[data-share-header-close]");
+      if (closeItem) {
+        e.preventDefault();
+        closeHeaderShareMenu();
+        return;
+      }
+      var editorItem = e.target.closest("[data-editor-share-action]");
+      if (editorItem) {
+        e.preventDefault();
+        e.stopPropagation();
+        var editorAction = editorItem.dataset.editorShareAction;
+        if (editorAction === "snapshot") await runSnapshotShare("native");
+        else if (editorAction === "copy-image") {
+          var hooks = window.MapDiagramShare;
+          if (hooks && typeof hooks.copyImageToClipboard === "function") {
+            await hooks.copyImageToClipboard();
+          } else {
+            var copyBtn = document.getElementById("copyDiagramImageBtn");
+            if (copyBtn) copyBtn.click();
+          }
+        }
+        closeHeaderShareMenu();
+        return;
+      }
+      await onDockClick(e);
+      closeHeaderShareMenu();
+    }
+
+    function syncShareLayout() {
+      var mobile = isMobileShareLayout();
+      var editor = isEditorPage();
+      if (mobile) {
+        ensureHeaderShare();
+        if (headerHost) headerHost.hidden = false;
+        dock.classList.add("share-dock--layout-hidden");
+        dock.style.display = "none";
+        setExpanded(false);
+      } else {
+        closeHeaderShareMenu();
+        if (headerHost) headerHost.hidden = true;
+        if (editor) {
+          dock.classList.add("share-dock--layout-hidden");
+          dock.style.display = "none";
+        } else {
+          dock.classList.remove("share-dock--layout-hidden");
+          dock.style.display = "";
+        }
+      }
+    }
 
     function onLocationChange() {
       applyShareMode();
@@ -352,6 +630,7 @@
       if (snapshotBusy) return;
       snapshotBusy = true;
       dock.classList.add("is-sharing");
+      if (headerHost) headerHost.classList.add("is-sharing");
       try {
         await hooks.shareSnapshot({ platform: platformId || "" });
       } catch (err) {
@@ -359,6 +638,7 @@
       } finally {
         snapshotBusy = false;
         dock.classList.remove("is-sharing");
+        if (headerHost) headerHost.classList.remove("is-sharing");
       }
     }
 
@@ -441,21 +721,43 @@
       window.removeEventListener("blur", onBlur);
     });
 
+    syncShareLayout();
+    if (isMobileShareLayout() && !headerHost) {
+      var headerRetry = 0;
+      var headerRetryTimer = window.setInterval(function () {
+        headerRetry += 1;
+        if (headerHost || !isMobileShareLayout() || headerRetry > 50) {
+          window.clearInterval(headerRetryTimer);
+          return;
+        }
+        if (findHeaderShareAnchor()) syncShareLayout();
+      }, 120);
+      addTeardown(function () {
+        window.clearInterval(headerRetryTimer);
+      });
+    }
+
     window.ShareDock = {
       show: function () {
         setExpanded(true);
       },
       hide: function () {
         setExpanded(false);
+        closeHeaderShareMenu();
       },
       toggle: function () {
         setExpanded(dock.classList.contains("is-collapsed"));
       },
       refresh: applyShareMode,
+      syncLayout: syncShareLayout,
       destroy: function () {
         runTeardown();
         dock.remove();
         toast.remove();
+        if (headerHost && headerHost.parentNode) headerHost.parentNode.removeChild(headerHost);
+        headerHost = null;
+        headerBtn = null;
+        headerMenu = null;
         if (injectedStylesheetEl && injectedStylesheetEl.parentNode) {
           injectedStylesheetEl.parentNode.removeChild(injectedStylesheetEl);
         }

@@ -224,9 +224,119 @@ html[data-theme="light"] .share-dock-toast {
   border-color: rgba(120, 140, 180, 0.4);
 }
 
+@media (max-width: 1024px) {
+  /* Mobile/tablet: share lives in header — hide floating dock entirely (no bottom gap) */
+  #shareDock,
+  .share-dock.share-dock--layout-hidden {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  .share-header-host {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .share-header-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: var(--radius-full, 999px);
+    border: 1px solid rgba(140, 170, 230, 0.35);
+    background: rgba(122, 162, 255, 0.12);
+    color: #dbe6ff;
+    cursor: pointer;
+  }
+
+  .share-header-btn .icon-svg,
+  .share-header-btn svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+    pointer-events: none;
+  }
+
+  .share-header-menu {
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 220px;
+    padding: 8px;
+    border-radius: 12px;
+    background: var(--modal-surface, rgba(15, 18, 28, 0.96));
+    border: 1px solid var(--modal-border, rgba(140, 170, 230, 0.35));
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    z-index: calc(var(--z-sticky-topbar, 12000) + 120);
+  }
+
+  .share-header-menu.open {
+    display: flex;
+  }
+
+  .share-header-menu-item {
+    width: 100%;
+    text-align: left;
+    justify-content: flex-start;
+    min-height: 44px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    padding: 10px 12px;
+  }
+
+  .share-header-menu-item:hover,
+  .share-header-menu-item:focus-visible {
+    background: rgba(122, 162, 255, 0.14);
+  }
+
+  .share-header-menu .topbar-menu-sep {
+    height: 1px;
+    margin: 4px 0;
+    background: rgba(140, 170, 230, 0.22);
+  }
+
+  .share-header-host.is-sharing .share-header-btn {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  header.nav .share-header-btn {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    min-height: 40px;
+    border-radius: var(--radius-full, 999px);
+    border: 1px solid var(--glass-border, rgba(140, 170, 230, 0.35));
+    background: var(--glass-bg, rgba(122, 162, 255, 0.12));
+    color: var(--text, #dbe6ff);
+  }
+
+  .share-dock-toast {
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (min-width: 1025px) {
+  .share-header-host {
+    display: none !important;
+  }
+}
+
 @media (max-width: 760px) {
-  /* Phone layout — matches --bp-mobile in design-tokens.css */
-  .share-dock {
+  /* Legacy phone dock layout — superseded by header mode ≤1024px; kept for safety if breakpoint changes */
+  .share-dock:not(.share-dock--layout-hidden) {
     flex-direction: row;
     right: auto;
     top: auto;

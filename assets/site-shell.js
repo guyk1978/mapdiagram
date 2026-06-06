@@ -176,6 +176,9 @@
       if (!isMobileNav()) closeMenu();
       enforceStickyHeader();
     });
+    if (window.ShareDock && typeof window.ShareDock.syncLayout === "function") {
+      window.ShareDock.syncLayout();
+    }
   }
 
   function onReady() {
@@ -183,6 +186,9 @@
     ensureToggle();
     initMobileNav();
     enforceStickyHeader();
+    if (window.ShareDock && typeof window.ShareDock.syncLayout === "function") {
+      window.ShareDock.syncLayout();
+    }
     window.addEventListener("resize", enforceStickyHeader);
   }
 

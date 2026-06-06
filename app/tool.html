@@ -4490,12 +4490,12 @@
           </button>
           <button id="authBtn" class="text-btn-sm btn-secondary" type="button" aria-label="Log in or sign up">Login</button>
         </div>
+        <div id="topbarShareHost" class="topbar-share-host" hidden aria-label="Share"></div>
         <div class="topbar-overflow" id="topbarOverflowHost">
           <button type="button" id="topbarMoreBtn" class="icon-btn" title="Menu" aria-label="More actions" aria-expanded="false" aria-haspopup="menu" aria-controls="topbarMoreMenu"><span class="icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="6" cy="12" r="1.75" fill="currentColor"/><circle cx="12" cy="12" r="1.75" fill="currentColor"/><circle cx="18" cy="12" r="1.75" fill="currentColor"/></svg></span></button>
           <div id="topbarMoreMenu" class="topbar-more-menu" role="menu" hidden>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="addNodeBtn">Add node</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="fitViewBtn">Fit to screen</button>
-        <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="shareBtn">Share diagram</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="copyDiagramImageBtn">Copy image</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="undoBtn">Undo</button>
         <button type="button" class="topbar-menu-item" role="menuitem" data-mirror-click="redoBtn">Redo</button>
@@ -20515,6 +20515,16 @@ clearFlowGroupSelection();
     topbarMoreMenu.hidden = !open;
     topbarMoreBtn.setAttribute("aria-expanded", open ? "true" : "false");
     if (open) {
+      if (window.ShareDock && typeof window.ShareDock.hide === "function") {
+        window.ShareDock.hide();
+      }
+      var shareMenu = document.getElementById("shareHeaderMenu");
+      if (shareMenu && shareMenu.classList.contains("open")) {
+        shareMenu.classList.remove("open");
+        shareMenu.hidden = true;
+        var shareBtn = document.getElementById("shareHeaderBtn");
+        if (shareBtn) shareBtn.setAttribute("aria-expanded", "false");
+      }
       requestAnimationFrame(() => {
         positionTopbarMoreMenu();
         requestAnimationFrame(() => positionTopbarMoreMenu());
@@ -22804,5 +22814,6 @@ clearFlowGroupSelection();
   }
   installMdTestHooks();
 </script>
+<script src="/shared/share-dock.js" defer></script>
 </body>
 </html>
