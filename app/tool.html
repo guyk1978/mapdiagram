@@ -1052,6 +1052,29 @@
   @media (max-width: 1024px){
     .topbar-collapse-1024{display:none!important}
     .topbar-overflow{display:flex}
+    .topbar-unified-panel,
+    .topbar-minimal-row,
+    .topbar-overflow-leading-wrap,
+    .topbar-overflow {
+      overflow: visible;
+    }
+    .topbar,
+    .topbar-unified-panel,
+    .topbar-more-menu,
+    .topbar-overflow,
+    #topbarMoreBtn {
+      touch-action: manipulation;
+      pointer-events: auto;
+    }
+    .topbar-more-menu.open {
+      z-index: calc(var(--z-sticky-topbar) + 120);
+    }
+    .rightbar.drawer-open {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
+    }
   }
   .group-chrome .label{
     position:absolute;
@@ -2844,7 +2867,7 @@
       max-width: 100%;
       min-height: 48px;
       gap: 4px;
-      overflow: hidden;
+      overflow: visible;
       flex-wrap: nowrap;
     }
     .topbar-overflow-leading-wrap {
@@ -15429,6 +15452,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
 
   let _lastInspectorDrawerNodeId = null;
   let _topbarResizeObserver = null;
+  let _mobileNodeTap = { id: null, at: 0 };
 
   function syncTopbarHeight() {
     const tb = document.querySelector(".topbar");
@@ -15469,20 +15493,31 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     }
   }
 
-  function maybeOpenInspectorDrawerOnMobile() {
-    if (!mqTablet()) return;
-    if (runtime.dragging || runtime.panning || runtime.carryDrag) return;
-    const nodeId = runtime.selectedNodeId;
-    const multi = runtime.selectedNodeIds.size;
-    if (!nodeId || multi > 1) {
-      if (!nodeId && multi === 0) _lastInspectorDrawerNodeId = null;
+  function openMobileNodeInspector(nodeId) {
+    if (!nodeId || !getNodeById(nodeId) || runtime.readOnly) return;
+    markInspectorDiagramTabFocus();
+    selectionRuntime.selectNode(nodeId);
+    clearFlowGroupSelection();
+    clearAllEdgeSelection();
+    renderSelection();
+    if (isFlowchartMode()) {
+      openFcNodeQuickEdit(nodeId);
       return;
     }
-    if (nodeId === _lastInspectorDrawerNodeId) return;
-    if (rightbar.classList.contains("drawer-open")) return;
-    if (sidebar.classList.contains("drawer-open")) return;
-    _lastInspectorDrawerNodeId = nodeId;
+    setRightTab("diagram");
+    applyDiagramSubTab("node");
     openDrawer("right");
+  }
+
+  function tryMobileInspectorOpenOnDoubleTap(nodeId) {
+    if (!mqTablet()) return;
+    const now = Date.now();
+    if (_mobileNodeTap.id === nodeId && now - _mobileNodeTap.at < 450) {
+      _mobileNodeTap = { id: null, at: 0 };
+      openMobileNodeInspector(nodeId);
+      return;
+    }
+    _mobileNodeTap = { id: nodeId, at: now };
   }
 
   function closeDrawers() {
@@ -16726,15 +16761,42 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     }
   }
 
+  function getWorkspaceCenterWorld() {
+    const p = getProject();
+    const r = workspace.getBoundingClientRect();
+    const w = Math.max(1, r.width);
+    const h = Math.max(1, r.height);
+    return {
+      x: (w / 2 - p.view.x) / p.view.zoom,
+      y: (h / 2 - p.view.y) / p.view.zoom,
+    };
+  }
+
+  function centerViewportOnNode(nodeId) {
+    const n = getNodeById(nodeId);
+    if (!n || !workspace) return;
+    const p = getProject();
+    const r = workspace.getBoundingClientRect();
+    const w = Math.max(1, r.width);
+    const h = Math.max(1, r.height);
+    const cx = n.x + (n.width || 0) / 2;
+    const cy = n.y + (n.height || 0) / 2;
+    const z = p.view.zoom || 1;
+    p.view.x = w / 2 - cx * z;
+    p.view.y = h / 2 - cy * z;
+    updateViewport();
+    markDirty();
+  }
+
   function insertPresetNode(preset) {
     pushHistory();
     const p = getProject();
-    const r = workspace.getBoundingClientRect();
-    const x = (r.width / 2 - p.view.x) / p.view.zoom - 95 + (Math.random() * 30 - 15);
-    const y = (r.height / 2 - p.view.y) / p.view.zoom - 55 + (Math.random() * 30 - 15);
+    const center = getWorkspaceCenterWorld();
     const fcDims = isFlowchartMode() && preset.width && preset.height
       ? { width: preset.width, height: preset.height }
       : { width: 210, height: 118 };
+    const x = center.x - fcDims.width / 2 + (Math.random() * 30 - 15);
+    const y = center.y - fcDims.height / 2 + (Math.random() * 30 - 15);
     const ebikeRole = isEbikeWorkspaceActive() ? preset.ebikeRole || preset.tooltip || null : null;
     const genealogyRole =
       !ebikeRole && isGenealogyWorkspaceActive() ? preset.genealogyRole || null : null;
@@ -16803,6 +16865,9 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
     markDirty();
 
     scheduleSemanticAnalysis();
+    if (mqTablet()) {
+      requestAnimationFrame(() => centerViewportOnNode(n.id));
+    }
     return n.id;
   }
 
@@ -16831,6 +16896,7 @@ requestAnimationFrame(() => fcStartInlineRename(n.id));
       rightbar.classList.remove("compact");
       runtime.inspectorCompact = false;
     }
+    if (isNarrowScreen()) openDrawer("right");
     requestAnimationFrame(() => {
       syncFcQuickEditToolbar();
       const first = document.querySelector(
@@ -17055,7 +17121,9 @@ clearFlowGroupSelection();
       renderSelection();
       if (isNarrowScreen()) closeDrawers();
     });
-    body.addEventListener("pointerup", () => {
+    body.addEventListener("pointerup", (e) => {
+      const pressNodeId = runtime.bodyPressNodeId;
+      const pressStart = runtime.bodyPressStart;
       if (runtime.bodyConnectPressTimer) {
         clearTimeout(runtime.bodyConnectPressTimer);
         runtime.bodyConnectPressTimer = null;
@@ -17063,6 +17131,18 @@ clearFlowGroupSelection();
       runtime.bodyPressPointerId = null;
       runtime.bodyPressStart = null;
       runtime.bodyPressNodeId = null;
+      if (
+        e.pointerType === "touch" &&
+        mqTablet() &&
+        pressNodeId === n.id &&
+        pressStart &&
+        !runtime.dragging &&
+        !runtime.carryDrag &&
+        !runtime.touchDragPending
+      ) {
+        const moved = Math.hypot(e.clientX - pressStart.x, e.clientY - pressStart.y);
+        if (moved < 12) tryMobileInspectorOpenOnDoubleTap(n.id);
+      }
     });
     body.addEventListener("dblclick", (e) => {
       e.stopPropagation();
@@ -19436,7 +19516,6 @@ clearFlowGroupSelection();
       }
     }
     syncInspectorPanelContext();
-    maybeOpenInspectorDrawerOnMobile();
   }
 
   function syncNodeSizes() {
@@ -19478,7 +19557,9 @@ clearFlowGroupSelection();
       renderProjects();
       renderSuggestions();
       applyWorkspaceViewStyles();
-      mobileHint.textContent = "Touch: one finger drag/pan, two fingers pinch zoom.";
+      mobileHint.textContent = mqTablet()
+        ? "Touch: drag to pan, pinch to zoom. Double-tap a node to edit."
+        : "Touch: one finger drag/pan, two fingers pinch zoom.";
       if (runtime._fcCenterAfterOnboard && isFlowchartMode()) {
         runtime._fcCenterAfterOnboard = false;
         window.setTimeout(() => centerFlowchartInViewSoft(), 80);
@@ -20276,31 +20357,67 @@ clearFlowGroupSelection();
   });
   const topbarMoreBtn = document.getElementById("topbarMoreBtn");
   const topbarMoreMenu = document.getElementById("topbarMoreMenu");
+  function resetTopbarMoreMenuPosition() {
+    if (!topbarMoreMenu) return;
+    topbarMoreMenu.style.position = "";
+    topbarMoreMenu.style.top = "";
+    topbarMoreMenu.style.left = "";
+    topbarMoreMenu.style.right = "";
+    topbarMoreMenu.style.maxWidth = "";
+  }
+  function positionTopbarMoreMenu() {
+    if (!topbarMoreBtn || !topbarMoreMenu || !topbarMoreMenu.classList.contains("open")) {
+      resetTopbarMoreMenuPosition();
+      return;
+    }
+    if (!mqTablet()) {
+      resetTopbarMoreMenuPosition();
+      return;
+    }
+    const r = topbarMoreBtn.getBoundingClientRect();
+    topbarMoreMenu.style.position = "fixed";
+    topbarMoreMenu.style.top = `${Math.round(r.bottom + 6)}px`;
+    topbarMoreMenu.style.left = `${Math.max(8, Math.round(r.left))}px`;
+    topbarMoreMenu.style.right = "auto";
+    topbarMoreMenu.style.maxWidth = "min(92vw, 300px)";
+  }
   function closeTopbarMenu() {
     if (!topbarMoreMenu || !topbarMoreBtn) return;
     topbarMoreMenu.classList.remove("open");
     topbarMoreMenu.hidden = true;
     topbarMoreBtn.setAttribute("aria-expanded", "false");
+    resetTopbarMoreMenuPosition();
   }
-  topbarMoreBtn?.addEventListener("click", (e) => {
-    e.stopPropagation();
+  function toggleTopbarMenu(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (!topbarMoreMenu || !topbarMoreBtn) return;
     const open = !topbarMoreMenu.classList.contains("open");
     topbarMoreMenu.classList.toggle("open", open);
     topbarMoreMenu.hidden = !open;
     topbarMoreBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    if (open) requestAnimationFrame(() => positionTopbarMoreMenu());
+    else resetTopbarMoreMenuPosition();
+  }
+  topbarMoreBtn?.addEventListener("pointerdown", (e) => {
+    e.stopPropagation();
   });
-  topbarMoreMenu?.addEventListener("click", (e) => {
+  topbarMoreBtn?.addEventListener("click", toggleTopbarMenu);
+  function handleTopbarMenuItemActivate(e) {
     const item = e.target.closest("[data-mirror-click]");
     if (!item) return;
+    e.preventDefault();
+    e.stopPropagation();
     const id = item.getAttribute("data-mirror-click");
     document.getElementById(id)?.click();
     closeTopbarMenu();
-  });
+  }
+  topbarMoreMenu?.addEventListener("click", handleTopbarMenuItemActivate);
   document.addEventListener("pointerdown", (e) => {
     if (!topbarMoreMenu?.classList.contains("open")) return;
-    const host = document.getElementById("topbarOverflowHost");
-    const path = typeof e.composedPath === "function" ? e.composedPath() : [];
-    if (host && (path.includes(host) || e.target.closest("#topbarOverflowHost"))) return;
+    if (e.target.closest("#topbarMoreBtn") || e.target.closest("#topbarMoreMenu")) return;
     closeTopbarMenu();
   });
   document.addEventListener("keydown", (e) => {
@@ -21712,11 +21829,14 @@ clearFlowGroupSelection();
     clearTimeout(mdWindowResizeDebounced);
     mdWindowResizeDebounced = setTimeout(() => {
       mdWindowResizeDebounced = null;
-      mobileHint.textContent = "Touch: one finger drag/pan, two fingers pinch zoom.";
+      mobileHint.textContent = mqTablet()
+        ? "Touch: drag to pan, pinch to zoom. Double-tap a node to edit."
+        : "Touch: one finger drag/pan, two fingers pinch zoom.";
       if (!isNarrowScreen()) closeDrawers();
       syncTopbarHeight();
       syncVisualViewport();
       applyTouchGuards();
+      if (topbarMoreMenu?.classList.contains("open")) positionTopbarMoreMenu();
       syncFcQuickEditToolbar();
       syncFcMultiSelectBar();
       if (mqMobile()) fitToScreen();

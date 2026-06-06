@@ -3099,6 +3099,13 @@ html[data-theme="light"] .inspector-group--tight {
   .rightbar {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
+
+  .rightbar.drawer-open {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  }
 }
 
 @media (max-width: 760px) {
