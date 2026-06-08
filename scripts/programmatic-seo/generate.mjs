@@ -221,6 +221,9 @@ const MONEY_PAGE_CONTENT = {
 };
 
 const ANALYTICS = `  <script src="/assets/theme-engine.js"></script>
+  <script src="/assets/analytics-config.js"></script>
+  <script src="/assets/consent-scripts.js" defer></script>
+  <script src="/assets/cookie-consent.js" defer></script>
   <script src="/assets/site-analytics.js" defer></script>`;
 
 function jsonLdBlocks(objects) {

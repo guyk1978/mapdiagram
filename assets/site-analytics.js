@@ -1,28 +1,9 @@
 /**
- * Marketing site chrome: GA4, theme persistence, nav wordmark (toggle via site-shell.js).
+ * Marketing site chrome helpers (nav wordmark). Analytics loads via consent-scripts.js only.
  */
 (function () {
   "use strict";
 
-  var isToolApp =
-    /^\/app\/tool\.html$/i.test(location.pathname) ||
-    /\/app\/tool\.html$/i.test(location.href);
-
-  window.dataLayer = window.dataLayer || [];
-  function gtag() {
-    dataLayer.push(arguments);
-  }
-  window.gtag = gtag;
-  var s = document.createElement("script");
-  s.async = true;
-  s.src = "https://www.googletagmanager.com/gtag/js?id=G-LDVB4978S7";
-  s.onload = function () {
-    gtag("js", new Date());
-    gtag("config", "G-LDVB4978S7");
-  };
-  document.head.appendChild(s);
-
-  /** Typographic wordmark — site-shell.js (deferred in page footer) also patches nav */
   function patchNavWordmark() {
     document.querySelectorAll(".nav-brand").forEach(function (brand) {
       if (brand.querySelector(".nav-wordmark")) return;

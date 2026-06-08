@@ -1,5 +1,6 @@
 @import url("/assets/design-tokens.css");
 @import url("/assets/partner-integrations.css");
+@import url("/assets/cookie-consent.css");
 :root{
   --bg:#070b14;
   --panel:#111a2e;

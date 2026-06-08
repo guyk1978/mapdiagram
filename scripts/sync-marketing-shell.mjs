@@ -12,7 +12,13 @@ const ROOT = join(__dirname, "..");
 const BASE = "https://mapdiagram.com";
 
 const HEAD_SCRIPTS = `<script src="/assets/theme-engine.js"></script>
+  <script src="/assets/analytics-config.js"></script>
+  <script src="/assets/consent-scripts.js" defer></script>
+  <script src="/assets/cookie-consent.js" defer></script>
   <script src="/assets/site-analytics.js" defer></script>`;
+
+const LEGACY_HEAD_SCRIPTS =
+  /<script src="\/assets\/theme-engine\.js"><\/script>\s*<script src="\/assets\/site-analytics\.js" defer><\/script>/i;
 
 const FAB_SNIPPET = `<a class="fab-open-app" href="/app/" aria-label="Open diagram editor"><span class="fab-open-app__text">Open editor</span></a>`;
 
@@ -118,6 +124,18 @@ function stripGtag(html) {
 function ensureHeadChrome(html, rel) {
   if (rel === "app/tool.html") return html;
   html = stripGtag(html);
+  if (html.includes("cookie-consent.js")) return html;
+  if (LEGACY_HEAD_SCRIPTS.test(html)) {
+    return html.replace(LEGACY_HEAD_SCRIPTS, HEAD_SCRIPTS);
+  }
+  if (html.includes("theme-engine.js") && html.includes("site-analytics.js")) {
+    return html
+      .replace(/<script src="\/assets\/site-analytics\.js" defer><\/script>/i, "")
+      .replace(
+        /<script src="\/assets\/theme-engine\.js"><\/script>/i,
+        HEAD_SCRIPTS,
+      );
+  }
   if (html.includes("theme-engine.js")) return html;
   if (html.includes("site-analytics.js")) {
     return html.replace(
@@ -187,7 +205,7 @@ function ensureViewportCharset(html) {
   if (html.includes('name="viewport"')) return html;
   if (!html.includes("site-analytics.js")) return html;
   return html.replace(
-    /<script src="\/assets\/theme-engine\.js"><\/script>\s*<script src="\/assets\/site-analytics\.js" defer><\/script>\s*/i,
+    /<script src="\/assets\/theme-engine\.js"><\/script>(?:\s*<script src="\/assets\/analytics-config\.js"><\/script>)?(?:\s*<script src="\/assets\/consent-scripts\.js" defer><\/script>)?(?:\s*<script src="\/assets\/cookie-consent\.js" defer><\/script>)?\s*<script src="\/assets\/site-analytics\.js" defer><\/script>\s*/i,
     `$&<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n`,
   );
 }

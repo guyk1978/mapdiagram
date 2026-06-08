@@ -17,6 +17,8 @@
 
     "build:tool-runtime": "vite build --config vite.tool-runtime.config.ts",
 
+    "build:analytics-config": "node scripts/generate-analytics-config.mjs",
+
     "test:e2e": "playwright test",
 
     "test:e2e:install": "playwright install chromium",
