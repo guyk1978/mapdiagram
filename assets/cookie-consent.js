@@ -1,5 +1,5 @@
 /**
- * Cookie consent banner — gates MapDiagramConsentScripts until Accept.
+ * Cookie consent banner — mandatory gatekeeper with transparent blur overlay.
  * Persists choice in localStorage (mapdiagram_cookie_consent + consent_granted).
  */
 (function () {
@@ -9,7 +9,14 @@
   var GRANTED_KEY = "consent_granted";
   var GRANTED = "granted";
   var DENIED = "denied";
+  var DEFAULT_BANNER_TEXT =
+    "This site uses cookies for Google Analytics. To continue using our tools, you must accept our cookie policy.";
+  var DECLINE_BANNER_TEXT =
+    "Access denied: You must accept the cookie policy to use this site.";
+
   var bannerEl = null;
+  var overlayEl = null;
+  var isOverlayActive = false;
 
   function readConsent() {
     try {
@@ -39,6 +46,28 @@
     }
   }
 
+  function showOverlay() {
+    if (overlayEl || document.getElementById("mdCookieConsentOverlay")) {
+      isOverlayActive = true;
+      return;
+    }
+
+    overlayEl = document.createElement("div");
+    overlayEl.id = "mdCookieConsentOverlay";
+    overlayEl.className = "md-cookie-consent-overlay";
+    overlayEl.setAttribute("aria-hidden", "true");
+    document.body.appendChild(overlayEl);
+    isOverlayActive = true;
+    document.body.classList.add("md-cookie-consent-open");
+  }
+
+  function hideOverlay() {
+    isOverlayActive = false;
+    if (!overlayEl) return;
+    if (overlayEl.parentNode) overlayEl.parentNode.removeChild(overlayEl);
+    overlayEl = null;
+  }
+
   function hideBanner() {
     if (!bannerEl) return;
     bannerEl.classList.remove("md-cookie-consent--visible");
@@ -46,13 +75,21 @@
     window.setTimeout(function () {
       if (bannerEl && bannerEl.parentNode) bannerEl.parentNode.removeChild(bannerEl);
       bannerEl = null;
-      document.body.classList.remove("md-cookie-consent-open");
+      if (!isOverlayActive) document.body.classList.remove("md-cookie-consent-open");
     }, 280);
+  }
+
+  function updateBannerMessage(declined) {
+    var desc = document.getElementById("mdCookieConsentDesc");
+    if (!desc) return;
+    desc.textContent = declined ? DECLINE_BANNER_TEXT : DEFAULT_BANNER_TEXT;
   }
 
   function grantAndActivate() {
     writeConsent(GRANTED);
+    hideOverlay();
     hideBanner();
+    document.body.classList.remove("md-cookie-consent-open");
     if (window.MapDiagramConsentScripts && typeof window.MapDiagramConsentScripts.activate === "function") {
       window.MapDiagramConsentScripts.activate();
     }
@@ -60,7 +97,7 @@
 
   function decline() {
     writeConsent(DENIED);
-    hideBanner();
+    updateBannerMessage(true);
   }
 
   function buildBanner() {
@@ -70,7 +107,7 @@
     bannerEl.id = "mdCookieConsent";
     bannerEl.className = "md-cookie-consent";
     bannerEl.setAttribute("role", "dialog");
-    bannerEl.setAttribute("aria-modal", "false");
+    bannerEl.setAttribute("aria-modal", "true");
     bannerEl.setAttribute("aria-labelledby", "mdCookieConsentTitle");
     bannerEl.setAttribute("aria-describedby", "mdCookieConsentDesc");
     bannerEl.setAttribute("aria-hidden", "false");
@@ -78,10 +115,10 @@
     bannerEl.innerHTML =
       '<div class="md-cookie-consent__inner">' +
       '<div class="md-cookie-consent__copy">' +
-      '<p id="mdCookieConsentTitle" class="md-cookie-consent__title">Cookies &amp; analytics</p>' +
-      '<p id="mdCookieConsentDesc" class="md-cookie-consent__text">We use optional cookies for analytics to improve MapDiagram. ' +
-      "Third-party scripts load only if you accept. See our " +
-      '<a href="/privacy-policy/">Privacy Policy</a>.</p>' +
+      '<p id="mdCookieConsentTitle" class="md-cookie-consent__title">Cookie policy</p>' +
+      '<p id="mdCookieConsentDesc" class="md-cookie-consent__text">' +
+      DEFAULT_BANNER_TEXT +
+      "</p>" +
       "</div>" +
       '<div class="md-cookie-consent__actions">' +
       '<button type="button" class="md-cookie-consent__btn md-cookie-consent__btn--decline" data-md-consent="decline">Decline</button>' +
@@ -97,7 +134,6 @@
     });
 
     document.body.appendChild(bannerEl);
-    document.body.classList.add("md-cookie-consent-open");
     requestAnimationFrame(function () {
       if (bannerEl) bannerEl.classList.add("md-cookie-consent--visible");
     });
@@ -110,8 +146,10 @@
       }
       return;
     }
-    if (readConsent() === DENIED) return;
+
+    showOverlay();
     buildBanner();
+    if (readConsent() === DENIED) updateBannerMessage(true);
   }
 
   window.MapDiagramCookieConsent = {
@@ -120,6 +158,9 @@
     getConsent: readConsent,
     hasGranted: hasGrantedConsent,
     showBanner: buildBanner,
+    isOverlayActive: function () {
+      return isOverlayActive;
+    },
   };
 
   if (document.readyState === "loading") {

@@ -1,4 +1,16 @@
 /* Cookie consent — Industrial Matte */
+
+/* Full-screen gatekeeper — transparent blur teaser */
+.md-cookie-consent-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: transparent;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  pointer-events: auto;
+}
+
 .md-cookie-consent {
   position: fixed;
   left: 0;
@@ -59,16 +71,6 @@
   font-size: 13px;
   line-height: 1.55;
   color: #a1a1aa;
-}
-
-.md-cookie-consent__text a {
-  color: #93c5fd;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.md-cookie-consent__text a:hover {
-  color: #bfdbfe;
 }
 
 .md-cookie-consent__actions {
